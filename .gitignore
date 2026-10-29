@@ -1,0 +1,13 @@
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+chroma_data/
+build/staging/*.json
+build/staging/*.csv
+unreal/ProjectAethelgard/Binaries/
+unreal/ProjectAethelgard/DerivedDataCache/
+unreal/ProjectAethelgard/Intermediate/
+unreal/ProjectAethelgard/Saved/
+unreal/ProjectAethelgard/*.sln

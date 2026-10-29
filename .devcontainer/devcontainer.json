@@ -1,0 +1,18 @@
+{
+  "name": "Project Aethelgard - Multi-Agent Runtime",
+  "image": "mcr.microsoft.com/devcontainers/python:1-3.11-bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "version": "latest",
+      "enableDockerBuildKit": true
+    }
+  },
+  "forwardPorts": [8765, 8766, 8000],
+  "portsAttributes": {
+    "8765": { "label": "Cognitive IPC & State Bridge (WS)", "onAutoForward": "notify" },
+    "8766": { "label": "Streaming 24kHz PCM Audio (WS)", "onAutoForward": "silent" },
+    "8000": { "label": "Chroma Vector Database", "onAutoForward": "silent" }
+  },
+  "postCreateCommand": "pip install --upgrade pip setuptools wheel && pip install websockets pydantic chromadb numpy scipy pytest pytest-asyncio ruff mypy && docker run -d --name aethelgard-chroma -p 8000:8000 chromadb/chroma:latest",
+  "remoteUser": "vscode"
+}
