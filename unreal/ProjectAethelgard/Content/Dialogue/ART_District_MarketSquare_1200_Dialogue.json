@@ -1,0 +1,11 @@
+{
+  "speaker_id": "NPC_ALDOUS",
+  "raw_dialogue": "Welcome to my shop. Bread is scarce, but you look like you need a meal. Step inside.",
+  "pad_state": {
+    "P": 0.2,
+    "A": -0.1,
+    "D": 0.3
+  },
+  "target_action": "OFFER_SHELTER_AND_BREAD",
+  "spoken_dialogue": "Flour's up four coppers a sack and the watch is banging on shutters, but I've got two loaves scorched on the hearthstones. Too burnt for the high seats, which means they're free for an empty belly. Get inside the cellar before the truncheons swing."
+}

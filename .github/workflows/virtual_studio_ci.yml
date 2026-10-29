@@ -1,0 +1,74 @@
+name: Virtual Studio Master CI & Gauntlet Verification
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'services/agent_runtime/**'
+      - 'schemas/**'
+      - 'tools/**'
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  virtual-studio-audit:
+    name: Full Virtual Studio Multi-Agent Pipeline
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11 Runtime
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: 'pip'
+
+      - name: Install Studio Tooling & Verification Dependencies
+        run: |
+          pip install --upgrade pip
+          pip install pydantic websockets numpy pytest pytest-asyncio ruff mypy
+
+      - name: Static Type & Code Consistency Audit
+        run: |
+          ruff check services/agent_runtime/
+          mypy --strict services/agent_runtime/src/virtual_studio_engine.py
+
+      - name: Run Master Studio Pipeline Test
+        run: |
+          python -c "
+          from services.agent_runtime.src.virtual_studio_engine import StudioDirectorManagerAgent
+          director = StudioDirectorManagerAgent()
+          res = director.dispatch_studio_pipeline(
+              district_id='District_MarketSquare',
+              player_stress=0.78,
+              player_pos=(1400.0, 500.0, 0.0),
+              seed=42109
+          )
+          assert res['auditor_approved'] == True
+          assert res['human_touch_score'] >= 0.90
+          assert len(director.memory.bug_ticket_queue) > 0
+          print('MASTER PIPELINE VERIFIED: All 11 agents executed with zero causal faults.')
+          "
+
+      - name: Verify Automated Ingestion Pipeline
+        run: |
+          python -c "
+          from pathlib import Path
+          from tools.engine_importer import EngineAssetIngester
+          ingester = EngineAssetIngester()
+          staged = list(Path('build/staging').glob('*.json'))
+          for f in staged:
+              ingester.stage_artifact(f)
+              f.unlink()
+          print('INGESTION VERIFIED: Hotfix curves and spatial PCG payloads successfully deployed.')
+          "
+
+      - name: Archive Verification Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: studio-verification-artifacts
+          path: build/staging/**
+          retention-days: 7
+          

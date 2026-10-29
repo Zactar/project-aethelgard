@@ -1,11 +1,25 @@
+# Python artifacts
 __pycache__/
 *.py[cod]
 *$py.class
-.venv/
+*.so
+.env
 venv/
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ChromaDB local persistence
 chroma_data/
+
+# Virtual Studio build staging
 build/staging/*.json
 build/staging/*.csv
+build/staging/*.h
+build/staging/*.cpp
+
+# Unreal Engine binaries & intermediates
 unreal/ProjectAethelgard/Binaries/
 unreal/ProjectAethelgard/DerivedDataCache/
 unreal/ProjectAethelgard/Intermediate/

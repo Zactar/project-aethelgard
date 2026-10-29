@@ -1,0 +1,143 @@
+{
+  "district_id": "District_OldUndercroft",
+  "district_name": "Oakhaven Market Commons",
+  "nodes": {
+    "NODE_PLAZA": {
+      "node_id": "NODE_PLAZA",
+      "zone_name": "Market Cross Square",
+      "function": "CIVIC_PLAZA",
+      "bounds_min": {
+        "x": -1500.0,
+        "y": -1500.0,
+        "z": 0.0
+      },
+      "bounds_max": {
+        "x": 1500.0,
+        "y": 1500.0,
+        "z": 500.0
+      },
+      "center_location": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "connected_node_ids": [
+        "NODE_APOTHECARY",
+        "NODE_BAKERY"
+      ],
+      "smart_objects": [
+        {
+          "anchor_id": "SO_RALLY",
+          "smart_object_tag": "SmartObject.Civic.RallyPoint",
+          "assigned_npc_id": null,
+          "relative_position": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "interaction_facing_yaw": 0.0
+        }
+      ]
+    },
+    "NODE_APOTHECARY": {
+      "node_id": "NODE_APOTHECARY",
+      "zone_name": "Garrett's Curatives",
+      "function": "COMMERCIAL_STALL",
+      "bounds_min": {
+        "x": 1800.0,
+        "y": -600.0,
+        "z": 0.0
+      },
+      "bounds_max": {
+        "x": 2800.0,
+        "y": 600.0,
+        "z": 400.0
+      },
+      "center_location": {
+        "x": 2300.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "connected_node_ids": [
+        "NODE_PLAZA",
+        "NODE_ALLEY"
+      ],
+      "smart_objects": [
+        {
+          "anchor_id": "SO_GARRETT",
+          "smart_object_tag": "SmartObject.Merchant.ApothecaryCounter",
+          "assigned_npc_id": "NPC_GARRETT",
+          "relative_position": {
+            "x": 2100.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "interaction_facing_yaw": 180.0
+        }
+      ]
+    },
+    "NODE_BAKERY": {
+      "node_id": "NODE_BAKERY",
+      "zone_name": "The Common Loaf",
+      "function": "WORKSHOP_CRAFT",
+      "bounds_min": {
+        "x": -600.0,
+        "y": 1800.0,
+        "z": 0.0
+      },
+      "bounds_max": {
+        "x": 600.0,
+        "y": 2800.0,
+        "z": 400.0
+      },
+      "center_location": {
+        "x": 0.0,
+        "y": 2300.0,
+        "z": 0.0
+      },
+      "connected_node_ids": [
+        "NODE_PLAZA",
+        "NODE_ALLEY"
+      ],
+      "smart_objects": [
+        {
+          "anchor_id": "SO_ALDOUS",
+          "smart_object_tag": "SmartObject.Craft.BreadOven",
+          "assigned_npc_id": "NPC_ALDOUS",
+          "relative_position": {
+            "x": 0.0,
+            "y": 2500.0,
+            "z": 0.0
+          },
+          "interaction_facing_yaw": 90.0
+        }
+      ]
+    },
+    "NODE_ALLEY": {
+      "node_id": "NODE_ALLEY",
+      "zone_name": "Shadowed Drainage Way",
+      "function": "CLANDESTINE_ALLEY",
+      "bounds_min": {
+        "x": 1500.0,
+        "y": 1500.0,
+        "z": 0.0
+      },
+      "bounds_max": {
+        "x": 2200.0,
+        "y": 2200.0,
+        "z": 300.0
+      },
+      "center_location": {
+        "x": 1800.0,
+        "y": 1800.0,
+        "z": 0.0
+      },
+      "connected_node_ids": [
+        "NODE_APOTHECARY",
+        "NODE_BAKERY"
+      ],
+      "smart_objects": []
+    }
+  },
+  "is_topologically_sound": true
+}
