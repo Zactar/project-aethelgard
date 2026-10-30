@@ -29,6 +29,29 @@ ACTIVE_GOALS = [
     )
 ]
 
+SMART_OBJECT_RESPONSES = {
+    "SmartObject.Mechanism.SluiceGate": {
+        "speaker": "AQUEDUCT MECHANISM",
+        "action": "OPERATE_SLUICE_GATE",
+        "dialogue": "Heavy bronze gears groan as you crank the release valve. Subterranean floodwaters hiss and drain into the lower canals, clearing the dry walking path."
+    },
+    "SmartObject.Craft.BreadOven": {
+        "speaker": "NPC_ALDOUS",
+        "action": "INSPECT_COMMUNAL_OVEN",
+        "dialogue": "Careful around the hearthstones—I've got embers banked under the ash. If the cathedral tithe collectors ask, this oven hasn't fired since yesterday."
+    },
+    "SmartObject.Merchant.ApothecaryCounter": {
+        "speaker": "NPC_GARRETT",
+        "action": "BROWSE_CONTRABAND_HERBS",
+        "dialogue": "Keep your hands off the blue jars on the upper rack. That's powdered nightshade from the ridge, and the church watch would hang us both for looking at it."
+    },
+    "SmartObject.Civic.RallyPoint": {
+        "speaker": "MARKET CROSS NOTICE",
+        "action": "EXAMINE_PROCLAMATION",
+        "dialogue": "A freshly stamped parchment from Arch-Prelate Malakor is posted here: 'All unauthorized milling or assembly after the sixth bell carries an immediate tithe penalty.'"
+    }
+}
+
 async def handle_state_ipc(websocket: Any):
     client_addr = getattr(websocket, "remote_address", "unknown")
     logger.info(f"Client connected to State IPC: {client_addr}")
@@ -37,7 +60,29 @@ async def handle_state_ipc(websocket: Any):
             payload = json.loads(message)
             msg_type = payload.get("type", "UNKNOWN")
 
-            if msg_type == "TELEMETRY_INGEST":
+            if msg_type == "SMART_OBJECT_INTERACT":
+                so_tag = payload.get("smart_object_tag", "")
+                so_id = payload.get("smart_object_id", "")
+                logger.info(f"Smart Object Interaction triggered: {so_tag} ({so_id})")
+
+                resp_data = SMART_OBJECT_RESPONSES.get(so_tag, {
+                    "speaker": "WORLD OBJECT",
+                    "action": "INTERACT_GENERIC",
+                    "dialogue": f"You examine {so_id}. The surface is worn from years of continuous guild use."
+                })
+
+                response = {
+                    "status": "PROCESSED",
+                    "artifact_id": f"SO_EVENT_{so_id}",
+                    "dialogue": resp_data["dialogue"],
+                    "target_npc": resp_data["speaker"],
+                    "action": resp_data["action"],
+                    "district_unrest": DIRECTOR.memory.active_district_unrest,
+                    "active_phase": DIRECTOR.memory.active_phase
+                }
+                await websocket.send(json.dumps(response))
+
+            elif msg_type == "TELEMETRY_INGEST":
                 district = payload.get("district_id", "District_MarketSquare")
                 stress = payload.get("player_stress", 0.78)
                 coords = tuple(payload.get("player_coords", [1400.0, 500.0, 0.0]))

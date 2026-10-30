@@ -7,16 +7,22 @@
     body { margin: 0; padding: 0; overflow: hidden; background: #07090e; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #e0e0e0; user-select: none; }
     #canvas-container { width: 100vw; height: 100vh; display: block; }
     #hud {
-      position: absolute; top: 16px; left: 16px; width: 320px;
+      position: absolute; top: 16px; left: 16px; width: 330px;
       background: rgba(13, 17, 24, 0.94); border: 1px solid #283347;
       border-radius: 8px; padding: 14px; box-shadow: 0 8px 24px rgba(0,0,0,0.6); z-index: 10;
     }
     #hud h2 { margin: 0 0 8px 0; font-size: 14px; color: #4facfe; text-transform: uppercase; letter-spacing: 1px; }
     .hud-row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 12px; }
     .hud-val { font-weight: bold; color: #fff; }
-    .minimap-container { margin-top: 10px; border-top: 1px solid #283347; padding-top: 8px; text-align: center; }
+    .minimap-container { margin-top: 8px; border-top: 1px solid #283347; padding-top: 8px; text-align: center; }
     #minimap { background: #0a0d14; border: 1px solid #1f2737; border-radius: 4px; display: block; margin: 0 auto; }
     .instructions { margin-top: 8px; font-size: 11px; color: #8a99ad; line-height: 1.4; text-align: left; }
+    #interaction-toast {
+      position: absolute; top: 24px; left: 50%; transform: translateX(-50%);
+      background: rgba(0, 242, 254, 0.2); border: 1px solid #00f2fe; color: #00f2fe;
+      padding: 8px 24px; border-radius: 20px; font-size: 13px; font-weight: bold;
+      letter-spacing: 0.5px; display: none; z-index: 15; box-shadow: 0 0 16px rgba(0,242,254,0.4);
+    }
     #dialogue-box {
       position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); width: 720px;
       background: rgba(13, 17, 24, 0.96); border: 1px solid #3b4760; border-radius: 8px;
@@ -39,20 +45,23 @@
     <h2>Aethelgard Ground Control</h2>
     <div class="hud-row"><span>District:</span><span id="ui-district" class="hud-val">MarketSquare</span></div>
     <div class="hud-row"><span>Current Room:</span><span id="ui-room" class="hud-val" style="color: #00f2fe;">Plaza</span></div>
-    <div class="hud-row"><span>Unrest / Phase:</span><span id="ui-phase" class="hud-val">0.58 (PEACETIME)</span></div>
-    <div class="hud-row"><span>Smart Object:</span><span id="ui-prompt" class="hud-val" style="color: #f5af19;">None</span></div>
+    <div class="hud-row"><span>Phase:</span><span id="ui-phase" class="hud-val">PEACETIME_COMMERCE</span></div>
+    <div class="hud-row"><span>Prompt:</span><span id="ui-prompt" class="hud-val" style="color: #f5af19;">None</span></div>
     <div class="hud-row"><span>IPC Status:</span><span id="ui-status" class="hud-val" style="color: #ffb300;">Connecting...</span></div>
     <button class="btn" onclick="sendStressTelemetry(0.85)">Trigger Combat Spike (Stress 0.85)</button>
-    <button class="btn" onclick="toggleCameraMode()">Toggle Camera (Chase / Orbit)</button>
+    <button class="btn" onclick="recenterCamera()">Recenter Camera View</button>
     
     <div class="minimap-container">
-      <canvas id="minimap" width="280" height="160"></canvas>
+      <canvas id="minimap" width="280" height="150"></canvas>
       <div class="instructions">
-        • <b>WASD / Arrows</b>: Walk | <b>E</b>: Use Smart Object<br>
-        • <b>Cyan Dot</b>: Player | <b>Yellow Dot</b>: NPC | <b>Pink</b>: Sockets
+        • <b>WASD / Arrows</b>: Walk Player<br>
+        • <b>E Key</b>: Interact with Smart Object<br>
+        • <b>Mouse Left-Drag</b>: Orbit Camera | <b>Scroll</b>: Zoom
       </div>
     </div>
   </div>
+
+  <div id="interaction-toast">ACTIVATING SMART OBJECT...</div>
 
   <div id="dialogue-box">
     <div id="dialogue-speaker">NPC SPEECH</div>
@@ -63,28 +72,32 @@
   <div id="canvas-container"></div>
 
   <script>
-    // 1. Scene & Lighting Setup
+    // 1. Scene, Camera & Lighting Setup
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x07090e);
     scene.fog = new THREE.FogExp2(0x07090e, 0.00015);
 
     const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 10, 35000);
-    camera.position.set(1400, 2200, 2800);
+    camera.position.set(1400, 2400, 2600);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.shadowMap.enabled = true;
     document.getElementById('canvas-container').appendChild(renderer.domElement);
 
+    // Unobtrusive OrbitControls that smoothly follows the player
     const controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
-    controls.enabled = false; // Starts in smooth chase camera mode
+    controls.dampingFactor = 0.12;
+    controls.maxPolarAngle = Math.PI / 2.15; // Prevent camera clipping below floor
+    controls.minDistance = 600;
+    controls.maxDistance = 6000;
+    controls.target.set(1400, 80, 500);
 
-    // Dual Sky/Ground Ambient Illumination
-    const hemiLight = new THREE.HemisphereLight(0x88aaff, 0x1f2430, 0.65);
+    const hemiLight = new THREE.HemisphereLight(0xaaccff, 0x1f2430, 0.75);
     scene.add(hemiLight);
 
-    const sunLight = new THREE.DirectionalLight(0xfff3e0, 0.6);
+    const sunLight = new THREE.DirectionalLight(0xfff3e0, 0.8);
     sunLight.position.set(2000, 4500, 2500);
     scene.add(sunLight);
 
@@ -92,31 +105,39 @@
     grid.position.y = -5;
     scene.add(grid);
 
-    // 2. Entities & Groups
     const architecturalGroup = new THREE.Group();
     scene.add(architecturalGroup);
 
     const labelGroup = new THREE.Group();
     scene.add(labelGroup);
 
-    // Player Mesh (Cyan Cylinder with direction visor)
+    const smartObjectRings = [];
+
+    // 2. Player Entity Construction (Clear Forward Facing)
     const playerGroup = new THREE.Group();
+
+    // Body Cylinder
     const playerBody = new THREE.Mesh(
       new THREE.CylinderGeometry(60, 60, 160, 16),
-      new THREE.MeshLambertMaterial({ color: 0x00f2fe, emissive: 0x004455 })
+      new THREE.MeshLambertMaterial({ color: 0x00f2fe, emissive: 0x003344 })
     );
     playerBody.position.y = 80;
     playerGroup.add(playerBody);
+
+    // Front Visor / Arrow Cone (Points along -Z, our base model forward direction)
+    const arrowGeo = new THREE.ConeGeometry(25, 60, 12);
+    arrowGeo.rotateX(-Math.PI / 2); // Point arrow forward along -Z
     const playerVisor = new THREE.Mesh(
-      new THREE.BoxGeometry(40, 20, 40),
-      new THREE.MeshBasicMaterial({ color: 0xffffff })
+      arrowGeo,
+      new THREE.MeshLambertMaterial({ color: 0xffd700, emissive: 0x554400 })
     );
-    playerVisor.position.set(0, 120, -45);
+    playerVisor.position.set(0, 100, -65);
     playerGroup.add(playerVisor);
+
     playerGroup.position.set(1400, 0, 500);
     scene.add(playerGroup);
 
-    // NPC Aldous Mesh (Amber Cylinder)
+    // NPC Aldous Entity
     const npcMesh = new THREE.Mesh(
       new THREE.CylinderGeometry(60, 60, 160, 16),
       new THREE.MeshLambertMaterial({ color: 0xf5af19, emissive: 0x442200 })
@@ -124,13 +145,10 @@
     npcMesh.position.set(0, 80, 2300);
     scene.add(npcMesh);
 
-    // Dynamic Tracking State
     let activeRooms = {};
     let activeSmartObjects = [];
-    let isChaseCam = true;
     const keys = { w: false, a: false, s: false, d: false };
 
-    // 3. Floating 3D Text Label Builder
     function makeBillboardText(text, x, y, z, color = "#4facfe") {
       const canvas = document.createElement('canvas');
       canvas.width = 512;
@@ -150,15 +168,14 @@
       ctx.fillText(text, 256, 64);
 
       const texture = new THREE.CanvasTexture(canvas);
-      const mat = new THREE.SpriteMaterial({ map: texture, transparent: true });
-      const sprite = new THREE.Sprite(mat);
+      const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture, transparent: true }));
       sprite.position.set(x, y, z);
       sprite.scale.set(600, 150, 1);
       labelGroup.add(sprite);
       return sprite;
     }
 
-    // 4. Open-Top Cutaway Architectural Room Builder
+    // 3. Open-Top Cutaway Architectural Room Builder
     function buildCutawayRoom(nodeId, nodeData) {
       const min = nodeData.bounds_min;
       const max = nodeData.bounds_max;
@@ -168,7 +185,6 @@
       const isCatacomb = nodeId.includes("AQUEDUCT");
       const floorY = center.z;
 
-      // Color Palette by Zone
       let floorColor = 0x181e2b;
       let curbColor = 0x2e3b52;
       let labelColor = "#4facfe";
@@ -187,79 +203,90 @@
         labelColor = "#26de81";
       }
 
-      // A. Floor Slab (Solid, illuminated from above)
+      // Floor Slab
       const floorGeo = new THREE.BoxGeometry(width, 16, depth);
-      const floorMat = new THREE.MeshLambertMaterial({ color: floorColor });
-      const floorMesh = new THREE.Mesh(floorGeo, floorMat);
+      const floorMesh = new THREE.Mesh(floorGeo, new THREE.MeshLambertMaterial({ color: floorColor }));
       floorMesh.position.set(center.x, floorY, center.y);
       architecturalGroup.add(floorMesh);
 
-      // Floor Perimeter Wire
-      const floorEdges = new THREE.EdgesGeometry(floorGeo);
-      floorMesh.add(new THREE.LineSegments(floorEdges, new THREE.LineBasicMaterial({ color: curbColor, linewidth: 2 })));
-
-      // B. Low-Profile Cutaway Perimeter Curbs (Waist-high: 70cm, keeping interiors 100% visible)
+      // Low Waist-High Perimeter Curbs (70cm height keeps interior visible)
       const curbHeight = 70;
       const curbThickness = 24;
       const curbMat = new THREE.MeshLambertMaterial({ color: curbColor });
 
-      // North & South Curbs
-      const nsCurbGeo = new THREE.BoxGeometry(width, curbHeight, curbThickness);
-      const northCurb = new THREE.Mesh(nsCurbGeo, curbMat);
-      northCurb.position.set(center.x, floorY + (curbHeight / 2), center.y - (depth / 2));
-      architecturalGroup.add(northCurb);
+      const nsGeo = new THREE.BoxGeometry(width, curbHeight, curbThickness);
+      const nCurb = new THREE.Mesh(nsGeo, curbMat);
+      nCurb.position.set(center.x, floorY + (curbHeight / 2), center.y - (depth / 2));
+      architecturalGroup.add(nCurb);
 
-      const southCurb = new THREE.Mesh(nsCurbGeo, curbMat);
-      southCurb.position.set(center.x, floorY + (curbHeight / 2), center.y + (depth / 2));
-      architecturalGroup.add(southCurb);
+      const sCurb = new THREE.Mesh(nsGeo, curbMat);
+      sCurb.position.set(center.x, floorY + (curbHeight / 2), center.y + (depth / 2));
+      architecturalGroup.add(sCurb);
 
-      // East & West Curbs
-      const ewCurbGeo = new THREE.BoxGeometry(curbThickness, curbHeight, depth);
-      const westCurb = new THREE.Mesh(ewCurbGeo, curbMat);
-      westCurb.position.set(center.x - (width / 2), floorY + (curbHeight / 2), center.y);
-      architecturalGroup.add(westCurb);
+      const ewGeo = new THREE.BoxGeometry(curbThickness, curbHeight, depth);
+      const wCurb = new THREE.Mesh(ewGeo, curbMat);
+      wCurb.position.set(center.x - (width / 2), floorY + (curbHeight / 2), center.y);
+      architecturalGroup.add(wCurb);
 
-      const eastCurb = new THREE.Mesh(ewCurbGeo, curbMat);
-      eastCurb.position.set(center.x + (width / 2), floorY + (curbHeight / 2), center.y);
-      architecturalGroup.add(eastCurb);
+      const eCurb = new THREE.Mesh(ewGeo, curbMat);
+      eCurb.position.set(center.x + (width / 2), floorY + (curbHeight / 2), center.y);
+      architecturalGroup.add(eCurb);
 
-      // C. Floating Zone Name Billboard
+      // Floating Room Title
       makeBillboardText(nodeData.zone_name, center.x, floorY + 380, center.y, labelColor);
 
-      // D. Smart Object Workstations & Dedicated Point Lights
+      // Smart Object Workstations & Ground Indicator Rings
       if (nodeData.smart_objects) {
         nodeData.smart_objects.forEach(so => {
-          const soGeo = new THREE.BoxGeometry(100, 120, 100);
-          const soColor = isCatacomb ? 0x00f2fe : (nodeId.includes("BAKERY") ? 0xff7b25 : 0xff007f);
-          const soMat = new THREE.MeshLambertMaterial({ color: soColor, emissive: soColor, emissiveIntensity: 0.3 });
-          const soMesh = new THREE.Mesh(soGeo, soMat);
           const soPos = { x: so.relative_position.x, y: floorY + 60, z: so.relative_position.y };
+          const soColor = isCatacomb ? 0x00f2fe : (nodeId.includes("BAKERY") ? 0xff7b25 : 0xff007f);
+
+          // Workstation Box
+          const soGeo = new THREE.BoxGeometry(110, 120, 110);
+          const soMat = new THREE.MeshLambertMaterial({ color: soColor, emissive: soColor, emissiveIntensity: 0.35 });
+          const soMesh = new THREE.Mesh(soGeo, soMat);
           soMesh.position.set(soPos.x, soPos.y, soPos.z);
           architecturalGroup.add(soMesh);
 
-          // Local Lantern Light over Interactive Sockets
-          const lantern = new THREE.PointLight(soColor, 1.2, 1200);
-          lantern.position.set(soPos.x, floorY + 180, soPos.y);
+          // Local Lantern Light
+          const lantern = new THREE.PointLight(soColor, 1.4, 1400);
+          lantern.position.set(soPos.x, floorY + 200, soPos.y);
           architecturalGroup.add(lantern);
 
-          activeSmartObjects.push({ tag: so.smart_object_tag, anchor_id: so.anchor_id, pos: soPos });
+          // Pulsing Floor Ring Indicator (Interaction Boundary: Radius 450)
+          const ringGeo = new THREE.RingGeometry(400, 450, 32);
+          ringGeo.rotateX(-Math.PI / 2);
+          const ringMat = new THREE.MeshBasicMaterial({ color: soColor, side: THREE.DoubleSide, transparent: true, opacity: 0.35 });
+          const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+          ringMesh.position.set(soPos.x, floorY + 8, soPos.y);
+          architecturalGroup.add(ringMesh);
+          smartObjectRings.push(ringMesh);
+
+          // Floating Label
+          const tagShortName = so.smart_object_tag.split('.').pop();
+          makeBillboardText(`[E] ${tagShortName}`, soPos.x, floorY + 240, soPos.z, "#ffffff");
+
+          activeSmartObjects.push({
+            tag: so.smart_object_tag,
+            anchor_id: so.anchor_id,
+            mesh: soMesh,
+            pos: soPos
+          });
         });
       }
     }
 
-    // 5. Build Dynamic Passage Arches Between Connected Nodes
     function buildPassageLinks(nodes) {
       const lineMat = new THREE.LineDashedMaterial({ color: 0x4facfe, dashSize: 60, gapSize: 30, linewidth: 2 });
       for (const [nodeId, nodeData] of Object.entries(nodes)) {
         nodeData.connected_node_ids.forEach(targetId => {
-          if (nodes[targetId] && nodeId < targetId) { // Prevent duplicates
+          if (nodes[targetId] && nodeId < targetId) {
             const start = nodeData.center_location;
             const end = nodes[targetId].center_location;
-            const points = [
+            const geo = new THREE.BufferGeometry().setFromPoints([
               new THREE.Vector3(start.x, start.z + 10, start.y),
               new THREE.Vector3(end.x, end.z + 10, end.y)
-            ];
-            const geo = new THREE.BufferGeometry().setFromPoints(points);
+            ]);
             const line = new THREE.Line(geo, lineMat);
             line.computeLineDistances();
             architecturalGroup.add(line);
@@ -268,7 +295,7 @@
       }
     }
 
-    // 6. Real-Time Top-Down 2D Minimap Radar
+    // 4. Real-Time Top-Down Minimap Radar
     const mapCanvas = document.getElementById("minimap");
     const mapCtx = mapCanvas.getContext("2d");
 
@@ -280,7 +307,6 @@
       const offsetX = mapCanvas.width / 2;
       const offsetY = mapCanvas.height / 2;
 
-      // Draw Rooms
       for (const [nodeId, node] of Object.entries(activeRooms)) {
         const min = node.bounds_min;
         const max = node.bounds_max;
@@ -289,39 +315,29 @@
         const rw = Math.abs(max.x - min.x) * scale;
         const rh = Math.abs(max.y - min.y) * scale;
 
-        mapCtx.fillStyle = nodeId.includes("AQUEDUCT") ? "rgba(0, 168, 204, 0.35)" : "rgba(40, 51, 71, 0.4)";
+        mapCtx.fillStyle = nodeId.includes("AQUEDUCT") ? "rgba(0, 168, 204, 0.4)" : "rgba(40, 51, 71, 0.45)";
         mapCtx.strokeStyle = nodeId.includes("AQUEDUCT") ? "#00f2fe" : "#3b4760";
-        mapCtx.lineWidth = 1;
         mapCtx.fillRect(rx, ry, rw, rh);
         mapCtx.strokeRect(rx, ry, rw, rh);
       }
 
-      // Draw Smart Objects
       activeSmartObjects.forEach(so => {
-        const sx = (so.pos.x * scale) + offsetX;
-        const sy = (so.pos.z * scale) + offsetY;
         mapCtx.fillStyle = "#ff007f";
-        mapCtx.fillRect(sx - 2, sy - 2, 4, 4);
+        mapCtx.fillRect((so.pos.x * scale) + offsetX - 2, (so.pos.z * scale) + offsetY - 2, 5, 5);
       });
 
-      // Draw Aldous NPC Dot
-      const nx = (npcMesh.position.x * scale) + offsetX;
-      const ny = (npcMesh.position.z * scale) + offsetY;
       mapCtx.fillStyle = "#f5af19";
       mapCtx.beginPath();
-      mapCtx.arc(nx, ny, 4, 0, Math.PI * 2);
+      mapCtx.arc((npcMesh.position.x * scale) + offsetX, (npcMesh.position.z * scale) + offsetY, 4, 0, Math.PI * 2);
       mapCtx.fill();
 
-      // Draw Player Dot
-      const px = (playerGroup.position.x * scale) + offsetX;
-      const py = (playerGroup.position.z * scale) + offsetY;
       mapCtx.fillStyle = "#00f2fe";
       mapCtx.beginPath();
-      mapCtx.arc(px, py, 5, 0, Math.PI * 2);
+      mapCtx.arc((playerGroup.position.x * scale) + offsetX, (playerGroup.position.z * scale) + offsetY, 5, 0, Math.PI * 2);
       mapCtx.fill();
     }
 
-    // 7. WebSocket State Bridge (Port 8765)
+    // 5. WebSocket IPC Bridge (Port 8765)
     let socket = null;
     function connectWS() {
       let wsUrl;
@@ -356,12 +372,13 @@
           document.getElementById('dialogue-box').style.display = 'block';
 
           if (data.district_unrest !== undefined) {
-            document.getElementById('ui-phase').innerText = `${data.district_unrest.toFixed(2)} (${data.active_phase || 'PEACETIME'})`;
+            document.getElementById('ui-phase').innerText = `${data.active_phase} (${data.district_unrest.toFixed(2)})`;
           }
 
           if (data.spatial_layout && data.spatial_layout.nodes) {
             activeRooms = data.spatial_layout.nodes;
             activeSmartObjects = [];
+            smartObjectRings.length = 0;
             while (architecturalGroup.children.length > 0) architecturalGroup.remove(architecturalGroup.children[0]);
             while (labelGroup.children.length > 0) labelGroup.remove(labelGroup.children[0]);
 
@@ -377,38 +394,63 @@
 
     function sendStressTelemetry(stress) {
       if (!socket || socket.readyState !== WebSocket.OPEN) return;
-      const packet = {
+      socket.send(JSON.stringify({
         type: "TELEMETRY_INGEST",
         district_id: "District_MarketSquare",
         player_stress: stress,
         player_coords: [playerGroup.position.x, playerGroup.position.z, playerGroup.position.y],
         seed: Math.floor(Math.random() * 90000)
-      };
-      socket.send(JSON.stringify(packet));
+      }));
     }
 
-    function toggleCameraMode() {
-      isChaseCam = !isChaseCam;
-      controls.enabled = !isChaseCam;
+    function triggerSmartObjectInteraction(so) {
+      if (!socket || socket.readyState !== WebSocket.OPEN) return;
+
+      // Visual flash on object mesh
+      if (so.mesh) {
+        so.mesh.material.emissiveIntensity = 1.0;
+        setTimeout(() => { if (so.mesh) so.mesh.material.emissiveIntensity = 0.35; }, 400);
+      }
+
+      // Show temporary HUD toast
+      const toast = document.getElementById('interaction-toast');
+      toast.innerText = `ACTIVATED: ${so.anchor_id}`;
+      toast.style.display = 'block';
+      setTimeout(() => { toast.style.display = 'none'; }, 2200);
+
+      // Dispatch explicit smart object interaction
+      socket.send(JSON.stringify({
+        type: "SMART_OBJECT_INTERACT",
+        smart_object_id: so.anchor_id,
+        smart_object_tag: so.tag,
+        district_id: "District_MarketSquare",
+        player_coords: [playerGroup.position.x, playerGroup.position.z, playerGroup.position.y]
+      }));
     }
 
-    // 8. Keyboard Controller & Proximity Auditing
+    function recenterCamera() {
+      controls.target.set(playerGroup.position.x, playerGroup.position.y + 80, playerGroup.position.z);
+      camera.position.set(playerGroup.position.x, playerGroup.position.y + 2200, playerGroup.position.z + 2400);
+      controls.update();
+    }
+
+    // 6. Keyboard & Proximity Handling
     window.addEventListener('keydown', (e) => {
       const k = e.key.toLowerCase();
       if (k === 'w' || k === 'arrowup') keys.w = true;
       if (k === 'a' || k === 'arrowleft') keys.a = true;
       if (k === 's' || k === 'arrowdown') keys.s = true;
       if (k === 'd' || k === 'arrowright') keys.d = true;
-      if (k === 'c') toggleCameraMode();
+      if (k === ' ') recenterCamera();
       if (k === 'e') {
         let nearest = null;
-        let minDist = 350.0;
+        let minDist = 480.0; // Expanded, generous activation distance
         activeSmartObjects.forEach(so => {
           const d = Math.hypot(playerGroup.position.x - so.pos.x, playerGroup.position.z - so.pos.z);
           if (d < minDist) { nearest = so; minDist = d; }
         });
         if (nearest) {
-          sendStressTelemetry(0.82);
+          triggerSmartObjectInteraction(nearest);
         }
       }
     });
@@ -421,6 +463,7 @@
       if (k === 'd' || k === 'arrowright') keys.d = false;
     });
 
+    // 7. Movement & Camera Physics Loop
     function updatePlayer(delta) {
       const speed = 1400.0 * delta;
       let dx = 0, dz = 0;
@@ -432,10 +475,22 @@
       if (dx !== 0 || dz !== 0) {
         playerGroup.position.x += dx;
         playerGroup.position.z += dz;
-        playerGroup.rotation.y = Math.atan2(dx, dz);
+
+        // FIXED ORIENTATION: Faces forward when pressing W (towards -Z)
+        const targetRotation = Math.atan2(-dx, -dz);
+        let diff = targetRotation - playerGroup.rotation.y;
+        while (diff < -Math.PI) diff += Math.PI * 2;
+        while (diff > Math.PI) diff -= Math.PI * 2;
+        playerGroup.rotation.y += diff * 0.25;
+
+        // Unobtrusive camera pan with player movement
+        camera.position.x += dx;
+        camera.position.z += dz;
+        controls.target.x += dx;
+        controls.target.z += dz;
       }
 
-      // Check Active Room Boundaries & Elevation (Catacomb Drop)
+      // Check Room Boundary and Elevation
       let currentRoomName = "Outdoor Alleyways";
       let targetElevation = 0;
 
@@ -450,31 +505,22 @@
         }
       }
 
-      // Smooth step elevation transition
       playerGroup.position.y += (targetElevation - playerGroup.position.y) * 0.15;
+      controls.target.y = playerGroup.position.y + 80;
       document.getElementById('ui-room').innerText = currentRoomName;
 
-      // Smart Object Prompt Check
+      // Smart Object Proximity Check (Radius 480)
       let promptText = "None";
       activeSmartObjects.forEach(so => {
         const dist = Math.hypot(playerGroup.position.x - so.pos.x, playerGroup.position.z - so.pos.z);
-        if (dist < 320.0) promptText = `${so.tag.split('.').pop()} [Press E]`;
+        if (dist < 480.0) {
+          promptText = `${so.anchor_id} [Press E]`;
+        }
       });
       document.getElementById('ui-prompt').innerText = promptText;
-
-      // Smooth Isometric Chase Camera
-      if (isChaseCam) {
-        const targetCamX = playerGroup.position.x;
-        const targetCamY = playerGroup.position.y + 1600;
-        const targetCamZ = playerGroup.position.z + 1800;
-        camera.position.x += (targetCamX - camera.position.x) * 0.08;
-        camera.position.y += (targetCamY - camera.position.y) * 0.08;
-        camera.position.z += (targetCamZ - camera.position.z) * 0.08;
-        camera.lookAt(playerGroup.position.x, playerGroup.position.y + 60, playerGroup.position.z);
-      }
     }
 
-    // 9. Main Render Loop
+    // 8. Main Render & Animation Loop
     let lastTime = performance.now();
     function animate() {
       requestAnimationFrame(animate);
@@ -483,7 +529,12 @@
       lastTime = now;
 
       updatePlayer(delta);
-      if (!isChaseCam) controls.update();
+
+      // Pulse Smart Object floor rings
+      const pulse = 0.25 + 0.15 * Math.sin(now * 0.005);
+      smartObjectRings.forEach(r => { r.material.opacity = pulse; });
+
+      controls.update();
       renderer.render(scene, camera);
       renderMinimap();
     }
