@@ -1,0 +1,48 @@
+{
+  "rfc_id": "RFC-AUTO-1793351514-GOAL-W14-01",
+  "title": "Author Contraband Asset: Forged Tithe Seal",
+  "description": "Economic asset authored to support goal: Artisan Guild Smuggling Ring & Tithe Evasion",
+  "submitted_by": "Systems_Architect",
+  "change_type": "NEW_ITEM",
+  "payload_diff": {
+    "item": {
+      "item_id": "item_vault_seal_1400",
+      "display_name": "Forged Tithe Seal",
+      "category": "CONTRABAND",
+      "base_value": 42.0,
+      "description": "Counterfeit church wax seal bypassing granary inspection posts.",
+      "icon_symbol": "📜",
+      "effects": {
+        "stealth_bonus": 0.4,
+        "duration_sec": 20.0
+      }
+    }
+  },
+  "status": "DEPLOYED",
+  "review_votes": [
+    {
+      "agent_id": "Systems_Architect",
+      "approved": true,
+      "score": 0.95,
+      "comments": "Balanced economic payload.",
+      "flagged_risks": []
+    },
+    {
+      "agent_id": "Lore_Auditor",
+      "approved": true,
+      "score": 0.98,
+      "comments": "Complies with canon dogmas.",
+      "flagged_risks": []
+    },
+    {
+      "agent_id": "Chaos_Commander",
+      "approved": true,
+      "score": 0.95,
+      "comments": "Passed stress test.",
+      "flagged_risks": []
+    }
+  ],
+  "rejection_reasons": [],
+  "created_at": 1793351514.2601748,
+  "resolved_at": 1793351514.260277
+}

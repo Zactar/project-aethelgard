@@ -1,12 +1,19 @@
-from schemas.studio_contracts import SprintGoal
+#!/usr/bin/env python3
+"""
+PROJECT AETHELGARD: WEBSOCKET STATE & BROADCAST IPC SERVER
+Handles live client telemetry, smart object interactions, sound cue dispatch,
+and hot-reload manifest broadcasts.
+"""
+
 from services.agent_runtime.src.virtual_studio_engine import StudioDirectorManagerAgent
-import websockets
-from typing import Set, Any
-import logging
-import json
+from schemas.studio_contracts import SprintGoal
 import asyncio
-import sys
+import json
+import logging
 from pathlib import Path
+import sys
+from typing import Any, Set
+import websockets
 
 ROOT_DIR = Path(__file__).resolve().parents[3]
 if str(ROOT_DIR) not in sys.path:
@@ -128,11 +135,24 @@ async def handle_state_ipc(websocket: Any, *args, **kwargs):
                 so_id = payload.get("smart_object_id", "")
                 logger.info(f"Smart Object Interaction: {so_tag} ({so_id})")
 
+                # Authoritatively advance quest
+                advanced, finished_quest, quest_reward = DIRECTOR.memory.advance_quest_objective(
+                    so_id, so_tag)
+
                 resp_data = SMART_OBJECT_RESPONSES.get(so_tag, {
                     "speaker": "WORLD OBJECT",
                     "action": "INTERACT_GENERIC",
                     "dialogue": f"You examine {so_id}."
                 })
+
+                granted_item = quest_reward
+                if not granted_item and "SmugglerCache" in so_tag:
+                    granted_item = "item_forged_permit"
+
+                sound_freq = 180.0 if ("Mechanism" in so_tag or "Sluice" in so_tag) else (
+                    260.0 if "Craft" in so_tag else 380.0)
+                updated_manifest = DIRECTOR.build_live_manifest(
+                    "District_MarketSquare")
 
                 response = {
                     "status": "PROCESSED",
@@ -140,7 +160,93 @@ async def handle_state_ipc(websocket: Any, *args, **kwargs):
                     "dialogue": resp_data["dialogue"],
                     "target_npc": resp_data["speaker"],
                     "action": resp_data["action"],
-                    "advance_objective_tag": so_tag
+                    "advance_objective_tag": so_tag,
+                    "granted_item_id": granted_item,
+                    "quest_completed": bool(finished_quest and finished_quest.is_completed),
+                    "completion_debrief": finished_quest.completion_debrief if (finished_quest and finished_quest.is_completed) else "",
+                    "sound_cue": {
+                        "category": "INTERACTION_MECHANISM",
+                        "base_frequency": sound_freq,
+                        "duration_sec": 0.45,
+                        "gain": 0.7
+                    },
+                    "game_runtime_manifest": updated_manifest
+                }
+                await websocket.send(json.dumps(response))
+                await broadcast_runtime_manifest(updated_manifest)
+
+            elif msg_type == "NPC_INTERACT":
+                npc_id = payload.get("npc_id", "")
+                logger.info(f"NPC Interaction: {npc_id}")
+
+                advanced, finished_quest, quest_reward = DIRECTOR.memory.advance_quest_objective(
+                    npc_id)
+
+                # Fetch NPC dialogue
+                manifest_path = ROOT_DIR / "web_client" / "game_runtime_manifest.json"
+                dialogue = "Greetings, traveler."
+                speaker = npc_id
+                role = "CITIZEN"
+
+                if manifest_path.exists():
+                    try:
+                        m_data = json.loads(
+                            manifest_path.read_text(encoding="utf-8"))
+                        npc_data = m_data.get("npcs", {}).get(npc_id, {})
+                        dialogue = npc_data.get("default_dialogue", dialogue)
+                        speaker = npc_data.get("name", npc_id)
+                        role = npc_data.get("role", role)
+                    except Exception:
+                        pass
+
+                updated_manifest = DIRECTOR.build_live_manifest(
+                    "District_MarketSquare")
+
+                response = {
+                    "status": "PROCESSED",
+                    "artifact_id": f"NPC_EVENT_{npc_id}",
+                    "dialogue": dialogue,
+                    "target_npc": speaker,
+                    "action": f"CONVERSATION_{role.upper().replace(' ', '_')}",
+                    "granted_item_id": quest_reward,
+                    "quest_completed": bool(finished_quest and finished_quest.is_completed),
+                    "completion_debrief": finished_quest.completion_debrief if (finished_quest and finished_quest.is_completed) else "",
+                    "game_runtime_manifest": updated_manifest
+                }
+                await websocket.send(json.dumps(response))
+                await broadcast_runtime_manifest(updated_manifest)
+
+                # Determine dynamic item drops
+                granted_item = None
+                manifest_path = ROOT_DIR / "web_client" / "game_runtime_manifest.json"
+                if manifest_path.exists() and "SmugglerCache" in so_tag:
+                    try:
+                        m_data = json.loads(
+                            manifest_path.read_text(encoding="utf-8"))
+                        item_ids = [k for k in m_data.get("items", {}).keys(
+                        ) if "proc" in k or "contraband" in k or "permit" in k]
+                        if item_ids:
+                            granted_item = item_ids[-1]
+                    except Exception:
+                        pass
+
+                sound_freq = 180.0 if ("Mechanism" in so_tag or "Sluice" in so_tag) else (
+                    260.0 if "Craft" in so_tag else 380.0)
+
+                response = {
+                    "status": "PROCESSED",
+                    "artifact_id": f"SO_EVENT_{so_id}",
+                    "dialogue": resp_data["dialogue"],
+                    "target_npc": resp_data["speaker"],
+                    "action": resp_data["action"],
+                    "advance_objective_tag": so_tag,
+                    "granted_item_id": granted_item,
+                    "sound_cue": {
+                        "category": "INTERACTION_MECHANISM",
+                        "base_frequency": sound_freq,
+                        "duration_sec": 0.45,
+                        "gain": 0.7
+                    }
                 }
                 await websocket.send(json.dumps(response))
 
@@ -149,10 +255,13 @@ async def handle_state_ipc(websocket: Any, *args, **kwargs):
 
             elif msg_type == "HEARTBEAT":
                 await websocket.send(json.dumps({"type": "PONG", "time": DIRECTOR.memory.world_time}))
+
     except websockets.exceptions.ConnectionClosedOK:
         pass
     except websockets.exceptions.ConnectionClosedError:
         pass
+    except Exception as e:
+        logger.warning(f"Error handling IPC message: {e}")
     finally:
         CONNECTED_CLIENTS.discard(websocket)
         logger.info(
@@ -164,6 +273,7 @@ async def main():
     logger.info(
         "Virtual Studio State & Broadcast Server live on ws://0.0.0.0:8765")
     await server.wait_closed()
+
 
 if __name__ == "__main__":
     try:

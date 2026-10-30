@@ -1,11 +1,11 @@
 {
   "speaker_id": "NPC_GARRETT",
-  "raw_dialogue": "Welcome to my shop. Bread is scarce, but you look like you need a meal. Step inside.",
+  "raw_dialogue": "I know what you took from the drying racks.",
   "pad_state": {
-    "P": 0.2,
-    "A": -0.1,
-    "D": 0.3
+    "P": -0.2,
+    "A": 0.4,
+    "D": 0.1
   },
   "target_action": "CONFRONT_THEFT",
-  "spoken_dialogue": "Welcome to my shop. Bread is scarce, but you look like you need a meal. Step inside."
+  "spoken_dialogue": "I know what you took from the drying racks."
 }

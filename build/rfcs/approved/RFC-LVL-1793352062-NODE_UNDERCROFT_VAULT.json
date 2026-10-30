@@ -1,0 +1,72 @@
+{
+  "rfc_id": "RFC-LVL-1793352062-NODE_UNDERCROFT_VAULT",
+  "title": "Construct Zone: Old Undercroft Vaults",
+  "description": "Level Architect authored contiguous zone expansion linked to Subterranean Aqueduct Conduit.",
+  "submitted_by": "Level_Architect",
+  "change_type": "NEW_ROOM_NODE",
+  "payload_diff": {
+    "node": {
+      "node_id": "NODE_UNDERCROFT_VAULT",
+      "zone_name": "Old Undercroft Vaults",
+      "function": "CLANDESTINE_STORAGE",
+      "bounds_min": {
+        "x": 1600.0,
+        "y": 1800.0,
+        "z": -250.0
+      },
+      "bounds_max": {
+        "x": 2800.0,
+        "y": 2800.0,
+        "z": 100.0
+      },
+      "center_location": {
+        "x": 2200.0,
+        "y": 2300.0,
+        "z": -250.0
+      },
+      "connected_node_ids": [
+        "NODE_AQUEDUCT_CATACOMBS"
+      ],
+      "smart_objects": [
+        {
+          "anchor_id": "SO_SMUGGLER_CACHE",
+          "smart_object_tag": "SmartObject.Container.SmugglerCache",
+          "assigned_npc_id": null,
+          "relative_position": {
+            "x": 2200.0,
+            "y": 2300.0,
+            "z": -250.0
+          },
+          "interaction_facing_yaw": 0.0
+        }
+      ]
+    }
+  },
+  "status": "DEPLOYED",
+  "review_votes": [
+    {
+      "agent_id": "Level_Architect",
+      "approved": true,
+      "score": 0.92,
+      "comments": "Spatial boundary verified.",
+      "flagged_risks": []
+    },
+    {
+      "agent_id": "Lore_Auditor",
+      "approved": true,
+      "score": 0.98,
+      "comments": "Complies with canon dogmas.",
+      "flagged_risks": []
+    },
+    {
+      "agent_id": "Chaos_Commander",
+      "approved": true,
+      "score": 0.95,
+      "comments": "Passed stress test.",
+      "flagged_risks": []
+    }
+  ],
+  "rejection_reasons": [],
+  "created_at": 1793352062.6195378,
+  "resolved_at": 1793352062.6196172
+}

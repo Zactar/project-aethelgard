@@ -1,11 +1,11 @@
 {
-  "speaker_id": "NPC_GARRETT",
-  "raw_dialogue": "Welcome to my shop. Bread is scarce, but you look like you need a meal. Step inside.",
+  "speaker_id": "NPC_ALDOUS",
+  "raw_dialogue": "Quick, into the bakery cellar before the street patrol circles back!",
   "pad_state": {
-    "P": 0.2,
-    "A": -0.1,
-    "D": 0.3
+    "P": -0.2,
+    "A": 0.4,
+    "D": 0.1
   },
-  "target_action": "CONFRONT_THEFT",
-  "spoken_dialogue": "Welcome to my shop. Bread is scarce, but you look like you need a meal. Step inside."
+  "target_action": "OFFER_SHELTER_AND_BREAD",
+  "spoken_dialogue": "Flour's up another four coppers and church guards are pounding on shutters. I've got two charred loaves off the hearthstones. Grab 'em and get down into the drainage vault."
 }

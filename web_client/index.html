@@ -756,7 +756,23 @@
           g.position.set(npcData.position.x, npcData.position.z, npcData.position.y);
           npcActorGroup.add(g);
 
-          const sprite = makeBillboardText(npcData.name, npcData.position.x, npcData.position.z + 240, npcData.position.y, "#f5af19");
+          // Nameplate billboard attached DIRECTLY to g at local offset (0, 240, 0)
+          const canvas = document.createElement('canvas');
+          canvas.width = 512; canvas.height = 128;
+          const ctx = canvas.getContext('2d');
+          ctx.fillStyle = "rgba(10, 14, 22, 0.78)";
+          ctx.strokeStyle = "#f5af19"; ctx.lineWidth = 4;
+          ctx.roundRect(10, 10, 492, 108, 16);
+          ctx.fill(); ctx.stroke();
+          ctx.font = "bold 42px sans-serif";
+          ctx.fillStyle = "#f5af19"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+          ctx.fillText(npcData.name, 256, 64);
+
+          const texture = new THREE.CanvasTexture(canvas);
+          const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture, transparent: true }));
+          sprite.position.set(0, 240, 0);
+          sprite.scale.set(580, 145, 1);
+          g.add(sprite); // Direct child of g ensures 1:1 movement
 
           const waypoints = (npcData.patrol_waypoints && npcData.patrol_waypoints.length > 0)
             ? npcData.patrol_waypoints.map(w => ({ x: w.x, y: w.z, z: w.y }))
@@ -768,7 +784,6 @@
             waypoints: waypoints,
             currentWpIndex: 0,
             dwellTimer: 2.0 + Math.random() * 4.0,
-            isEngaged: false,
             animPhase: Math.random() * Math.PI * 2
           };
           renderedNpcMap.set(npcId, actorRec);
@@ -871,11 +886,14 @@
     // =========================================================================
     function renderQuestHUD() {
       if (!activeQuests || activeQuests.length === 0) return;
-      const q = activeQuests[currentQuestIndex % activeQuests.length];
       const c = document.getElementById('quest-content');
-      let html = `<div class="quest-title">${q.title}</div>`;
-      html += `<div class="quest-desc">${q.synopsis}</div>`;
-      (q.objectives || []).forEach(obj => {
+
+      // Find first uncompleted quest
+      let activeQ = activeQuests.find(q => !q.is_completed) || activeQuests[activeQuests.length - 1];
+
+      let html = `<div class="quest-title">${activeQ.title}</div>`;
+      html += `<div class="quest-desc">${activeQ.synopsis}</div>`;
+      (activeQ.objectives || []).forEach(obj => {
         html += `<div class="obj-item ${obj.status}">${obj.description}</div>`;
       });
       c.innerHTML = html;
@@ -1070,33 +1088,14 @@
         setTimeout(connectWS, 2500);
       };
 
-      socket.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-
-        if (data.status === "LIVE_HOT_RELOAD" || data.status === "PROCESSED") {
-          if (data.dialogue) {
-            document.getElementById('dialogue-speaker').innerText = data.target_npc;
-            document.getElementById('dialogue-text').innerText = `"${data.dialogue}"`;
-            document.getElementById('dialogue-action').innerText = `STATETREE: ${data.action}`;
-            document.getElementById('dialogue-box').style.display = 'block';
-            speakNPCDialogue(data.dialogue, data.target_npc);
-          }
-
-          if (data.sound_cue) {
-            SoundEngine.playMechanismRumble(data.sound_cue.base_frequency || 180.0);
-          }
-
-          if (data.granted_item_id) {
-            playerInventory[data.granted_item_id] = (playerInventory[data.granted_item_id] || 0) + 1;
-            renderInventoryUI();
-            SoundEngine.playBuffChime();
-          }
-
-          if (data.game_runtime_manifest) {
-            applyCompleteRuntimeManifest(data.game_runtime_manifest);
-          }
-        }
-      };
+      if (data.quest_completed) {
+        SoundEngine.playQuestCompleteFanfare();
+        const toast = document.getElementById('interaction-toast');
+        const debrief = data.completion_debrief || "The district political tension shifts under your actions.";
+        toast.innerHTML = `<b style="color: #ffd700; font-size: 14px;">★ CHAPTER CONCLUDED ★</b><br><span style="color: #fff; font-size: 12px; font-style: italic;">"${debrief}"</span>`;
+        toast.style.display = 'block';
+        setTimeout(() => { toast.style.display = 'none'; }, 4500);
+      }
     }
 
     // Baseline fetch over HTTP, then open WebSocket
@@ -1123,8 +1122,6 @@
         toast.style.display = 'block';
         setTimeout(() => { toast.style.display = 'none'; }, 2000);
 
-        checkQuestAdvancement(so.anchor_id, so.tag);
-
         if (socket && socket.readyState === WebSocket.OPEN) {
           socket.send(JSON.stringify({
             type: "SMART_OBJECT_INTERACT",
@@ -1144,7 +1141,15 @@
         document.getElementById('dialogue-box').style.display = 'block';
 
         speakNPCDialogue(npc.dialogue, npc.id);
-        checkQuestAdvancement(npc.id, "");
+
+        if (socket && socket.readyState === WebSocket.OPEN) {
+          socket.send(JSON.stringify({
+            type: "NPC_INTERACT",
+            npc_id: npc.id,
+            district_id: "District_MarketSquare",
+            player_coords: [playerGroup.position.x, playerGroup.position.z, playerGroup.position.y]
+          }));
+        }
       }
     }
 
@@ -1278,7 +1283,7 @@
     }
 
     function updateNPCNavigationAndSchedules(delta, now) {
-      const npcWalkSpeed = 340.0; // units per second
+      const npcWalkSpeed = 380.0; // units per second
 
       activeNPCActors.forEach(actor => {
         // Subtle vertical idle breathing

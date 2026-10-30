@@ -2,7 +2,7 @@
 """
 PROJECT AETHELGARD: AUTONOMOUS VIRTUAL STUDIO RUNNER
 Pipes meeting goals directly into downstream sprint asset generation,
-autonomous RFC authoring, milestone progression, and release packaging.
+autonomous RFC authoring, codebase engineer patching, and release packaging.
 """
 
 from tools.release_packager import package_release
@@ -11,6 +11,7 @@ from services.agent_runtime.src.virtual_studio_engine import StudioDirectorManag
 from services.agent_runtime.src.team_sync import StudioCeremonyEngine
 from services.agent_runtime.src.roadmap_engine import StudioRoadmapEngine
 from services.agent_runtime.src.optimization_engine import StudioOptimizationProfiler
+from services.agent_runtime.src.codebase_engineer import CodebaseEngineerAgent
 from services.agent_runtime.src.autonomous_authoring import AutonomousFeatureAuthorAgent
 from schemas.studio_contracts import SprintGoal
 import argparse
@@ -41,6 +42,7 @@ class AutonomousStudioRunner:
         self.author_agent = AutonomousFeatureAuthorAgent(self.director.memory)
         self.roadmap_engine = StudioRoadmapEngine()
         self.profiler = StudioOptimizationProfiler()
+        self.engineer_agent = CodebaseEngineerAgent()
         self.meeting_cadence = meeting_cadence
         self.cycle_count = 0
         self.cycle_history: List[Dict[str, Any]] = []
@@ -94,10 +96,27 @@ class AutonomousStudioRunner:
             return 0
         resolved_count = 0
         for ticket in queue:
-            print(
-                f"  [AUTO-TRIAGE] {ticket.responsible_agent} patched ticket '{ticket.ticket_id}': {ticket.title}")
-            resolved_count += 1
+            success, message = self.engineer_agent.inspect_and_patch_ticket(
+                ticket)
+            if success:
+                print(
+                    f"  [AUTO-CODEBASE-PATCH] {ticket.responsible_agent} resolved {ticket.ticket_id}: {message}")
+                resolved_count += 1
+            else:
+                print(
+                    f"  [AUTO-TRIAGE] {ticket.responsible_agent} reviewed {ticket.ticket_id}: {message}")
+
         self.director.memory.bug_ticket_queue = []
+
+        # If patches were successfully applied, auto-commit to git
+        if resolved_count > 0:
+            committed = self.engineer_agent.commit_workspace_changes(
+                f"apply {resolved_count} automated codebase patch(es) during cycle {self.cycle_count}"
+            )
+            if committed:
+                print(
+                    f"  [AUTO-GIT]: Committed verified code modifications to main branch.")
+
         return resolved_count
 
     def run_sprint_series(self, total_cycles: int, delay_between_cycles_sec: float = 0.2):
@@ -105,25 +124,21 @@ class AutonomousStudioRunner:
         print(
             f"\n[AUTONOMOUS STUDIO RUNNER]: Starting {total_cycles}-cycle goal-driven production run...")
 
-        # 1. Initial Sprint Standup
         meeting = self.ceremony_engine.conduct_full_team_meeting(
             target_district=DISTRICT_ROSTER[0],
             cycle_history=[]
         )
         self.current_goals = meeting.selected_sprint_goals
 
-        # 2. Autonomous Feature Authoring
         print(
             "\n[VIRTUAL DEV TEAM AUTHORING]: Drafting features from committed sprint goals...")
         self.author_agent.execute_autonomous_rfc_cycle(self.current_goals)
 
-        # 3. Check Roadmap Burndown
         shipped_ver = self.roadmap_engine.advance_milestone_progress(
             [g.primary_objective for g in self.current_goals])
         if shipped_ver:
             package_release(shipped_ver, "Shippable Milestone Expansion")
 
-        # 4. Cycle Dispatches
         for i in range(1, total_cycles + 1):
             self.run_cycle(i)
 
@@ -160,7 +175,7 @@ class AutonomousStudioRunner:
         print(f"Total Cycles Completed  : {len(ledger)}")
         print(f"Elapsed Wall Time       : {elapsed_sec:.2f} seconds")
         print(
-            f"Total Assets Deployed   : {len(ledger) * 4} (Curves, PCG Layouts, Dialogues, C++ Headers)")
+            f"Total Assets Deployed   : {len(ledger) * 4} (Godot .tscn, Curves, Dialogues, C++ Headers)")
         print(
             f"WebGL Draw Calls Budget : {report.estimated_draw_calls} (Threshold: 120)")
         print(f"Runtime Manifest Size   : {report.payload_size_kb:.2f} KB")

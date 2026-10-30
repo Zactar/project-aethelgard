@@ -1,0 +1,49 @@
+{
+  "rfc_id": "RFC-1793349829",
+  "title": "Add Hearthmother Restorative Draught",
+  "description": "High-potency herbal tonic granting +35% move speed for 18 seconds and +45 stamina.",
+  "submitted_by": "Systems_Architect",
+  "change_type": "NEW_ITEM",
+  "payload_diff": {
+    "item": {
+      "item_id": "item_hearthmother_draught",
+      "display_name": "Hearthmother Draught",
+      "category": "CONSUMABLE",
+      "base_value": 36.0,
+      "description": "Consecrated mountain brew. Grants +35% move speed for 18s and +45 stamina.",
+      "icon_symbol": "✨",
+      "effects": {
+        "speed_boost": 0.35,
+        "stamina_restore": 45.0,
+        "duration_sec": 18.0
+      }
+    }
+  },
+  "status": "DEPLOYED",
+  "review_votes": [
+    {
+      "agent_id": "Systems_Architect",
+      "approved": true,
+      "score": 0.95,
+      "comments": "Balanced economic payload.",
+      "flagged_risks": []
+    },
+    {
+      "agent_id": "Lore_Auditor",
+      "approved": true,
+      "score": 0.98,
+      "comments": "Complies with canon dogmas.",
+      "flagged_risks": []
+    },
+    {
+      "agent_id": "Chaos_Commander",
+      "approved": true,
+      "score": 0.95,
+      "comments": "Passed stress test.",
+      "flagged_risks": []
+    }
+  ],
+  "rejection_reasons": [],
+  "created_at": 1793349829.758439,
+  "resolved_at": 1793349829.762011
+}

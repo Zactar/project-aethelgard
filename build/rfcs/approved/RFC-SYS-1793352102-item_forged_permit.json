@@ -1,0 +1,49 @@
+{
+  "rfc_id": "RFC-SYS-1793352102-item_forged_permit",
+  "title": "Synthesize Item: Forged Tithe Permit",
+  "description": "Systems Architect authored item calibrated to current unrest (0.58).",
+  "submitted_by": "Systems_Architect",
+  "change_type": "NEW_ITEM",
+  "payload_diff": {
+    "item": {
+      "item_id": "item_forged_permit",
+      "display_name": "Forged Tithe Permit",
+      "category": "CONTRABAND",
+      "base_value": 36.7,
+      "description": "Counterfeit church wax seal granting access through locked curfew gates.",
+      "icon_symbol": "📜",
+      "stack_limit": 20,
+      "effects": {
+        "stealth_bonus": 0.4,
+        "duration_sec": 20.0
+      }
+    }
+  },
+  "status": "DEPLOYED",
+  "review_votes": [
+    {
+      "agent_id": "Systems_Architect",
+      "approved": true,
+      "score": 0.95,
+      "comments": "Balanced economic payload.",
+      "flagged_risks": []
+    },
+    {
+      "agent_id": "Lore_Auditor",
+      "approved": true,
+      "score": 0.98,
+      "comments": "Complies with canon dogmas.",
+      "flagged_risks": []
+    },
+    {
+      "agent_id": "Chaos_Commander",
+      "approved": true,
+      "score": 0.95,
+      "comments": "Passed stress test.",
+      "flagged_risks": []
+    }
+  ],
+  "rejection_reasons": [],
+  "created_at": 1793352102.2064927,
+  "resolved_at": 1793352102.2065392
+}

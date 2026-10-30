@@ -1,0 +1,48 @@
+{
+  "rfc_id": "RFC-SYS-261482",
+  "title": "Synthesize Item: Canal Sounding Rod #1400",
+  "description": "Systems Architect derived item from scarcity. Base value: 33.7 gold.",
+  "submitted_by": "Systems_Architect",
+  "change_type": "NEW_ITEM",
+  "payload_diff": {
+    "item": {
+      "item_id": "item_proc_tool_1400",
+      "display_name": "Canal Sounding Rod #1400",
+      "category": "TOOL",
+      "base_value": 33.7,
+      "description": "Utilitarian workshop tool used across district transit passages. Lore anchor: Arch-Prelate Malakor enforces an ecclesiastical tithe of thi...",
+      "icon_symbol": "🪓",
+      "stack_limit": 20,
+      "effects": {
+        "interaction_speed": 0.3
+      }
+    }
+  },
+  "status": "DEPLOYED",
+  "review_votes": [
+    {
+      "agent_id": "Systems_Architect",
+      "approved": true,
+      "score": 0.95,
+      "comments": "Balanced economic payload.",
+      "flagged_risks": []
+    },
+    {
+      "agent_id": "Lore_Auditor",
+      "approved": true,
+      "score": 0.98,
+      "comments": "Complies with canon dogmas.",
+      "flagged_risks": []
+    },
+    {
+      "agent_id": "Chaos_Commander",
+      "approved": true,
+      "score": 0.95,
+      "comments": "Passed stress test.",
+      "flagged_risks": []
+    }
+  ],
+  "rejection_reasons": [],
+  "created_at": 1793356261.4828832,
+  "resolved_at": 1793356261.4829266
+}

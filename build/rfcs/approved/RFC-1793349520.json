@@ -1,0 +1,47 @@
+{
+  "rfc_id": "RFC-1793349520",
+  "title": "Add Alchemical Smoke Bomb",
+  "description": "Consumable escape item crafted by apothecary",
+  "submitted_by": "Systems_Architect",
+  "change_type": "NEW_ITEM",
+  "payload_diff": {
+    "item": {
+      "item_id": "item_smokebomb",
+      "display_name": "Alchemist Smoke Bomb",
+      "category": "CONSUMABLE",
+      "base_value": 18.0,
+      "description": "Blinds watch guards for 6 seconds.",
+      "icon_symbol": "💨",
+      "effects": {
+        "stealth_bonus": 0.5
+      }
+    }
+  },
+  "status": "DEPLOYED",
+  "review_votes": [
+    {
+      "agent_id": "Systems_Architect",
+      "approved": true,
+      "score": 0.95,
+      "comments": "Balanced economic payload.",
+      "flagged_risks": []
+    },
+    {
+      "agent_id": "Lore_Auditor",
+      "approved": true,
+      "score": 0.98,
+      "comments": "Complies with canon dogmas.",
+      "flagged_risks": []
+    },
+    {
+      "agent_id": "Chaos_Commander",
+      "approved": true,
+      "score": 0.95,
+      "comments": "Passed stress test.",
+      "flagged_risks": []
+    }
+  ],
+  "rejection_reasons": [],
+  "created_at": 1793349520.7399447,
+  "resolved_at": 1793349520.7451308
+}

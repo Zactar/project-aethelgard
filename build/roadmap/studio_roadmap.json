@@ -1,0 +1,73 @@
+[
+  {
+    "milestone_id": "M1_UNDERCROFT_EXPANSION",
+    "version_tag": "v0.2.0",
+    "theme": "The Subterranean Smuggling Conduit",
+    "target_phase": "PEACETIME_COMMERCE",
+    "epics": [
+      {
+        "epic_id": "EPIC_M1_01",
+        "title": "Carve Subterranean Undercroft Vaults",
+        "target_biome": "SUBTERRANEAN_UNDERCROFT",
+        "primary_deliverable": "Contiguous spatial nodes connecting aqueducts to clandestine storage",
+        "assigned_crews": [
+          "Level_Architect",
+          "Client_Architect"
+        ],
+        "is_completed": true
+      },
+      {
+        "epic_id": "EPIC_M1_02",
+        "title": "Deploy Black Market Contraband Economy",
+        "target_biome": "SUBTERRANEAN_UNDERCROFT",
+        "primary_deliverable": "Forged seals, illicit grain arbitration, and stealth buff items",
+        "assigned_crews": [
+          "Systems_Architect",
+          "Gameplay_Specialist"
+        ],
+        "is_completed": false
+      }
+    ],
+    "status": "IN_PROGRESS",
+    "release_notes": [
+      "Subterranean aqueduct expansion",
+      "Consumable buff system with active timers"
+    ]
+  },
+  {
+    "milestone_id": "M2_CATHEDRAL_INQUEST",
+    "version_tag": "v0.3.0",
+    "theme": "Martial Law & Theocratic Tithe Seizures",
+    "target_phase": "MUNICIPAL_BREAD_RIOT",
+    "epics": [
+      {
+        "epic_id": "EPIC_M2_01",
+        "title": "Construct City Watch Garrison Checkpoints",
+        "target_biome": "CATHEDRAL_HEIGHTS",
+        "primary_deliverable": "Fortified watch garrison, iron barricades, and armory smart objects",
+        "assigned_crews": [
+          "Level_Architect",
+          "Client_Architect"
+        ],
+        "is_completed": false
+      },
+      {
+        "epic_id": "EPIC_M2_02",
+        "title": "Implement Granary Caloric Rationing Loop",
+        "target_biome": "CATHEDRAL_HEIGHTS",
+        "primary_deliverable": "Hardtack food queues, curfew patrols, and high-tension ambient lighting",
+        "assigned_crews": [
+          "Systems_Architect",
+          "Narrative_Specialist"
+        ],
+        "is_completed": false
+      }
+    ],
+    "status": "PLANNING",
+    "release_notes": [
+      "Martial curfew mechanics",
+      "Cathedral district fortifications",
+      "Emergency food rationing"
+    ]
+  }
+]

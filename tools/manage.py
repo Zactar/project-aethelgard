@@ -342,13 +342,26 @@ def cmd_release():
                    cwd=ROOT_DIR, env=env)
 
 
+def cmd_auto(extra_args: list):
+    runner_script = ROOT_DIR / "tools" / "autonomous_runner.py"
+    env = os.environ.copy()
+    env["PYTHONPATH"] = str(
+        ROOT_DIR) + (f":{env['PYTHONPATH']}" if "PYTHONPATH" in env else "")
+    cycles = extra_args[0] if extra_args else "6"
+    cmd = [sys.executable, str(runner_script), "--cycles",
+           str(cycles), "--cadence", "2", "--delay", "0.05"]
+    print(
+        f"\n[CONTINUOUS DEV]: Starting autonomous studio production loop ({cycles} cycles)...")
+    subprocess.run(cmd, cwd=ROOT_DIR, env=env)
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Project Aethelgard Studio Process Manager")
     parser.add_argument(
         "action",
-        choices=["start", "stop", "restart", "status",
-                 "reset", "rfc", "sprint", "roadmap", "release"],
+        choices=["start", "stop", "restart", "status", "reset",
+                 "rfc", "sprint", "roadmap", "release", "auto"],
         help="Action to execute"
     )
     parser.add_argument("extra_args", nargs=argparse.REMAINDER,
@@ -375,3 +388,5 @@ if __name__ == "__main__":
         cmd_roadmap()
     elif args.action == "release":
         cmd_release()
+    elif args.action == "auto":
+        cmd_auto(args.extra_args)

@@ -7,7 +7,7 @@ authoritative 3-act quest DAG progression, and multi-tier chaos playtesting.
 
 from services.agent_runtime.src.chroma_lore_bus import ChromaLoreBus
 from schemas.studio_contracts import (
-    AestheticVerdict, BugSeverity, ClientPlaytestReport, ContentType,
+    AestheticVerdict, BugSeverity, BugTicket, ClientPlaytestReport, ContentType,
     DistrictSpatialLayout, GameReadyArtifact, GameRuntimeManifest,
     GameplayMechanicsSpec, ItemCategory, ItemSpec, LightingProfile,
     NPCActorSpec, ObjectiveStatus, ProceduralPropSpec, PropPrimitiveType,
@@ -19,7 +19,13 @@ import math
 from pathlib import Path
 import random
 import sys
+import time
 from typing import Any, Dict, List, Optional, Tuple
+
+ROOT_DIR = Path(__file__).resolve().parents[3]
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
 
 ROOT_DIR = Path(__file__).resolve().parents[3]
 if str(ROOT_DIR) not in sys.path:
@@ -528,8 +534,34 @@ class LoreConsistencyAuditorAgent:
 class ChaosCrewCommander:
     def execute_client_headless_playtest(
         self, layout: DistrictSpatialLayout, npcs: Dict[str, NPCActorSpec], mechanics: GameplayMechanicsSpec
-    ) -> Tuple[ClientPlaytestReport, List[Any]]:
+    ) -> Tuple[ClientPlaytestReport, List[BugTicket]]:
         traversed = len(layout.nodes)
+        tickets: List[BugTicket] = []
+
+        # 1. Audit Locomotion Bounds
+        if mechanics.player_base_speed < 1450.0:
+            tickets.append(BugTicket(
+                ticket_id=f"TICK-SPD-{int(time.time()) % 1000}",
+                severity=BugSeverity.P2_MEDIUM,
+                title="Player Base Speed Sub-Optimal",
+                description="Movement velocity is below standard citadel exploration target (1500.0).",
+                reproduction_seed=42109,
+                responsible_agent="Gameplay_Specialist",
+                suggested_action="Adjust player_base_speed in schema contracts."
+            ))
+
+        # 2. Audit NPC Patrol Pacing
+        if npcs and any(len(n.patrol_waypoints) > 2 for n in npcs.values()):
+            tickets.append(BugTicket(
+                ticket_id=f"TICK-PAT-{int(time.time()) % 1000}",
+                severity=BugSeverity.P3_LOW,
+                title="NPC Walk Patrol Cadence Tuning",
+                description="NPC street movement speed can be calibrated for natural thoroughfare flow.",
+                reproduction_seed=42110,
+                responsible_agent="Level_Architect",
+                suggested_action="Calibrate npcWalkSpeed in client runtime loop."
+            ))
+
         report = ClientPlaytestReport(
             nodes_traversed=traversed,
             unreachable_nodes=[],
@@ -538,7 +570,7 @@ class ChaosCrewCommander:
             out_of_bounds_detected=False,
             verdict="PASS"
         )
-        return report, []
+        return report, tickets
 
 
 class StudioDirectorManagerAgent:
@@ -613,6 +645,10 @@ class StudioDirectorManagerAgent:
             beat, player_pos, npcs)
         if not is_causal:
             raise RuntimeError(f"Causal fault: {reason}")
+
+        client_report, client_tickets = self.chaos_crew.execute_client_headless_playtest(
+            layout, npcs, mechanics)
+        self.memory.bug_ticket_queue.extend(client_tickets)
 
         style_report = self.style_guide.audit_and_restyle(
             {"raw_dialogue": beat.dialogue_prompt_concept,

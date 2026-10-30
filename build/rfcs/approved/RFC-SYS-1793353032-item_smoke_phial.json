@@ -1,0 +1,49 @@
+{
+  "rfc_id": "RFC-SYS-1793353032-item_smoke_phial",
+  "title": "Synthesize Item: Phosphor Smoke Phial",
+  "description": "Systems Architect authored item calibrated to current unrest (0.58).",
+  "submitted_by": "Systems_Architect",
+  "change_type": "NEW_ITEM",
+  "payload_diff": {
+    "item": {
+      "item_id": "item_smoke_phial",
+      "display_name": "Phosphor Smoke Phial",
+      "category": "CONSUMABLE",
+      "base_value": 22.0,
+      "description": "Herbal combustive powder that blankets sightlines and increases sprint speed.",
+      "icon_symbol": "💨",
+      "stack_limit": 20,
+      "effects": {
+        "speed_boost": 0.3,
+        "duration_sec": 14.0
+      }
+    }
+  },
+  "status": "DEPLOYED",
+  "review_votes": [
+    {
+      "agent_id": "Systems_Architect",
+      "approved": true,
+      "score": 0.95,
+      "comments": "Balanced economic payload.",
+      "flagged_risks": []
+    },
+    {
+      "agent_id": "Lore_Auditor",
+      "approved": true,
+      "score": 0.98,
+      "comments": "Complies with canon dogmas.",
+      "flagged_risks": []
+    },
+    {
+      "agent_id": "Chaos_Commander",
+      "approved": true,
+      "score": 0.95,
+      "comments": "Passed stress test.",
+      "flagged_risks": []
+    }
+  ],
+  "rejection_reasons": [],
+  "created_at": 1793353032.4279256,
+  "resolved_at": 1793353032.4279654
+}

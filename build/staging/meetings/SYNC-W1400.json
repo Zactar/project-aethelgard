@@ -1,0 +1,142 @@
+{
+  "meeting_id": "SYNC-W1400",
+  "world_time_marker": 1400.0,
+  "retrospective_summary": {
+    "completed_sprint_cycles": 2,
+    "current_district_unrest": 0.58,
+    "active_phase": "PEACETIME_COMMERCE",
+    "commodity_reserves": {
+      "Grain": 120.0,
+      "Flour": 85.0,
+      "Bread": 60.0
+    },
+    "backlog_health": {
+      "total_unresolved_bugs": 0,
+      "p0_blockers": 0,
+      "p1_exploits": 0
+    },
+    "retrospective_consensus": "STABLE_PRODUCTION"
+  },
+  "brainstorm_proposals": [
+    {
+      "idea_id": "IDEA-SYS-400",
+      "proposing_agent": "Systems_Architect",
+      "discipline": "SYSTEMS_DESIGN",
+      "title": "Emergency Caloric Bread Rationing",
+      "pitch": "[v0.2.0 - The Subterranean Smuggling Conduit]: Distribute hardtack ration coupons to de-escalate municipal riot unrest.",
+      "technical_feasibility_score": 0.88,
+      "systemic_emergence_score": 0.93,
+      "estimated_complexity": "MEDIUM"
+    },
+    {
+      "idea_id": "IDEA-LEV-400",
+      "proposing_agent": "Level_Architect",
+      "discipline": "LEVEL_ARCHITECTURE",
+      "title": "City Watch Garrison & Armory Checkpoints",
+      "pitch": "[v0.2.0 - The Subterranean Smuggling Conduit]: Erect fortified iron gates and weapon racks along the Market Cross perimeter.",
+      "technical_feasibility_score": 0.89,
+      "systemic_emergence_score": 0.88,
+      "estimated_complexity": "MEDIUM"
+    },
+    {
+      "idea_id": "IDEA-NAR-400",
+      "proposing_agent": "Narrative_Specialist",
+      "discipline": "NARRATIVE_LORE",
+      "title": "Inquisitor Vael's Heresy Inquest",
+      "pitch": "[v0.2.0 - The Subterranean Smuggling Conduit]: Deploy cathedral investigators interrogating apothecaries about forbidden herbs.",
+      "technical_feasibility_score": 0.95,
+      "systemic_emergence_score": 0.93,
+      "estimated_complexity": "MEDIUM"
+    },
+    {
+      "idea_id": "IDEA-GAM-400",
+      "proposing_agent": "Gameplay_Specialist",
+      "discipline": "GAMEPLAY_MECHANICS",
+      "title": "Locomotion Dash & Stamina Bursts",
+      "pitch": "[v0.2.0 - The Subterranean Smuggling Conduit]: Tune high-velocity sprint bursts and rapid recovery envelopes during combat spikes.",
+      "technical_feasibility_score": 0.92,
+      "systemic_emergence_score": 0.94,
+      "estimated_complexity": "MEDIUM"
+    },
+    {
+      "idea_id": "IDEA-AES-400",
+      "proposing_agent": "Client_Architect",
+      "discipline": "AESTHETIC_STYLE",
+      "title": "Subterranean Water Reflection Shaders",
+      "pitch": "[v0.2.0 - The Subterranean Smuggling Conduit]: Simulate specular water ripples and dripping sluice conduits in low canals.",
+      "technical_feasibility_score": 0.96,
+      "systemic_emergence_score": 0.83,
+      "estimated_complexity": "MEDIUM"
+    },
+    {
+      "idea_id": "IDEA-QA_-400",
+      "proposing_agent": "Chaos_Commander",
+      "discipline": "QA_COMBAT_BALANCE",
+      "title": "Topological Navmesh Reachability Audit",
+      "pitch": "[v0.2.0 - The Subterranean Smuggling Conduit]: Deploy automated pathfinder bots traversing all connected rooms and doors.",
+      "technical_feasibility_score": 0.9,
+      "systemic_emergence_score": 0.83,
+      "estimated_complexity": "MEDIUM"
+    }
+  ],
+  "selected_sprint_goals": [
+    {
+      "goal_id": "GOAL-W14-01",
+      "target_district": "District_DocksCommons",
+      "primary_objective": "Inquisitor Vael's Heresy Inquest",
+      "driving_ideas": [
+        "IDEA-NAR-400"
+      ],
+      "assigned_crews": [
+        "Narrative_Specialist",
+        "Studio_Director"
+      ],
+      "success_criteria": "Verified in District_DocksCommons across engine and web client.",
+      "is_completed": false
+    },
+    {
+      "goal_id": "GOAL-W14-02",
+      "target_district": "District_DocksCommons",
+      "primary_objective": "Locomotion Dash & Stamina Bursts",
+      "driving_ideas": [
+        "IDEA-GAM-400"
+      ],
+      "assigned_crews": [
+        "Gameplay_Specialist",
+        "Studio_Director"
+      ],
+      "success_criteria": "Verified in District_DocksCommons across engine and web client.",
+      "is_completed": false
+    },
+    {
+      "goal_id": "GOAL-W14-03",
+      "target_district": "District_DocksCommons",
+      "primary_objective": "Emergency Caloric Bread Rationing",
+      "driving_ideas": [
+        "IDEA-SYS-400"
+      ],
+      "assigned_crews": [
+        "Systems_Architect",
+        "Studio_Director"
+      ],
+      "success_criteria": "Verified in District_DocksCommons across engine and web client.",
+      "is_completed": false
+    },
+    {
+      "goal_id": "GOAL-W14-04",
+      "target_district": "District_DocksCommons",
+      "primary_objective": "Subterranean Water Reflection Shaders",
+      "driving_ideas": [
+        "IDEA-AES-400"
+      ],
+      "assigned_crews": [
+        "Client_Architect",
+        "Studio_Director"
+      ],
+      "success_criteria": "Verified in District_DocksCommons across engine and web client.",
+      "is_completed": false
+    }
+  ],
+  "director_closing_notes": "Sprint goals committed for District_DocksCommons under v0.2.0 (The Subterranean Smuggling Conduit). Phase: PEACETIME_COMMERCE | Unrest: 0.58. All crews cleared to build.",
+  "timestamp": 1793399911.487377
+}

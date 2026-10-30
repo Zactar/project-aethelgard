@@ -1,41 +1,60 @@
-import json
-from pathlib import Path
+#!/usr/bin/env python3
+"""
+PROJECT AETHELGARD: ENGINE-AGNOSTIC ASSET INGESTER
+Directs staged artifacts into the Three.js web client and Godot 4 scene representations.
+"""
 
-STAGING_DIR = Path("build/staging")
-WEB_CLIENT_DIR = Path("web_client")
+from tools.godot_exporter import export_manifest_to_godot
+from schemas.studio_contracts import GameRuntimeManifest
+from pathlib import Path
+import json
+import shutil
+import sys
+
+ROOT_DIR = Path(__file__).resolve().parents[1]
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
+
+STAGING_DIR = ROOT_DIR / "build" / "staging"
+WEB_DIR = ROOT_DIR / "web_client"
+
 
 class EngineAssetIngester:
     def __init__(self):
         STAGING_DIR.mkdir(parents=True, exist_ok=True)
-        WEB_CLIENT_DIR.mkdir(parents=True, exist_ok=True)
-        print(f"[ENGINE INGESTER]: Listening on {STAGING_DIR.resolve()}...")
+        WEB_DIR.mkdir(parents=True, exist_ok=True)
 
-    def stage_artifact(self, artifact_path: Path):
-        with open(artifact_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-
-        if not data.get("auditor_approved", False):
-            print(f"[INGESTER REJECTED]: Artifact {artifact_path.name} failed auditor approval.")
-            return
-
-        payload = data.get("raw_payload", {})
-
-        # Deploy Unified Runtime Manifest directly to Web Client
-        if payload.get("game_runtime_manifest"):
-            target_manifest = WEB_CLIENT_DIR / "game_runtime_manifest.json"
-            with open(target_manifest, "w", encoding="utf-8") as f:
-                json.dump(payload["game_runtime_manifest"], f, indent=2)
-            print(f"[INGESTER -> WEB CLIENT]: Deployed live game runtime manifest to {target_manifest}")
-
-    def run_once(self):
+    def run_once(self) -> int:
         staged_files = list(STAGING_DIR.glob("*.json"))
-        for artifact_file in staged_files:
+        processed_count = 0
+
+        for f in staged_files:
             try:
-                self.stage_artifact(artifact_file)
-                artifact_file.unlink()
+                data = json.loads(f.read_text(encoding="utf-8"))
+                payload = data.get("raw_payload", {})
+                runtime_manifest = payload.get("game_runtime_manifest")
+
+                if runtime_manifest:
+                    # 1. Update web client target
+                    target_file = WEB_DIR / "game_runtime_manifest.json"
+                    target_file.write_text(json.dumps(
+                        runtime_manifest, indent=2), encoding="utf-8")
+
+                    # 2. Export Godot 4 compatibility scene
+                    manifest_obj = GameRuntimeManifest.model_validate(
+                        runtime_manifest)
+                    export_manifest_to_godot(manifest_obj)
+
+                    processed_count += 1
+                f.unlink()
             except Exception as e:
-                print(f"[INGESTER ERROR]: Failed staging {artifact_file.name}: {e}")
+                print(f"  [INGESTER WARNING] Error processing {f.name}: {e}")
+
+        return processed_count
+
 
 if __name__ == "__main__":
     ingester = EngineAssetIngester()
-    ingester.run_once()
+    count = ingester.run_once()
+    print(f"[INGESTER]: Processed {count} staged studio artifact(s).")

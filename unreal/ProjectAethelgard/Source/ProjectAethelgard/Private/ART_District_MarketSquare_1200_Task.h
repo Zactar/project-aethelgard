@@ -1,10 +1,10 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "StateTreeTaskBase.h"
-#include "StateTreeTask_OFFER_SHELTER_AND_BREAD.generated.h"
+#include "StateTreeTask_CONFRONT_THEFT.generated.h"
 
-USTRUCT(meta = (DisplayName = "Task OFFER_SHELTER_AND_BREAD"))
-struct MYGAMEPROJECT_API FStateTreeTask_OFFER_SHELTER_AND_BREAD : public FStateTreeTaskBase
+USTRUCT(meta = (DisplayName = "Task CONFRONT_THEFT"))
+struct MYGAMEPROJECT_API FStateTreeTask_CONFRONT_THEFT : public FStateTreeTaskBase
 {
     GENERATED_BODY()
     virtual EStateTreeRunStatus EnterState(FStateTreeExecutionContext& Context, const FStateTreeTransitionResult& Transition) const override

@@ -220,7 +220,7 @@ class UIThemeSpec(BaseModel):
 
 
 class GameplayMechanicsSpec(BaseModel):
-    player_base_speed: float = 1400.0
+    player_base_speed: float = 1500.0
     sprint_multiplier: float = 1.6
     stamina_max: float = 100.0
     stamina_recovery_rate: float = 15.0

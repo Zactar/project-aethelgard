@@ -1,6 +1,6 @@
 {
   "district_id": "District_DocksCommons",
-  "district_name": "Oakhaven Market Commons",
+  "district_name": "DocksCommons Commons",
   "nodes": {
     "NODE_PLAZA": {
       "node_id": "NODE_PLAZA",
@@ -97,7 +97,8 @@
       },
       "connected_node_ids": [
         "NODE_PLAZA",
-        "NODE_ALLEY"
+        "NODE_ALLEY",
+        "NODE_AQUEDUCT_CATACOMBS"
       ],
       "smart_objects": [
         {
@@ -134,9 +135,47 @@
       },
       "connected_node_ids": [
         "NODE_APOTHECARY",
-        "NODE_BAKERY"
+        "NODE_BAKERY",
+        "NODE_AQUEDUCT_CATACOMBS"
       ],
       "smart_objects": []
+    },
+    "NODE_AQUEDUCT_CATACOMBS": {
+      "node_id": "NODE_AQUEDUCT_CATACOMBS",
+      "zone_name": "Subterranean Aqueduct Conduit",
+      "function": "CLANDESTINE_ALLEY",
+      "bounds_min": {
+        "x": 0.0,
+        "y": 1800.0,
+        "z": -400.0
+      },
+      "bounds_max": {
+        "x": 1600.0,
+        "y": 2800.0,
+        "z": -50.0
+      },
+      "center_location": {
+        "x": 800.0,
+        "y": 2300.0,
+        "z": -250.0
+      },
+      "connected_node_ids": [
+        "NODE_BAKERY",
+        "NODE_ALLEY"
+      ],
+      "smart_objects": [
+        {
+          "anchor_id": "SO_SLUICE_GATE_01",
+          "smart_object_tag": "SmartObject.Mechanism.SluiceGate",
+          "assigned_npc_id": null,
+          "relative_position": {
+            "x": 800.0,
+            "y": 2300.0,
+            "z": -250.0
+          },
+          "interaction_facing_yaw": 0.0
+        }
+      ]
     }
   },
   "is_topologically_sound": true
