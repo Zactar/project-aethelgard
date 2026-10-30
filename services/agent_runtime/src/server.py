@@ -8,7 +8,7 @@ if str(ROOT_DIR) not in sys.path:
 import asyncio
 import json
 import logging
-from typing import Any
+from typing import Set, Any
 import websockets
 
 from services.agent_runtime.src.virtual_studio_engine import StudioDirectorManagerAgent
@@ -18,14 +18,16 @@ logging.basicConfig(level=logging.INFO, format="[%(asctime)s] [%(levelname)s] %(
 logger = logging.getLogger("AethelgardServer")
 
 DIRECTOR = StudioDirectorManagerAgent()
+CONNECTED_CLIENTS: Set[Any] = set()
+
 ACTIVE_GOALS = [
     SprintGoal(
-        goal_id="GOAL-INIT",
+        goal_id="GOAL-AUTONOMOUS-INIT",
         target_district="District_MarketSquare",
-        primary_objective="Vertical Aqueduct Catacombs with Dynamic Sluice Gates",
-        driving_ideas=["IDEA-LVL-01"],
-        assigned_crews=["Level_Architect", "Client_Architect"],
-        success_criteria="Rendered in web client"
+        primary_objective="Systemic Quests and Live Dynamic Broadcast",
+        driving_ideas=["IDEA-SYS-01", "IDEA-LVL-01"],
+        assigned_crews=["Systems_Architect", "Narrative_Specialist", "Client_Architect"],
+        success_criteria="Live hot-reload verified across browser client"
     )
 ]
 
@@ -33,7 +35,7 @@ SMART_OBJECT_RESPONSES = {
     "SmartObject.Mechanism.SluiceGate": {
         "speaker": "AQUEDUCT MECHANISM",
         "action": "OPERATE_SLUICE_GATE",
-        "dialogue": "Heavy bronze gears groan as you crank the release valve. Subterranean floodwaters hiss and drain into the lower canals, clearing the dry walking path."
+        "dialogue": "Heavy bronze gears groan as you crank the release valve. Subterranean floodwaters hiss and drain into the lower canals, advancing active quest objectives!"
     },
     "SmartObject.Craft.BreadOven": {
         "speaker": "NPC_ALDOUS",
@@ -52,9 +54,20 @@ SMART_OBJECT_RESPONSES = {
     }
 }
 
+async def broadcast_runtime_manifest(manifest_payload: dict):
+    if not CONNECTED_CLIENTS:
+        return
+    message = json.dumps({
+        "status": "LIVE_HOT_RELOAD",
+        "game_runtime_manifest": manifest_payload
+    })
+    logger.info(f"Proactively broadcasting live update to {len(CONNECTED_CLIENTS)} client(s)...")
+    await asyncio.gather(*[client.send(message) for client in CONNECTED_CLIENTS], return_exceptions=True)
+
 async def handle_state_ipc(websocket: Any):
     client_addr = getattr(websocket, "remote_address", "unknown")
-    logger.info(f"Client connected to State IPC: {client_addr}")
+    CONNECTED_CLIENTS.add(websocket)
+    logger.info(f"Client connected: {client_addr} (Pool: {len(CONNECTED_CLIENTS)})")
     try:
         async for message in websocket:
             payload = json.loads(message)
@@ -92,7 +105,7 @@ async def handle_state_ipc(websocket: Any):
                 resp_data = SMART_OBJECT_RESPONSES.get(so_tag, {
                     "speaker": "WORLD OBJECT",
                     "action": "INTERACT_GENERIC",
-                    "dialogue": f"You examine {so_id}. The surface is worn from years of continuous guild use."
+                    "dialogue": f"You examine {so_id}."
                 })
 
                 response = {
@@ -101,27 +114,30 @@ async def handle_state_ipc(websocket: Any):
                     "dialogue": resp_data["dialogue"],
                     "target_npc": resp_data["speaker"],
                     "action": resp_data["action"],
-                    "district_unrest": DIRECTOR.memory.active_district_unrest,
-                    "active_phase": DIRECTOR.memory.active_phase
+                    "advance_objective_tag": so_tag
                 }
                 await websocket.send(json.dumps(response))
+
+            elif msg_type == "HOT_RELOAD_TRIGGER":
+                await broadcast_runtime_manifest(payload.get("manifest", {}))
 
             elif msg_type == "HEARTBEAT":
                 await websocket.send(json.dumps({"type": "PONG", "time": DIRECTOR.memory.world_time}))
     except websockets.exceptions.ConnectionClosedOK:
         pass
     except websockets.exceptions.ConnectionClosedError:
-        logger.warning(f"Client disconnected: {client_addr}")
-    except Exception as e:
-        logger.error(f"Error handling IPC message: {e}", exc_info=True)
+        pass
+    finally:
+        CONNECTED_CLIENTS.discard(websocket)
+        logger.info(f"Client disconnected: {client_addr} (Pool: {len(CONNECTED_CLIENTS)})")
 
 async def main():
     server = await websockets.serve(handle_state_ipc, "0.0.0.0", 8765)
-    logger.info("Virtual Studio State Server live on ws://0.0.0.0:8765")
+    logger.info("Virtual Studio State & Broadcast Server live on ws://0.0.0.0:8765")
     await server.wait_closed()
 
 if __name__ == "__main__":
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
-        logger.info("Server halted by user.")
+        logger.info("Server stopped by user.")

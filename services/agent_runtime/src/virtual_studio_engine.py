@@ -15,6 +15,7 @@ from schemas.studio_contracts import (
     ProposedGameBeat, BugTicket, GameReadyArtifact, SprintGoal,
     ProceduralPropSpec, PropPrimitiveType, LightingProfile,
     ItemSpec, ItemCategory, NPCActorSpec, UIThemeSpec, GameplayMechanicsSpec,
+    SystemicQuest, QuestObjective, ObjectiveStatus,
     GameRuntimeManifest, ClientPlaytestReport
 )
 
@@ -39,11 +40,9 @@ class StudioSharedMemoryBus:
 
 
 class SystemsArchitectAgent:
-    """Specialist responsible for economy, Leontief matrices, commodities, and item catalogs."""
     def audit_and_synthesize_economy(self, memory: StudioSharedMemoryBus, active_goals: List[SprintGoal]) -> Tuple[Dict[str, Any], Dict[str, ItemSpec]]:
         goal_titles = [g.primary_objective.lower() for g in active_goals]
 
-        # Phase transition check
         if memory.active_district_unrest >= 0.90 and memory.commodity_reserves["Flour"] <= 15.0:
             memory.active_phase = "MUNICIPAL_BREAD_RIOT"
             memory.commodity_reserves["Flour"] = 55.0
@@ -60,7 +59,6 @@ class SystemsArchitectAgent:
         else:
             trade_regime = "STANDARD_GUILD_COMMERCE"
 
-        # Item Definitions Catalog
         flour_price = 12.0 if trade_regime == "CONTRABAND_BLACK_MARKET" else 4.0
         items = {
             "item_bread": ItemSpec(
@@ -154,11 +152,9 @@ class LevelArchitectAgent:
 
 
 class ClientArchitectAgent:
-    """Specialist responsible for UI design, client theme, visual dressing, and lighting."""
     def design_ui_and_props(
         self, district_layout: DistrictSpatialLayout, phase: str, unrest: float, goals: List[SprintGoal]
     ) -> Tuple[UIThemeSpec, LightingProfile, Dict[str, List[ProceduralPropSpec]]]:
-        # Dynamic Lighting Profile
         if phase == "MUNICIPAL_BREAD_RIOT" or unrest >= 0.80:
             lighting = LightingProfile(
                 ambient_sky_hex="#ff4500",
@@ -238,9 +234,7 @@ class ClientArchitectAgent:
 
 
 class GameplayMechanicsSpecialistAgent:
-    """Specialist responsible for tuning physics, movement, and interaction rules."""
     def tune_mechanics(self, unrest: float, phase: str) -> GameplayMechanicsSpec:
-        # Under civil unrest, increase movement pace and interaction urgency
         speed = 1550.0 if phase == "MUNICIPAL_BREAD_RIOT" else 1400.0
         return GameplayMechanicsSpec(
             player_base_speed=speed,
@@ -254,7 +248,71 @@ class GameplayMechanicsSpecialistAgent:
 
 
 class NarrativeNPCSpecialistAgent:
-    """Specialist responsible for defining NPC rosters, schedules, and personalities."""
+    def synthesize_systemic_quests(self, phase: str, unrest: float, goals: List[SprintGoal]) -> List[SystemicQuest]:
+        if phase == "MUNICIPAL_BREAD_RIOT" or unrest >= 0.80:
+            return [
+                SystemicQuest(
+                    quest_id="QUEST_RIOT_RELIEF",
+                    title="Clandestine Granary Relief",
+                    synopsis="Bypass the City Watch curfew to unlock Aldous's emergency cellar stores.",
+                    issuing_npc_id="NPC_ALDOUS",
+                    reward_item_id="item_bread",
+                    reward_stamina=40.0,
+                    objectives=[
+                        QuestObjective(
+                            objective_id="OBJ_01_TALK_ALDOUS",
+                            description="Confer with Aldous outside The Common Loaf.",
+                            target_node_id="NODE_BAKERY",
+                            target_npc_id="NPC_ALDOUS",
+                            status=ObjectiveStatus.COMPLETED
+                        ),
+                        QuestObjective(
+                            objective_id="OBJ_02_DRAIN_SLUICE",
+                            description="Operate Sluice Gate 01 in the aqueduct catacombs to lower drainage water.",
+                            target_node_id="NODE_AQUEDUCT_CATACOMBS",
+                            target_smart_object="SO_SLUICE_GATE_01",
+                            status=ObjectiveStatus.ACTIVE
+                        ),
+                        QuestObjective(
+                            objective_id="OBJ_03_RETRIEVE_FLOUR",
+                            description="Trade contraband herbs with Garrett for grain reserves.",
+                            target_node_id="NODE_APOTHECARY",
+                            target_npc_id="NPC_GARRETT",
+                            target_smart_object="SO_GARRETT",
+                            status=ObjectiveStatus.LOCKED
+                        )
+                    ]
+                )
+            ]
+        else:
+            return [
+                SystemicQuest(
+                    quest_id="QUEST_GUILD_COMMERCE",
+                    title="The Tithe Evasion Network",
+                    synopsis="Establish a discrete conduit between the apothecaries and subterranean water vaults.",
+                    issuing_npc_id="NPC_GARRETT",
+                    reward_item_id="item_sunfire_salve",
+                    reward_stamina=25.0,
+                    objectives=[
+                        QuestObjective(
+                            objective_id="OBJ_COMMERCE_01",
+                            description="Inspect the Market Cross Rally Notice.",
+                            target_node_id="NODE_PLAZA",
+                            target_smart_object="SO_RALLY",
+                            status=ObjectiveStatus.ACTIVE
+                        ),
+                        QuestObjective(
+                            objective_id="OBJ_COMMERCE_02",
+                            description="Report Arch-Prelate Malakor's tithe rate back to Garrett.",
+                            target_node_id="NODE_APOTHECARY",
+                            target_npc_id="NPC_GARRETT",
+                            target_smart_object="SO_GARRETT",
+                            status=ObjectiveStatus.LOCKED
+                        )
+                    ]
+                )
+            ]
+
     def synthesize_npc_roster(self, phase: str, unrest: float) -> Dict[str, NPCActorSpec]:
         return {
             "NPC_ALDOUS": NPCActorSpec(
@@ -386,7 +444,6 @@ class ChaosCrewCommander:
         tickets: List[BugTicket] = []
         traversed = len(layout.nodes)
 
-        # Audit NPC positions inside room boundaries
         for npc in npcs.values():
             inside = False
             for node in layout.nodes.values():
@@ -473,6 +530,9 @@ class StudioDirectorManagerAgent:
         )
         print(f"  [5/7 Narrative & Lyric] Beat: '{beat.beat_id}' | Soul: {style_report.human_touch_score:.2f}")
 
+        # 5b. Synthesize Systemic Quest DAGs
+        quests = self.narrative_specialist.synthesize_systemic_quests(self.memory.active_phase, economy_meta['unrest'], goals)
+
         # 6. Assemble Unified Runtime Manifest
         runtime_manifest = GameRuntimeManifest(
             manifest_version=int(self.memory.world_time),
@@ -486,7 +546,8 @@ class StudioDirectorManagerAgent:
             items=item_catalog,
             npcs=npcs,
             spatial_layout=layout,
-            props=props
+            props=props,
+            active_quests=quests
         )
 
         # 7. Chaos Crew Headless Client & Logic Playtest

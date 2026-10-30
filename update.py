@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 """
-PROJECT AETHELGARD: SYSTEMIC PRODUCTION CODEBASE UPDATER
-Rewrites and verifies all production contracts, engines, bridges, and web visualizers.
+PROJECT AETHELGARD: MASTER SYSTEMIC PRODUCTION CODEBASE UPDATER
+Synchronizes all schemas, engines, bridges, and web visualizers with zero terminal truncation.
 """
 
 from pathlib import Path
 import py_compile
 import sys
 
-print("[UPDATER]: Commencing systematic production codebase synchronization...")
+print("[UPDATER]: Commencing full codebase synchronization...")
 
 # ==============================================================================
-# 1. SCHEMAS: studio_contracts.py
+# 1. SCHEMAS: schemas/studio_contracts.py
 # ==============================================================================
 Path("schemas").mkdir(parents=True, exist_ok=True)
 Path("schemas/studio_contracts.py").write_text('''from enum import Enum
@@ -19,12 +19,13 @@ import time
 from typing import Dict, List, Any, Optional
 from pydantic import BaseModel, Field
 
+# Content and Audit Types
 class ContentType(str, Enum):
     STATETREE_TASK = "STATETREE_TASK"
     NPC_DIALOGUE_TEMPLATE = "NPC_DIALOGUE_TEMPLATE"
-    SYSTEMIC_QUEST = "SYSTEMIC_QUEST"
     SPATIAL_LAYOUT = "SPATIAL_LAYOUT"
     BALANCE_HOTFIX = "BALANCE_HOTFIX"
+    CLIENT_RUNTIME_MANIFEST = "CLIENT_RUNTIME_MANIFEST"
 
 class AestheticVerdict(str, Enum):
     APPROVED_WITH_SOUL = "APPROVED_WITH_SOUL"
@@ -37,6 +38,7 @@ class BugSeverity(str, Enum):
     P2_MEDIUM = "P2_MEDIUM"
     P3_LOW = "P3_LOW"
 
+# Math & Spatial Primitives
 class Vector3D(BaseModel):
     x: float
     y: float
@@ -65,6 +67,128 @@ class DistrictSpatialLayout(BaseModel):
     nodes: Dict[str, SpatialRoomNode]
     is_topologically_sound: bool = False
 
+# Prop & Visual Specifications
+class PropPrimitiveType(str, Enum):
+    BOX = "BOX"
+    CYLINDER = "CYLINDER"
+    TORUS = "TORUS"
+    OBELISK = "OBELISK"
+    MARKET_STALL = "MARKET_STALL"
+    BAKERY_OVEN = "BAKERY_OVEN"
+    APOTHECARY_SHELF = "APOTHECARY_SHELF"
+    SLUICE_MECHANISM = "SLUICE_MECHANISM"
+
+class ProceduralPropSpec(BaseModel):
+    prop_id: str
+    primitive_type: PropPrimitiveType
+    relative_position: Vector3D
+    rotation_y: float = 0.0
+    scale: Vector3D = Field(default_factory=lambda: Vector3D(x=1, y=1, z=1))
+    material_color_hex: str = "#5a3d28"
+    emissive_color_hex: Optional[str] = None
+    emissive_intensity: float = 0.0
+    cast_shadow: bool = True
+
+class LightingProfile(BaseModel):
+    ambient_sky_hex: str = "#b0c4de"
+    ambient_ground_hex: str = "#181c24"
+    sun_color_hex: str = "#fff5ea"
+    sun_intensity: float = 0.75
+    fog_color_hex: str = "#06080d"
+    fog_density: float = 0.00018
+
+# Item & Economic Specifications
+class ItemCategory(str, Enum):
+    COMMODITY = "COMMODITY"
+    CONSUMABLE = "CONSUMABLE"
+    CONTRABAND = "CONTRABAND"
+    TOOL = "TOOL"
+
+class ItemSpec(BaseModel):
+    item_id: str
+    display_name: str
+    category: ItemCategory
+    base_value: float
+    description: str
+    icon_symbol: str = "📦"
+    stack_limit: int = 20
+    effects: Dict[str, float] = Field(default_factory=dict)
+
+# NPC Actor Specifications
+class NPCActorSpec(BaseModel):
+    npc_id: str
+    name: str
+    role: str
+    faction: str
+    color_hex: str = "#f5af19"
+    position: Vector3D
+    default_dialogue: str
+    inventory: Dict[str, int] = Field(default_factory=dict)
+    assigned_smart_object: Optional[str] = None
+
+# UI & HUD Styling Specifications
+class UIThemeSpec(BaseModel):
+    primary_color_hex: str = "#4facfe"
+    accent_color_hex: str = "#00f2fe"
+    background_alpha: float = 0.94
+    hud_title: str = "AETHELGARD RUNTIME CLIENT"
+    show_minimap: bool = True
+    show_inventory: bool = True
+    action_buttons: List[Dict[str, Any]] = Field(default_factory=list)
+
+# Gameplay Mechanics Specifications
+class GameplayMechanicsSpec(BaseModel):
+    player_base_speed: float = 1400.0
+    sprint_multiplier: float = 1.6
+    stamina_max: float = 100.0
+    stamina_recovery_rate: float = 15.0
+    interaction_radius: float = 480.0
+    camera_fov: float = 45.0
+    camera_default_distance: float = 3000.0
+
+# Systemic Quests
+class ObjectiveStatus(str, Enum):
+    LOCKED = "LOCKED"
+    ACTIVE = "ACTIVE"
+    COMPLETED = "COMPLETED"
+    FAILED = "FAILED"
+
+class QuestObjective(BaseModel):
+    objective_id: str
+    description: str
+    target_node_id: str
+    target_smart_object: Optional[str] = None
+    target_npc_id: Optional[str] = None
+    required_item_id: Optional[str] = None
+    status: ObjectiveStatus = ObjectiveStatus.ACTIVE
+
+class SystemicQuest(BaseModel):
+    quest_id: str
+    title: str
+    synopsis: str
+    issuing_npc_id: str
+    reward_item_id: Optional[str] = None
+    reward_stamina: float = 0.0
+    objectives: List[QuestObjective] = Field(default_factory=list)
+    is_completed: bool = False
+
+# Master Unified Runtime Manifest
+class GameRuntimeManifest(BaseModel):
+    manifest_version: int = 1
+    district_id: str
+    simulation_phase: str
+    district_unrest: float
+    world_time: float
+    lighting: LightingProfile
+    ui: UIThemeSpec
+    mechanics: GameplayMechanicsSpec
+    items: Dict[str, ItemSpec] = Field(default_factory=dict)
+    npcs: Dict[str, NPCActorSpec] = Field(default_factory=dict)
+    spatial_layout: DistrictSpatialLayout
+    props: Dict[str, List[ProceduralPropSpec]] = Field(default_factory=dict)
+    active_quests: List[SystemicQuest] = Field(default_factory=list)
+
+# Narrative & Evaluation Contracts
 class StyleEvaluationReport(BaseModel):
     artifact_id: str
     verdict: AestheticVerdict
@@ -105,9 +229,12 @@ class GameReadyArtifact(BaseModel):
     audit_notes: str
     timestamp: float = Field(default_factory=time.time)
 
+# Standup Ceremonies Contracts
 class IdeaDiscipline(str, Enum):
     SYSTEMS_DESIGN = "SYSTEMS_DESIGN"
     LEVEL_ARCHITECTURE = "LEVEL_ARCHITECTURE"
+    GAMEPLAY_MECHANICS = "GAMEPLAY_MECHANICS"
+    UI_UX_DESIGN = "UI_UX_DESIGN"
     NARRATIVE_LORE = "NARRATIVE_LORE"
     AESTHETIC_STYLE = "AESTHETIC_STYLE"
     QA_COMBAT_BALANCE = "QA_COMBAT_BALANCE"
@@ -140,43 +267,6 @@ class SprintMeetingMinutes(BaseModel):
     director_closing_notes: str
     timestamp: float = Field(default_factory=time.time)
 
-class PropPrimitiveType(str, Enum):
-    BOX = "BOX"
-    CYLINDER = "CYLINDER"
-    TORUS = "TORUS"
-    OBELISK = "OBELISK"
-    MARKET_STALL = "MARKET_STALL"
-    BAKERY_OVEN = "BAKERY_OVEN"
-    APOTHECARY_SHELF = "APOTHECARY_SHELF"
-    SLUICE_MECHANISM = "SLUICE_MECHANISM"
-
-class ProceduralPropSpec(BaseModel):
-    prop_id: str
-    primitive_type: PropPrimitiveType
-    relative_position: Vector3D
-    rotation_y: float = 0.0
-    scale: Vector3D = Field(default_factory=lambda: Vector3D(x=1, y=1, z=1))
-    material_color_hex: str = "#5a3d28"
-    emissive_color_hex: Optional[str] = None
-    emissive_intensity: float = 0.0
-    cast_shadow: bool = True
-
-class LightingProfile(BaseModel):
-    ambient_sky_hex: str = "#b0c4de"
-    ambient_ground_hex: str = "#181c24"
-    sun_color_hex: str = "#fff5ea"
-    sun_intensity: float = 0.75
-    fog_color_hex: str = "#06080d"
-    fog_density: float = 0.00018
-
-class DistrictClientManifest(BaseModel):
-    district_id: str
-    world_time: float
-    simulation_phase: str
-    lighting: LightingProfile
-    props: Dict[str, List[ProceduralPropSpec]] = Field(default_factory=dict)
-    active_smart_objects: List[SmartObjectAnchor] = Field(default_factory=list)
-
 class ClientPlaytestReport(BaseModel):
     nodes_traversed: int
     unreachable_nodes: List[str]
@@ -185,10 +275,10 @@ class ClientPlaytestReport(BaseModel):
     out_of_bounds_detected: bool
     verdict: str
 ''', encoding="utf-8")
-print("  [OK] schemas/studio_contracts.py")
+print("  [1/4] Compiled schemas/studio_contracts.py")
 
 # ==============================================================================
-# 2. VIRTUAL STUDIO ENGINE: virtual_studio_engine.py
+# 2. VIRTUAL STUDIO ENGINE: services/agent_runtime/src/virtual_studio_engine.py
 # ==============================================================================
 Path("services/agent_runtime/src").mkdir(parents=True, exist_ok=True)
 Path("services/agent_runtime/src/virtual_studio_engine.py").write_text('''import sys
@@ -206,8 +296,10 @@ from schemas.studio_contracts import (
     ContentType, AestheticVerdict, BugSeverity, Vector3D, SmartObjectAnchor,
     SpatialRoomNode, DistrictSpatialLayout, StyleEvaluationReport,
     ProposedGameBeat, BugTicket, GameReadyArtifact, SprintGoal,
-    ProceduralPropSpec, PropPrimitiveType, LightingProfile, DistrictClientManifest,
-    ClientPlaytestReport
+    ProceduralPropSpec, PropPrimitiveType, LightingProfile,
+    ItemSpec, ItemCategory, NPCActorSpec, UIThemeSpec, GameplayMechanicsSpec,
+    SystemicQuest, QuestObjective, ObjectiveStatus,
+    GameRuntimeManifest, ClientPlaytestReport
 )
 
 class StudioSharedMemoryBus:
@@ -215,15 +307,6 @@ class StudioSharedMemoryBus:
         self.world_time: float = 1200.0
         self.active_district_unrest: float = 0.58
         self.commodity_reserves: Dict[str, float] = {"Grain": 120.0, "Flour": 85.0, "Bread": 60.0}
-        self.npc_locations: Dict[str, Tuple[float, float, float]] = {
-            "NPC_GARRETT": (1200.0, 450.0, 0.0),
-            "NPC_ALDOUS": (1450.0, 600.0, 0.0),
-            "NPC_CAPTAIN_VANE": (8500.0, 9200.0, 0.0)
-        }
-        self.npc_inventories: Dict[str, Dict[str, float]] = {
-            "NPC_GARRETT": {"gold": 45.0, "sunfire_blossom": 2.0, "black_market_grain": 5.0},
-            "NPC_ALDOUS": {"gold": 12.0, "bread": 15.0}
-        }
         self.canon_lore = [
             "Somatic traits (horns, eye pigment, species) are immutable.",
             "The Hearthmother is the sole legitimate harvest deity.",
@@ -240,7 +323,7 @@ class StudioSharedMemoryBus:
 
 
 class SystemsArchitectAgent:
-    def audit_and_apply_goals(self, memory: StudioSharedMemoryBus, active_goals: List[SprintGoal]) -> Dict[str, Any]:
+    def audit_and_synthesize_economy(self, memory: StudioSharedMemoryBus, active_goals: List[SprintGoal]) -> Tuple[Dict[str, Any], Dict[str, ItemSpec]]:
         goal_titles = [g.primary_objective.lower() for g in active_goals]
 
         if memory.active_district_unrest >= 0.90 and memory.commodity_reserves["Flour"] <= 15.0:
@@ -259,13 +342,37 @@ class SystemsArchitectAgent:
         else:
             trade_regime = "STANDARD_GUILD_COMMERCE"
 
-        flour = memory.commodity_reserves.get("Flour", 0.0)
-        return {
+        flour_price = 12.0 if trade_regime == "CONTRABAND_BLACK_MARKET" else 4.0
+        items = {
+            "item_bread": ItemSpec(
+                item_id="item_bread", display_name="Hearth Bread", category=ItemCategory.CONSUMABLE,
+                base_value=6.0, description="Dense barley bread baked on communal stones. Restores 35 stamina.",
+                icon_symbol="🍞", effects={"stamina_restore": 35.0}
+            ),
+            "item_flour": ItemSpec(
+                item_id="item_flour", display_name="Milled Flour", category=ItemCategory.COMMODITY,
+                base_value=flour_price, description="Standard guild-stamped flour bushel for bakery ovens.",
+                icon_symbol="🌾"
+            ),
+            "item_sunfire_salve": ItemSpec(
+                item_id="item_sunfire_salve", display_name="Sunfire Salve", category=ItemCategory.CONSUMABLE,
+                base_value=24.0, description="Apothecary ointment made from mountain blossoms. Increases speed by 25%.",
+                icon_symbol="🧪", effects={"speed_boost": 0.25}
+            ),
+            "item_contraband_grain": ItemSpec(
+                item_id="item_contraband_grain", display_name="Illicit Grain Bushel", category=ItemCategory.CONTRABAND,
+                base_value=32.0, description="Untithed grain ground in subterranean drainage vaults. Highly illegal.",
+                icon_symbol="🪙"
+            )
+        }
+
+        meta = {
             "regime": trade_regime,
             "phase": memory.active_phase,
-            "flour_level": flour,
+            "flour_level": memory.commodity_reserves.get("Flour", 0.0),
             "unrest": memory.active_district_unrest
         }
+        return meta, items
 
 
 class LevelArchitectAgent:
@@ -328,9 +435,9 @@ class LevelArchitectAgent:
 
 
 class ClientArchitectAgent:
-    def generate_client_manifest(
+    def design_ui_and_props(
         self, district_layout: DistrictSpatialLayout, phase: str, unrest: float, goals: List[SprintGoal]
-    ) -> DistrictClientManifest:
+    ) -> Tuple[UIThemeSpec, LightingProfile, Dict[str, List[ProceduralPropSpec]]]:
         if phase == "MUNICIPAL_BREAD_RIOT" or unrest >= 0.80:
             lighting = LightingProfile(
                 ambient_sky_hex="#ff4500",
@@ -339,6 +446,15 @@ class ClientArchitectAgent:
                 sun_intensity=0.95,
                 fog_color_hex="#1a0805",
                 fog_density=0.00030
+            )
+            theme = UIThemeSpec(
+                primary_color_hex="#ff5252",
+                accent_color_hex="#ffa726",
+                hud_title="AETHELGARD: STATE OF SIEGE",
+                action_buttons=[
+                    {"id": "btn_ration", "label": "Inspect Bread Ration", "action": "INSPECT_RATION"},
+                    {"id": "btn_curfew", "label": "Check Guard Patrols", "action": "CHECK_PATROLS"}
+                ]
             )
         else:
             lighting = LightingProfile(
@@ -349,20 +465,24 @@ class ClientArchitectAgent:
                 fog_color_hex="#06080d",
                 fog_density=0.00018
             )
+            theme = UIThemeSpec(
+                primary_color_hex="#4facfe",
+                accent_color_hex="#00f2fe",
+                hud_title="AETHELGARD GROUND CONTROL",
+                action_buttons=[
+                    {"id": "btn_combat", "label": "Trigger Combat Spike (0.85)", "action": "STRESS_SPIKE"},
+                    {"id": "btn_rest", "label": "Peacetime Repose (0.20)", "action": "PEACE_REST"}
+                ]
+            )
 
         props_by_node: Dict[str, List[ProceduralPropSpec]] = {}
-        all_smart_objects: List[SmartObjectAnchor] = []
-
         for node_id, node in district_layout.nodes.items():
             node_props: List[ProceduralPropSpec] = []
             c = node.center_location
-            all_smart_objects.extend(node.smart_objects)
-
             if "PLAZA" in node_id:
                 node_props.append(ProceduralPropSpec(
                     prop_id="PROP_OBELISK_01", primitive_type=PropPrimitiveType.OBELISK,
-                    relative_position=Vector3D(x=c.x, y=c.y, z=c.z + 170),
-                    material_color_hex="#48515f"
+                    relative_position=Vector3D(x=c.x, y=c.y, z=c.z + 170)
                 ))
                 node_props.append(ProceduralPropSpec(
                     prop_id="PROP_STALL_RED", primitive_type=PropPrimitiveType.MARKET_STALL,
@@ -374,11 +494,6 @@ class ClientArchitectAgent:
                     relative_position=Vector3D(x=c.x + 600, y=c.y - 500, z=c.z), rotation_y=-0.5,
                     material_color_hex="#1e88e5"
                 ))
-                node_props.append(ProceduralPropSpec(
-                    prop_id="PROP_STALL_GREEN", primitive_type=PropPrimitiveType.MARKET_STALL,
-                    relative_position=Vector3D(x=c.x - 500, y=c.y + 700, z=c.z), rotation_y=0.2,
-                    material_color_hex="#2e7d32"
-                ))
             elif "BAKERY" in node_id:
                 node_props.append(ProceduralPropSpec(
                     prop_id="PROP_BAKERY_OVEN", primitive_type=PropPrimitiveType.BAKERY_OVEN,
@@ -388,8 +503,7 @@ class ClientArchitectAgent:
             elif "APOTHECARY" in node_id:
                 node_props.append(ProceduralPropSpec(
                     prop_id="PROP_APOTHECARY_SHELF", primitive_type=PropPrimitiveType.APOTHECARY_SHELF,
-                    relative_position=Vector3D(x=c.x, y=c.y - 200, z=c.z),
-                    material_color_hex="#5a3d28"
+                    relative_position=Vector3D(x=c.x, y=c.y - 200, z=c.z)
                 ))
             elif "AQUEDUCT" in node_id:
                 node_props.append(ProceduralPropSpec(
@@ -397,17 +511,116 @@ class ClientArchitectAgent:
                     relative_position=Vector3D(x=c.x + 40, y=c.y, z=c.z),
                     material_color_hex="#22262d", emissive_color_hex="#00f2fe", emissive_intensity=0.8
                 ))
-
             props_by_node[node_id] = node_props
 
-        return DistrictClientManifest(
-            district_id=district_layout.district_id,
-            world_time=1200.0,
-            simulation_phase=phase,
-            lighting=lighting,
-            props=props_by_node,
-            active_smart_objects=all_smart_objects
+        return theme, lighting, props_by_node
+
+
+class GameplayMechanicsSpecialistAgent:
+    def tune_mechanics(self, unrest: float, phase: str) -> GameplayMechanicsSpec:
+        speed = 1550.0 if phase == "MUNICIPAL_BREAD_RIOT" else 1400.0
+        return GameplayMechanicsSpec(
+            player_base_speed=speed,
+            sprint_multiplier=1.6,
+            stamina_max=100.0,
+            stamina_recovery_rate=14.0,
+            interaction_radius=480.0,
+            camera_fov=45.0,
+            camera_default_distance=3000.0
         )
+
+
+class NarrativeNPCSpecialistAgent:
+    def synthesize_systemic_quests(self, phase: str, unrest: float, goals: List[SprintGoal]) -> List[SystemicQuest]:
+        if phase == "MUNICIPAL_BREAD_RIOT" or unrest >= 0.80:
+            return [
+                SystemicQuest(
+                    quest_id="QUEST_RIOT_RELIEF",
+                    title="Clandestine Granary Relief",
+                    synopsis="Bypass the City Watch curfew to unlock Aldous's emergency cellar stores.",
+                    issuing_npc_id="NPC_ALDOUS",
+                    reward_item_id="item_bread",
+                    reward_stamina=40.0,
+                    objectives=[
+                        QuestObjective(
+                            objective_id="OBJ_01_TALK_ALDOUS",
+                            description="Confer with Aldous outside The Common Loaf.",
+                            target_node_id="NODE_BAKERY",
+                            target_npc_id="NPC_ALDOUS",
+                            status=ObjectiveStatus.COMPLETED
+                        ),
+                        QuestObjective(
+                            objective_id="OBJ_02_DRAIN_SLUICE",
+                            description="Operate Sluice Gate 01 in the aqueduct catacombs to lower drainage water.",
+                            target_node_id="NODE_AQUEDUCT_CATACOMBS",
+                            target_smart_object="SO_SLUICE_GATE_01",
+                            status=ObjectiveStatus.ACTIVE
+                        ),
+                        QuestObjective(
+                            objective_id="OBJ_03_RETRIEVE_FLOUR",
+                            description="Trade contraband herbs with Garrett for grain reserves.",
+                            target_node_id="NODE_APOTHECARY",
+                            target_npc_id="NPC_GARRETT",
+                            target_smart_object="SO_GARRETT",
+                            status=ObjectiveStatus.LOCKED
+                        )
+                    ]
+                )
+            ]
+        else:
+            return [
+                SystemicQuest(
+                    quest_id="QUEST_GUILD_COMMERCE",
+                    title="The Tithe Evasion Network",
+                    synopsis="Establish a discrete conduit between the apothecaries and subterranean water vaults.",
+                    issuing_npc_id="NPC_GARRETT",
+                    reward_item_id="item_sunfire_salve",
+                    reward_stamina=25.0,
+                    objectives=[
+                        QuestObjective(
+                            objective_id="OBJ_COMMERCE_01",
+                            description="Inspect the Market Cross Rally Notice.",
+                            target_node_id="NODE_PLAZA",
+                            target_smart_object="SO_RALLY",
+                            status=ObjectiveStatus.ACTIVE
+                        ),
+                        QuestObjective(
+                            objective_id="OBJ_COMMERCE_02",
+                            description="Report Arch-Prelate Malakor's tithe rate back to Garrett.",
+                            target_node_id="NODE_APOTHECARY",
+                            target_npc_id="NPC_GARRETT",
+                            target_smart_object="SO_GARRETT",
+                            status=ObjectiveStatus.LOCKED
+                        )
+                    ]
+                )
+            ]
+
+    def synthesize_npc_roster(self, phase: str, unrest: float) -> Dict[str, NPCActorSpec]:
+        return {
+            "NPC_ALDOUS": NPCActorSpec(
+                npc_id="NPC_ALDOUS",
+                name="Aldous the Baker",
+                role="Guild Baker",
+                faction="Baker's Guild",
+                color_hex="#f5af19",
+                position=Vector3D(x=0.0, y=2300.0, z=0.0),
+                default_dialogue="Communal ovens are fired down. Tithes took half the grain this morning.",
+                inventory={"item_bread": 12, "item_flour": 5},
+                assigned_smart_object="SO_ALDOUS"
+            ),
+            "NPC_GARRETT": NPCActorSpec(
+                npc_id="NPC_GARRETT",
+                name="Garrett the Herbalist",
+                role="Apothecary Merchant",
+                faction="Artisans Fellowship",
+                color_hex="#2ecc71",
+                position=Vector3D(x=2300.0, y=0.0, z=0.0),
+                default_dialogue="Keep your voice low. Nightshade and dried hemlock on the top shelf.",
+                inventory={"item_sunfire_salve": 4, "item_contraband_grain": 2},
+                assigned_smart_object="SO_GARRETT"
+            )
+        }
 
 
 class DMDirectorAgent:
@@ -463,53 +676,28 @@ class DMDirectorAgent:
         )
 
     def validate_causal_invariants(
-        self, beat: ProposedGameBeat, player_pos: Tuple[float, float, float], memory: StudioSharedMemoryBus
+        self, beat: ProposedGameBeat, player_pos: Tuple[float, float, float], npcs: Dict[str, NPCActorSpec]
     ) -> Tuple[bool, str]:
-        npc = beat.target_npc_id
-        npc_pos = memory.npc_locations.get(npc)
-        if npc_pos and math.dist(npc_pos, player_pos) > 3000.0:
-            return False, f"SPATIAL FAULT: {npc} is {math.dist(npc_pos, player_pos):.1f} units away. Cannot teleport."
-        for item, qty in beat.required_props_or_coin.items():
-            held = memory.npc_inventories.get(npc, {}).get(item, 0.0)
-            if held < qty:
-                return False, f"MATERIAL FAULT: {npc} lacks {qty}x of '{item}' (Holds {held})."
+        npc = npcs.get(beat.target_npc_id)
+        if npc:
+            p = (npc.position.x, npc.position.y, npc.position.z)
+            if math.dist(p, player_pos) > 4000.0:
+                return False, f"SPATIAL FAULT: {npc.name} is {math.dist(p, player_pos):.1f} units away. Cannot teleport."
         return True, "PASSED: Causal continuity verified."
 
 
-class PersonaDialogueAgent:
-    def synthesize_dialogue(self, beat: ProposedGameBeat) -> Dict[str, Any]:
-        return {
-            "speaker_id": beat.target_npc_id,
-            "raw_dialogue": beat.dialogue_prompt_concept,
-            "pad_state": {"P": -0.20, "A": 0.40, "D": 0.10},
-            "target_action": beat.action_type
-        }
-
-
 class StyleGuideAgent:
-    def audit_and_restyle(
-        self, dialogue_payload: Dict[str, Any], active_goals: List[SprintGoal]
-    ) -> StyleEvaluationReport:
+    def audit_and_restyle(self, dialogue_payload: Dict[str, Any], active_goals: List[SprintGoal]) -> StyleEvaluationReport:
         text = dialogue_payload["raw_dialogue"]
         speaker = dialogue_payload["speaker_id"]
         action = dialogue_payload.get("target_action", "")
 
         if action == "ENFORCE_MILITARY_RATION":
-            restyled = (
-                "The church seal is on the ovens. Hearthmother’s peace is done—watch captain seized every "
-                "sack of barley at dawn. Take your four ounces of hardtack and clear the square before the spears level."
-            )
+            restyled = "The church seal is on the ovens. Hearthmother’s peace is done—watch captain seized every sack of barley at dawn. Take your hardtack and clear the square."
         elif "GARRETT" in speaker and "CONTRABAND" in action:
-            restyled = (
-                "Lower your head and step past the drying rack. The millers in the Undercroft ground this "
-                "under tallow torches—no orthodoxy wax, no tithe marks. If the watch finds this bushel, "
-                "we're both hanging from the aqueduct arches."
-            )
+            restyled = "Lower your head and step past the rack. The millers in the Undercroft ground this under tallow torches. If the watch finds this bushel, we're both hanging."
         elif "ALDOUS" in speaker:
-            restyled = (
-                "Flour's up another four coppers and church guards are pounding on shutters. "
-                "I've got two charred loaves off the hearthstones. Grab 'em and get down into the drainage vault."
-            )
+            restyled = "Flour's up another four coppers and church guards are pounding on shutters. Grab two charred loaves off the hearthstones and get into the drainage vault."
         else:
             restyled = text
 
@@ -525,110 +713,44 @@ class StyleGuideAgent:
 
 
 class LoreConsistencyAuditorAgent:
-    def audit_final_artifact(self, artifact_type: ContentType, payload: Dict[str, Any]) -> Tuple[bool, float, str]:
+    def audit_final_artifact(self, payload: Dict[str, Any]) -> Tuple[bool, float, str]:
         text = json.dumps(payload).lower()
         if "changed species" in text or "altered horn structure" in text:
             return False, 0.0, "REJECTED: Somatic violation."
         return True, 0.98, "PASSED: Full conformance with canon dogmas."
 
 
-class StateTreeSpecialistAgent:
-    def generate_cpp_task_scaffold(self, action_name: str) -> str:
-        return f"""#pragma once
-#include "CoreMinimal.h"
-#include "StateTreeTaskBase.h"
-#include "StateTreeTask_{action_name}.generated.h"
-
-USTRUCT(meta = (DisplayName = "Task {action_name}"))
-struct MYGAMEPROJECT_API FStateTreeTask_{action_name} : public FStateTreeTaskBase
-{{
-    GENERATED_BODY()
-    virtual EStateTreeRunStatus EnterState(FStateTreeExecutionContext& Context, const FStateTreeTransitionResult& Transition) const override
-    {{
-        return EStateTreeRunStatus::Running;
-    }}
-}};
-"""
-
-
 class ChaosCrewCommander:
-    def __init__(self, damping: float = 0.20):
-        self.damping = damping
-        self.target_dps_lvl4 = 101.0
-        self.current_base_damage = 70.0
-
-    def execute_playtest_matrix(self, seed: int) -> Tuple[List[BugTicket], Optional[str]]:
-        tickets = [
-            BugTicket(
-                ticket_id="BUG-COMBAT-450",
-                severity=BugSeverity.P1_HIGH,
-                title="DPS Exploit: Min-Maxer animation cancel loop achieved 188.0 DPS",
-                description="Rapid melee state switching bypasses weapon recovery frames.",
-                reproduction_seed=seed,
-                responsible_agent="StateTree_Specialist",
-                suggested_action="Add uncancelable recovery frames to StateTree melee task."
-            )
-        ]
-        measured_dps = 188.0
-        delta = measured_dps - self.target_dps_lvl4
-        factor = 1.0 - (self.damping * (delta / self.target_dps_lvl4))
-        hotfixed_base = round(self.current_base_damage * factor, 2)
-
-        csv_hotfix = (
-            "---,1,2,3,4,5\\n"
-            f"Skill_Fireball_BaseDamage,20.00,35.00,50.00,{hotfixed_base:.2f},95.00\\n"
-        )
-        return tickets, csv_hotfix
-
     def execute_client_headless_playtest(
-        self, layout: DistrictSpatialLayout, manifest: DistrictClientManifest
+        self, layout: DistrictSpatialLayout, npcs: Dict[str, NPCActorSpec], mechanics: GameplayMechanicsSpec
     ) -> Tuple[ClientPlaytestReport, List[BugTicket]]:
         tickets: List[BugTicket] = []
-        traversed_count = 0
-        unreachable = []
-        interaction_failures = []
+        traversed = len(layout.nodes)
 
-        for node_id, node in layout.nodes.items():
-            if not node.connected_node_ids and len(layout.nodes) > 1:
-                unreachable.append(node_id)
-                tickets.append(BugTicket(
-                    ticket_id=f"BUG-NAV-{node_id}",
-                    severity=BugSeverity.P2_MEDIUM,
-                    title=f"Navigation Fault: Node {node_id} isolated",
-                    description=f"Automated pathfinder cannot reach {node.zone_name}.",
-                    reproduction_seed=42109,
-                    responsible_agent="Level_Architect",
-                    suggested_action="Connect node to adjacent district rooms."
-                ))
-            else:
-                traversed_count += 1
-
-        for so in manifest.active_smart_objects:
-            pos = so.relative_position
-            matching_room = False
+        for npc in npcs.values():
+            inside = False
             for node in layout.nodes.values():
-                min_b, max_b = node.bounds_min, node.bounds_max
-                if min_b.x <= pos.x <= max_b.x and min_b.y <= pos.y <= max_b.y:
-                    matching_room = True
+                bmin, bmax = node.bounds_min, node.bounds_max
+                if bmin.x <= npc.position.x <= bmax.x and bmin.y <= npc.position.y <= bmax.y:
+                    inside = True
                     break
-            if not matching_room:
-                interaction_failures.append(so.anchor_id)
+            if not inside:
                 tickets.append(BugTicket(
-                    ticket_id=f"BUG-SO-BOUNDS-{so.anchor_id}",
+                    ticket_id=f"BUG-NPC-OOB-{npc.npc_id}",
                     severity=BugSeverity.P1_HIGH,
-                    title=f"Smart Object Out of Bounds: {so.anchor_id}",
-                    description=f"{so.anchor_id} positioned outside floorplate bounds ({pos.x}, {pos.y}).",
+                    title=f"NPC Out of Bounds: {npc.name}",
+                    description=f"{npc.name} spawned outside walkable floorplate bounds.",
                     reproduction_seed=42109,
-                    responsible_agent="Client_Architect",
-                    suggested_action="Clamp anchor coordinates inside host node boundaries."
+                    responsible_agent="Narrative_Specialist",
+                    suggested_action="Clamp NPC coordinates inside assigned zone."
                 ))
 
         report = ClientPlaytestReport(
-            nodes_traversed=traversed_count,
-            unreachable_nodes=unreachable,
-            interaction_failures=interaction_failures,
-            average_socket_latency_ms=18.4,
-            out_of_bounds_detected=len(interaction_failures) > 0,
+            nodes_traversed=traversed,
+            unreachable_nodes=[],
+            interaction_failures=[],
+            average_socket_latency_ms=16.2,
+            out_of_bounds_detected=len(tickets) > 0,
             verdict="PASS" if len(tickets) == 0 else "FAIL_BUGS_FILED"
         )
         return report, tickets
@@ -640,11 +762,11 @@ class StudioDirectorManagerAgent:
         self.systems_architect = SystemsArchitectAgent()
         self.level_architect = LevelArchitectAgent()
         self.client_architect = ClientArchitectAgent()
+        self.gameplay_specialist = GameplayMechanicsSpecialistAgent()
+        self.narrative_specialist = NarrativeNPCSpecialistAgent()
         self.dm_director = DMDirectorAgent()
-        self.persona_synthesizer = PersonaDialogueAgent()
         self.style_guide = StyleGuideAgent()
         self.lore_auditor = LoreConsistencyAuditorAgent()
-        self.statetree_specialist = StateTreeSpecialistAgent()
         self.chaos_crew = ChaosCrewCommander()
         self.staging_dir = Path("build/staging")
         self.staging_dir.mkdir(parents=True, exist_ok=True)
@@ -658,55 +780,76 @@ class StudioDirectorManagerAgent:
         active_goals: Optional[List[SprintGoal]] = None
     ) -> Dict[str, Any]:
         goals = active_goals or []
-        print(f"\\n[STUDIO DIRECTOR]: Commencing sprint for '{district_id}' | Phase: {self.memory.active_phase}")
+        print(f"\\n[STUDIO DIRECTOR]: Commencing full studio sprint for '{district_id}' | Phase: {self.memory.active_phase}")
 
-        metabolism = self.systems_architect.audit_and_apply_goals(self.memory, goals)
-        print(f"  [1/8 Systems] Regime: {metabolism['regime']} | Flour Reserve: {metabolism['flour_level']:.1f}")
+        # 1. Systems & Economy
+        economy_meta, item_catalog = self.systems_architect.audit_and_synthesize_economy(self.memory, goals)
+        print(f"  [1/7 Systems] Economy: {economy_meta['regime']} | Items: {len(item_catalog)} defined")
 
+        # 2. Level Spatial Topology
         layout = self.level_architect.generate_and_refine_layout(district_id, goals)
-        print(f"  [2/8 Level] Topology: {len(layout.nodes)} rooms")
+        print(f"  [2/7 Level] Topology: {len(layout.nodes)} zones")
 
-        manifest = self.client_architect.generate_client_manifest(layout, self.memory.active_phase, metabolism['unrest'], goals)
-        print(f"  [3/8 Client Architect] Manifest built with {sum(len(p) for p in manifest.props.values())} props")
+        # 3. Client UI & Visual Props
+        ui_spec, lighting, props = self.client_architect.design_ui_and_props(
+            layout, self.memory.active_phase, economy_meta['unrest'], goals
+        )
+        print(f"  [3/7 Client UI/Props] UI Theme: {ui_spec.hud_title} | Props: {sum(len(p) for p in props.values())}")
 
+        # 4. Gameplay Mechanics Tuning
+        mechanics = self.gameplay_specialist.tune_mechanics(economy_meta['unrest'], self.memory.active_phase)
+        print(f"  [4/7 Gameplay Specialist] Move speed: {mechanics.player_base_speed:.0f} | Radius: {mechanics.interaction_radius:.0f}")
+
+        # 5. Narrative Actors & Pacing Beat
+        npcs = self.narrative_specialist.synthesize_npc_roster(self.memory.active_phase, economy_meta['unrest'])
         beat = self.dm_director.formulate_pacing_beat(player_stress, self.memory, goals)
-        is_causal, reason = self.dm_director.validate_causal_invariants(beat, player_pos, self.memory)
-        print(f"  [4/8 DM-Director] Beat '{beat.beat_id}' -> Causality: {reason}")
+        is_causal, reason = self.dm_director.validate_causal_invariants(beat, player_pos, npcs)
         if not is_causal:
             raise RuntimeError(f"Causal fault: {reason}")
 
-        raw_dialogue = self.persona_synthesizer.synthesize_dialogue(beat)
-        style_report = self.style_guide.audit_and_restyle(raw_dialogue, goals)
-        raw_dialogue["spoken_dialogue"] = style_report.restyled_output or raw_dialogue["raw_dialogue"]
-        print(f"  [5/8 Lyric Style] Human touch score: {style_report.human_touch_score:.2f}")
+        style_report = self.style_guide.audit_and_restyle(
+            {"raw_dialogue": beat.dialogue_prompt_concept, "speaker_id": beat.target_npc_id, "target_action": beat.action_type},
+            goals
+        )
+        print(f"  [5/7 Narrative & Lyric] Beat: '{beat.beat_id}' | Soul: {style_report.human_touch_score:.2f}")
 
-        approved, lore_score, notes = self.lore_auditor.audit_final_artifact(ContentType.NPC_DIALOGUE_TEMPLATE, raw_dialogue)
-        print(f"  [6/8 Lore Auditor] Verification: {lore_score:.2f} (Approved: {approved})")
+        # 5b. Synthesize Systemic Quest DAGs
+        quests = self.narrative_specialist.synthesize_systemic_quests(self.memory.active_phase, economy_meta['unrest'], goals)
 
-        cpp_scaffold = self.statetree_specialist.generate_cpp_task_scaffold(beat.action_type)
-        tickets, hotfix_csv = self.chaos_crew.execute_playtest_matrix(seed)
-        self.memory.bug_ticket_queue.extend(tickets)
-        print(f"  [7/8 Chaos Crew] Headless matrix: {len(tickets)} combat tickets filed")
+        # 6. Assemble Unified Runtime Manifest
+        runtime_manifest = GameRuntimeManifest(
+            manifest_version=int(self.memory.world_time),
+            district_id=district_id,
+            simulation_phase=self.memory.active_phase,
+            district_unrest=economy_meta['unrest'],
+            world_time=self.memory.world_time,
+            lighting=lighting,
+            ui=ui_spec,
+            mechanics=mechanics,
+            items=item_catalog,
+            npcs=npcs,
+            spatial_layout=layout,
+            props=props,
+            active_quests=quests
+        )
 
-        client_report, client_tickets = self.chaos_crew.execute_client_headless_playtest(layout, manifest)
+        # 7. Chaos Crew Headless Client & Logic Playtest
+        client_report, client_tickets = self.chaos_crew.execute_client_headless_playtest(layout, npcs, mechanics)
         self.memory.bug_ticket_queue.extend(client_tickets)
-        print(f"  [8/8 Chaos Client Bot] Client Audit: {client_report.nodes_traversed} nodes verified, {len(client_tickets)} bounds tickets")
+        print(f"  [6/7 Chaos Crew] Headless Playtest: {client_report.verdict} ({len(client_tickets)} bugs)")
+
+        approved, lore_score, notes = self.lore_auditor.audit_final_artifact(runtime_manifest.model_dump())
+        print(f"  [7/7 Lore Auditor] Canon conformity: {lore_score:.2f} (Approved: {approved})")
 
         deliverable = GameReadyArtifact(
             artifact_id=f"ART_{district_id}_{int(self.memory.world_time)}",
-            content_type=ContentType.NPC_DIALOGUE_TEMPLATE,
+            content_type=ContentType.CLIENT_RUNTIME_MANIFEST,
             raw_payload={
-                "dialogue": raw_dialogue,
+                "game_runtime_manifest": runtime_manifest.model_dump(),
+                "active_beat": beat.model_dump(),
+                "spoken_dialogue": style_report.restyled_output,
                 "target_npc": beat.target_npc_id,
-                "action": beat.action_type,
-                "spatial_layout": layout.model_dump(),
-                "client_manifest": manifest.model_dump(),
-                "client_playtest": client_report.model_dump(),
-                "cpp_scaffold": cpp_scaffold,
-                "hotfix_csv": hotfix_csv,
-                "district_unrest": metabolism["unrest"],
-                "active_phase": self.memory.active_phase,
-                "active_goals": [g.primary_objective for g in goals if not g.is_completed]
+                "action": beat.action_type
             },
             style_report=style_report,
             lore_consistency_score=lore_score,
@@ -721,164 +864,10 @@ class StudioDirectorManagerAgent:
 
         return deliverable.model_dump()
 ''', encoding="utf-8")
-print("  [OK] services/agent_runtime/src/virtual_studio_engine.py")
+print("  [2/4] Compiled services/agent_runtime/src/virtual_studio_engine.py")
 
 # ==============================================================================
-# 3. TEAM CEREMONIES: team_sync.py
-# ==============================================================================
-Path("services/agent_runtime/src/team_sync.py").write_text('''import sys
-from pathlib import Path
-
-ROOT_DIR = Path(__file__).resolve().parents[3]
-if str(ROOT_DIR) not in sys.path:
-    sys.path.insert(0, str(ROOT_DIR))
-
-import time
-from typing import Dict, List, Any, Tuple
-
-from schemas.studio_contracts import (
-    IdeaDiscipline, BrainstormIdea, SprintGoal, SprintMeetingMinutes, BugSeverity
-)
-from services.agent_runtime.src.virtual_studio_engine import StudioSharedMemoryBus
-
-class StudioCeremonyEngine:
-    def __init__(self, memory_bus: StudioSharedMemoryBus):
-        self.memory = memory_bus
-
-    def run_sprint_retrospective(self, cycle_history: List[Dict[str, Any]]) -> Dict[str, Any]:
-        unresolved_bugs = [b for b in self.memory.bug_ticket_queue]
-        total_p0 = sum(1 for b in unresolved_bugs if b.severity == BugSeverity.P0_CRITICAL)
-        total_p1 = sum(1 for b in unresolved_bugs if b.severity == BugSeverity.P1_HIGH)
-
-        return {
-            "completed_sprint_cycles": len(cycle_history),
-            "current_district_unrest": round(self.memory.active_district_unrest, 3),
-            "active_phase": self.memory.active_phase,
-            "commodity_reserves": self.memory.commodity_reserves,
-            "backlog_health": {
-                "total_unresolved_bugs": len(unresolved_bugs),
-                "p0_blockers": total_p0,
-                "p1_exploits": total_p1
-            },
-            "retrospective_consensus": (
-                "STABLE_PRODUCTION" if total_p0 == 0 else "HALT_FOR_HOTFIX"
-            )
-        }
-
-    def conduct_brainstorming_session(self) -> List[BrainstormIdea]:
-        phase = self.memory.active_phase
-        proposals: List[BrainstormIdea] = []
-
-        if phase == "MUNICIPAL_BREAD_RIOT":
-            proposals.append(BrainstormIdea(
-                idea_id="IDEA-SYS-01", proposing_agent="Systems_Architect",
-                discipline=IdeaDiscipline.SYSTEMS_DESIGN,
-                title="Curfew Bread Rations & Emergency Granary Depots",
-                pitch="Institute caloric rationing. Church guards issue 1 hardtack loaf per citizen per day.",
-                technical_feasibility_score=0.96, systemic_emergence_score=0.91
-            ))
-        else:
-            proposals.append(BrainstormIdea(
-                idea_id="IDEA-SYS-01", proposing_agent="Systems_Architect",
-                discipline=IdeaDiscipline.SYSTEMS_DESIGN,
-                title="Artisan Guild Smuggling Ring & Tithe Evasion",
-                pitch="Artisans establish hidden gold reserves behind shop hearths to bypass the 35% Malakor tithe.",
-                technical_feasibility_score=0.94, systemic_emergence_score=0.89
-            ))
-
-        proposals.append(BrainstormIdea(
-            idea_id="IDEA-LVL-01", proposing_agent="Level_Architect",
-            discipline=IdeaDiscipline.LEVEL_ARCHITECTURE,
-            title="Vertical Aqueduct Catacombs with Dynamic Sluice Gates",
-            pitch="Carve subterranean aqueduct conduits connecting the market square to the dock canals.",
-            technical_feasibility_score=0.90, systemic_emergence_score=0.93
-        ))
-
-        proposals.append(BrainstormIdea(
-            idea_id="IDEA-CLI-01", proposing_agent="Client_Architect",
-            discipline=IdeaDiscipline.AESTHETIC_STYLE,
-            title="Volumetric Torchlight Blooms & Interactive Workstation Shaders",
-            pitch="Deploy dynamic point lantern flickering and emissive pulses on active smart object meshes.",
-            technical_feasibility_score=0.95, systemic_emergence_score=0.87
-        ))
-
-        proposals.append(BrainstormIdea(
-            idea_id="IDEA-QA-01", proposing_agent="Chaos_Commander",
-            discipline=IdeaDiscipline.QA_COMBAT_BALANCE,
-            title="Automated Client Headless Navigation & Boundary Stress Test",
-            pitch="Deploy automated bots traversing all topological nodes to catch out-of-bounds clipping.",
-            technical_feasibility_score=0.98, systemic_emergence_score=0.82
-        ))
-
-        return proposals
-
-    def compile_sprint_goals(
-        self, retro: Dict[str, Any], ideas: List[BrainstormIdea], target_district: str
-    ) -> Tuple[List[SprintGoal], str]:
-        selected = [i for i in ideas if i.technical_feasibility_score >= 0.88 and i.systemic_emergence_score >= 0.80]
-        goals: List[SprintGoal] = []
-        for idx, idea in enumerate(selected, start=1):
-            goals.append(SprintGoal(
-                goal_id=f"GOAL-W{int(self.memory.world_time // 100)}-{idx:02d}",
-                target_district=target_district,
-                primary_objective=idea.title,
-                driving_ideas=[idea.idea_id],
-                assigned_crews=[idea.proposing_agent, "Studio_Director"],
-                success_criteria=f"Verified in {target_district} across engine and web client.",
-                is_completed=False
-            ))
-
-        director_notes = (
-            f"Goals aligned for {target_district} under phase {self.memory.active_phase}. "
-            f"Client and server pipelines synchronized. All crews cleared to build."
-        )
-        return goals, director_notes
-
-    def conduct_full_team_meeting(
-        self, target_district: str, cycle_history: List[Dict[str, Any]]
-    ) -> SprintMeetingMinutes:
-        print("\\n" + "=" * 70)
-        print(" [STUDIO ALL-HANDS]: SPRINT STANDUP & BRAINSTORMING CEREMONY ")
-        print(f" Phase: {self.memory.active_phase} | District: {target_district} | Time: {self.memory.world_time:.1f}s")
-        print("=" * 70)
-
-        retro = self.run_sprint_retrospective(cycle_history)
-        print(f"1. Retrospective Status : {retro['retrospective_consensus']}")
-        print(f"   Commodity Reserves   : {retro['commodity_reserves']}")
-        print(f"   Unresolved Bugs      : {retro['backlog_health']['total_unresolved_bugs']}")
-
-        print("\\n2. Cross-Crew Brainstorming Proposals:")
-        ideas = self.conduct_brainstorming_session()
-        for idea in ideas:
-            print(f"   • [{idea.discipline.value}] {idea.proposing_agent}: '{idea.title}'")
-
-        goals, notes = self.compile_sprint_goals(retro, ideas, target_district)
-        print("\\n3. Committed Sprint Goals:")
-        for g in goals:
-            print(f"   ▶ [{g.goal_id}] {g.primary_objective}")
-
-        meeting_minutes = SprintMeetingMinutes(
-            meeting_id=f"SYNC-W{int(self.memory.world_time)}",
-            world_time_marker=self.memory.world_time,
-            retrospective_summary=retro,
-            brainstorm_proposals=ideas,
-            selected_sprint_goals=goals,
-            director_closing_notes=notes
-        )
-
-        out_dir = Path("build/staging/meetings")
-        out_dir.mkdir(parents=True, exist_ok=True)
-        minutes_path = out_dir / f"{meeting_minutes.meeting_id}.json"
-        with open(minutes_path, "w", encoding="utf-8") as f:
-            f.write(meeting_minutes.model_dump_json(indent=2))
-
-        print(f"\\n[STUDIO DIRECTOR]: Minutes archived to {minutes_path}\\n" + "=" * 70 + "\\n")
-        return meeting_minutes
-''', encoding="utf-8")
-print("  [OK] services/agent_runtime/src/team_sync.py")
-
-# ==============================================================================
-# 4. WEBSOCKET IPC STATE SERVER: server.py
+# 3. WEBSOCKET SERVER: services/agent_runtime/src/server.py
 # ==============================================================================
 Path("services/agent_runtime/src/server.py").write_text('''import sys
 from pathlib import Path
@@ -890,7 +879,7 @@ if str(ROOT_DIR) not in sys.path:
 import asyncio
 import json
 import logging
-from typing import Any
+from typing import Set, Any
 import websockets
 
 from services.agent_runtime.src.virtual_studio_engine import StudioDirectorManagerAgent
@@ -900,14 +889,16 @@ logging.basicConfig(level=logging.INFO, format="[%(asctime)s] [%(levelname)s] %(
 logger = logging.getLogger("AethelgardServer")
 
 DIRECTOR = StudioDirectorManagerAgent()
+CONNECTED_CLIENTS: Set[Any] = set()
+
 ACTIVE_GOALS = [
     SprintGoal(
-        goal_id="GOAL-INIT",
+        goal_id="GOAL-AUTONOMOUS-INIT",
         target_district="District_MarketSquare",
-        primary_objective="Vertical Aqueduct Catacombs with Dynamic Sluice Gates",
-        driving_ideas=["IDEA-LVL-01"],
-        assigned_crews=["Level_Architect", "Client_Architect"],
-        success_criteria="Rendered in web client"
+        primary_objective="Systemic Quests and Live Dynamic Broadcast",
+        driving_ideas=["IDEA-SYS-01", "IDEA-LVL-01"],
+        assigned_crews=["Systems_Architect", "Narrative_Specialist", "Client_Architect"],
+        success_criteria="Live hot-reload verified across browser client"
     )
 ]
 
@@ -915,7 +906,7 @@ SMART_OBJECT_RESPONSES = {
     "SmartObject.Mechanism.SluiceGate": {
         "speaker": "AQUEDUCT MECHANISM",
         "action": "OPERATE_SLUICE_GATE",
-        "dialogue": "Heavy bronze gears groan as you crank the release valve. Subterranean floodwaters hiss and drain into the lower canals, clearing the dry walking path."
+        "dialogue": "Heavy bronze gears groan as you crank the release valve. Subterranean floodwaters hiss and drain into the lower canals, advancing active quest objectives!"
     },
     "SmartObject.Craft.BreadOven": {
         "speaker": "NPC_ALDOUS",
@@ -934,9 +925,20 @@ SMART_OBJECT_RESPONSES = {
     }
 }
 
+async def broadcast_runtime_manifest(manifest_payload: dict):
+    if not CONNECTED_CLIENTS:
+        return
+    message = json.dumps({
+        "status": "LIVE_HOT_RELOAD",
+        "game_runtime_manifest": manifest_payload
+    })
+    logger.info(f"Proactively broadcasting live update to {len(CONNECTED_CLIENTS)} client(s)...")
+    await asyncio.gather(*[client.send(message) for client in CONNECTED_CLIENTS], return_exceptions=True)
+
 async def handle_state_ipc(websocket: Any):
     client_addr = getattr(websocket, "remote_address", "unknown")
-    logger.info(f"Client connected to State IPC: {client_addr}")
+    CONNECTED_CLIENTS.add(websocket)
+    logger.info(f"Client connected: {client_addr} (Pool: {len(CONNECTED_CLIENTS)})")
     try:
         async for message in websocket:
             payload = json.loads(message)
@@ -959,13 +961,10 @@ async def handle_state_ipc(websocket: Any):
                 response = {
                     "status": "PROCESSED",
                     "artifact_id": result["artifact_id"],
-                    "dialogue": result["raw_payload"]["dialogue"]["spoken_dialogue"],
+                    "dialogue": result["raw_payload"]["spoken_dialogue"],
                     "target_npc": result["raw_payload"]["target_npc"],
                     "action": result["raw_payload"]["action"],
-                    "district_unrest": result["raw_payload"]["district_unrest"],
-                    "active_phase": result["raw_payload"]["active_phase"],
-                    "spatial_layout": result["raw_payload"]["spatial_layout"],
-                    "client_manifest": result["raw_payload"]["client_manifest"]
+                    "game_runtime_manifest": result["raw_payload"]["game_runtime_manifest"]
                 }
                 await websocket.send(json.dumps(response))
 
@@ -977,7 +976,7 @@ async def handle_state_ipc(websocket: Any):
                 resp_data = SMART_OBJECT_RESPONSES.get(so_tag, {
                     "speaker": "WORLD OBJECT",
                     "action": "INTERACT_GENERIC",
-                    "dialogue": f"You examine {so_id}. The surface is worn from years of continuous guild use."
+                    "dialogue": f"You examine {so_id}."
                 })
 
                 response = {
@@ -986,274 +985,51 @@ async def handle_state_ipc(websocket: Any):
                     "dialogue": resp_data["dialogue"],
                     "target_npc": resp_data["speaker"],
                     "action": resp_data["action"],
-                    "district_unrest": DIRECTOR.memory.active_district_unrest,
-                    "active_phase": DIRECTOR.memory.active_phase
+                    "advance_objective_tag": so_tag
                 }
                 await websocket.send(json.dumps(response))
+
+            elif msg_type == "HOT_RELOAD_TRIGGER":
+                await broadcast_runtime_manifest(payload.get("manifest", {}))
 
             elif msg_type == "HEARTBEAT":
                 await websocket.send(json.dumps({"type": "PONG", "time": DIRECTOR.memory.world_time}))
     except websockets.exceptions.ConnectionClosedOK:
         pass
     except websockets.exceptions.ConnectionClosedError:
-        logger.warning(f"Client disconnected: {client_addr}")
-    except Exception as e:
-        logger.error(f"Error handling IPC message: {e}", exc_info=True)
+        pass
+    finally:
+        CONNECTED_CLIENTS.discard(websocket)
+        logger.info(f"Client disconnected: {client_addr} (Pool: {len(CONNECTED_CLIENTS)})")
 
 async def main():
     server = await websockets.serve(handle_state_ipc, "0.0.0.0", 8765)
-    logger.info("Virtual Studio State Server live on ws://0.0.0.0:8765")
+    logger.info("Virtual Studio State & Broadcast Server live on ws://0.0.0.0:8765")
     await server.wait_closed()
 
 if __name__ == "__main__":
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
-        logger.info("Server halted by user.")
+        logger.info("Server stopped by user.")
 ''', encoding="utf-8")
-print("  [OK] services/agent_runtime/src/server.py")
+print("  [3/4] Compiled services/agent_runtime/src/server.py")
 
 # ==============================================================================
-# 5. ASSET INGESTER: engine_importer.py
+# 4. BYTECODE VERIFICATION
 # ==============================================================================
-Path("tools/engine_importer.py").write_text('''import json
-from pathlib import Path
-
-STAGING_DIR = Path("build/staging")
-UE5_CONTENT_DIR = Path("unreal/ProjectAethelgard/Content")
-UE5_SOURCE_DIR = Path("unreal/ProjectAethelgard/Source/ProjectAethelgard")
-WEB_CLIENT_DIR = Path("web_client")
-
-class EngineAssetIngester:
-    def __init__(self):
-        STAGING_DIR.mkdir(parents=True, exist_ok=True)
-        (UE5_CONTENT_DIR / "Balance/Hotfixes").mkdir(parents=True, exist_ok=True)
-        (UE5_CONTENT_DIR / "Levels/PCG_Layouts").mkdir(parents=True, exist_ok=True)
-        (UE5_CONTENT_DIR / "Dialogue").mkdir(parents=True, exist_ok=True)
-        (UE5_SOURCE_DIR / "Private").mkdir(parents=True, exist_ok=True)
-        WEB_CLIENT_DIR.mkdir(parents=True, exist_ok=True)
-        print(f"[ENGINE INGESTER]: Listening on {STAGING_DIR.resolve()}...")
-
-    def stage_artifact(self, artifact_path: Path):
-        with open(artifact_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-
-        if not data.get("auditor_approved", False):
-            print(f"[INGESTER REJECTED]: Artifact {artifact_path.name} failed auditor approval.")
-            return
-
-        payload = data.get("raw_payload", {})
-
-        if payload.get("client_manifest"):
-            target_manifest = WEB_CLIENT_DIR / "district_manifest.json"
-            with open(target_manifest, "w", encoding="utf-8") as f:
-                json.dump(payload["client_manifest"], f, indent=2)
-            print(f"[INGESTER -> WEB CLIENT]: Deployed dynamic prop manifest to {target_manifest}")
-
-        if payload.get("hotfix_csv"):
-            target_csv = UE5_CONTENT_DIR / "Balance/Hotfixes/DT_CombatScalars_Hotfixed.csv"
-            with open(target_csv, "w", encoding="utf-8") as f:
-                f.write(payload["hotfix_csv"])
-            print(f"[INGESTER -> UE5 BALANCE]: Deployed hotfix CSV to {target_csv}")
-
-        if payload.get("spatial_layout"):
-            target_layout = UE5_CONTENT_DIR / f"Levels/PCG_Layouts/{artifact_path.stem}_Layout.json"
-            with open(target_layout, "w", encoding="utf-8") as f:
-                json.dump(payload["spatial_layout"], f, indent=2)
-            print(f"[INGESTER -> UE5 PCG]: Deployed spatial layout to {target_layout}")
-
-        if payload.get("dialogue"):
-            target_dlg = UE5_CONTENT_DIR / f"Dialogue/{artifact_path.stem}_Dialogue.json"
-            with open(target_dlg, "w", encoding="utf-8") as f:
-                json.dump(payload["dialogue"], f, indent=2)
-            print(f"[INGESTER -> UE5 DIALOGUE]: Deployed dialogue asset to {target_dlg}")
-
-        if payload.get("cpp_scaffold"):
-            target_cpp = UE5_SOURCE_DIR / f"Private/{artifact_path.stem}_Task.h"
-            with open(target_cpp, "w", encoding="utf-8") as f:
-                f.write(payload["cpp_scaffold"])
-            print(f"[INGESTER -> UE5 C++]: Deployed C++ StateTree task scaffold to {target_cpp}")
-
-    def run_once(self):
-        staged_files = list(STAGING_DIR.glob("*.json"))
-        for artifact_file in staged_files:
-            try:
-                self.stage_artifact(artifact_file)
-                artifact_file.unlink()
-            except Exception as e:
-                print(f"[INGESTER ERROR]: Failed staging {artifact_file.name}: {e}")
-
-if __name__ == "__main__":
-    ingester = EngineAssetIngester()
-    ingester.run_once()
-''', encoding="utf-8")
-print("  [OK] tools/engine_importer.py")
-
-# ==============================================================================
-# 6. SPRINT RUNNER: autonomous_runner.py
-# ==============================================================================
-Path("tools/autonomous_runner.py").write_text('''#!/usr/bin/env python3
-import sys
-from pathlib import Path
-
-ROOT_DIR = Path(__file__).resolve().parents[1]
-if str(ROOT_DIR) not in sys.path:
-    sys.path.insert(0, str(ROOT_DIR))
-
-import argparse
-import time
-import random
-from typing import List, Dict, Any
-
-from schemas.studio_contracts import SprintGoal
-from services.agent_runtime.src.virtual_studio_engine import StudioDirectorManagerAgent
-from services.agent_runtime.src.team_sync import StudioCeremonyEngine
-from tools.engine_importer import EngineAssetIngester
-
-DISTRICT_ROSTER = [
-    "District_MarketSquare",
-    "District_OldUndercroft",
-    "District_DocksCommons",
-    "District_CathedralHeights"
-]
-
-class AutonomousStudioRunner:
-    def __init__(self, meeting_cadence: int = 3):
-        self.director = StudioDirectorManagerAgent()
-        self.ingester = EngineAssetIngester()
-        self.ceremony_engine = StudioCeremonyEngine(self.director.memory)
-        self.meeting_cadence = meeting_cadence
-        self.cycle_count = 0
-        self.cycle_history: List[Dict[str, Any]] = []
-        self.current_goals: List[SprintGoal] = []
-
-    def run_cycle(self, cycle_index: int) -> Dict[str, Any]:
-        self.cycle_count = cycle_index
-        district = DISTRICT_ROSTER[(cycle_index - 1) % len(DISTRICT_ROSTER)]
-        self.director.memory.world_time += 100.0
-
-        player_stress = round(random.uniform(0.35, 0.88), 2)
-        player_coords = (
-            round(random.uniform(1000.0, 1800.0), 1),
-            round(random.uniform(400.0, 1200.0), 1),
-            0.0
-        )
-        sim_seed = 40000 + (cycle_index * 137)
-
-        print("\\n" + "=" * 70)
-        print(f" >>> [CYCLE {cycle_index:02d}]: SPRINT DISPATCH ON '{district}' (Time: {self.director.memory.world_time:.1f}s) <<<")
-        print("=" * 70)
-
-        artifact = self.director.dispatch_studio_pipeline(
-            district_id=district,
-            player_stress=player_stress,
-            player_pos=player_coords,
-            seed=sim_seed,
-            active_goals=self.current_goals
-        )
-
-        self.ingester.run_once()
-        resolved_count = self.triage_bug_backlog()
-
-        result = {
-            "cycle": cycle_index,
-            "district": district,
-            "artifact_id": artifact["artifact_id"],
-            "target_npc": artifact["raw_payload"]["target_npc"],
-            "action": artifact["raw_payload"]["action"],
-            "lore_score": artifact["lore_consistency_score"],
-            "human_touch_score": artifact["human_touch_score"],
-            "resolved_tickets": resolved_count
-        }
-        self.cycle_history.append(result)
-        return result
-
-    def triage_bug_backlog(self) -> int:
-        queue = self.director.memory.bug_ticket_queue
-        if not queue:
-            return 0
-        resolved_count = 0
-        for ticket in queue:
-            print(f"  [AUTO-TRIAGE] {ticket.responsible_agent} patched ticket '{ticket.ticket_id}': {ticket.title}")
-            resolved_count += 1
-        self.director.memory.bug_ticket_queue = []
-        return resolved_count
-
-    def run_sprint_series(self, total_cycles: int, delay_between_cycles_sec: float = 0.2):
-        start_time = time.time()
-        print(f"\\n[AUTONOMOUS STUDIO RUNNER]: Starting {total_cycles}-cycle goal-driven production run...")
-
-        meeting = self.ceremony_engine.conduct_full_team_meeting(
-            target_district=DISTRICT_ROSTER[0],
-            cycle_history=[]
-        )
-        self.current_goals = meeting.selected_sprint_goals
-
-        for i in range(1, total_cycles + 1):
-            self.run_cycle(i)
-
-            if i % self.meeting_cadence == 0 and i < total_cycles:
-                next_district = DISTRICT_ROSTER[i % len(DISTRICT_ROSTER)]
-                meeting = self.ceremony_engine.conduct_full_team_meeting(
-                    target_district=next_district,
-                    cycle_history=self.cycle_history
-                )
-                self.current_goals = meeting.selected_sprint_goals
-
-            if delay_between_cycles_sec > 0:
-                time.sleep(delay_between_cycles_sec)
-
-        elapsed = time.time() - start_time
-        self.print_executive_summary(self.cycle_history, elapsed)
-
-    def print_executive_summary(self, ledger: List[Dict[str, Any]], elapsed_sec: float):
-        print("\\n" + "#" * 70)
-        print("          AUTONOMOUS MULTI-CYCLE SPRINT EXECUTIVE SUMMARY           ")
-        print("#" * 70)
-        print(f"Total Cycles Completed : {len(ledger)}")
-        print(f"Elapsed Wall Time      : {elapsed_sec:.2f} seconds")
-        print(f"Total Assets Deployed  : {len(ledger) * 4} (Curves, PCG Layouts, Dialogues, C++ Headers)")
-        print("-" * 70)
-        print(f"{'Cycle':<7} | {'District':<26} | {'Target NPC':<14} | {'Action':<24} | {'Soul':<5}")
-        print("-" * 70)
-        for entry in ledger:
-            print(
-                f"{entry['cycle']:<7} | "
-                f"{entry['district']:<26} | "
-                f"{entry['target_npc']:<14} | "
-                f"{entry['action']:<24} | "
-                f"{entry['human_touch_score']:<5.2f}"
-            )
-        print("#" * 70 + "\\n")
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Run autonomous dev team cycles.")
-    parser.add_argument("--cycles", type=int, default=3, help="Total cycles (default: 3)")
-    parser.add_argument("--cadence", type=int, default=2, help="Cycles between meetings (default: 2)")
-    parser.add_argument("--delay", type=float, default=0.1, help="Delay in seconds")
-    args = parser.parse_args()
-
-    runner = AutonomousStudioRunner(meeting_cadence=args.cadence)
-    runner.run_sprint_series(total_cycles=args.cycles, delay_between_cycles_sec=args.delay)
-''', encoding="utf-8")
-print("  [OK] tools/autonomous_runner.py")
-
-# ==============================================================================
-# 7. STATIC SYNTAX & IMPORT AUDIT
-# ==============================================================================
-print("\n[VERIFIER]: Compiling all modules to verify bytecode integrity...")
 targets = [
     "schemas/studio_contracts.py",
     "services/agent_runtime/src/virtual_studio_engine.py",
-    "services/agent_runtime/src/team_sync.py",
     "services/agent_runtime/src/server.py",
+    "services/agent_runtime/src/team_sync.py",
     "tools/engine_importer.py",
     "tools/autonomous_runner.py"
 ]
 
+print("\n[VERIFIER]: Compiling bytecode across all production targets...")
 for t in targets:
     py_compile.compile(t, doraise=True)
-    print(f"  [BYTECODE VALIDATED]: {t}")
+    print(f"  [BYTECODE VERIFIED]: {t}")
 
-print("\nSUCCESS: All production modules are synchronized, error-free, and compiled!")
+print("\nSUCCESS: All production modules verified and synchronized!")

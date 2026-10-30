@@ -130,6 +130,32 @@ class GameplayMechanicsSpec(BaseModel):
     camera_fov: float = 45.0
     camera_default_distance: float = 3000.0
 
+# Systemic Quests
+class ObjectiveStatus(str, Enum):
+    LOCKED = "LOCKED"
+    ACTIVE = "ACTIVE"
+    COMPLETED = "COMPLETED"
+    FAILED = "FAILED"
+
+class QuestObjective(BaseModel):
+    objective_id: str
+    description: str
+    target_node_id: str
+    target_smart_object: Optional[str] = None
+    target_npc_id: Optional[str] = None
+    required_item_id: Optional[str] = None
+    status: ObjectiveStatus = ObjectiveStatus.ACTIVE
+
+class SystemicQuest(BaseModel):
+    quest_id: str
+    title: str
+    synopsis: str
+    issuing_npc_id: str
+    reward_item_id: Optional[str] = None
+    reward_stamina: float = 0.0
+    objectives: List[QuestObjective] = Field(default_factory=list)
+    is_completed: bool = False
+
 # Master Unified Runtime Manifest
 class GameRuntimeManifest(BaseModel):
     manifest_version: int = 1
@@ -144,6 +170,7 @@ class GameRuntimeManifest(BaseModel):
     npcs: Dict[str, NPCActorSpec] = Field(default_factory=dict)
     spatial_layout: DistrictSpatialLayout
     props: Dict[str, List[ProceduralPropSpec]] = Field(default_factory=dict)
+    active_quests: List[SystemicQuest] = Field(default_factory=list)
 
 # Narrative & Evaluation Contracts
 class StyleEvaluationReport(BaseModel):
