@@ -2,43 +2,24 @@
 """
 PROJECT AETHELGARD: VIRTUAL STUDIO ENGINE
 Drives algorithmic district layouts, dynamic NPC roster generation, adaptive pacing beats,
-and multi-tier chaos playtesting.
+authoritative 3-act quest DAG progression, and multi-tier chaos playtesting.
 """
 
+from services.agent_runtime.src.chroma_lore_bus import ChromaLoreBus
+from schemas.studio_contracts import (
+    AestheticVerdict, BugSeverity, ClientPlaytestReport, ContentType,
+    DistrictSpatialLayout, GameReadyArtifact, GameRuntimeManifest,
+    GameplayMechanicsSpec, ItemCategory, ItemSpec, LightingProfile,
+    NPCActorSpec, ObjectiveStatus, ProceduralPropSpec, PropPrimitiveType,
+    ProposedGameBeat, QuestObjective, SmartObjectAnchor, SpatialRoomNode,
+    SprintGoal, StyleEvaluationReport, SystemicQuest, UIThemeSpec, Vector3D
+)
 import json
 import math
+from pathlib import Path
 import random
 import sys
-from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
-
-from schemas.studio_contracts import (
-    AestheticVerdict,
-    BugSeverity,
-    ClientPlaytestReport,
-    ContentType,
-    DistrictSpatialLayout,
-    GameplayMechanicsSpec,
-    GameReadyArtifact,
-    GameRuntimeManifest,
-    ItemCategory,
-    ItemSpec,
-    LightingProfile,
-    NPCActorSpec,
-    ObjectiveStatus,
-    ProceduralPropSpec,
-    ProposedGameBeat,
-    PropPrimitiveType,
-    QuestObjective,
-    SmartObjectAnchor,
-    SpatialRoomNode,
-    SprintGoal,
-    StyleEvaluationReport,
-    SystemicQuest,
-    UIThemeSpec,
-    Vector3D,
-)
-from services.agent_runtime.src.chroma_lore_bus import ChromaLoreBus
 
 ROOT_DIR = Path(__file__).resolve().parents[3]
 if str(ROOT_DIR) not in sys.path:
@@ -135,7 +116,7 @@ BEAT_ACTION_TEMPLATES = [
     {
         "action": "OFFER_SHELTER_AND_BREAD",
         "role_match": "Guild Baker",
-        "prompt": "Quickly unlatch the cellar cellar door and push the player out of sight of the patrol.",
+        "prompt": "Quickly unlatch the cellar door and push the player out of sight of the patrol.",
         "threat": -0.45
     },
     {
@@ -162,9 +143,41 @@ class StudioSharedMemoryBus:
         self.bug_ticket_queue: List[Any] = []
         self.active_phase: str = "PEACETIME_COMMERCE"
         self.lore_bus = ChromaLoreBus()
+        self.active_quests: List[SystemicQuest] = []
 
     def query_lore(self, query: str) -> List[str]:
         return self.lore_bus.query_lore_context(query, top_k=2)
+
+    def advance_quest_objective(
+        self, target_id: str, target_tag: str = ""
+    ) -> Tuple[bool, Optional[SystemicQuest], Optional[str]]:
+        for quest in self.active_quests:
+            if quest.is_completed:
+                continue
+            for idx, obj in enumerate(quest.objectives):
+                if obj.status == ObjectiveStatus.ACTIVE:
+                    match_so = obj.target_smart_object and (
+                        target_id == obj.target_smart_object or (
+                            target_tag and target_tag in obj.target_smart_object)
+                    )
+                    match_npc = obj.target_npc_id and (
+                        target_id == obj.target_npc_id)
+                    if match_so or match_npc:
+                        obj.status = ObjectiveStatus.COMPLETED
+                        if idx + 1 < len(quest.objectives):
+                            quest.objectives[idx +
+                                             1].status = ObjectiveStatus.ACTIVE
+                            return True, quest, None
+                        else:
+                            quest.is_completed = True
+                            curr_idx = self.active_quests.index(quest)
+                            if curr_idx + 1 < len(self.active_quests):
+                                next_q = self.active_quests[curr_idx + 1]
+                                if next_q.objectives:
+                                    next_q.objectives[0].status = ObjectiveStatus.ACTIVE
+                            return True, quest, quest.reward_item_id
+            break
+        return False, None, None
 
 
 class SystemsArchitectAgent:
@@ -222,7 +235,6 @@ class LevelArchitectAgent:
     def generate_and_refine_layout(
         self, district_id: str, active_goals: List[SprintGoal]
     ) -> DistrictSpatialLayout:
-        # Load from live manifest if available to prevent wiping procedurally carved nodes
         manifest_path = Path("web_client/game_runtime_manifest.json")
         if manifest_path.exists():
             try:
@@ -232,7 +244,6 @@ class LevelArchitectAgent:
             except Exception:
                 pass
 
-        # Baseline fallback layout
         nodes = {
             "NODE_PLAZA": SpatialRoomNode(
                 node_id="NODE_PLAZA", zone_name="Market Cross Square", function="CIVIC_PLAZA",
@@ -335,8 +346,6 @@ class GameplayMechanicsSpecialistAgent:
 
 
 class NarrativeNPCSpecialistAgent:
-    """Dynamically populates the district zones with diverse NPC actors matching room functions."""
-
     def synthesize_npc_roster(
         self, layout: DistrictSpatialLayout, phase: str, unrest: float
     ) -> Dict[str, NPCActorSpec]:
@@ -359,14 +368,12 @@ class NarrativeNPCSpecialistAgent:
 
             so_id = matching_node.smart_objects[0].anchor_id if matching_node.smart_objects else None
 
-            # Calculate dynamic patrol route between home zone, connected corridors, and rally points
             waypoints: List[Vector3D] = [Vector3D(x=cx, y=cy, z=cz)]
             if matching_node.smart_objects:
                 so_pos = matching_node.smart_objects[0].relative_position
                 waypoints.append(
                     Vector3D(x=so_pos.x + 80.0, y=so_pos.y, z=so_pos.z))
 
-            # Add connected room centers to patrol path
             for neighbor_id in matching_node.connected_node_ids[:2]:
                 if neighbor_id in layout.nodes:
                     n_center = layout.nodes[neighbor_id].center_location
@@ -445,8 +452,6 @@ class NarrativeNPCSpecialistAgent:
 
 
 class DMDirectorAgent:
-    """Selects narrative beats dynamically from the entire live NPC population."""
-
     def formulate_pacing_beat(
         self,
         player_stress: float,
@@ -454,13 +459,11 @@ class DMDirectorAgent:
         active_goals: List[SprintGoal],
         npcs: Dict[str, NPCActorSpec]
     ) -> ProposedGameBeat:
-        # Pick a target NPC dynamically from available roster
         npc_ids = list(npcs.keys())
         target_id = random.choice(npc_ids) if npc_ids else "NPC_GARRETT"
         target_npc = npcs.get(target_id)
         role = target_npc.role if target_npc else "Merchant"
 
-        # Match action template by role
         matched_action = None
         for tmpl in BEAT_ACTION_TEMPLATES:
             if tmpl["role_match"].lower() in role.lower():
@@ -553,6 +556,20 @@ class StudioDirectorManagerAgent:
         self.staging_dir = Path("build/staging")
         self.staging_dir.mkdir(parents=True, exist_ok=True)
 
+    def build_live_manifest(self, district_id: str = "District_MarketSquare") -> Dict[str, Any]:
+        manifest_path = ROOT_DIR / "web_client" / "game_runtime_manifest.json"
+        if manifest_path.exists():
+            try:
+                m = json.loads(manifest_path.read_text(encoding="utf-8"))
+                m["active_quests"] = [q.model_dump()
+                                      for q in self.memory.active_quests]
+                manifest_path.write_text(
+                    json.dumps(m, indent=2), encoding="utf-8")
+                return m
+            except Exception:
+                pass
+        return {}
+
     def dispatch_studio_pipeline(
         self,
         district_id: str,
@@ -585,13 +602,11 @@ class StudioDirectorManagerAgent:
         print(
             f"  [4/7 Gameplay] Player Base Speed: {mechanics.player_base_speed:.0f}")
 
-        # Dynamic population across newly carved zones
         npcs = self.narrative_specialist.synthesize_npc_roster(
             layout, self.memory.active_phase, economy_meta['unrest'])
         print(
             f"  [5/7 Narrative Crew] Roster Populated: {len(npcs)} characters ({', '.join(npcs.keys())})")
 
-        # Dynamic beat formulation targeting diverse characters
         beat = self.dm_director.formulate_pacing_beat(
             player_stress, self.memory, goals, npcs)
         is_causal, reason = self.dm_director.validate_causal_invariants(
@@ -607,8 +622,11 @@ class StudioDirectorManagerAgent:
         print(
             f"  [6/7 Pacing Beat] Actor: {beat.target_npc_id} | Action: {beat.action_type}")
 
-        quests = self.narrative_specialist.synthesize_systemic_quests(
-            self.memory.active_phase, economy_meta['unrest'], goals, npcs)
+        if not self.memory.active_quests:
+            self.memory.active_quests = self.narrative_specialist.synthesize_systemic_quests(
+                self.memory.active_phase, economy_meta['unrest'], goals, npcs
+            )
+        quests = self.memory.active_quests
 
         runtime_manifest = GameRuntimeManifest(
             manifest_version=int(self.memory.world_time),
@@ -626,7 +644,7 @@ class StudioDirectorManagerAgent:
             active_quests=quests
         )
 
-        client_report, client_tickets = self.chaos_crew.execute_client_headless_playtest(
+        client_report, _ = self.chaos_crew.execute_client_headless_playtest(
             layout, npcs, mechanics)
         approved, lore_score, notes = self.lore_auditor.audit_final_artifact(
             runtime_manifest.model_dump())
