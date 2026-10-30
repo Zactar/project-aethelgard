@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Project Aethelgard - Dynamic Web Client</title>
+  <title>Project Aethelgard - Interactive Browser Client</title>
   <style>
     body { margin: 0; padding: 0; overflow: hidden; background: #080a0f; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #e0e0e0; }
     #canvas-container { width: 100vw; height: 100vh; display: block; }
@@ -11,20 +11,21 @@
       background: rgba(14, 18, 26, 0.94); border: 1px solid #2d3548;
       border-radius: 8px; padding: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.6); z-index: 10;
     }
-    #hud h2 { margin: 0 0 10px 0; font-size: 15px; color: #4facfe; text-transform: uppercase; letter-spacing: 1px; }
-    .hud-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; }
+    #hud h2 { margin: 0 0 8px 0; font-size: 15px; color: #4facfe; text-transform: uppercase; letter-spacing: 1px; }
+    .hud-row { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 13px; }
     .hud-val { font-weight: bold; color: #fff; }
+    .instructions { margin-top: 10px; padding-top: 8px; border-top: 1px solid #2d3548; font-size: 12px; color: #8a99ad; line-height: 1.4; }
     #dialogue-box {
-      position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); width: 680px;
+      position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); width: 700px;
       background: rgba(14, 18, 26, 0.96); border: 1px solid #3b4560; border-radius: 8px;
       padding: 18px; box-shadow: 0 8px 30px rgba(0,0,0,0.8); display: none; z-index: 10;
     }
     #dialogue-speaker { font-weight: bold; color: #f5af19; font-size: 14px; margin-bottom: 6px; }
     #dialogue-text { font-size: 15px; line-height: 1.5; color: #f0f0f0; font-style: italic; }
-    #dialogue-action { margin-top: 10px; font-size: 12px; color: #00f2fe; text-transform: uppercase; letter-spacing: 0.5px; }
+    #dialogue-action { margin-top: 8px; font-size: 12px; color: #00f2fe; text-transform: uppercase; letter-spacing: 0.5px; }
     .btn {
       width: 100%; background: #22293a; color: #fff; border: 1px solid #4facfe;
-      padding: 8px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; margin-top: 8px;
+      padding: 8px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; margin-top: 6px;
     }
     .btn:hover { background: #4facfe; color: #080a0f; }
   </style>
@@ -35,12 +36,18 @@
   <div id="hud">
     <h2>Aethelgard Telemetry</h2>
     <div class="hud-row"><span>District:</span><span id="ui-district" class="hud-val">MarketSquare</span></div>
-    <div class="hud-row"><span>District Unrest:</span><span id="ui-unrest" class="hud-val">0.58</span></div>
     <div class="hud-row"><span>Simulation Phase:</span><span id="ui-phase" class="hud-val">PEACETIME</span></div>
-    <div class="hud-row"><span>Topological Nodes:</span><span id="ui-nodes" class="hud-val">4</span></div>
+    <div class="hud-row"><span>District Unrest:</span><span id="ui-unrest" class="hud-val">0.58</span></div>
+    <div class="hud-row"><span>Player Coords:</span><span id="ui-coords" class="hud-val">1400, 500, 0</span></div>
+    <div class="hud-row"><span>Nearby Interaction:</span><span id="ui-prompt" class="hud-val" style="color: #f5af19;">None</span></div>
     <div class="hud-row"><span>IPC Status:</span><span id="ui-status" class="hud-val" style="color: #ffb300;">Connecting...</span></div>
-    <button class="btn" onclick="sendStressTelemetry(0.85)">Dispatch High Stress (0.85)</button>
-    <button class="btn" onclick="sendStressTelemetry(0.20)">Dispatch Peacetime Rest (0.20)</button>
+    <button class="btn" onclick="triggerManualStress(0.85)">Trigger Combat Spike (Stress 0.85)</button>
+    <div class="instructions">
+      <b>Controls:</b><br>
+      • <b>WASD / Arrow Keys</b>: Walk Player Character<br>
+      • <b>E Key</b>: Interact with nearby Smart Object<br>
+      • <b>Left Click + Drag</b>: Orbit Camera
+    </div>
   </div>
 
   <div id="dialogue-box">
@@ -56,8 +63,8 @@
     scene.background = new THREE.Color(0x080a0f);
     scene.fog = new THREE.FogExp2(0x080a0f, 0.00025);
 
-    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 10, 25000);
-    camera.position.set(0, 4000, 4800);
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 10, 30000);
+    camera.position.set(0, 4200, 4800);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -67,10 +74,9 @@
     controls.enableDamping = true;
     controls.target.set(0, 0, 0);
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.45);
-    scene.add(ambientLight);
+    scene.add(new THREE.AmbientLight(0xffffff, 0.5));
     const dirLight = new THREE.DirectionalLight(0xffecd2, 0.85);
-    dirLight.position.set(1500, 3500, 1500);
+    dirLight.position.set(1500, 4000, 1500);
     scene.add(dirLight);
 
     const grid = new THREE.GridHelper(12000, 60, 0x2d3548, 0x141824);
@@ -79,6 +85,42 @@
 
     const roomGroup = new THREE.Group();
     scene.add(roomGroup);
+
+    // Player Mesh
+    const playerMesh = new THREE.Mesh(
+      new THREE.CylinderGeometry(70, 70, 180, 16),
+      new THREE.MeshLambertMaterial({ color: 0x00f2fe })
+    );
+    playerMesh.position.set(1400, 90, 500);
+    scene.add(playerMesh);
+
+    // NPC Aldous Mesh
+    const npcMesh = new THREE.Mesh(
+      new THREE.CylinderGeometry(70, 70, 180, 16),
+      new THREE.MeshLambertMaterial({ color: 0xf5af19 })
+    );
+    npcMesh.position.set(0, 90, 2300);
+    scene.add(npcMesh);
+
+    // Key states
+    const keys = { w: false, a: false, s: false, d: false };
+    window.addEventListener('keydown', (e) => {
+      const k = e.key.toLowerCase();
+      if (k === 'w' || k === 'arrowup') keys.w = true;
+      if (k === 'a' || k === 'arrowleft') keys.a = true;
+      if (k === 's' || k === 'arrowdown') keys.s = true;
+      if (k === 'd' || k === 'arrowright') keys.d = true;
+      if (k === 'e') interactNearbyObject();
+    });
+    window.addEventListener('keyup', (e) => {
+      const k = e.key.toLowerCase();
+      if (k === 'w' || k === 'arrowup') keys.w = false;
+      if (k === 'a' || k === 'arrowleft') keys.a = false;
+      if (k === 's' || k === 'arrowdown') keys.s = false;
+      if (k === 'd' || k === 'arrowright') keys.d = false;
+    });
+
+    let activeSmartObjects = [];
 
     function buildDynamicRoom(nodeId, nodeData) {
       const min = nodeData.bounds_min;
@@ -92,7 +134,7 @@
       let opacity = 0.85;
 
       if (nodeId.includes("AQUEDUCT")) {
-        color = 0x005b96; // Subterranean aquatic blue
+        color = 0x005b96;
         opacity = 0.95;
       } else if (nodeId.includes("BAKERY")) {
         color = 0x3d2b1f;
@@ -108,17 +150,22 @@
 
       const wireColor = nodeId.includes("AQUEDUCT") ? 0x00f2fe : 0x4facfe;
       const edges = new THREE.EdgesGeometry(geo);
-      const wire = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: wireColor, linewidth: 2 }));
-      mesh.add(wire);
+      mesh.add(new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: wireColor, linewidth: 2 })));
 
-      // Render Sluice Gates or Sockets
       if (nodeData.smart_objects) {
         nodeData.smart_objects.forEach(so => {
-          const soGeo = new THREE.BoxGeometry(100, 200, 100);
+          const soGeo = new THREE.BoxGeometry(120, 200, 120);
           const soMat = new THREE.MeshLambertMaterial({ color: 0xff007f });
           const soMesh = new THREE.Mesh(soGeo, soMat);
-          soMesh.position.set(so.relative_position.x, center.z + 100, so.relative_position.y);
+          const soPos = { x: so.relative_position.x, y: center.z + 100, z: so.relative_position.y };
+          soMesh.position.set(soPos.x, soPos.y, soPos.z);
           roomGroup.add(soMesh);
+
+          activeSmartObjects.push({
+            tag: so.smart_object_tag,
+            anchor_id: so.anchor_id,
+            pos: soPos
+          });
         });
       }
     }
@@ -162,12 +209,11 @@
           }
 
           if (data.spatial_layout && data.spatial_layout.nodes) {
+            activeSmartObjects = [];
             while (roomGroup.children.length > 0) {
               roomGroup.remove(roomGroup.children[0]);
             }
-            const nodes = data.spatial_layout.nodes;
-            document.getElementById('ui-nodes').innerText = Object.keys(nodes).length;
-            for (const [nodeId, nodeData] of Object.entries(nodes)) {
+            for (const [nodeId, nodeData] of Object.entries(data.spatial_layout.nodes)) {
               buildDynamicRoom(nodeId, nodeData);
             }
           }
@@ -176,20 +222,85 @@
     }
     connectWS();
 
-    function sendStressTelemetry(stress) {
+    function sendPlayerTelemetry(stress = 0.45) {
       if (!socket || socket.readyState !== WebSocket.OPEN) return;
       const packet = {
         type: "TELEMETRY_INGEST",
         district_id: "District_MarketSquare",
         player_stress: stress,
-        player_coords: [1400.0, 500.0, 0.0],
+        player_coords: [playerMesh.position.x, playerMesh.position.z, playerMesh.position.y],
         seed: Math.floor(Math.random() * 90000)
       };
       socket.send(JSON.stringify(packet));
     }
 
+    function triggerManualStress(val) {
+      sendPlayerTelemetry(val);
+    }
+
+    function interactNearbyObject() {
+      let nearest = null;
+      let minDist = 400.0;
+      activeSmartObjects.forEach(so => {
+        const d = Math.hypot(playerMesh.position.x - so.pos.x, playerMesh.position.z - so.pos.z);
+        if (d < minDist) {
+          nearest = so;
+          minDist = d;
+        }
+      });
+
+      if (nearest) {
+        alert(`Interacted with Smart Object: ${nearest.tag} (${nearest.anchor_id})`);
+        sendPlayerTelemetry(0.80);
+      }
+    }
+
+    let lastTelemetryTime = 0;
+    function updatePlayerMovement(delta) {
+      const speed = 1200.0 * delta;
+      let moved = false;
+
+      if (keys.w) { playerMesh.position.z -= speed; moved = true; }
+      if (keys.s) { playerMesh.position.z += speed; moved = true; }
+      if (keys.a) { playerMesh.position.x -= speed; moved = true; }
+      if (keys.d) { playerMesh.position.x += speed; moved = true; }
+
+      // Adjust height if descending into subterranean aqueducts (X > 0 and Z > 1800)
+      if (playerMesh.position.x >= 0 && playerMesh.position.x <= 1600 && playerMesh.position.z >= 1800) {
+        playerMesh.position.y = -200; // In catacomb elevation
+      } else {
+        playerMesh.position.y = 90; // Standard ground elevation
+      }
+
+      if (moved) {
+        document.getElementById('ui-coords').innerText = 
+          `${playerMesh.position.x.toFixed(0)}, ${playerMesh.position.z.toFixed(0)}, ${playerMesh.position.y.toFixed(0)}`;
+      }
+
+      // Check proximity to Smart Objects
+      let nearTag = "None";
+      activeSmartObjects.forEach(so => {
+        const d = Math.hypot(playerMesh.position.x - so.pos.x, playerMesh.position.z - so.pos.z);
+        if (d < 350.0) nearTag = `${so.tag} [Press E]`;
+      });
+      document.getElementById('ui-prompt').innerText = nearTag;
+
+      // Send telemetry every 1.5 seconds if moving
+      const now = performance.now();
+      if (moved && now - lastTelemetryTime > 1500) {
+        sendPlayerTelemetry(0.50);
+        lastTelemetryTime = now;
+      }
+    }
+
+    let lastFrame = performance.now();
     function animate() {
       requestAnimationFrame(animate);
+      const now = performance.now();
+      const delta = (now - lastFrame) / 1000.0;
+      lastFrame = now;
+
+      updatePlayerMovement(delta);
       controls.update();
       renderer.render(scene, camera);
     }
