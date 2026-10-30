@@ -1,7 +1,6 @@
 import sys
 from pathlib import Path
 
-# Add project root to sys.path so schemas and services import cleanly from anywhere
 ROOT_DIR = Path(__file__).resolve().parents[3]
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
@@ -13,7 +12,7 @@ from typing import Dict, List, Any, Optional, Tuple
 from schemas.studio_contracts import (
     ContentType, AestheticVerdict, BugSeverity, Vector3D, SmartObjectAnchor,
     SpatialRoomNode, DistrictSpatialLayout, StyleEvaluationReport,
-    ProposedGameBeat, BugTicket, GameReadyArtifact
+    ProposedGameBeat, BugTicket, GameReadyArtifact, SprintGoal
 )
 
 class StudioSharedMemoryBus:
@@ -27,7 +26,7 @@ class StudioSharedMemoryBus:
             "NPC_CAPTAIN_VANE": (8500.0, 9200.0, 0.0)
         }
         self.npc_inventories: Dict[str, Dict[str, float]] = {
-            "NPC_GARRETT": {"gold": 45.0, "sunfire_blossom": 2.0},
+            "NPC_GARRETT": {"gold": 45.0, "sunfire_blossom": 2.0, "black_market_grain": 5.0},
             "NPC_ALDOUS": {"gold": 12.0, "bread": 15.0}
         }
         self.canon_lore = [
@@ -37,67 +36,42 @@ class StudioSharedMemoryBus:
             "Artisans consider uncompensated stock seizures an act of tyranny."
         ]
         self.bug_ticket_queue: List[BugTicket] = []
-
-    def __init__(self):
-        self.world_time: float = 1200.0
-        self.active_district_unrest: float = 0.58
-        self.commodity_reserves: Dict[str, float] = {"Grain": 120.0, "Flour": 85.0, "Bread": 60.0}
-        self.npc_locations: Dict[str, Tuple[float, float, float]] = {
-            "NPC_GARRETT": (1200.0, 450.0, 0.0),
-            "NPC_ALDOUS": (1450.0, 600.0, 0.0),
-            "NPC_CAPTAIN_VANE": (8500.0, 9200.0, 0.0)
-        }
-        self.npc_inventories: Dict[str, Dict[str, float]] = {
-            "NPC_GARRETT": {"gold": 45.0, "sunfire_blossom": 2.0},
-            "NPC_ALDOUS": {"gold": 12.0, "bread": 15.0}
-        }
-        self.canon_lore = [
-            "Somatic traits (horns, eye pigment, species) are immutable.",
-            "The Hearthmother is the sole legitimate harvest deity.",
-            "Arch-Prelate Malakor enforces a 35% tithe on licensed guild merchants.",
-            "Artisans consider uncompensated stock seizures an act of tyranny."
-        ]
-        self.bug_ticket_queue: List[BugTicket] = []
-        self._init_chroma_store()
-
-    def _init_chroma_store(self):
-        try:
-            import chromadb
-            client = chromadb.HttpClient(host="localhost", port=8000)
-            self.collection = client.get_or_create_collection(name="aethelgard_canon")
-            if self.collection.count() == 0:
-                ids = [f"lore_{i}" for i in range(len(self.canon_lore))]
-                self.collection.add(documents=self.canon_lore, ids=ids)
-        except Exception:
-            self.collection = None
 
     def query_lore(self, query: str) -> List[str]:
-        if getattr(self, "collection", None) is not None:
-            try:
-                results = self.collection.query(query_texts=[query], n_results=2)
-                docs = results.get("documents", [[]])[0]
-                if docs:
-                    return docs
-            except Exception:
-                pass
         words = set(query.lower().split())
         matched = [f for f in self.canon_lore if any(w in f.lower() for w in words if len(w) > 3)]
         return matched if matched else self.canon_lore[:2]
 
+
 class SystemsArchitectAgent:
-    def audit_metabolic_balance(self, memory: StudioSharedMemoryBus) -> Dict[str, Any]:
+    def audit_and_apply_goals(self, memory: StudioSharedMemoryBus, active_goals: List[SprintGoal]) -> Dict[str, Any]:
+        goal_titles = [g.primary_objective.lower() for g in active_goals]
+        
+        # Goal Action: Drought & Grain Arbitrage
+        if any("drought" in t or "arbitrage" in t for t in goal_titles):
+            memory.commodity_reserves["Flour"] = max(12.0, memory.commodity_reserves["Flour"] - 18.0)
+            memory.active_district_unrest = min(0.95, memory.active_district_unrest + 0.08)
+            trade_regime = "CONTRABAND_BLACK_MARKET"
+        else:
+            trade_regime = "STANDARD_GUILD_COMMERCE"
+
         grain = memory.commodity_reserves.get("Grain", 0.0)
         flour = memory.commodity_reserves.get("Flour", 0.0)
-        bread = memory.commodity_reserves.get("Bread", 0.0)
-        is_conserved = (grain >= 10.0 and flour >= 5.0 and bread >= 1.0)
+        is_conserved = (grain >= 10.0 and flour >= 5.0)
+
         return {
-            "status": "EQUILIBRIUM" if is_conserved else "DEFICIT",
+            "regime": trade_regime,
             "is_conserved": is_conserved,
-            "reserves": memory.commodity_reserves
+            "flour_level": flour,
+            "unrest": memory.active_district_unrest
         }
 
+
 class LevelArchitectAgent:
-    def generate_and_refine_layout(self, district_id: str) -> DistrictSpatialLayout:
+    def generate_and_refine_layout(self, district_id: str, active_goals: List[SprintGoal]) -> DistrictSpatialLayout:
+        goal_titles = [g.primary_objective.lower() for g in active_goals]
+        
+        # Base district rooms
         nodes = {
             "NODE_PLAZA": SpatialRoomNode(
                 node_id="NODE_PLAZA", zone_name="Market Cross Square", function="CIVIC_PLAZA",
@@ -116,23 +90,63 @@ class LevelArchitectAgent:
                 bounds_min=Vector3D(x=-600, y=1800, z=0), bounds_max=Vector3D(x=600, y=2800, z=400),
                 center_location=Vector3D(x=0, y=2300, z=0), connected_node_ids=["NODE_PLAZA"],
                 smart_objects=[SmartObjectAnchor(anchor_id="SO_ALDOUS", smart_object_tag="SmartObject.Craft.BreadOven", assigned_npc_id="NPC_ALDOUS", relative_position=Vector3D(x=0, y=2500, z=0), interaction_facing_yaw=90.0)]
+            ),
+            "NODE_ALLEY": SpatialRoomNode(
+                node_id="NODE_ALLEY", zone_name="Shadowed Drainage Way", function="CLANDESTINE_ALLEY",
+                bounds_min=Vector3D(x=1500, y=1500, z=0), bounds_max=Vector3D(x=2200, y=2200, z=300),
+                center_location=Vector3D(x=1800, y=1800, z=0), connected_node_ids=["NODE_APOTHECARY", "NODE_BAKERY"]
             )
         }
-        nodes["NODE_ALLEY"] = SpatialRoomNode(
-            node_id="NODE_ALLEY", zone_name="Shadowed Drainage Way", function="CLANDESTINE_ALLEY",
-            bounds_min=Vector3D(x=1500, y=1500, z=0), bounds_max=Vector3D(x=2200, y=2200, z=300),
-            center_location=Vector3D(x=1800, y=1800, z=0), connected_node_ids=["NODE_APOTHECARY", "NODE_BAKERY"]
-        )
         nodes["NODE_APOTHECARY"].connected_node_ids.append("NODE_ALLEY")
         nodes["NODE_BAKERY"].connected_node_ids.append("NODE_ALLEY")
 
+        # Goal Action: Dynamic Aqueduct Catacombs & Sluice Gate Construction
+        if any("aqueduct" in t or "catacombs" in t for t in goal_titles):
+            nodes["NODE_AQUEDUCT_CATACOMBS"] = SpatialRoomNode(
+                node_id="NODE_AQUEDUCT_CATACOMBS",
+                zone_name="Subterranean Aqueduct Conduit",
+                function="CLANDESTINE_ALLEY",
+                bounds_min=Vector3D(x=0, y=1800, z=-400),
+                bounds_max=Vector3D(x=1600, y=2800, z=-50),
+                center_location=Vector3D(x=800, y=2300, z=-250),
+                connected_node_ids=["NODE_BAKERY", "NODE_ALLEY"],
+                smart_objects=[
+                    SmartObjectAnchor(
+                        anchor_id="SO_SLUICE_GATE_01",
+                        smart_object_tag="SmartObject.Mechanism.SluiceGate",
+                        relative_position=Vector3D(x=800, y=2300, z=-250),
+                        interaction_facing_yaw=0.0
+                    )
+                ]
+            )
+            nodes["NODE_BAKERY"].connected_node_ids.append("NODE_AQUEDUCT_CATACOMBS")
+            nodes["NODE_ALLEY"].connected_node_ids.append("NODE_AQUEDUCT_CATACOMBS")
+
         return DistrictSpatialLayout(
-            district_id=district_id, district_name="Oakhaven Market Commons",
+            district_id=district_id, district_name=district_id.replace("District_", "") + " Commons",
             nodes=nodes, is_topologically_sound=True
         )
 
+
 class DMDirectorAgent:
-    def formulate_pacing_beat(self, player_stress: float, memory: StudioSharedMemoryBus) -> ProposedGameBeat:
+    def formulate_pacing_beat(
+        self, player_stress: float, memory: StudioSharedMemoryBus, active_goals: List[SprintGoal]
+    ) -> ProposedGameBeat:
+        goal_titles = [g.primary_objective.lower() for g in active_goals]
+
+        # Goal-influenced beat generation
+        if any("drought" in t or "arbitrage" in t for t in goal_titles) and memory.commodity_reserves["Flour"] < 40.0:
+            return ProposedGameBeat(
+                beat_id="BEAT_CONTRABAND_TRADE",
+                target_npc_id="NPC_GARRETT",
+                action_type="TRADE_CONTRABAND_FLOUR",
+                narrative_intent="Involve player in illicit grain trafficking under church embargo",
+                dialogue_prompt_concept="Keep your voice down. The grain sacks in the cellar don't have cathedral tithe stamps.",
+                required_props_or_coin={"black_market_grain": 1.0},
+                spawn_location_name="NODE_APOTHECARY",
+                target_player_threat_delta=0.35
+            )
+
         if player_stress >= 0.70:
             return ProposedGameBeat(
                 beat_id="BEAT_RELIEF_ALDOUS",
@@ -144,6 +158,7 @@ class DMDirectorAgent:
                 spawn_location_name="NODE_BAKERY",
                 target_player_threat_delta=-0.50
             )
+
         return ProposedGameBeat(
             beat_id="BEAT_STALL_GOSSIP",
             target_npc_id="NPC_GARRETT",
@@ -155,7 +170,9 @@ class DMDirectorAgent:
             target_player_threat_delta=0.20
         )
 
-    def validate_causal_invariants(self, beat: ProposedGameBeat, player_pos: Tuple[float, float, float], memory: StudioSharedMemoryBus) -> Tuple[bool, str]:
+    def validate_causal_invariants(
+        self, beat: ProposedGameBeat, player_pos: Tuple[float, float, float], memory: StudioSharedMemoryBus
+    ) -> Tuple[bool, str]:
         npc = beat.target_npc_id
         npc_pos = memory.npc_locations.get(npc)
         if npc_pos and math.dist(npc_pos, player_pos) > 3000.0:
@@ -166,50 +183,58 @@ class DMDirectorAgent:
                 return False, f"MATERIAL FAULT: {npc} lacks {qty}x of '{item}' (Holds {held})."
         return True, "PASSED: Causal continuity verified."
 
+
 class PersonaDialogueAgent:
     def synthesize_dialogue(self, beat: ProposedGameBeat) -> Dict[str, Any]:
         return {
             "speaker_id": beat.target_npc_id,
-            "raw_dialogue": "Welcome to my shop. Bread is scarce, but you look like you need a meal. Step inside.",
-            "pad_state": {"P": 0.20, "A": -0.10, "D": 0.30},
+            "raw_dialogue": beat.dialogue_prompt_concept,
+            "pad_state": {"P": -0.20, "A": 0.40, "D": 0.10},
             "target_action": beat.action_type
         }
 
+
 class StyleGuideAgent:
-    def audit_and_restyle(self, dialogue_payload: Dict[str, Any]) -> StyleEvaluationReport:
+    def audit_and_restyle(
+        self, dialogue_payload: Dict[str, Any], active_goals: List[SprintGoal]
+    ) -> StyleEvaluationReport:
         text = dialogue_payload["raw_dialogue"]
         speaker = dialogue_payload["speaker_id"]
-        if "ALDOUS" in speaker:
+        goal_titles = [g.primary_objective.lower() for g in active_goals]
+        protest_active = any("mural" in t or "protest" in t for t in goal_titles)
+
+        if "GARRETT" in speaker and "CONTRABAND" in dialogue_payload.get("target_action", ""):
             restyled = (
-                "Flour's up four coppers a sack and the watch is banging on shutters, but I've got two "
-                "loaves scorched on the hearthstones. Too burnt for the high seats, which means they're "
-                "free for an empty belly. Get inside the cellar before the truncheons swing."
+                "Lower your head and step past the drying rack. The millers in the Undercroft ground this "
+                "under tallow torches—no orthodoxy wax, no tithe marks. If the watch finds this bushel, "
+                "we're both hanging from the aqueduct arches."
             )
-            return StyleEvaluationReport(
-                artifact_id=f"STYLE_{speaker}",
-                verdict=AestheticVerdict.APPROVED_WITH_SOUL,
-                human_touch_score=0.98,
-                flagged_cliches=[],
-                sensory_density_score=0.85,
-                lyric_feedback_notes="Replaced standard dialogue with authentic baker grit.",
-                restyled_output=restyled
+        elif "ALDOUS" in speaker:
+            restyled = (
+                "Flour's up another four coppers and church guards are pounding on shutters. "
+                "I've got two charred loaves off the hearthstones. Grab 'em and get down into the drainage vault."
             )
+        else:
+            restyled = text
+
         return StyleEvaluationReport(
             artifact_id=f"STYLE_{speaker}",
             verdict=AestheticVerdict.APPROVED_WITH_SOUL,
-            human_touch_score=0.90,
+            human_touch_score=0.98 if protest_active else 0.92,
             flagged_cliches=[],
-            sensory_density_score=0.75,
-            lyric_feedback_notes="Accepted.",
-            restyled_output=text
+            sensory_density_score=0.88,
+            lyric_feedback_notes="Injected clandestine grain trade dialect and soot-textured cadence.",
+            restyled_output=restyled
         )
+
 
 class LoreConsistencyAuditorAgent:
     def audit_final_artifact(self, artifact_type: ContentType, payload: Dict[str, Any]) -> Tuple[bool, float, str]:
         text = json.dumps(payload).lower()
         if "changed species" in text or "altered horn structure" in text:
             return False, 0.0, "REJECTED: Somatic violation."
-        return True, 0.98, "PASSED: Full conformance."
+        return True, 0.98, "PASSED: Full conformance with canon dogmas."
+
 
 class StateTreeSpecialistAgent:
     def generate_cpp_task_scaffold(self, action_name: str) -> str:
@@ -228,6 +253,7 @@ struct MYGAMEPROJECT_API FStateTreeTask_{action_name} : public FStateTreeTaskBas
     }}
 }};
 """
+
 
 class ChaosCrewCommander:
     def __init__(self, damping: float = 0.20):
@@ -258,6 +284,7 @@ class ChaosCrewCommander:
         )
         return tickets, csv_hotfix
 
+
 class StudioDirectorManagerAgent:
     def __init__(self):
         self.memory = StudioSharedMemoryBus()
@@ -272,33 +299,41 @@ class StudioDirectorManagerAgent:
         self.staging_dir = Path("build/staging")
         self.staging_dir.mkdir(parents=True, exist_ok=True)
 
-    def dispatch_studio_pipeline(self, district_id: str, player_stress: float, player_pos: Tuple[float, float, float], seed: int) -> Dict[str, Any]:
-        print(f"\n[STUDIO DIRECTOR]: Commencing feature sprint for '{district_id}'...")
+    def dispatch_studio_pipeline(
+        self,
+        district_id: str,
+        player_stress: float,
+        player_pos: Tuple[float, float, float],
+        seed: int,
+        active_goals: Optional[List[SprintGoal]] = None
+    ) -> Dict[str, Any]:
+        goals = active_goals or []
+        print(f"\n[STUDIO DIRECTOR]: Commencing sprint for '{district_id}' | Active Goals: {len(goals)}")
 
-        metabolism = self.systems_architect.audit_metabolic_balance(self.memory)
-        print(f"  [1/6 Systems] Metabolic equilibrium: {metabolism['is_conserved']}")
+        metabolism = self.systems_architect.audit_and_apply_goals(self.memory, goals)
+        print(f"  [1/6 Systems] Regime: {metabolism['regime']} | Flour Reserve: {metabolism['flour_level']:.1f} | Unrest: {metabolism['unrest']:.2f}")
 
-        layout = self.level_architect.generate_and_refine_layout(district_id)
-        print(f"  [2/6 Level] Layout generated with {len(layout.nodes)} topological nodes")
+        layout = self.level_architect.generate_and_refine_layout(district_id, goals)
+        print(f"  [2/6 Level] Topology: {len(layout.nodes)} nodes (Aqueducts Active: {'NODE_AQUEDUCT_CATACOMBS' in layout.nodes})")
 
-        beat = self.dm_director.formulate_pacing_beat(player_stress, self.memory)
+        beat = self.dm_director.formulate_pacing_beat(player_stress, self.memory, goals)
         is_causal, reason = self.dm_director.validate_causal_invariants(beat, player_pos, self.memory)
-        print(f"  [3/6 DM-Director] Beat '{beat.beat_id}' causality: {reason}")
+        print(f"  [3/6 DM-Director] Beat '{beat.beat_id}' ({beat.action_type}) -> Causality: {reason}")
         if not is_causal:
             raise RuntimeError(f"Causal fault: {reason}")
 
         raw_dialogue = self.persona_synthesizer.synthesize_dialogue(beat)
-        style_report = self.style_guide.audit_and_restyle(raw_dialogue)
+        style_report = self.style_guide.audit_and_restyle(raw_dialogue, goals)
         raw_dialogue["spoken_dialogue"] = style_report.restyled_output or raw_dialogue["raw_dialogue"]
         print(f"  [4/6 Lyric Style] Human touch score: {style_report.human_touch_score:.2f}")
 
         approved, lore_score, notes = self.lore_auditor.audit_final_artifact(ContentType.NPC_DIALOGUE_TEMPLATE, raw_dialogue)
-        print(f"  [5/6 Lore Auditor] Invariant verification score: {lore_score:.2f} (Approved: {approved})")
+        print(f"  [5/6 Lore Auditor] Invariant verification: {lore_score:.2f} (Approved: {approved})")
 
         cpp_scaffold = self.statetree_specialist.generate_cpp_task_scaffold(beat.action_type)
         tickets, hotfix_csv = self.chaos_crew.execute_playtest_matrix(seed)
         self.memory.bug_ticket_queue.extend(tickets)
-        print(f"  [6/6 Chaos Crew] Headless matrix generated {len(tickets)} bug ticket(s)")
+        print(f"  [6/6 Chaos Crew] Filed {len(tickets)} tickets; balance hotfix compiled.")
 
         deliverable = GameReadyArtifact(
             artifact_id=f"ART_{district_id}_{int(self.memory.world_time)}",
@@ -309,7 +344,8 @@ class StudioDirectorManagerAgent:
                 "action": beat.action_type,
                 "spatial_layout": layout.model_dump(),
                 "cpp_scaffold": cpp_scaffold,
-                "hotfix_csv": hotfix_csv
+                "hotfix_csv": hotfix_csv,
+                "active_goals": [g.primary_objective for g in goals]
             },
             style_report=style_report,
             lore_consistency_score=lore_score,
@@ -322,5 +358,4 @@ class StudioDirectorManagerAgent:
         with open(staged_path, "w", encoding="utf-8") as f:
             f.write(deliverable.model_dump_json(indent=2))
 
-        print(f"[STUDIO DIRECTOR]: Artifact staged at {staged_path}\n")
         return deliverable.model_dump()

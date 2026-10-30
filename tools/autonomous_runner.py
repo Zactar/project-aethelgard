@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-PROJECT AETHELGARD: AUTONOMOUS VIRTUAL STUDIO RUNNER (WITH TEAM CEREMONIES)
-Executes multi-cycle autonomous planning, periodic team meetings, QA, and asset ingestion.
+PROJECT AETHELGARD: AUTONOMOUS VIRTUAL STUDIO RUNNER
+Pipes meeting goals directly into downstream sprint asset generation.
 """
 
 import sys
@@ -16,6 +16,7 @@ import time
 import random
 from typing import List, Dict, Any
 
+from schemas.studio_contracts import SprintGoal
 from services.agent_runtime.src.virtual_studio_engine import StudioDirectorManagerAgent
 from services.agent_runtime.src.team_sync import StudioCeremonyEngine
 from tools.engine_importer import EngineAssetIngester
@@ -35,13 +36,13 @@ class AutonomousStudioRunner:
         self.meeting_cadence = meeting_cadence
         self.cycle_count = 0
         self.cycle_history: List[Dict[str, Any]] = []
+        self.current_goals: List[SprintGoal] = []
 
     def run_cycle(self, cycle_index: int) -> Dict[str, Any]:
         self.cycle_count = cycle_index
         district = DISTRICT_ROSTER[(cycle_index - 1) % len(DISTRICT_ROSTER)]
         self.director.memory.world_time += 100.0
 
-        # Simulate dynamic economic shifts & player telemetry
         player_stress = round(random.uniform(0.35, 0.88), 2)
         player_coords = (
             round(random.uniform(1000.0, 1800.0), 1),
@@ -51,21 +52,19 @@ class AutonomousStudioRunner:
         sim_seed = 40000 + (cycle_index * 137)
 
         print("\n" + "=" * 70)
-        print(f" >>> [CYCLE {cycle_index:02d}]: SPRINT DISPATCH ON '{district}' (World Time: {self.director.memory.world_time:.1f}s) <<<")
+        print(f" >>> [CYCLE {cycle_index:02d}]: SPRINT DISPATCH ON '{district}' (Time: {self.director.memory.world_time:.1f}s) <<<")
         print("=" * 70)
 
-        # 1. Pipeline Execution
+        # Dispatch with active goals
         artifact = self.director.dispatch_studio_pipeline(
             district_id=district,
             player_stress=player_stress,
             player_pos=player_coords,
-            seed=sim_seed
+            seed=sim_seed,
+            active_goals=self.current_goals
         )
 
-        # 2. Ingest Assets into Engine Folders
         self.ingester.run_once()
-
-        # 3. Bug Triage
         resolved_count = self.triage_bug_backlog()
 
         result = {
@@ -94,24 +93,26 @@ class AutonomousStudioRunner:
 
     def run_sprint_series(self, total_cycles: int, delay_between_cycles_sec: float = 0.2):
         start_time = time.time()
-        print(f"\n[AUTONOMOUS STUDIO RUNNER]: Commencing {total_cycles}-cycle milestone run...")
+        print(f"\n[AUTONOMOUS STUDIO RUNNER]: Starting {total_cycles}-cycle goal-driven production run...")
 
-        # Initial Kickoff Meeting before Cycle 1
-        self.ceremony_engine.conduct_full_team_meeting(
+        # Initial Standup: Establishes Sprint Goals
+        meeting = self.ceremony_engine.conduct_full_team_meeting(
             target_district=DISTRICT_ROSTER[0],
             cycle_history=[]
         )
+        self.current_goals = meeting.selected_sprint_goals
 
         for i in range(1, total_cycles + 1):
             self.run_cycle(i)
 
-            # Convene periodic team meetings based on cadence
+            # Mid-Milestone Cadence Standup
             if i % self.meeting_cadence == 0 and i < total_cycles:
                 next_district = DISTRICT_ROSTER[i % len(DISTRICT_ROSTER)]
-                self.ceremony_engine.conduct_full_team_meeting(
+                meeting = self.ceremony_engine.conduct_full_team_meeting(
                     target_district=next_district,
                     cycle_history=self.cycle_history
                 )
+                self.current_goals = meeting.selected_sprint_goals
 
             if delay_between_cycles_sec > 0:
                 time.sleep(delay_between_cycles_sec)
@@ -127,21 +128,21 @@ class AutonomousStudioRunner:
         print(f"Elapsed Wall Time      : {elapsed_sec:.2f} seconds")
         print(f"Total Assets Deployed  : {len(ledger) * 4} (Curves, PCG Layouts, Dialogues, C++ Headers)")
         print("-" * 70)
-        print(f"{'Cycle':<7} | {'District':<26} | {'Target NPC':<14} | {'Action':<22} | {'Soul':<5}")
+        print(f"{'Cycle':<7} | {'District':<26} | {'Target NPC':<14} | {'Action':<24} | {'Soul':<5}")
         print("-" * 70)
         for entry in ledger:
             print(
                 f"{entry['cycle']:<7} | "
                 f"{entry['district']:<26} | "
                 f"{entry['target_npc']:<14} | "
-                f"{entry['action']:<22} | "
+                f"{entry['action']:<24} | "
                 f"{entry['human_touch_score']:<5.2f}"
             )
         print("#" * 70 + "\n")
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Run autonomous dev team cycles with team ceremonies.")
+    parser = argparse.ArgumentParser(description="Run autonomous dev team cycles with goal steering.")
     parser.add_argument("--cycles", type=int, default=6, help="Total cycles to run (default: 6)")
     parser.add_argument("--cadence", type=int, default=3, help="Cycles between team sync meetings (default: 3)")
     parser.add_argument("--delay", type=float, default=0.1, help="Delay in seconds between cycles")
