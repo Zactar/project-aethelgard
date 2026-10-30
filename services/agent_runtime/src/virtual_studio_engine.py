@@ -36,6 +36,7 @@ class StudioSharedMemoryBus:
             "Artisans consider uncompensated stock seizures an act of tyranny."
         ]
         self.bug_ticket_queue: List[BugTicket] = []
+        self.active_phase: str = "PEACETIME_COMMERCE"
 
     def query_lore(self, query: str) -> List[str]:
         words = set(query.lower().split())
@@ -46,9 +47,22 @@ class StudioSharedMemoryBus:
 class SystemsArchitectAgent:
     def audit_and_apply_goals(self, memory: StudioSharedMemoryBus, active_goals: List[SprintGoal]) -> Dict[str, Any]:
         goal_titles = [g.primary_objective.lower() for g in active_goals]
-        
-        # Goal Action: Drought & Grain Arbitrage
-        if any("drought" in t or "arbitrage" in t for t in goal_titles):
+
+        # 1. LAYER 4 PHASE TRANSITION CHECK (Tipping point trigger)
+        if memory.active_district_unrest >= 0.90 and memory.commodity_reserves["Flour"] <= 15.0:
+            memory.active_phase = "MUNICIPAL_BREAD_RIOT"
+            # Consequence: Emergency reserve release, granary raided, military curfew
+            memory.commodity_reserves["Flour"] = 55.0
+            memory.commodity_reserves["Bread"] = 40.0
+            memory.active_district_unrest = 0.45
+            trade_regime = "POST_RIOT_MARTIAL_RATIONING"
+            print("  [!] [PHASE TRANSITION TRIGGERED]: Severe famine caused civic riot! Granaries opened, curfew declared.")
+            
+            # Mark the driving drought goal as successfully completed
+            for g in active_goals:
+                if "drought" in g.primary_objective.lower() or "arbitrage" in g.primary_objective.lower():
+                    g.is_completed = True
+        elif any("drought" in t or "arbitrage" in t for t in goal_titles):
             memory.commodity_reserves["Flour"] = max(12.0, memory.commodity_reserves["Flour"] - 18.0)
             memory.active_district_unrest = min(0.95, memory.active_district_unrest + 0.08)
             trade_regime = "CONTRABAND_BLACK_MARKET"
@@ -61,6 +75,7 @@ class SystemsArchitectAgent:
 
         return {
             "regime": trade_regime,
+            "phase": memory.active_phase,
             "is_conserved": is_conserved,
             "flour_level": flour,
             "unrest": memory.active_district_unrest
@@ -70,8 +85,7 @@ class SystemsArchitectAgent:
 class LevelArchitectAgent:
     def generate_and_refine_layout(self, district_id: str, active_goals: List[SprintGoal]) -> DistrictSpatialLayout:
         goal_titles = [g.primary_objective.lower() for g in active_goals]
-        
-        # Base district rooms
+
         nodes = {
             "NODE_PLAZA": SpatialRoomNode(
                 node_id="NODE_PLAZA", zone_name="Market Cross Square", function="CIVIC_PLAZA",
@@ -100,7 +114,7 @@ class LevelArchitectAgent:
         nodes["NODE_APOTHECARY"].connected_node_ids.append("NODE_ALLEY")
         nodes["NODE_BAKERY"].connected_node_ids.append("NODE_ALLEY")
 
-        # Goal Action: Dynamic Aqueduct Catacombs & Sluice Gate Construction
+        # Dynamic Aqueduct Catacombs
         if any("aqueduct" in t or "catacombs" in t for t in goal_titles):
             nodes["NODE_AQUEDUCT_CATACOMBS"] = SpatialRoomNode(
                 node_id="NODE_AQUEDUCT_CATACOMBS",
@@ -132,9 +146,20 @@ class DMDirectorAgent:
     def formulate_pacing_beat(
         self, player_stress: float, memory: StudioSharedMemoryBus, active_goals: List[SprintGoal]
     ) -> ProposedGameBeat:
-        goal_titles = [g.primary_objective.lower() for g in active_goals]
+        # Phase Reaction: Post-Riot Curfew
+        if memory.active_phase == "MUNICIPAL_BREAD_RIOT":
+            return ProposedGameBeat(
+                beat_id="BEAT_CURFEW_INSPECTION",
+                target_npc_id="NPC_ALDOUS",
+                action_type="ENFORCE_MILITARY_RATION",
+                narrative_intent="Resolve civic riot; transition to watch garrison rationing",
+                dialogue_prompt_concept="By decree of the High Seat, all private baking is suspended. Form the rationing queue.",
+                required_props_or_coin={"bread": 1.0},
+                spawn_location_name="NODE_BAKERY",
+                target_player_threat_delta=-0.30
+            )
 
-        # Goal-influenced beat generation
+        goal_titles = [g.primary_objective.lower() for g in active_goals]
         if any("drought" in t or "arbitrage" in t for t in goal_titles) and memory.commodity_reserves["Flour"] < 40.0:
             return ProposedGameBeat(
                 beat_id="BEAT_CONTRABAND_TRADE",
@@ -200,10 +225,14 @@ class StyleGuideAgent:
     ) -> StyleEvaluationReport:
         text = dialogue_payload["raw_dialogue"]
         speaker = dialogue_payload["speaker_id"]
-        goal_titles = [g.primary_objective.lower() for g in active_goals]
-        protest_active = any("mural" in t or "protest" in t for t in goal_titles)
+        action = dialogue_payload.get("target_action", "")
 
-        if "GARRETT" in speaker and "CONTRABAND" in dialogue_payload.get("target_action", ""):
+        if action == "ENFORCE_MILITARY_RATION":
+            restyled = (
+                "The church seal is on the ovens. Hearthmother’s peace is done—watch captain seized every "
+                "sack of barley at dawn. Take your four ounces of hardtack and clear the square before the spears level."
+            )
+        elif "GARRETT" in speaker and "CONTRABAND" in action:
             restyled = (
                 "Lower your head and step past the drying rack. The millers in the Undercroft ground this "
                 "under tallow torches—no orthodoxy wax, no tithe marks. If the watch finds this bushel, "
@@ -220,10 +249,10 @@ class StyleGuideAgent:
         return StyleEvaluationReport(
             artifact_id=f"STYLE_{speaker}",
             verdict=AestheticVerdict.APPROVED_WITH_SOUL,
-            human_touch_score=0.98 if protest_active else 0.92,
+            human_touch_score=0.98,
             flagged_cliches=[],
-            sensory_density_score=0.88,
-            lyric_feedback_notes="Injected clandestine grain trade dialect and soot-textured cadence.",
+            sensory_density_score=0.90,
+            lyric_feedback_notes="Atmospheric, tactile, rhythmically grounded dialogue.",
             restyled_output=restyled
         )
 
@@ -308,7 +337,7 @@ class StudioDirectorManagerAgent:
         active_goals: Optional[List[SprintGoal]] = None
     ) -> Dict[str, Any]:
         goals = active_goals or []
-        print(f"\n[STUDIO DIRECTOR]: Commencing sprint for '{district_id}' | Active Goals: {len(goals)}")
+        print(f"\n[STUDIO DIRECTOR]: Commencing sprint for '{district_id}' | Phase: {self.memory.active_phase}")
 
         metabolism = self.systems_architect.audit_and_apply_goals(self.memory, goals)
         print(f"  [1/6 Systems] Regime: {metabolism['regime']} | Flour Reserve: {metabolism['flour_level']:.1f} | Unrest: {metabolism['unrest']:.2f}")
@@ -345,7 +374,9 @@ class StudioDirectorManagerAgent:
                 "spatial_layout": layout.model_dump(),
                 "cpp_scaffold": cpp_scaffold,
                 "hotfix_csv": hotfix_csv,
-                "active_goals": [g.primary_objective for g in goals]
+                "district_unrest": metabolism["unrest"],
+                "active_phase": self.memory.active_phase,
+                "active_goals": [g.primary_objective for g in goals if not g.is_completed]
             },
             style_report=style_report,
             lore_consistency_score=lore_score,

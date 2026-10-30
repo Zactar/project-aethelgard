@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Project Aethelgard - Dynamic Web Client</title>
+  <style>
+    body { margin: 0; padding: 0; overflow: hidden; background: #080a0f; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #e0e0e0; }
+    #canvas-container { width: 100vw; height: 100vh; display: block; }
+    #hud {
+      position: absolute; top: 16px; left: 16px; width: 340px;
+      background: rgba(14, 18, 26, 0.94); border: 1px solid #2d3548;
+      border-radius: 8px; padding: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.6); z-index: 10;
+    }
+    #hud h2 { margin: 0 0 10px 0; font-size: 15px; color: #4facfe; text-transform: uppercase; letter-spacing: 1px; }
+    .hud-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; }
+    .hud-val { font-weight: bold; color: #fff; }
+    #dialogue-box {
+      position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); width: 680px;
+      background: rgba(14, 18, 26, 0.96); border: 1px solid #3b4560; border-radius: 8px;
+      padding: 18px; box-shadow: 0 8px 30px rgba(0,0,0,0.8); display: none; z-index: 10;
+    }
+    #dialogue-speaker { font-weight: bold; color: #f5af19; font-size: 14px; margin-bottom: 6px; }
+    #dialogue-text { font-size: 15px; line-height: 1.5; color: #f0f0f0; font-style: italic; }
+    #dialogue-action { margin-top: 10px; font-size: 12px; color: #00f2fe; text-transform: uppercase; letter-spacing: 0.5px; }
+    .btn {
+      width: 100%; background: #22293a; color: #fff; border: 1px solid #4facfe;
+      padding: 8px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; margin-top: 8px;
+    }
+    .btn:hover { background: #4facfe; color: #080a0f; }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+</head>
+<body>
+  <div id="hud">
+    <h2>Aethelgard Telemetry</h2>
+    <div class="hud-row"><span>District:</span><span id="ui-district" class="hud-val">MarketSquare</span></div>
+    <div class="hud-row"><span>District Unrest:</span><span id="ui-unrest" class="hud-val">0.58</span></div>
+    <div class="hud-row"><span>Simulation Phase:</span><span id="ui-phase" class="hud-val">PEACETIME</span></div>
+    <div class="hud-row"><span>Topological Nodes:</span><span id="ui-nodes" class="hud-val">4</span></div>
+    <div class="hud-row"><span>IPC Status:</span><span id="ui-status" class="hud-val" style="color: #ffb300;">Connecting...</span></div>
+    <button class="btn" onclick="sendStressTelemetry(0.85)">Dispatch High Stress (0.85)</button>
+    <button class="btn" onclick="sendStressTelemetry(0.20)">Dispatch Peacetime Rest (0.20)</button>
+  </div>
+
+  <div id="dialogue-box">
+    <div id="dialogue-speaker">NPC SPEECH</div>
+    <div id="dialogue-text">...</div>
+    <div id="dialogue-action">ACTION: NONE</div>
+  </div>
+
+  <div id="canvas-container"></div>
+
+  <script>
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x080a0f);
+    scene.fog = new THREE.FogExp2(0x080a0f, 0.00025);
+
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 10, 25000);
+    camera.position.set(0, 4000, 4800);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.target.set(0, 0, 0);
+
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.45);
+    scene.add(ambientLight);
+    const dirLight = new THREE.DirectionalLight(0xffecd2, 0.85);
+    dirLight.position.set(1500, 3500, 1500);
+    scene.add(dirLight);
+
+    const grid = new THREE.GridHelper(12000, 60, 0x2d3548, 0x141824);
+    grid.position.y = -1;
+    scene.add(grid);
+
+    const roomGroup = new THREE.Group();
+    scene.add(roomGroup);
+
+    function buildDynamicRoom(nodeId, nodeData) {
+      const min = nodeData.bounds_min;
+      const max = nodeData.bounds_max;
+      const width = Math.abs(max.x - min.x);
+      const height = Math.abs(max.z - min.z) || 120;
+      const depth = Math.abs(max.y - min.y);
+      const center = nodeData.center_location;
+
+      let color = 0x1f2636;
+      let opacity = 0.85;
+
+      if (nodeId.includes("AQUEDUCT")) {
+        color = 0x005b96; // Subterranean aquatic blue
+        opacity = 0.95;
+      } else if (nodeId.includes("BAKERY")) {
+        color = 0x3d2b1f;
+      } else if (nodeId.includes("APOTHECARY")) {
+        color = 0x1e3a2f;
+      }
+
+      const geo = new THREE.BoxGeometry(width, height, depth);
+      const mat = new THREE.MeshLambertMaterial({ color: color, transparent: true, opacity: opacity });
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.position.set(center.x, center.z + (height / 2), center.y);
+      roomGroup.add(mesh);
+
+      const wireColor = nodeId.includes("AQUEDUCT") ? 0x00f2fe : 0x4facfe;
+      const edges = new THREE.EdgesGeometry(geo);
+      const wire = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: wireColor, linewidth: 2 }));
+      mesh.add(wire);
+
+      // Render Sluice Gates or Sockets
+      if (nodeData.smart_objects) {
+        nodeData.smart_objects.forEach(so => {
+          const soGeo = new THREE.BoxGeometry(100, 200, 100);
+          const soMat = new THREE.MeshLambertMaterial({ color: 0xff007f });
+          const soMesh = new THREE.Mesh(soGeo, soMat);
+          soMesh.position.set(so.relative_position.x, center.z + 100, so.relative_position.y);
+          roomGroup.add(soMesh);
+        });
+      }
+    }
+
+    let socket = null;
+    function connectWS() {
+      let wsUrl;
+      const host = window.location.host;
+      if (host.includes('-3000.app.github.dev')) {
+        wsUrl = `wss://${host.replace('-3000', '-8765')}`;
+      } else if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        wsUrl = `ws://localhost:8765`;
+      } else {
+        wsUrl = `wss://${host}`;
+      }
+
+      socket = new WebSocket(wsUrl);
+
+      socket.onopen = () => {
+        document.getElementById('ui-status').innerText = "Connected (8765)";
+        document.getElementById('ui-status').style.color = "#00e676";
+      };
+
+      socket.onclose = () => {
+        document.getElementById('ui-status').innerText = "Disconnected (Retrying...)";
+        document.getElementById('ui-status').style.color = "#ff5252";
+        setTimeout(connectWS, 2500);
+      };
+
+      socket.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        if (data.status === "PROCESSED") {
+          document.getElementById('dialogue-speaker').innerText = data.target_npc;
+          document.getElementById('dialogue-text').innerText = `"${data.dialogue}"`;
+          document.getElementById('dialogue-action').innerText = `EXECUTING STATETREE: ${data.action}`;
+          document.getElementById('dialogue-box').style.display = 'block';
+
+          if (data.district_unrest !== undefined) {
+            document.getElementById('ui-unrest').innerText = data.district_unrest.toFixed(2);
+            document.getElementById('ui-phase').innerText = data.active_phase;
+          }
+
+          if (data.spatial_layout && data.spatial_layout.nodes) {
+            while (roomGroup.children.length > 0) {
+              roomGroup.remove(roomGroup.children[0]);
+            }
+            const nodes = data.spatial_layout.nodes;
+            document.getElementById('ui-nodes').innerText = Object.keys(nodes).length;
+            for (const [nodeId, nodeData] of Object.entries(nodes)) {
+              buildDynamicRoom(nodeId, nodeData);
+            }
+          }
+        }
+      };
+    }
+    connectWS();
+
+    function sendStressTelemetry(stress) {
+      if (!socket || socket.readyState !== WebSocket.OPEN) return;
+      const packet = {
+        type: "TELEMETRY_INGEST",
+        district_id: "District_MarketSquare",
+        player_stress: stress,
+        player_coords: [1400.0, 500.0, 0.0],
+        seed: Math.floor(Math.random() * 90000)
+      };
+      socket.send(JSON.stringify(packet));
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+      controls.update();
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>

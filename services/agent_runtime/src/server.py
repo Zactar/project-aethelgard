@@ -1,7 +1,6 @@
 import sys
 from pathlib import Path
 
-# Add project root to sys.path
 ROOT_DIR = Path(__file__).resolve().parents[3]
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
@@ -13,11 +12,22 @@ from typing import Any
 import websockets
 
 from services.agent_runtime.src.virtual_studio_engine import StudioDirectorManagerAgent
+from schemas.studio_contracts import SprintGoal
 
 logging.basicConfig(level=logging.INFO, format="[%(asctime)s] [%(levelname)s] %(message)s")
 logger = logging.getLogger("AethelgardServer")
 
 DIRECTOR = StudioDirectorManagerAgent()
+ACTIVE_GOALS = [
+    SprintGoal(
+        goal_id="GOAL-INIT",
+        target_district="District_MarketSquare",
+        primary_objective="Vertical Aqueduct Catacombs with Dynamic Sluice Gates",
+        driving_ideas=["IDEA-LVL-01"],
+        assigned_crews=["Level_Architect"],
+        success_criteria="Rendered in web client"
+    )
+]
 
 async def handle_state_ipc(websocket: Any):
     client_addr = getattr(websocket, "remote_address", "unknown")
@@ -37,7 +47,8 @@ async def handle_state_ipc(websocket: Any):
                     district_id=district,
                     player_stress=stress,
                     player_pos=coords,
-                    seed=seed
+                    seed=seed,
+                    active_goals=ACTIVE_GOALS
                 )
 
                 response = {
@@ -45,7 +56,10 @@ async def handle_state_ipc(websocket: Any):
                     "artifact_id": result["artifact_id"],
                     "dialogue": result["raw_payload"]["dialogue"]["spoken_dialogue"],
                     "target_npc": result["raw_payload"]["target_npc"],
-                    "action": result["raw_payload"]["action"]
+                    "action": result["raw_payload"]["action"],
+                    "district_unrest": result["raw_payload"]["district_unrest"],
+                    "active_phase": result["raw_payload"]["active_phase"],
+                    "spatial_layout": result["raw_payload"]["spatial_layout"]
                 }
                 await websocket.send(json.dumps(response))
 
@@ -54,7 +68,7 @@ async def handle_state_ipc(websocket: Any):
     except websockets.exceptions.ConnectionClosedOK:
         pass
     except websockets.exceptions.ConnectionClosedError:
-        logger.warning(f"Client abruptly disconnected: {client_addr}")
+        logger.warning(f"Client disconnected: {client_addr}")
     except Exception as e:
         logger.error(f"Error handling IPC message: {e}", exc_info=True)
 
