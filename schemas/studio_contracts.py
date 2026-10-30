@@ -31,7 +31,7 @@ class SmartObjectAnchor(BaseModel):
     smart_object_tag: str
     assigned_npc_id: Optional[str] = None
     relative_position: Vector3D
-    interaction_facing_yaw: float
+    interaction_facing_yaw: float = 0.0
 
 class SpatialRoomNode(BaseModel):
     node_id: str
@@ -89,17 +89,12 @@ class GameReadyArtifact(BaseModel):
     audit_notes: str
     timestamp: float = Field(default_factory=time.time)
 
-# ==============================================================================
-# SPRINT CEREMONY & BRAINSTORMING DATA CONTRACTS
-# ==============================================================================
-
 class IdeaDiscipline(str, Enum):
     SYSTEMS_DESIGN = "SYSTEMS_DESIGN"
     LEVEL_ARCHITECTURE = "LEVEL_ARCHITECTURE"
     NARRATIVE_LORE = "NARRATIVE_LORE"
     AESTHETIC_STYLE = "AESTHETIC_STYLE"
     QA_COMBAT_BALANCE = "QA_COMBAT_BALANCE"
-
 
 class BrainstormIdea(BaseModel):
     idea_id: str
@@ -111,7 +106,6 @@ class BrainstormIdea(BaseModel):
     systemic_emergence_score: float = Field(ge=0.0, le=1.0)
     estimated_complexity: str = "MEDIUM"
 
-
 class SprintGoal(BaseModel):
     goal_id: str
     target_district: str
@@ -121,7 +115,6 @@ class SprintGoal(BaseModel):
     success_criteria: str
     is_completed: bool = False
 
-
 class SprintMeetingMinutes(BaseModel):
     meeting_id: str
     world_time_marker: float
@@ -130,3 +123,48 @@ class SprintMeetingMinutes(BaseModel):
     selected_sprint_goals: List[SprintGoal]
     director_closing_notes: str
     timestamp: float = Field(default_factory=time.time)
+
+class PropPrimitiveType(str, Enum):
+    BOX = "BOX"
+    CYLINDER = "CYLINDER"
+    TORUS = "TORUS"
+    OBELISK = "OBELISK"
+    MARKET_STALL = "MARKET_STALL"
+    BAKERY_OVEN = "BAKERY_OVEN"
+    APOTHECARY_SHELF = "APOTHECARY_SHELF"
+    SLUICE_MECHANISM = "SLUICE_MECHANISM"
+
+class ProceduralPropSpec(BaseModel):
+    prop_id: str
+    primitive_type: PropPrimitiveType
+    relative_position: Vector3D
+    rotation_y: float = 0.0
+    scale: Vector3D = Field(default_factory=lambda: Vector3D(x=1, y=1, z=1))
+    material_color_hex: str = "#5a3d28"
+    emissive_color_hex: Optional[str] = None
+    emissive_intensity: float = 0.0
+    cast_shadow: bool = True
+
+class LightingProfile(BaseModel):
+    ambient_sky_hex: str = "#b0c4de"
+    ambient_ground_hex: str = "#181c24"
+    sun_color_hex: str = "#fff5ea"
+    sun_intensity: float = 0.75
+    fog_color_hex: str = "#06080d"
+    fog_density: float = 0.00018
+
+class DistrictClientManifest(BaseModel):
+    district_id: str
+    world_time: float
+    simulation_phase: str
+    lighting: LightingProfile
+    props: Dict[str, List[ProceduralPropSpec]] = Field(default_factory=dict)
+    active_smart_objects: List[SmartObjectAnchor] = Field(default_factory=list)
+
+class ClientPlaytestReport(BaseModel):
+    nodes_traversed: int
+    unreachable_nodes: List[str]
+    interaction_failures: List[str]
+    average_socket_latency_ms: float
+    out_of_bounds_detected: bool
+    verdict: str

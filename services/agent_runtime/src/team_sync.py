@@ -1,8 +1,3 @@
-"""
-PROJECT AETHELGARD: CONTEXT-REACTIVE TEAM SYNC & IDEATION ENGINE
-Generates dynamic brainstorming proposals conditioned on active world state and simulation phase.
-"""
-
 import sys
 from pathlib import Path
 
@@ -17,7 +12,6 @@ from schemas.studio_contracts import (
     IdeaDiscipline, BrainstormIdea, SprintGoal, SprintMeetingMinutes, BugSeverity
 )
 from services.agent_runtime.src.virtual_studio_engine import StudioSharedMemoryBus
-
 
 class StudioCeremonyEngine:
     def __init__(self, memory_bus: StudioSharedMemoryBus):
@@ -44,84 +38,48 @@ class StudioCeremonyEngine:
         }
 
     def conduct_brainstorming_session(self) -> List[BrainstormIdea]:
-        """Pitches proposals tailored directly to the active phase."""
         phase = self.memory.active_phase
         proposals: List[BrainstormIdea] = []
 
-        if phase == "MUNICIPAL_BREAD_RIOT" or self.memory.commodity_reserves.get("Flour", 0) <= 35.0:
-            # Crisis proposals
+        if phase == "MUNICIPAL_BREAD_RIOT":
             proposals.append(BrainstormIdea(
-                idea_id="IDEA-SYS-CRISIS-01",
-                proposing_agent="Systems_Architect",
+                idea_id="IDEA-SYS-01", proposing_agent="Systems_Architect",
                 discipline=IdeaDiscipline.SYSTEMS_DESIGN,
                 title="Curfew Bread Rations & Emergency Granary Depots",
                 pitch="Institute caloric rationing. Church guards issue 1 hardtack loaf per citizen per day.",
-                technical_feasibility_score=0.96,
-                systemic_emergence_score=0.91,
-                estimated_complexity="LOW"
-            ))
-            proposals.append(BrainstormIdea(
-                idea_id="IDEA-LVL-CRISIS-01",
-                proposing_agent="Level_Architect",
-                discipline=IdeaDiscipline.LEVEL_ARCHITECTURE,
-                title="Iron Barricades & Checkpoint Portcullis Gates",
-                pitch="Seal main plaza thoroughfares with wooden barricades; funnel NPC flow through fortified checkpoints.",
-                technical_feasibility_score=0.92,
-                systemic_emergence_score=0.88,
-                estimated_complexity="MEDIUM"
-            ))
-            proposals.append(BrainstormIdea(
-                idea_id="IDEA-STY-CRISIS-01",
-                proposing_agent="Lyric_StyleGuide",
-                discipline=IdeaDiscipline.AESTHETIC_STYLE,
-                title="Clandestine Night-Chalk Runes & Smoldering Braziers",
-                pitch="Replace street torches with heavy iron braziers emitting thick acrid smoke and defiant guild sigils.",
-                technical_feasibility_score=0.94,
-                systemic_emergence_score=0.86,
-                estimated_complexity="LOW"
+                technical_feasibility_score=0.96, systemic_emergence_score=0.91
             ))
         else:
-            # Peacetime / Expansion proposals
             proposals.append(BrainstormIdea(
-                idea_id="IDEA-SYS-PEACE-01",
-                proposing_agent="Systems_Architect",
+                idea_id="IDEA-SYS-01", proposing_agent="Systems_Architect",
                 discipline=IdeaDiscipline.SYSTEMS_DESIGN,
                 title="Artisan Guild Smuggling Ring & Tithe Evasion",
                 pitch="Artisans establish hidden gold reserves behind shop hearths to bypass the 35% Malakor tithe.",
-                technical_feasibility_score=0.94,
-                systemic_emergence_score=0.89,
-                estimated_complexity="LOW"
-            ))
-            proposals.append(BrainstormIdea(
-                idea_id="IDEA-LVL-PEACE-01",
-                proposing_agent="Level_Architect",
-                discipline=IdeaDiscipline.LEVEL_ARCHITECTURE,
-                title="Vertical Aqueduct Catacombs with Dynamic Sluice Gates",
-                pitch="Carve subterranean aqueduct conduits connecting the market square to the dock canals.",
-                technical_feasibility_score=0.90,
-                systemic_emergence_score=0.93,
-                estimated_complexity="MEDIUM"
-            ))
-            proposals.append(BrainstormIdea(
-                idea_id="IDEA-STY-PEACE-01",
-                proposing_agent="Lyric_StyleGuide",
-                discipline=IdeaDiscipline.AESTHETIC_STYLE,
-                title="Soot-Etched Protest Murals & Street Lamp Decal Shifts",
-                pitch="Dynamic visual grunge: warm tallow lantern blooms contrasted against stark theocratic stone.",
-                technical_feasibility_score=0.95,
-                systemic_emergence_score=0.84,
-                estimated_complexity="LOW"
+                technical_feasibility_score=0.94, systemic_emergence_score=0.89
             ))
 
         proposals.append(BrainstormIdea(
-            idea_id="IDEA-QA-01",
-            proposing_agent="Chaos_Commander",
+            idea_id="IDEA-LVL-01", proposing_agent="Level_Architect",
+            discipline=IdeaDiscipline.LEVEL_ARCHITECTURE,
+            title="Vertical Aqueduct Catacombs with Dynamic Sluice Gates",
+            pitch="Carve subterranean aqueduct conduits connecting the market square to the dock canals.",
+            technical_feasibility_score=0.90, systemic_emergence_score=0.93
+        ))
+
+        proposals.append(BrainstormIdea(
+            idea_id="IDEA-CLI-01", proposing_agent="Client_Architect",
+            discipline=IdeaDiscipline.AESTHETIC_STYLE,
+            title="Volumetric Torchlight Blooms & Interactive Workstation Shaders",
+            pitch="Deploy dynamic point lantern flickering and emissive pulses on active smart object meshes.",
+            technical_feasibility_score=0.95, systemic_emergence_score=0.87
+        ))
+
+        proposals.append(BrainstormIdea(
+            idea_id="IDEA-QA-01", proposing_agent="Chaos_Commander",
             discipline=IdeaDiscipline.QA_COMBAT_BALANCE,
-            title="Stamina Exhaustion Penalty on Melee Roll Spamming",
-            pitch="Introduce a 1.2s stagger penalty when dodging at zero stamina to dismantle infinite iframe loops.",
-            technical_feasibility_score=0.98,
-            systemic_emergence_score=0.79,
-            estimated_complexity="LOW"
+            title="Automated Client Headless Navigation & Boundary Stress Test",
+            pitch="Deploy automated bots traversing all topological nodes to catch out-of-bounds clipping.",
+            technical_feasibility_score=0.98, systemic_emergence_score=0.82
         ))
 
         return proposals
@@ -129,22 +87,22 @@ class StudioCeremonyEngine:
     def compile_sprint_goals(
         self, retro: Dict[str, Any], ideas: List[BrainstormIdea], target_district: str
     ) -> Tuple[List[SprintGoal], str]:
-        selected_ideas = [i for i in ideas if i.technical_feasibility_score >= 0.88 and i.systemic_emergence_score >= 0.80]
+        selected = [i for i in ideas if i.technical_feasibility_score >= 0.88 and i.systemic_emergence_score >= 0.80]
         goals: List[SprintGoal] = []
-        for idx, idea in enumerate(selected_ideas, start=1):
+        for idx, idea in enumerate(selected, start=1):
             goals.append(SprintGoal(
                 goal_id=f"GOAL-W{int(self.memory.world_time // 100)}-{idx:02d}",
                 target_district=target_district,
                 primary_objective=idea.title,
                 driving_ideas=[idea.idea_id],
                 assigned_crews=[idea.proposing_agent, "Studio_Director"],
-                success_criteria=f"Verified in {target_district} under phase {self.memory.active_phase}.",
+                success_criteria=f"Verified in {target_district} across engine and web client.",
                 is_completed=False
             ))
 
         director_notes = (
-            f"Goals aligned for {target_district} in phase {self.memory.active_phase}. "
-            f"Active proposals: {len(goals)}. All crews authorized to construct."
+            f"Goals aligned for {target_district} under phase {self.memory.active_phase}. "
+            f"Client and server pipelines synchronized. All crews cleared to build."
         )
         return goals, director_notes
 
@@ -152,7 +110,7 @@ class StudioCeremonyEngine:
         self, target_district: str, cycle_history: List[Dict[str, Any]]
     ) -> SprintMeetingMinutes:
         print("\n" + "=" * 70)
-        print(f" [STUDIO ALL-HANDS]: SPRINT STANDUP & BRAINSTORMING CEREMONY ")
+        print(" [STUDIO ALL-HANDS]: SPRINT STANDUP & BRAINSTORMING CEREMONY ")
         print(f" Phase: {self.memory.active_phase} | District: {target_district} | Time: {self.memory.world_time:.1f}s")
         print("=" * 70)
 
@@ -161,13 +119,13 @@ class StudioCeremonyEngine:
         print(f"   Commodity Reserves   : {retro['commodity_reserves']}")
         print(f"   Unresolved Bugs      : {retro['backlog_health']['total_unresolved_bugs']}")
 
-        print("\n2. Context-Reactive Brainstorming Proposals:")
+        print("\n2. Cross-Crew Brainstorming Proposals:")
         ideas = self.conduct_brainstorming_session()
         for idea in ideas:
-            print(f"   • [{idea.discipline.value}] {idea.proposing_agent}: \"{idea.title}\"")
+            print(f"   • [{idea.discipline.value}] {idea.proposing_agent}: '{idea.title}'")
 
         goals, notes = self.compile_sprint_goals(retro, ideas, target_district)
-        print(f"\n3. Committed Sprint Goals for Upcoming Production Run:")
+        print("\n3. Committed Sprint Goals:")
         for g in goals:
             print(f"   ▶ [{g.goal_id}] {g.primary_objective}")
 

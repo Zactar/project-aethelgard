@@ -1,9 +1,4 @@
 #!/usr/bin/env python3
-"""
-PROJECT AETHELGARD: AUTONOMOUS VIRTUAL STUDIO RUNNER
-Pipes meeting goals directly into downstream sprint asset generation.
-"""
-
 import sys
 from pathlib import Path
 
@@ -55,7 +50,6 @@ class AutonomousStudioRunner:
         print(f" >>> [CYCLE {cycle_index:02d}]: SPRINT DISPATCH ON '{district}' (Time: {self.director.memory.world_time:.1f}s) <<<")
         print("=" * 70)
 
-        # Dispatch with active goals
         artifact = self.director.dispatch_studio_pipeline(
             district_id=district,
             player_stress=player_stress,
@@ -95,7 +89,6 @@ class AutonomousStudioRunner:
         start_time = time.time()
         print(f"\n[AUTONOMOUS STUDIO RUNNER]: Starting {total_cycles}-cycle goal-driven production run...")
 
-        # Initial Standup: Establishes Sprint Goals
         meeting = self.ceremony_engine.conduct_full_team_meeting(
             target_district=DISTRICT_ROSTER[0],
             cycle_history=[]
@@ -105,7 +98,6 @@ class AutonomousStudioRunner:
         for i in range(1, total_cycles + 1):
             self.run_cycle(i)
 
-            # Mid-Milestone Cadence Standup
             if i % self.meeting_cadence == 0 and i < total_cycles:
                 next_district = DISTRICT_ROSTER[i % len(DISTRICT_ROSTER)]
                 meeting = self.ceremony_engine.conduct_full_team_meeting(
@@ -142,10 +134,10 @@ class AutonomousStudioRunner:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Run autonomous dev team cycles with goal steering.")
-    parser.add_argument("--cycles", type=int, default=6, help="Total cycles to run (default: 6)")
-    parser.add_argument("--cadence", type=int, default=3, help="Cycles between team sync meetings (default: 3)")
-    parser.add_argument("--delay", type=float, default=0.1, help="Delay in seconds between cycles")
+    parser = argparse.ArgumentParser(description="Run autonomous dev team cycles.")
+    parser.add_argument("--cycles", type=int, default=3, help="Total cycles (default: 3)")
+    parser.add_argument("--cadence", type=int, default=2, help="Cycles between meetings (default: 2)")
+    parser.add_argument("--delay", type=float, default=0.1, help="Delay in seconds")
     args = parser.parse_args()
 
     runner = AutonomousStudioRunner(meeting_cadence=args.cadence)

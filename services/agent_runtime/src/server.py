@@ -24,7 +24,7 @@ ACTIVE_GOALS = [
         target_district="District_MarketSquare",
         primary_objective="Vertical Aqueduct Catacombs with Dynamic Sluice Gates",
         driving_ideas=["IDEA-LVL-01"],
-        assigned_crews=["Level_Architect"],
+        assigned_crews=["Level_Architect", "Client_Architect"],
         success_criteria="Rendered in web client"
     )
 ]
@@ -60,31 +60,9 @@ async def handle_state_ipc(websocket: Any):
             payload = json.loads(message)
             msg_type = payload.get("type", "UNKNOWN")
 
-            if msg_type == "SMART_OBJECT_INTERACT":
-                so_tag = payload.get("smart_object_tag", "")
-                so_id = payload.get("smart_object_id", "")
-                logger.info(f"Smart Object Interaction triggered: {so_tag} ({so_id})")
-
-                resp_data = SMART_OBJECT_RESPONSES.get(so_tag, {
-                    "speaker": "WORLD OBJECT",
-                    "action": "INTERACT_GENERIC",
-                    "dialogue": f"You examine {so_id}. The surface is worn from years of continuous guild use."
-                })
-
-                response = {
-                    "status": "PROCESSED",
-                    "artifact_id": f"SO_EVENT_{so_id}",
-                    "dialogue": resp_data["dialogue"],
-                    "target_npc": resp_data["speaker"],
-                    "action": resp_data["action"],
-                    "district_unrest": DIRECTOR.memory.active_district_unrest,
-                    "active_phase": DIRECTOR.memory.active_phase
-                }
-                await websocket.send(json.dumps(response))
-
-            elif msg_type == "TELEMETRY_INGEST":
+            if msg_type in ("TELEMETRY_INGEST", "REQUEST_INITIAL_STATE"):
                 district = payload.get("district_id", "District_MarketSquare")
-                stress = payload.get("player_stress", 0.78)
+                stress = payload.get("player_stress", 0.35)
                 coords = tuple(payload.get("player_coords", [1400.0, 500.0, 0.0]))
                 seed = payload.get("seed", 42109)
 
@@ -104,7 +82,30 @@ async def handle_state_ipc(websocket: Any):
                     "action": result["raw_payload"]["action"],
                     "district_unrest": result["raw_payload"]["district_unrest"],
                     "active_phase": result["raw_payload"]["active_phase"],
-                    "spatial_layout": result["raw_payload"]["spatial_layout"]
+                    "spatial_layout": result["raw_payload"]["spatial_layout"],
+                    "client_manifest": result["raw_payload"]["client_manifest"]
+                }
+                await websocket.send(json.dumps(response))
+
+            elif msg_type == "SMART_OBJECT_INTERACT":
+                so_tag = payload.get("smart_object_tag", "")
+                so_id = payload.get("smart_object_id", "")
+                logger.info(f"Smart Object Interaction: {so_tag} ({so_id})")
+
+                resp_data = SMART_OBJECT_RESPONSES.get(so_tag, {
+                    "speaker": "WORLD OBJECT",
+                    "action": "INTERACT_GENERIC",
+                    "dialogue": f"You examine {so_id}. The surface is worn from years of continuous guild use."
+                })
+
+                response = {
+                    "status": "PROCESSED",
+                    "artifact_id": f"SO_EVENT_{so_id}",
+                    "dialogue": resp_data["dialogue"],
+                    "target_npc": resp_data["speaker"],
+                    "action": resp_data["action"],
+                    "district_unrest": DIRECTOR.memory.active_district_unrest,
+                    "active_phase": DIRECTOR.memory.active_phase
                 }
                 await websocket.send(json.dumps(response))
 
