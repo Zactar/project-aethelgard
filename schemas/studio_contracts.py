@@ -3,12 +3,13 @@ import time
 from typing import Dict, List, Any, Optional
 from pydantic import BaseModel, Field
 
+# Content and Audit Types
 class ContentType(str, Enum):
     STATETREE_TASK = "STATETREE_TASK"
     NPC_DIALOGUE_TEMPLATE = "NPC_DIALOGUE_TEMPLATE"
-    SYSTEMIC_QUEST = "SYSTEMIC_QUEST"
     SPATIAL_LAYOUT = "SPATIAL_LAYOUT"
     BALANCE_HOTFIX = "BALANCE_HOTFIX"
+    CLIENT_RUNTIME_MANIFEST = "CLIENT_RUNTIME_MANIFEST"
 
 class AestheticVerdict(str, Enum):
     APPROVED_WITH_SOUL = "APPROVED_WITH_SOUL"
@@ -21,6 +22,7 @@ class BugSeverity(str, Enum):
     P2_MEDIUM = "P2_MEDIUM"
     P3_LOW = "P3_LOW"
 
+# Math & Spatial Primitives
 class Vector3D(BaseModel):
     x: float
     y: float
@@ -49,6 +51,101 @@ class DistrictSpatialLayout(BaseModel):
     nodes: Dict[str, SpatialRoomNode]
     is_topologically_sound: bool = False
 
+# Prop & Visual Specifications
+class PropPrimitiveType(str, Enum):
+    BOX = "BOX"
+    CYLINDER = "CYLINDER"
+    TORUS = "TORUS"
+    OBELISK = "OBELISK"
+    MARKET_STALL = "MARKET_STALL"
+    BAKERY_OVEN = "BAKERY_OVEN"
+    APOTHECARY_SHELF = "APOTHECARY_SHELF"
+    SLUICE_MECHANISM = "SLUICE_MECHANISM"
+
+class ProceduralPropSpec(BaseModel):
+    prop_id: str
+    primitive_type: PropPrimitiveType
+    relative_position: Vector3D
+    rotation_y: float = 0.0
+    scale: Vector3D = Field(default_factory=lambda: Vector3D(x=1, y=1, z=1))
+    material_color_hex: str = "#5a3d28"
+    emissive_color_hex: Optional[str] = None
+    emissive_intensity: float = 0.0
+    cast_shadow: bool = True
+
+class LightingProfile(BaseModel):
+    ambient_sky_hex: str = "#b0c4de"
+    ambient_ground_hex: str = "#181c24"
+    sun_color_hex: str = "#fff5ea"
+    sun_intensity: float = 0.75
+    fog_color_hex: str = "#06080d"
+    fog_density: float = 0.00018
+
+# Item & Economic Specifications
+class ItemCategory(str, Enum):
+    COMMODITY = "COMMODITY"
+    CONSUMABLE = "CONSUMABLE"
+    CONTRABAND = "CONTRABAND"
+    TOOL = "TOOL"
+
+class ItemSpec(BaseModel):
+    item_id: str
+    display_name: str
+    category: ItemCategory
+    base_value: float
+    description: str
+    icon_symbol: str = "📦"
+    stack_limit: int = 20
+    effects: Dict[str, float] = Field(default_factory=dict)
+
+# NPC Actor Specifications
+class NPCActorSpec(BaseModel):
+    npc_id: str
+    name: str
+    role: str
+    faction: str
+    color_hex: str = "#f5af19"
+    position: Vector3D
+    default_dialogue: str
+    inventory: Dict[str, int] = Field(default_factory=dict)
+    assigned_smart_object: Optional[str] = None
+
+# UI & HUD Styling Specifications
+class UIThemeSpec(BaseModel):
+    primary_color_hex: str = "#4facfe"
+    accent_color_hex: str = "#00f2fe"
+    background_alpha: float = 0.94
+    hud_title: str = "AETHELGARD RUNTIME CLIENT"
+    show_minimap: bool = True
+    show_inventory: bool = True
+    action_buttons: List[Dict[str, Any]] = Field(default_factory=list)
+
+# Gameplay Mechanics Specifications
+class GameplayMechanicsSpec(BaseModel):
+    player_base_speed: float = 1400.0
+    sprint_multiplier: float = 1.6
+    stamina_max: float = 100.0
+    stamina_recovery_rate: float = 15.0
+    interaction_radius: float = 480.0
+    camera_fov: float = 45.0
+    camera_default_distance: float = 3000.0
+
+# Master Unified Runtime Manifest
+class GameRuntimeManifest(BaseModel):
+    manifest_version: int = 1
+    district_id: str
+    simulation_phase: str
+    district_unrest: float
+    world_time: float
+    lighting: LightingProfile
+    ui: UIThemeSpec
+    mechanics: GameplayMechanicsSpec
+    items: Dict[str, ItemSpec] = Field(default_factory=dict)
+    npcs: Dict[str, NPCActorSpec] = Field(default_factory=dict)
+    spatial_layout: DistrictSpatialLayout
+    props: Dict[str, List[ProceduralPropSpec]] = Field(default_factory=dict)
+
+# Narrative & Evaluation Contracts
 class StyleEvaluationReport(BaseModel):
     artifact_id: str
     verdict: AestheticVerdict
@@ -89,9 +186,12 @@ class GameReadyArtifact(BaseModel):
     audit_notes: str
     timestamp: float = Field(default_factory=time.time)
 
+# Standup Ceremonies Contracts
 class IdeaDiscipline(str, Enum):
     SYSTEMS_DESIGN = "SYSTEMS_DESIGN"
     LEVEL_ARCHITECTURE = "LEVEL_ARCHITECTURE"
+    GAMEPLAY_MECHANICS = "GAMEPLAY_MECHANICS"
+    UI_UX_DESIGN = "UI_UX_DESIGN"
     NARRATIVE_LORE = "NARRATIVE_LORE"
     AESTHETIC_STYLE = "AESTHETIC_STYLE"
     QA_COMBAT_BALANCE = "QA_COMBAT_BALANCE"
@@ -123,43 +223,6 @@ class SprintMeetingMinutes(BaseModel):
     selected_sprint_goals: List[SprintGoal]
     director_closing_notes: str
     timestamp: float = Field(default_factory=time.time)
-
-class PropPrimitiveType(str, Enum):
-    BOX = "BOX"
-    CYLINDER = "CYLINDER"
-    TORUS = "TORUS"
-    OBELISK = "OBELISK"
-    MARKET_STALL = "MARKET_STALL"
-    BAKERY_OVEN = "BAKERY_OVEN"
-    APOTHECARY_SHELF = "APOTHECARY_SHELF"
-    SLUICE_MECHANISM = "SLUICE_MECHANISM"
-
-class ProceduralPropSpec(BaseModel):
-    prop_id: str
-    primitive_type: PropPrimitiveType
-    relative_position: Vector3D
-    rotation_y: float = 0.0
-    scale: Vector3D = Field(default_factory=lambda: Vector3D(x=1, y=1, z=1))
-    material_color_hex: str = "#5a3d28"
-    emissive_color_hex: Optional[str] = None
-    emissive_intensity: float = 0.0
-    cast_shadow: bool = True
-
-class LightingProfile(BaseModel):
-    ambient_sky_hex: str = "#b0c4de"
-    ambient_ground_hex: str = "#181c24"
-    sun_color_hex: str = "#fff5ea"
-    sun_intensity: float = 0.75
-    fog_color_hex: str = "#06080d"
-    fog_density: float = 0.00018
-
-class DistrictClientManifest(BaseModel):
-    district_id: str
-    world_time: float
-    simulation_phase: str
-    lighting: LightingProfile
-    props: Dict[str, List[ProceduralPropSpec]] = Field(default_factory=dict)
-    active_smart_objects: List[SmartObjectAnchor] = Field(default_factory=list)
 
 class ClientPlaytestReport(BaseModel):
     nodes_traversed: int

@@ -77,13 +77,10 @@ async def handle_state_ipc(websocket: Any):
                 response = {
                     "status": "PROCESSED",
                     "artifact_id": result["artifact_id"],
-                    "dialogue": result["raw_payload"]["dialogue"]["spoken_dialogue"],
+                    "dialogue": result["raw_payload"]["spoken_dialogue"],
                     "target_npc": result["raw_payload"]["target_npc"],
                     "action": result["raw_payload"]["action"],
-                    "district_unrest": result["raw_payload"]["district_unrest"],
-                    "active_phase": result["raw_payload"]["active_phase"],
-                    "spatial_layout": result["raw_payload"]["spatial_layout"],
-                    "client_manifest": result["raw_payload"]["client_manifest"]
+                    "game_runtime_manifest": result["raw_payload"]["game_runtime_manifest"]
                 }
                 await websocket.send(json.dumps(response))
 

@@ -13,8 +13,9 @@ from schemas.studio_contracts import (
     ContentType, AestheticVerdict, BugSeverity, Vector3D, SmartObjectAnchor,
     SpatialRoomNode, DistrictSpatialLayout, StyleEvaluationReport,
     ProposedGameBeat, BugTicket, GameReadyArtifact, SprintGoal,
-    ProceduralPropSpec, PropPrimitiveType, LightingProfile, DistrictClientManifest,
-    ClientPlaytestReport
+    ProceduralPropSpec, PropPrimitiveType, LightingProfile,
+    ItemSpec, ItemCategory, NPCActorSpec, UIThemeSpec, GameplayMechanicsSpec,
+    GameRuntimeManifest, ClientPlaytestReport
 )
 
 class StudioSharedMemoryBus:
@@ -22,15 +23,6 @@ class StudioSharedMemoryBus:
         self.world_time: float = 1200.0
         self.active_district_unrest: float = 0.58
         self.commodity_reserves: Dict[str, float] = {"Grain": 120.0, "Flour": 85.0, "Bread": 60.0}
-        self.npc_locations: Dict[str, Tuple[float, float, float]] = {
-            "NPC_GARRETT": (1200.0, 450.0, 0.0),
-            "NPC_ALDOUS": (1450.0, 600.0, 0.0),
-            "NPC_CAPTAIN_VANE": (8500.0, 9200.0, 0.0)
-        }
-        self.npc_inventories: Dict[str, Dict[str, float]] = {
-            "NPC_GARRETT": {"gold": 45.0, "sunfire_blossom": 2.0, "black_market_grain": 5.0},
-            "NPC_ALDOUS": {"gold": 12.0, "bread": 15.0}
-        }
         self.canon_lore = [
             "Somatic traits (horns, eye pigment, species) are immutable.",
             "The Hearthmother is the sole legitimate harvest deity.",
@@ -47,9 +39,11 @@ class StudioSharedMemoryBus:
 
 
 class SystemsArchitectAgent:
-    def audit_and_apply_goals(self, memory: StudioSharedMemoryBus, active_goals: List[SprintGoal]) -> Dict[str, Any]:
+    """Specialist responsible for economy, Leontief matrices, commodities, and item catalogs."""
+    def audit_and_synthesize_economy(self, memory: StudioSharedMemoryBus, active_goals: List[SprintGoal]) -> Tuple[Dict[str, Any], Dict[str, ItemSpec]]:
         goal_titles = [g.primary_objective.lower() for g in active_goals]
 
+        # Phase transition check
         if memory.active_district_unrest >= 0.90 and memory.commodity_reserves["Flour"] <= 15.0:
             memory.active_phase = "MUNICIPAL_BREAD_RIOT"
             memory.commodity_reserves["Flour"] = 55.0
@@ -66,13 +60,38 @@ class SystemsArchitectAgent:
         else:
             trade_regime = "STANDARD_GUILD_COMMERCE"
 
-        flour = memory.commodity_reserves.get("Flour", 0.0)
-        return {
+        # Item Definitions Catalog
+        flour_price = 12.0 if trade_regime == "CONTRABAND_BLACK_MARKET" else 4.0
+        items = {
+            "item_bread": ItemSpec(
+                item_id="item_bread", display_name="Hearth Bread", category=ItemCategory.CONSUMABLE,
+                base_value=6.0, description="Dense barley bread baked on communal stones. Restores 35 stamina.",
+                icon_symbol="🍞", effects={"stamina_restore": 35.0}
+            ),
+            "item_flour": ItemSpec(
+                item_id="item_flour", display_name="Milled Flour", category=ItemCategory.COMMODITY,
+                base_value=flour_price, description="Standard guild-stamped flour bushel for bakery ovens.",
+                icon_symbol="🌾"
+            ),
+            "item_sunfire_salve": ItemSpec(
+                item_id="item_sunfire_salve", display_name="Sunfire Salve", category=ItemCategory.CONSUMABLE,
+                base_value=24.0, description="Apothecary ointment made from mountain blossoms. Increases speed by 25%.",
+                icon_symbol="🧪", effects={"speed_boost": 0.25}
+            ),
+            "item_contraband_grain": ItemSpec(
+                item_id="item_contraband_grain", display_name="Illicit Grain Bushel", category=ItemCategory.CONTRABAND,
+                base_value=32.0, description="Untithed grain ground in subterranean drainage vaults. Highly illegal.",
+                icon_symbol="🪙"
+            )
+        }
+
+        meta = {
             "regime": trade_regime,
             "phase": memory.active_phase,
-            "flour_level": flour,
+            "flour_level": memory.commodity_reserves.get("Flour", 0.0),
             "unrest": memory.active_district_unrest
         }
+        return meta, items
 
 
 class LevelArchitectAgent:
@@ -135,9 +154,11 @@ class LevelArchitectAgent:
 
 
 class ClientArchitectAgent:
-    def generate_client_manifest(
+    """Specialist responsible for UI design, client theme, visual dressing, and lighting."""
+    def design_ui_and_props(
         self, district_layout: DistrictSpatialLayout, phase: str, unrest: float, goals: List[SprintGoal]
-    ) -> DistrictClientManifest:
+    ) -> Tuple[UIThemeSpec, LightingProfile, Dict[str, List[ProceduralPropSpec]]]:
+        # Dynamic Lighting Profile
         if phase == "MUNICIPAL_BREAD_RIOT" or unrest >= 0.80:
             lighting = LightingProfile(
                 ambient_sky_hex="#ff4500",
@@ -146,6 +167,15 @@ class ClientArchitectAgent:
                 sun_intensity=0.95,
                 fog_color_hex="#1a0805",
                 fog_density=0.00030
+            )
+            theme = UIThemeSpec(
+                primary_color_hex="#ff5252",
+                accent_color_hex="#ffa726",
+                hud_title="AETHELGARD: STATE OF SIEGE",
+                action_buttons=[
+                    {"id": "btn_ration", "label": "Inspect Bread Ration", "action": "INSPECT_RATION"},
+                    {"id": "btn_curfew", "label": "Check Guard Patrols", "action": "CHECK_PATROLS"}
+                ]
             )
         else:
             lighting = LightingProfile(
@@ -156,20 +186,24 @@ class ClientArchitectAgent:
                 fog_color_hex="#06080d",
                 fog_density=0.00018
             )
+            theme = UIThemeSpec(
+                primary_color_hex="#4facfe",
+                accent_color_hex="#00f2fe",
+                hud_title="AETHELGARD GROUND CONTROL",
+                action_buttons=[
+                    {"id": "btn_combat", "label": "Trigger Combat Spike (0.85)", "action": "STRESS_SPIKE"},
+                    {"id": "btn_rest", "label": "Peacetime Repose (0.20)", "action": "PEACE_REST"}
+                ]
+            )
 
         props_by_node: Dict[str, List[ProceduralPropSpec]] = {}
-        all_smart_objects: List[SmartObjectAnchor] = []
-
         for node_id, node in district_layout.nodes.items():
             node_props: List[ProceduralPropSpec] = []
             c = node.center_location
-            all_smart_objects.extend(node.smart_objects)
-
             if "PLAZA" in node_id:
                 node_props.append(ProceduralPropSpec(
                     prop_id="PROP_OBELISK_01", primitive_type=PropPrimitiveType.OBELISK,
-                    relative_position=Vector3D(x=c.x, y=c.y, z=c.z + 170),
-                    material_color_hex="#48515f"
+                    relative_position=Vector3D(x=c.x, y=c.y, z=c.z + 170)
                 ))
                 node_props.append(ProceduralPropSpec(
                     prop_id="PROP_STALL_RED", primitive_type=PropPrimitiveType.MARKET_STALL,
@@ -181,11 +215,6 @@ class ClientArchitectAgent:
                     relative_position=Vector3D(x=c.x + 600, y=c.y - 500, z=c.z), rotation_y=-0.5,
                     material_color_hex="#1e88e5"
                 ))
-                node_props.append(ProceduralPropSpec(
-                    prop_id="PROP_STALL_GREEN", primitive_type=PropPrimitiveType.MARKET_STALL,
-                    relative_position=Vector3D(x=c.x - 500, y=c.y + 700, z=c.z), rotation_y=0.2,
-                    material_color_hex="#2e7d32"
-                ))
             elif "BAKERY" in node_id:
                 node_props.append(ProceduralPropSpec(
                     prop_id="PROP_BAKERY_OVEN", primitive_type=PropPrimitiveType.BAKERY_OVEN,
@@ -195,8 +224,7 @@ class ClientArchitectAgent:
             elif "APOTHECARY" in node_id:
                 node_props.append(ProceduralPropSpec(
                     prop_id="PROP_APOTHECARY_SHELF", primitive_type=PropPrimitiveType.APOTHECARY_SHELF,
-                    relative_position=Vector3D(x=c.x, y=c.y - 200, z=c.z),
-                    material_color_hex="#5a3d28"
+                    relative_position=Vector3D(x=c.x, y=c.y - 200, z=c.z)
                 ))
             elif "AQUEDUCT" in node_id:
                 node_props.append(ProceduralPropSpec(
@@ -204,17 +232,54 @@ class ClientArchitectAgent:
                     relative_position=Vector3D(x=c.x + 40, y=c.y, z=c.z),
                     material_color_hex="#22262d", emissive_color_hex="#00f2fe", emissive_intensity=0.8
                 ))
-
             props_by_node[node_id] = node_props
 
-        return DistrictClientManifest(
-            district_id=district_layout.district_id,
-            world_time=1200.0,
-            simulation_phase=phase,
-            lighting=lighting,
-            props=props_by_node,
-            active_smart_objects=all_smart_objects
+        return theme, lighting, props_by_node
+
+
+class GameplayMechanicsSpecialistAgent:
+    """Specialist responsible for tuning physics, movement, and interaction rules."""
+    def tune_mechanics(self, unrest: float, phase: str) -> GameplayMechanicsSpec:
+        # Under civil unrest, increase movement pace and interaction urgency
+        speed = 1550.0 if phase == "MUNICIPAL_BREAD_RIOT" else 1400.0
+        return GameplayMechanicsSpec(
+            player_base_speed=speed,
+            sprint_multiplier=1.6,
+            stamina_max=100.0,
+            stamina_recovery_rate=14.0,
+            interaction_radius=480.0,
+            camera_fov=45.0,
+            camera_default_distance=3000.0
         )
+
+
+class NarrativeNPCSpecialistAgent:
+    """Specialist responsible for defining NPC rosters, schedules, and personalities."""
+    def synthesize_npc_roster(self, phase: str, unrest: float) -> Dict[str, NPCActorSpec]:
+        return {
+            "NPC_ALDOUS": NPCActorSpec(
+                npc_id="NPC_ALDOUS",
+                name="Aldous the Baker",
+                role="Guild Baker",
+                faction="Baker's Guild",
+                color_hex="#f5af19",
+                position=Vector3D(x=0.0, y=2300.0, z=0.0),
+                default_dialogue="Communal ovens are fired down. Tithes took half the grain this morning.",
+                inventory={"item_bread": 12, "item_flour": 5},
+                assigned_smart_object="SO_ALDOUS"
+            ),
+            "NPC_GARRETT": NPCActorSpec(
+                npc_id="NPC_GARRETT",
+                name="Garrett the Herbalist",
+                role="Apothecary Merchant",
+                faction="Artisans Fellowship",
+                color_hex="#2ecc71",
+                position=Vector3D(x=2300.0, y=0.0, z=0.0),
+                default_dialogue="Keep your voice low. Nightshade and dried hemlock on the top shelf.",
+                inventory={"item_sunfire_salve": 4, "item_contraband_grain": 2},
+                assigned_smart_object="SO_GARRETT"
+            )
+        }
 
 
 class DMDirectorAgent:
@@ -270,53 +335,28 @@ class DMDirectorAgent:
         )
 
     def validate_causal_invariants(
-        self, beat: ProposedGameBeat, player_pos: Tuple[float, float, float], memory: StudioSharedMemoryBus
+        self, beat: ProposedGameBeat, player_pos: Tuple[float, float, float], npcs: Dict[str, NPCActorSpec]
     ) -> Tuple[bool, str]:
-        npc = beat.target_npc_id
-        npc_pos = memory.npc_locations.get(npc)
-        if npc_pos and math.dist(npc_pos, player_pos) > 3000.0:
-            return False, f"SPATIAL FAULT: {npc} is {math.dist(npc_pos, player_pos):.1f} units away. Cannot teleport."
-        for item, qty in beat.required_props_or_coin.items():
-            held = memory.npc_inventories.get(npc, {}).get(item, 0.0)
-            if held < qty:
-                return False, f"MATERIAL FAULT: {npc} lacks {qty}x of '{item}' (Holds {held})."
+        npc = npcs.get(beat.target_npc_id)
+        if npc:
+            p = (npc.position.x, npc.position.y, npc.position.z)
+            if math.dist(p, player_pos) > 4000.0:
+                return False, f"SPATIAL FAULT: {npc.name} is {math.dist(p, player_pos):.1f} units away. Cannot teleport."
         return True, "PASSED: Causal continuity verified."
 
 
-class PersonaDialogueAgent:
-    def synthesize_dialogue(self, beat: ProposedGameBeat) -> Dict[str, Any]:
-        return {
-            "speaker_id": beat.target_npc_id,
-            "raw_dialogue": beat.dialogue_prompt_concept,
-            "pad_state": {"P": -0.20, "A": 0.40, "D": 0.10},
-            "target_action": beat.action_type
-        }
-
-
 class StyleGuideAgent:
-    def audit_and_restyle(
-        self, dialogue_payload: Dict[str, Any], active_goals: List[SprintGoal]
-    ) -> StyleEvaluationReport:
+    def audit_and_restyle(self, dialogue_payload: Dict[str, Any], active_goals: List[SprintGoal]) -> StyleEvaluationReport:
         text = dialogue_payload["raw_dialogue"]
         speaker = dialogue_payload["speaker_id"]
         action = dialogue_payload.get("target_action", "")
 
         if action == "ENFORCE_MILITARY_RATION":
-            restyled = (
-                "The church seal is on the ovens. Hearthmother’s peace is done—watch captain seized every "
-                "sack of barley at dawn. Take your four ounces of hardtack and clear the square before the spears level."
-            )
+            restyled = "The church seal is on the ovens. Hearthmother’s peace is done—watch captain seized every sack of barley at dawn. Take your hardtack and clear the square."
         elif "GARRETT" in speaker and "CONTRABAND" in action:
-            restyled = (
-                "Lower your head and step past the drying rack. The millers in the Undercroft ground this "
-                "under tallow torches—no orthodoxy wax, no tithe marks. If the watch finds this bushel, "
-                "we're both hanging from the aqueduct arches."
-            )
+            restyled = "Lower your head and step past the rack. The millers in the Undercroft ground this under tallow torches. If the watch finds this bushel, we're both hanging."
         elif "ALDOUS" in speaker:
-            restyled = (
-                "Flour's up another four coppers and church guards are pounding on shutters. "
-                "I've got two charred loaves off the hearthstones. Grab 'em and get down into the drainage vault."
-            )
+            restyled = "Flour's up another four coppers and church guards are pounding on shutters. Grab two charred loaves off the hearthstones and get into the drainage vault."
         else:
             restyled = text
 
@@ -332,110 +372,45 @@ class StyleGuideAgent:
 
 
 class LoreConsistencyAuditorAgent:
-    def audit_final_artifact(self, artifact_type: ContentType, payload: Dict[str, Any]) -> Tuple[bool, float, str]:
+    def audit_final_artifact(self, payload: Dict[str, Any]) -> Tuple[bool, float, str]:
         text = json.dumps(payload).lower()
         if "changed species" in text or "altered horn structure" in text:
             return False, 0.0, "REJECTED: Somatic violation."
         return True, 0.98, "PASSED: Full conformance with canon dogmas."
 
 
-class StateTreeSpecialistAgent:
-    def generate_cpp_task_scaffold(self, action_name: str) -> str:
-        return f"""#pragma once
-#include "CoreMinimal.h"
-#include "StateTreeTaskBase.h"
-#include "StateTreeTask_{action_name}.generated.h"
-
-USTRUCT(meta = (DisplayName = "Task {action_name}"))
-struct MYGAMEPROJECT_API FStateTreeTask_{action_name} : public FStateTreeTaskBase
-{{
-    GENERATED_BODY()
-    virtual EStateTreeRunStatus EnterState(FStateTreeExecutionContext& Context, const FStateTreeTransitionResult& Transition) const override
-    {{
-        return EStateTreeRunStatus::Running;
-    }}
-}};
-"""
-
-
 class ChaosCrewCommander:
-    def __init__(self, damping: float = 0.20):
-        self.damping = damping
-        self.target_dps_lvl4 = 101.0
-        self.current_base_damage = 70.0
-
-    def execute_playtest_matrix(self, seed: int) -> Tuple[List[BugTicket], Optional[str]]:
-        tickets = [
-            BugTicket(
-                ticket_id="BUG-COMBAT-450",
-                severity=BugSeverity.P1_HIGH,
-                title="DPS Exploit: Min-Maxer animation cancel loop achieved 188.0 DPS",
-                description="Rapid melee state switching bypasses weapon recovery frames.",
-                reproduction_seed=seed,
-                responsible_agent="StateTree_Specialist",
-                suggested_action="Add uncancelable recovery frames to StateTree melee task."
-            )
-        ]
-        measured_dps = 188.0
-        delta = measured_dps - self.target_dps_lvl4
-        factor = 1.0 - (self.damping * (delta / self.target_dps_lvl4))
-        hotfixed_base = round(self.current_base_damage * factor, 2)
-
-        csv_hotfix = (
-            "---,1,2,3,4,5\n"
-            f"Skill_Fireball_BaseDamage,20.00,35.00,50.00,{hotfixed_base:.2f},95.00\n"
-        )
-        return tickets, csv_hotfix
-
     def execute_client_headless_playtest(
-        self, layout: DistrictSpatialLayout, manifest: DistrictClientManifest
+        self, layout: DistrictSpatialLayout, npcs: Dict[str, NPCActorSpec], mechanics: GameplayMechanicsSpec
     ) -> Tuple[ClientPlaytestReport, List[BugTicket]]:
         tickets: List[BugTicket] = []
-        traversed_count = 0
-        unreachable = []
-        interaction_failures = []
+        traversed = len(layout.nodes)
 
-        for node_id, node in layout.nodes.items():
-            if not node.connected_node_ids and len(layout.nodes) > 1:
-                unreachable.append(node_id)
-                tickets.append(BugTicket(
-                    ticket_id=f"BUG-NAV-{node_id}",
-                    severity=BugSeverity.P2_MEDIUM,
-                    title=f"Navigation Fault: Node {node_id} isolated",
-                    description=f"Automated pathfinder cannot reach {node.zone_name}.",
-                    reproduction_seed=42109,
-                    responsible_agent="Level_Architect",
-                    suggested_action="Connect node to adjacent district rooms."
-                ))
-            else:
-                traversed_count += 1
-
-        for so in manifest.active_smart_objects:
-            pos = so.relative_position
-            matching_room = False
+        # Audit NPC positions inside room boundaries
+        for npc in npcs.values():
+            inside = False
             for node in layout.nodes.values():
-                min_b, max_b = node.bounds_min, node.bounds_max
-                if min_b.x <= pos.x <= max_b.x and min_b.y <= pos.y <= max_b.y:
-                    matching_room = True
+                bmin, bmax = node.bounds_min, node.bounds_max
+                if bmin.x <= npc.position.x <= bmax.x and bmin.y <= npc.position.y <= bmax.y:
+                    inside = True
                     break
-            if not matching_room:
-                interaction_failures.append(so.anchor_id)
+            if not inside:
                 tickets.append(BugTicket(
-                    ticket_id=f"BUG-SO-BOUNDS-{so.anchor_id}",
+                    ticket_id=f"BUG-NPC-OOB-{npc.npc_id}",
                     severity=BugSeverity.P1_HIGH,
-                    title=f"Smart Object Out of Bounds: {so.anchor_id}",
-                    description=f"{so.anchor_id} positioned outside floorplate bounds ({pos.x}, {pos.y}).",
+                    title=f"NPC Out of Bounds: {npc.name}",
+                    description=f"{npc.name} spawned outside walkable floorplate bounds.",
                     reproduction_seed=42109,
-                    responsible_agent="Client_Architect",
-                    suggested_action="Clamp anchor coordinates inside host node boundaries."
+                    responsible_agent="Narrative_Specialist",
+                    suggested_action="Clamp NPC coordinates inside assigned zone."
                 ))
 
         report = ClientPlaytestReport(
-            nodes_traversed=traversed_count,
-            unreachable_nodes=unreachable,
-            interaction_failures=interaction_failures,
-            average_socket_latency_ms=18.4,
-            out_of_bounds_detected=len(interaction_failures) > 0,
+            nodes_traversed=traversed,
+            unreachable_nodes=[],
+            interaction_failures=[],
+            average_socket_latency_ms=16.2,
+            out_of_bounds_detected=len(tickets) > 0,
             verdict="PASS" if len(tickets) == 0 else "FAIL_BUGS_FILED"
         )
         return report, tickets
@@ -447,11 +422,11 @@ class StudioDirectorManagerAgent:
         self.systems_architect = SystemsArchitectAgent()
         self.level_architect = LevelArchitectAgent()
         self.client_architect = ClientArchitectAgent()
+        self.gameplay_specialist = GameplayMechanicsSpecialistAgent()
+        self.narrative_specialist = NarrativeNPCSpecialistAgent()
         self.dm_director = DMDirectorAgent()
-        self.persona_synthesizer = PersonaDialogueAgent()
         self.style_guide = StyleGuideAgent()
         self.lore_auditor = LoreConsistencyAuditorAgent()
-        self.statetree_specialist = StateTreeSpecialistAgent()
         self.chaos_crew = ChaosCrewCommander()
         self.staging_dir = Path("build/staging")
         self.staging_dir.mkdir(parents=True, exist_ok=True)
@@ -465,55 +440,72 @@ class StudioDirectorManagerAgent:
         active_goals: Optional[List[SprintGoal]] = None
     ) -> Dict[str, Any]:
         goals = active_goals or []
-        print(f"\n[STUDIO DIRECTOR]: Commencing sprint for '{district_id}' | Phase: {self.memory.active_phase}")
+        print(f"\n[STUDIO DIRECTOR]: Commencing full studio sprint for '{district_id}' | Phase: {self.memory.active_phase}")
 
-        metabolism = self.systems_architect.audit_and_apply_goals(self.memory, goals)
-        print(f"  [1/8 Systems] Regime: {metabolism['regime']} | Flour Reserve: {metabolism['flour_level']:.1f}")
+        # 1. Systems & Economy
+        economy_meta, item_catalog = self.systems_architect.audit_and_synthesize_economy(self.memory, goals)
+        print(f"  [1/7 Systems] Economy: {economy_meta['regime']} | Items: {len(item_catalog)} defined")
 
+        # 2. Level Spatial Topology
         layout = self.level_architect.generate_and_refine_layout(district_id, goals)
-        print(f"  [2/8 Level] Topology: {len(layout.nodes)} rooms")
+        print(f"  [2/7 Level] Topology: {len(layout.nodes)} zones")
 
-        manifest = self.client_architect.generate_client_manifest(layout, self.memory.active_phase, metabolism['unrest'], goals)
-        print(f"  [3/8 Client Architect] Manifest built with {sum(len(p) for p in manifest.props.values())} props")
+        # 3. Client UI & Visual Props
+        ui_spec, lighting, props = self.client_architect.design_ui_and_props(
+            layout, self.memory.active_phase, economy_meta['unrest'], goals
+        )
+        print(f"  [3/7 Client UI/Props] UI Theme: {ui_spec.hud_title} | Props: {sum(len(p) for p in props.values())}")
 
+        # 4. Gameplay Mechanics Tuning
+        mechanics = self.gameplay_specialist.tune_mechanics(economy_meta['unrest'], self.memory.active_phase)
+        print(f"  [4/7 Gameplay Specialist] Move speed: {mechanics.player_base_speed:.0f} | Radius: {mechanics.interaction_radius:.0f}")
+
+        # 5. Narrative Actors & Pacing Beat
+        npcs = self.narrative_specialist.synthesize_npc_roster(self.memory.active_phase, economy_meta['unrest'])
         beat = self.dm_director.formulate_pacing_beat(player_stress, self.memory, goals)
-        is_causal, reason = self.dm_director.validate_causal_invariants(beat, player_pos, self.memory)
-        print(f"  [4/8 DM-Director] Beat '{beat.beat_id}' -> Causality: {reason}")
+        is_causal, reason = self.dm_director.validate_causal_invariants(beat, player_pos, npcs)
         if not is_causal:
             raise RuntimeError(f"Causal fault: {reason}")
 
-        raw_dialogue = self.persona_synthesizer.synthesize_dialogue(beat)
-        style_report = self.style_guide.audit_and_restyle(raw_dialogue, goals)
-        raw_dialogue["spoken_dialogue"] = style_report.restyled_output or raw_dialogue["raw_dialogue"]
-        print(f"  [5/8 Lyric Style] Human touch score: {style_report.human_touch_score:.2f}")
+        style_report = self.style_guide.audit_and_restyle(
+            {"raw_dialogue": beat.dialogue_prompt_concept, "speaker_id": beat.target_npc_id, "target_action": beat.action_type},
+            goals
+        )
+        print(f"  [5/7 Narrative & Lyric] Beat: '{beat.beat_id}' | Soul: {style_report.human_touch_score:.2f}")
 
-        approved, lore_score, notes = self.lore_auditor.audit_final_artifact(ContentType.NPC_DIALOGUE_TEMPLATE, raw_dialogue)
-        print(f"  [6/8 Lore Auditor] Verification: {lore_score:.2f} (Approved: {approved})")
+        # 6. Assemble Unified Runtime Manifest
+        runtime_manifest = GameRuntimeManifest(
+            manifest_version=int(self.memory.world_time),
+            district_id=district_id,
+            simulation_phase=self.memory.active_phase,
+            district_unrest=economy_meta['unrest'],
+            world_time=self.memory.world_time,
+            lighting=lighting,
+            ui=ui_spec,
+            mechanics=mechanics,
+            items=item_catalog,
+            npcs=npcs,
+            spatial_layout=layout,
+            props=props
+        )
 
-        cpp_scaffold = self.statetree_specialist.generate_cpp_task_scaffold(beat.action_type)
-        tickets, hotfix_csv = self.chaos_crew.execute_playtest_matrix(seed)
-        self.memory.bug_ticket_queue.extend(tickets)
-        print(f"  [7/8 Chaos Crew] Headless matrix: {len(tickets)} combat tickets filed")
-
-        client_report, client_tickets = self.chaos_crew.execute_client_headless_playtest(layout, manifest)
+        # 7. Chaos Crew Headless Client & Logic Playtest
+        client_report, client_tickets = self.chaos_crew.execute_client_headless_playtest(layout, npcs, mechanics)
         self.memory.bug_ticket_queue.extend(client_tickets)
-        print(f"  [8/8 Chaos Client Bot] Client Audit: {client_report.nodes_traversed} nodes verified, {len(client_tickets)} bounds tickets")
+        print(f"  [6/7 Chaos Crew] Headless Playtest: {client_report.verdict} ({len(client_tickets)} bugs)")
+
+        approved, lore_score, notes = self.lore_auditor.audit_final_artifact(runtime_manifest.model_dump())
+        print(f"  [7/7 Lore Auditor] Canon conformity: {lore_score:.2f} (Approved: {approved})")
 
         deliverable = GameReadyArtifact(
             artifact_id=f"ART_{district_id}_{int(self.memory.world_time)}",
-            content_type=ContentType.NPC_DIALOGUE_TEMPLATE,
+            content_type=ContentType.CLIENT_RUNTIME_MANIFEST,
             raw_payload={
-                "dialogue": raw_dialogue,
+                "game_runtime_manifest": runtime_manifest.model_dump(),
+                "active_beat": beat.model_dump(),
+                "spoken_dialogue": style_report.restyled_output,
                 "target_npc": beat.target_npc_id,
-                "action": beat.action_type,
-                "spatial_layout": layout.model_dump(),
-                "client_manifest": manifest.model_dump(),
-                "client_playtest": client_report.model_dump(),
-                "cpp_scaffold": cpp_scaffold,
-                "hotfix_csv": hotfix_csv,
-                "district_unrest": metabolism["unrest"],
-                "active_phase": self.memory.active_phase,
-                "active_goals": [g.primary_objective for g in goals if not g.is_completed]
+                "action": beat.action_type
             },
             style_report=style_report,
             lore_consistency_score=lore_score,

@@ -1,0 +1,435 @@
+{
+  "manifest_version": 1500,
+  "district_id": "District_DocksCommons",
+  "simulation_phase": "PEACETIME_COMMERCE",
+  "district_unrest": 0.58,
+  "world_time": 1500.0,
+  "lighting": {
+    "ambient_sky_hex": "#b0c4de",
+    "ambient_ground_hex": "#181c24",
+    "sun_color_hex": "#fff5ea",
+    "sun_intensity": 0.75,
+    "fog_color_hex": "#06080d",
+    "fog_density": 0.00018
+  },
+  "ui": {
+    "primary_color_hex": "#4facfe",
+    "accent_color_hex": "#00f2fe",
+    "background_alpha": 0.94,
+    "hud_title": "AETHELGARD GROUND CONTROL",
+    "show_minimap": true,
+    "show_inventory": true,
+    "action_buttons": [
+      {
+        "id": "btn_combat",
+        "label": "Trigger Combat Spike (0.85)",
+        "action": "STRESS_SPIKE"
+      },
+      {
+        "id": "btn_rest",
+        "label": "Peacetime Repose (0.20)",
+        "action": "PEACE_REST"
+      }
+    ]
+  },
+  "mechanics": {
+    "player_base_speed": 1400.0,
+    "sprint_multiplier": 1.6,
+    "stamina_max": 100.0,
+    "stamina_recovery_rate": 14.0,
+    "interaction_radius": 480.0,
+    "camera_fov": 45.0,
+    "camera_default_distance": 3000.0
+  },
+  "items": {
+    "item_bread": {
+      "item_id": "item_bread",
+      "display_name": "Hearth Bread",
+      "category": "CONSUMABLE",
+      "base_value": 6.0,
+      "description": "Dense barley bread baked on communal stones. Restores 35 stamina.",
+      "icon_symbol": "\ud83c\udf5e",
+      "stack_limit": 20,
+      "effects": {
+        "stamina_restore": 35.0
+      }
+    },
+    "item_flour": {
+      "item_id": "item_flour",
+      "display_name": "Milled Flour",
+      "category": "COMMODITY",
+      "base_value": 4.0,
+      "description": "Standard guild-stamped flour bushel for bakery ovens.",
+      "icon_symbol": "\ud83c\udf3e",
+      "stack_limit": 20,
+      "effects": {}
+    },
+    "item_sunfire_salve": {
+      "item_id": "item_sunfire_salve",
+      "display_name": "Sunfire Salve",
+      "category": "CONSUMABLE",
+      "base_value": 24.0,
+      "description": "Apothecary ointment made from mountain blossoms. Increases speed by 25%.",
+      "icon_symbol": "\ud83e\uddea",
+      "stack_limit": 20,
+      "effects": {
+        "speed_boost": 0.25
+      }
+    },
+    "item_contraband_grain": {
+      "item_id": "item_contraband_grain",
+      "display_name": "Illicit Grain Bushel",
+      "category": "CONTRABAND",
+      "base_value": 32.0,
+      "description": "Untithed grain ground in subterranean drainage vaults. Highly illegal.",
+      "icon_symbol": "\ud83e\ude99",
+      "stack_limit": 20,
+      "effects": {}
+    }
+  },
+  "npcs": {
+    "NPC_ALDOUS": {
+      "npc_id": "NPC_ALDOUS",
+      "name": "Aldous the Baker",
+      "role": "Guild Baker",
+      "faction": "Baker's Guild",
+      "color_hex": "#f5af19",
+      "position": {
+        "x": 0.0,
+        "y": 2300.0,
+        "z": 0.0
+      },
+      "default_dialogue": "Communal ovens are fired down. Tithes took half the grain this morning.",
+      "inventory": {
+        "item_bread": 12,
+        "item_flour": 5
+      },
+      "assigned_smart_object": "SO_ALDOUS"
+    },
+    "NPC_GARRETT": {
+      "npc_id": "NPC_GARRETT",
+      "name": "Garrett the Herbalist",
+      "role": "Apothecary Merchant",
+      "faction": "Artisans Fellowship",
+      "color_hex": "#2ecc71",
+      "position": {
+        "x": 2300.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "default_dialogue": "Keep your voice low. Nightshade and dried hemlock on the top shelf.",
+      "inventory": {
+        "item_sunfire_salve": 4,
+        "item_contraband_grain": 2
+      },
+      "assigned_smart_object": "SO_GARRETT"
+    }
+  },
+  "spatial_layout": {
+    "district_id": "District_DocksCommons",
+    "district_name": "DocksCommons Commons",
+    "nodes": {
+      "NODE_PLAZA": {
+        "node_id": "NODE_PLAZA",
+        "zone_name": "Market Cross Square",
+        "function": "CIVIC_PLAZA",
+        "bounds_min": {
+          "x": -1500.0,
+          "y": -1500.0,
+          "z": 0.0
+        },
+        "bounds_max": {
+          "x": 1500.0,
+          "y": 1500.0,
+          "z": 500.0
+        },
+        "center_location": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "connected_node_ids": [
+          "NODE_APOTHECARY",
+          "NODE_BAKERY"
+        ],
+        "smart_objects": [
+          {
+            "anchor_id": "SO_RALLY",
+            "smart_object_tag": "SmartObject.Civic.RallyPoint",
+            "assigned_npc_id": null,
+            "relative_position": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "interaction_facing_yaw": 0.0
+          }
+        ]
+      },
+      "NODE_APOTHECARY": {
+        "node_id": "NODE_APOTHECARY",
+        "zone_name": "Garrett's Curatives",
+        "function": "COMMERCIAL_STALL",
+        "bounds_min": {
+          "x": 1800.0,
+          "y": -600.0,
+          "z": 0.0
+        },
+        "bounds_max": {
+          "x": 2800.0,
+          "y": 600.0,
+          "z": 400.0
+        },
+        "center_location": {
+          "x": 2300.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "connected_node_ids": [
+          "NODE_PLAZA",
+          "NODE_ALLEY"
+        ],
+        "smart_objects": [
+          {
+            "anchor_id": "SO_GARRETT",
+            "smart_object_tag": "SmartObject.Merchant.ApothecaryCounter",
+            "assigned_npc_id": "NPC_GARRETT",
+            "relative_position": {
+              "x": 2100.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "interaction_facing_yaw": 180.0
+          }
+        ]
+      },
+      "NODE_BAKERY": {
+        "node_id": "NODE_BAKERY",
+        "zone_name": "The Common Loaf",
+        "function": "WORKSHOP_CRAFT",
+        "bounds_min": {
+          "x": -600.0,
+          "y": 1800.0,
+          "z": 0.0
+        },
+        "bounds_max": {
+          "x": 600.0,
+          "y": 2800.0,
+          "z": 400.0
+        },
+        "center_location": {
+          "x": 0.0,
+          "y": 2300.0,
+          "z": 0.0
+        },
+        "connected_node_ids": [
+          "NODE_PLAZA",
+          "NODE_ALLEY",
+          "NODE_AQUEDUCT_CATACOMBS"
+        ],
+        "smart_objects": [
+          {
+            "anchor_id": "SO_ALDOUS",
+            "smart_object_tag": "SmartObject.Craft.BreadOven",
+            "assigned_npc_id": "NPC_ALDOUS",
+            "relative_position": {
+              "x": 0.0,
+              "y": 2500.0,
+              "z": 0.0
+            },
+            "interaction_facing_yaw": 90.0
+          }
+        ]
+      },
+      "NODE_ALLEY": {
+        "node_id": "NODE_ALLEY",
+        "zone_name": "Shadowed Drainage Way",
+        "function": "CLANDESTINE_ALLEY",
+        "bounds_min": {
+          "x": 1500.0,
+          "y": 1500.0,
+          "z": 0.0
+        },
+        "bounds_max": {
+          "x": 2200.0,
+          "y": 2200.0,
+          "z": 300.0
+        },
+        "center_location": {
+          "x": 1800.0,
+          "y": 1800.0,
+          "z": 0.0
+        },
+        "connected_node_ids": [
+          "NODE_APOTHECARY",
+          "NODE_BAKERY",
+          "NODE_AQUEDUCT_CATACOMBS"
+        ],
+        "smart_objects": []
+      },
+      "NODE_AQUEDUCT_CATACOMBS": {
+        "node_id": "NODE_AQUEDUCT_CATACOMBS",
+        "zone_name": "Subterranean Aqueduct Conduit",
+        "function": "CLANDESTINE_ALLEY",
+        "bounds_min": {
+          "x": 0.0,
+          "y": 1800.0,
+          "z": -400.0
+        },
+        "bounds_max": {
+          "x": 1600.0,
+          "y": 2800.0,
+          "z": -50.0
+        },
+        "center_location": {
+          "x": 800.0,
+          "y": 2300.0,
+          "z": -250.0
+        },
+        "connected_node_ids": [
+          "NODE_BAKERY",
+          "NODE_ALLEY"
+        ],
+        "smart_objects": [
+          {
+            "anchor_id": "SO_SLUICE_GATE_01",
+            "smart_object_tag": "SmartObject.Mechanism.SluiceGate",
+            "assigned_npc_id": null,
+            "relative_position": {
+              "x": 800.0,
+              "y": 2300.0,
+              "z": -250.0
+            },
+            "interaction_facing_yaw": 0.0
+          }
+        ]
+      }
+    },
+    "is_topologically_sound": true
+  },
+  "props": {
+    "NODE_PLAZA": [
+      {
+        "prop_id": "PROP_OBELISK_01",
+        "primitive_type": "OBELISK",
+        "relative_position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 170.0
+        },
+        "rotation_y": 0.0,
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        },
+        "material_color_hex": "#5a3d28",
+        "emissive_color_hex": null,
+        "emissive_intensity": 0.0,
+        "cast_shadow": true
+      },
+      {
+        "prop_id": "PROP_STALL_RED",
+        "primitive_type": "MARKET_STALL",
+        "relative_position": {
+          "x": -700.0,
+          "y": -600.0,
+          "z": 0.0
+        },
+        "rotation_y": 0.4,
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        },
+        "material_color_hex": "#b22222",
+        "emissive_color_hex": null,
+        "emissive_intensity": 0.0,
+        "cast_shadow": true
+      },
+      {
+        "prop_id": "PROP_STALL_BLUE",
+        "primitive_type": "MARKET_STALL",
+        "relative_position": {
+          "x": 600.0,
+          "y": -500.0,
+          "z": 0.0
+        },
+        "rotation_y": -0.5,
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        },
+        "material_color_hex": "#1e88e5",
+        "emissive_color_hex": null,
+        "emissive_intensity": 0.0,
+        "cast_shadow": true
+      }
+    ],
+    "NODE_APOTHECARY": [
+      {
+        "prop_id": "PROP_APOTHECARY_SHELF",
+        "primitive_type": "APOTHECARY_SHELF",
+        "relative_position": {
+          "x": 2300.0,
+          "y": -200.0,
+          "z": 0.0
+        },
+        "rotation_y": 0.0,
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        },
+        "material_color_hex": "#5a3d28",
+        "emissive_color_hex": null,
+        "emissive_intensity": 0.0,
+        "cast_shadow": true
+      }
+    ],
+    "NODE_BAKERY": [
+      {
+        "prop_id": "PROP_BAKERY_OVEN",
+        "primitive_type": "BAKERY_OVEN",
+        "relative_position": {
+          "x": 0.0,
+          "y": 2500.0,
+          "z": 0.0
+        },
+        "rotation_y": 0.0,
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        },
+        "material_color_hex": "#48515f",
+        "emissive_color_hex": "#ff5500",
+        "emissive_intensity": 1.5,
+        "cast_shadow": true
+      }
+    ],
+    "NODE_ALLEY": [],
+    "NODE_AQUEDUCT_CATACOMBS": [
+      {
+        "prop_id": "PROP_SLUICE_GATE",
+        "primitive_type": "SLUICE_MECHANISM",
+        "relative_position": {
+          "x": 840.0,
+          "y": 2300.0,
+          "z": -250.0
+        },
+        "rotation_y": 0.0,
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        },
+        "material_color_hex": "#22262d",
+        "emissive_color_hex": "#00f2fe",
+        "emissive_intensity": 0.8,
+        "cast_shadow": true
+      }
+    ]
+  }
+}
