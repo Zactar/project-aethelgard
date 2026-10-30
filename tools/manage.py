@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
 PROJECT AETHELGARD: UNIFIED STUDIO & RUNTIME PROCESS MANAGER
-Handles automated daemon startup, shutdown, health monitoring, and workspace resets.
+Handles automated daemon startup, shutdown, health monitoring, workspace resets,
+sprint dispatch, and RFC deployment pipelines.
 """
 
 import argparse
@@ -57,7 +58,6 @@ def kill_port_owner(port: int):
         stderr=subprocess.DEVNULL
     )
     time.sleep(0.4)
-    # Force kill if still holding port
     if is_port_open(port):
         subprocess.run(
             f"fuser -k -KILL {port}/tcp 2>/dev/null || true",
@@ -132,7 +132,6 @@ def cmd_stop():
     print("[STOP]: Terminating running Aethelgard studio services...")
     pids = load_pids()
 
-    # Gracefully kill recorded PIDs
     for name, pid in pids.items():
         try:
             os.kill(pid, signal.SIGTERM)
@@ -142,7 +141,6 @@ def cmd_stop():
         except Exception as e:
             print(f"  [WARNING] Could not kill {name} ({pid}): {e}")
 
-    # Reclaim port bindings
     for name, port in PORTS.items():
         if name != "chromadb":
             kill_port_owner(port)
@@ -157,7 +155,6 @@ def cmd_start():
 
     print("[START]: Launching studio infrastructure...")
 
-    # 1. Start ChromaDB Container
     if not check_chroma_health():
         print("  [DOCKER]: Starting ChromaDB vector database...")
         subprocess.run(["docker", "compose", "up", "-d"],
@@ -172,11 +169,9 @@ def cmd_start():
     else:
         print("  [WARNING] ChromaDB did not reply on /api/v2/heartbeat in time.")
 
-    # 2. Free stale port bindings
     kill_port_owner(PORTS["state_ipc"])
     kill_port_owner(PORTS["web_client"])
 
-    # 3. Start WebSocket State Server
     server_script = ROOT_DIR / "services" / "agent_runtime" / "src" / "server.py"
     server_log = open(LOG_DIR / "server.log", "a", encoding="utf-8")
     server_proc = subprocess.Popen(
@@ -187,7 +182,6 @@ def cmd_start():
     )
     pids["state_ipc"] = server_proc.pid
 
-    # 4. Start HTTP Game Client Server
     client_log = open(LOG_DIR / "client.log", "a", encoding="utf-8")
     client_proc = subprocess.Popen(
         [sys.executable, "-m", "http.server", "3000", "--directory", "web_client"],
@@ -199,7 +193,6 @@ def cmd_start():
 
     save_pids(pids)
 
-    # 5. Await port readiness
     for _ in range(15):
         if is_port_open(PORTS["state_ipc"]) and is_port_open(PORTS["web_client"]):
             break
@@ -215,7 +208,6 @@ def cmd_reset():
     print("[RESET]: Performing full workspace reset...")
     cmd_stop()
 
-    # Clear staging artifacts and logs
     if STAGING_DIR.exists():
         shutil.rmtree(STAGING_DIR)
         STAGING_DIR.mkdir(parents=True, exist_ok=True)
@@ -225,30 +217,35 @@ def cmd_reset():
         log_file.unlink()
     print("  [CLEANED]: logs/ cleared.")
 
-    # Compile-check all Python modules to ensure zero syntax breaks
     targets = [
         "schemas/studio_contracts.py",
         "services/agent_runtime/src/virtual_studio_engine.py",
         "services/agent_runtime/src/team_sync.py",
+        "services/agent_runtime/src/change_request_engine.py",
+        "services/agent_runtime/src/autonomous_authoring.py",
         "services/agent_runtime/src/server.py",
         "tools/engine_importer.py",
-        "tools/autonomous_runner.py"
+        "tools/rfc_pipeline.py",
+        "tools/autonomous_runner.py",
+        "tools/manage.py"
     ]
     print("\n[VERIFIER]: Compiling bytecode across all production files...")
     for t in targets:
         py_compile.compile(str(ROOT_DIR / t), doraise=True)
         print(f"  [BYTECODE VERIFIED]: {t}")
 
-    # Seed baseline runtime manifest by running 1 generation cycle
     print("\n[SEEDING]: Generating clean baseline runtime manifest...")
+    env = os.environ.copy()
+    env["PYTHONPATH"] = str(
+        ROOT_DIR) + (f":{env['PYTHONPATH']}" if "PYTHONPATH" in env else "")
     subprocess.run(
         [sys.executable, "tools/autonomous_runner.py",
             "--cycles", "1", "--delay", "0"],
         cwd=ROOT_DIR,
+        env=env,
         check=True
     )
 
-    # Boot services back up
     cmd_start()
 
 
@@ -261,13 +258,31 @@ def cmd_rfc(extra_args: list):
                    extra_args, cwd=ROOT_DIR, env=env)
 
 
+def cmd_sprint(extra_args: list):
+    runner_script = ROOT_DIR / "tools" / "autonomous_runner.py"
+    env = os.environ.copy()
+    env["PYTHONPATH"] = str(
+        ROOT_DIR) + (f":{env['PYTHONPATH']}" if "PYTHONPATH" in env else "")
+    cmd = [sys.executable, str(runner_script)]
+    if not extra_args:
+        cmd += ["--cycles", "3", "--cadence", "2", "--delay", "0.05"]
+    else:
+        cmd += extra_args
+    print(f"[SPRINT]: Launching autonomous development sprint...")
+    subprocess.run(cmd, cwd=ROOT_DIR, env=env)
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Project Aethelgard Studio Process Manager")
-    parser.add_argument("action", choices=[
-                        "start", "stop", "restart", "status", "reset", "rfc"], help="Action to execute")
-    parser.add_argument("rfc_args", nargs=argparse.REMAINDER,
-                        help="Arguments passed to RFC pipeline")
+    parser.add_argument(
+        "action",
+        choices=["start", "stop", "restart",
+                 "status", "reset", "rfc", "sprint"],
+        help="Action to execute"
+    )
+    parser.add_argument("extra_args", nargs=argparse.REMAINDER,
+                        help="Arguments passed to sub-tools")
     args = parser.parse_args()
 
     if args.action == "start":
@@ -283,4 +298,6 @@ if __name__ == "__main__":
     elif args.action == "reset":
         cmd_reset()
     elif args.action == "rfc":
-        cmd_rfc(args.rfc_args)
+        cmd_rfc(args.extra_args)
+    elif args.action == "sprint":
+        cmd_sprint(args.extra_args)
