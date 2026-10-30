@@ -88,3 +88,45 @@ class GameReadyArtifact(BaseModel):
     auditor_approved: bool
     audit_notes: str
     timestamp: float = Field(default_factory=time.time)
+
+# ==============================================================================
+# SPRINT CEREMONY & BRAINSTORMING DATA CONTRACTS
+# ==============================================================================
+
+class IdeaDiscipline(str, Enum):
+    SYSTEMS_DESIGN = "SYSTEMS_DESIGN"
+    LEVEL_ARCHITECTURE = "LEVEL_ARCHITECTURE"
+    NARRATIVE_LORE = "NARRATIVE_LORE"
+    AESTHETIC_STYLE = "AESTHETIC_STYLE"
+    QA_COMBAT_BALANCE = "QA_COMBAT_BALANCE"
+
+
+class BrainstormIdea(BaseModel):
+    idea_id: str
+    proposing_agent: str
+    discipline: IdeaDiscipline
+    title: str
+    pitch: str
+    technical_feasibility_score: float = Field(ge=0.0, le=1.0)
+    systemic_emergence_score: float = Field(ge=0.0, le=1.0)
+    estimated_complexity: str = "MEDIUM"
+
+
+class SprintGoal(BaseModel):
+    goal_id: str
+    target_district: str
+    primary_objective: str
+    driving_ideas: List[str]
+    assigned_crews: List[str]
+    success_criteria: str
+    is_completed: bool = False
+
+
+class SprintMeetingMinutes(BaseModel):
+    meeting_id: str
+    world_time_marker: float
+    retrospective_summary: Dict[str, Any]
+    brainstorm_proposals: List[BrainstormIdea]
+    selected_sprint_goals: List[SprintGoal]
+    director_closing_notes: str
+    timestamp: float = Field(default_factory=time.time)
