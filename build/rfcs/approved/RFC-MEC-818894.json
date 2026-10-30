@@ -1,0 +1,38 @@
+{
+  "rfc_id": "RFC-MEC-818894",
+  "title": "Calibrate Locomotion Envelope & Recovery Envelopes",
+  "description": "Gameplay Specialist tuned stamina ceiling (120) and recovery rate (18.0).",
+  "submitted_by": "Gameplay_Specialist",
+  "change_type": "ADJUST_MECHANICS",
+  "payload_diff": {
+    "stamina_max": 120.0,
+    "stamina_recovery_rate": 18.0
+  },
+  "status": "DEPLOYED",
+  "review_votes": [
+    {
+      "agent_id": "Gameplay_Specialist",
+      "approved": true,
+      "score": 0.96,
+      "comments": "Movement parameters within stable range.",
+      "flagged_risks": []
+    },
+    {
+      "agent_id": "Lore_Auditor",
+      "approved": true,
+      "score": 0.98,
+      "comments": "Complies with canon dogmas.",
+      "flagged_risks": []
+    },
+    {
+      "agent_id": "Chaos_Commander",
+      "approved": true,
+      "score": 0.95,
+      "comments": "Passed stress test.",
+      "flagged_risks": []
+    }
+  ],
+  "rejection_reasons": [],
+  "created_at": 1793402818.8942287,
+  "resolved_at": 1793402818.8943045
+}

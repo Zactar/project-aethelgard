@@ -25,10 +25,10 @@
           "Systems_Architect",
           "Gameplay_Specialist"
         ],
-        "is_completed": false
+        "is_completed": true
       }
     ],
-    "status": "IN_PROGRESS",
+    "status": "SHIPPED",
     "release_notes": [
       "Subterranean aqueduct expansion",
       "Consumable buff system with active timers"
@@ -63,7 +63,7 @@
         "is_completed": false
       }
     ],
-    "status": "PLANNING",
+    "status": "IN_PROGRESS",
     "release_notes": [
       "Martial curfew mechanics",
       "Cathedral district fortifications",

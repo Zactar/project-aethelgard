@@ -1,9 +1,9 @@
 {
-  "manifest_version": 1500,
-  "district_id": "District_DocksCommons",
+  "manifest_version": 1793402818,
+  "district_id": "District_CathedralHeights",
   "simulation_phase": "PEACETIME_COMMERCE",
   "district_unrest": 0.58,
-  "world_time": 1500.0,
+  "world_time": 1600.0,
   "lighting": {
     "ambient_sky_hex": "#b0c4de",
     "ambient_ground_hex": "#181c24",
@@ -35,9 +35,9 @@
   "mechanics": {
     "player_base_speed": 1400.0,
     "sprint_multiplier": 1.6,
-    "stamina_max": 100.0,
-    "stamina_recovery_rate": 14.0,
-    "interaction_radius": 480.0,
+    "stamina_max": 110.0,
+    "stamina_recovery_rate": 16.5,
+    "interaction_radius": 520.0,
     "camera_fov": 45.0,
     "camera_default_distance": 3000.0
   },
@@ -58,7 +58,7 @@
       "item_id": "item_flour",
       "display_name": "Milled Flour",
       "category": "COMMODITY",
-      "base_value": 4.0,
+      "base_value": 5.0,
       "description": "Standard guild-stamped flour bushel for bakery ovens.",
       "icon_symbol": "\ud83c\udf3e",
       "stack_limit": 20,
@@ -73,7 +73,8 @@
       "icon_symbol": "\ud83e\uddea",
       "stack_limit": 20,
       "effects": {
-        "speed_boost": 0.25
+        "speed_boost": 0.25,
+        "duration_sec": 14.0
       }
     },
     "item_contraband_grain": {
@@ -84,6 +85,19 @@
       "description": "Untithed grain ground in subterranean drainage vaults. Highly illegal.",
       "icon_symbol": "\ud83e\ude99",
       "stack_limit": 20,
+      "effects": {
+        "stealth_bonus": 0.35,
+        "duration_sec": 20.0
+      }
+    },
+    "item_proc_commodity_1200": {
+      "item_id": "item_proc_commodity_1200",
+      "display_name": "Canal Packing Twine #1200",
+      "category": "COMMODITY",
+      "base_value": 12.6,
+      "description": "Standard guild trade commodity subject to episcopal verification. Lore anchor: Black market brokers stamp smuggled grain with false tallow ...",
+      "icon_symbol": "\ud83e\udeb5",
+      "stack_limit": 20,
       "effects": {}
     }
   },
@@ -92,37 +106,209 @@
       "npc_id": "NPC_ALDOUS",
       "name": "Aldous the Baker",
       "role": "Guild Baker",
-      "faction": "Baker's Guild",
+      "faction": "Bakers Fellowship",
       "color_hex": "#f5af19",
       "position": {
-        "x": 0.0,
-        "y": 2300.0,
+        "x": -22.208445691579414,
+        "y": 2320.835092444865,
         "z": 0.0
       },
-      "default_dialogue": "Communal ovens are fired down. Tithes took half the grain this morning.",
+      "default_dialogue": "If the watch captain comes knocking, tell him the flour sacks were already moldy.",
       "inventory": {
         "item_bread": 12,
         "item_flour": 5
       },
-      "assigned_smart_object": "SO_ALDOUS"
+      "assigned_smart_object": "SO_ALDOUS",
+      "current_animation_state": "IDLE",
+      "dialogue_sound_frequency": 320.0,
+      "patrol_waypoints": [
+        {
+          "x": -22.208445691579414,
+          "y": 2320.835092444865,
+          "z": 0.0
+        },
+        {
+          "x": 80.0,
+          "y": 2500.0,
+          "z": 0.0
+        },
+        {
+          "x": -86.57343564178994,
+          "y": -66.48200271132546,
+          "z": 0.0
+        },
+        {
+          "x": 1790.2872376204814,
+          "y": 1787.3930429143459,
+          "z": 0.0
+        }
+      ],
+      "current_schedule_activity": "PATROL"
     },
     "NPC_GARRETT": {
       "npc_id": "NPC_GARRETT",
       "name": "Garrett the Herbalist",
       "role": "Apothecary Merchant",
-      "faction": "Artisans Fellowship",
+      "faction": "Artisans Guild",
       "color_hex": "#2ecc71",
       "position": {
-        "x": 2300.0,
-        "y": 0.0,
+        "x": 35.11353502064313,
+        "y": -116.98654427247223,
         "z": 0.0
       },
-      "default_dialogue": "Keep your voice low. Nightshade and dried hemlock on the top shelf.",
+      "default_dialogue": "Lower your voice. Nightshade and dried hemlock on the top shelf don't carry tithe stamps.",
       "inventory": {
         "item_sunfire_salve": 4,
         "item_contraband_grain": 2
       },
-      "assigned_smart_object": "SO_GARRETT"
+      "assigned_smart_object": "SO_RALLY",
+      "current_animation_state": "IDLE",
+      "dialogue_sound_frequency": 320.0,
+      "patrol_waypoints": [
+        {
+          "x": 35.11353502064313,
+          "y": -116.98654427247223,
+          "z": 0.0
+        },
+        {
+          "x": 80.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        {
+          "x": 2374.895814490784,
+          "y": 57.95752886745868,
+          "z": 0.0
+        },
+        {
+          "x": -95.50255561689835,
+          "y": 2377.6288907870835,
+          "z": 0.0
+        }
+      ],
+      "current_schedule_activity": "PATROL"
+    },
+    "NPC_CAPTAIN_VANE": {
+      "npc_id": "NPC_CAPTAIN_VANE",
+      "name": "Watch Captain Vane",
+      "role": "Garrison Commander",
+      "faction": "City Watch",
+      "color_hex": "#e74c3c",
+      "position": {
+        "x": -87.89703862852406,
+        "y": -61.837361383116274,
+        "z": 0.0
+      },
+      "default_dialogue": "Curfew bell sounds at the sixth chime. Any citizen in the square without a stamped permit answers to my halberds.",
+      "inventory": {
+        "item_forged_permit": 1
+      },
+      "assigned_smart_object": "SO_RALLY",
+      "current_animation_state": "IDLE",
+      "dialogue_sound_frequency": 320.0,
+      "patrol_waypoints": [
+        {
+          "x": -87.89703862852406,
+          "y": -61.837361383116274,
+          "z": 0.0
+        },
+        {
+          "x": 80.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        {
+          "x": 2233.516627023209,
+          "y": -69.91448063995026,
+          "z": 0.0
+        },
+        {
+          "x": 2.9395624267971527,
+          "y": 2392.416638696228,
+          "z": 0.0
+        }
+      ],
+      "current_schedule_activity": "PATROL"
+    },
+    "NPC_KAELEN": {
+      "npc_id": "NPC_KAELEN",
+      "name": "Kaelen the Smuggler",
+      "role": "Black Market Broker",
+      "faction": "Undercroft Syndicate",
+      "color_hex": "#9b59b6",
+      "position": {
+        "x": 1787.2842572964107,
+        "y": 1813.0786951599935,
+        "z": 0.0
+      },
+      "default_dialogue": "Watch out for the garrison scouts near the canal grates. They've doubled the guard.",
+      "inventory": {
+        "item_smoke_phial": 3,
+        "item_salted_jerky": 5
+      },
+      "assigned_smart_object": null,
+      "current_animation_state": "IDLE",
+      "dialogue_sound_frequency": 320.0,
+      "patrol_waypoints": [
+        {
+          "x": 1787.2842572964107,
+          "y": 1813.0786951599935,
+          "z": 0.0
+        },
+        {
+          "x": 2322.3632116326726,
+          "y": -42.345067065761995,
+          "z": 0.0
+        },
+        {
+          "x": -8.330618333767603,
+          "y": 2209.5754430248435,
+          "z": 0.0
+        }
+      ],
+      "current_schedule_activity": "PATROL"
+    },
+    "NPC_ORLOV": {
+      "npc_id": "NPC_ORLOV",
+      "name": "Dockmaster Orlov",
+      "role": "Harbor Overseer",
+      "faction": "Canal Guild",
+      "color_hex": "#3498db",
+      "position": {
+        "x": 2409.785010882929,
+        "y": 83.51995637677487,
+        "z": 0.0
+      },
+      "default_dialogue": "The mountain barges came in light this morning. Grain prices will double by nightfall.",
+      "inventory": {
+        "item_salted_jerky": 8
+      },
+      "assigned_smart_object": "SO_GARRETT",
+      "current_animation_state": "IDLE",
+      "dialogue_sound_frequency": 320.0,
+      "patrol_waypoints": [
+        {
+          "x": 2409.785010882929,
+          "y": 83.51995637677487,
+          "z": 0.0
+        },
+        {
+          "x": 2180.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        {
+          "x": -48.13540826574072,
+          "y": 80.47613866422867,
+          "z": 0.0
+        },
+        {
+          "x": 1835.0668242292538,
+          "y": 1761.8048175592044,
+          "z": 0.0
+        }
+      ],
+      "current_schedule_activity": "PATROL"
     }
   },
   "spatial_layout": {
@@ -346,25 +532,6 @@
         "emissive_color_hex": null,
         "emissive_intensity": 0.0,
         "cast_shadow": true
-      },
-      {
-        "prop_id": "PROP_STALL_BLUE",
-        "primitive_type": "MARKET_STALL",
-        "relative_position": {
-          "x": 600.0,
-          "y": -500.0,
-          "z": 0.0
-        },
-        "rotation_y": -0.5,
-        "scale": {
-          "x": 1.0,
-          "y": 1.0,
-          "z": 1.0
-        },
-        "material_color_hex": "#1e88e5",
-        "emissive_color_hex": null,
-        "emissive_intensity": 0.0,
-        "cast_shadow": true
       }
     ],
     "NODE_APOTHECARY": [
@@ -434,16 +601,76 @@
   },
   "active_quests": [
     {
-      "quest_id": "QUEST_GUILD_COMMERCE",
-      "title": "The Tithe Evasion Network",
-      "synopsis": "Establish a discrete conduit between the apothecaries and subterranean water vaults.",
-      "issuing_npc_id": "NPC_GARRETT",
-      "reward_item_id": "item_sunfire_salve",
-      "reward_stamina": 25.0,
+      "quest_id": "QUEST_ACT_1_BREAD",
+      "title": "Act I: The Hearthmother's Tithe",
+      "synopsis": "Aldous requires untithed flour from the undercroft vaults to fire the communal ovens.",
+      "issuing_npc_id": "NPC_ALDOUS",
+      "reward_item_id": "item_bread",
+      "reward_stamina": 35.0,
       "objectives": [
         {
-          "objective_id": "OBJ_COMMERCE_01",
-          "description": "Inspect the Market Cross Rally Notice.",
+          "objective_id": "OBJ_BREAD_01",
+          "description": "Inspect communal ovens at The Common Loaf.",
+          "target_node_id": "NODE_BAKERY",
+          "target_smart_object": "SO_ALDOUS",
+          "target_npc_id": null,
+          "required_item_id": null,
+          "status": "ACTIVE"
+        },
+        {
+          "objective_id": "OBJ_BREAD_02",
+          "description": "Confer with Garrett regarding herbal nightshade stocks.",
+          "target_node_id": "NODE_APOTHECARY",
+          "target_smart_object": null,
+          "target_npc_id": "NPC_GARRETT",
+          "required_item_id": null,
+          "status": "LOCKED"
+        }
+      ],
+      "is_completed": false,
+      "completion_debrief": "Aldous banks the untithed flour into the communal ovens, easing bread rations for the district artisans and unlocking access to subterranean smugglers."
+    },
+    {
+      "quest_id": "QUEST_ACT_2_UNDERCROFT",
+      "title": "Act II: The Undercroft Run",
+      "synopsis": "Smuggler Kaelen needs the aqueduct sluice opened to float illicit grain into the harbor.",
+      "issuing_npc_id": "NPC_KAELEN",
+      "reward_item_id": "item_forged_permit",
+      "reward_stamina": 45.0,
+      "objectives": [
+        {
+          "objective_id": "OBJ_KAELEN_01",
+          "description": "Operate Sluice Gate 01 to drain the subterranean basin.",
+          "target_node_id": "NODE_AQUEDUCT_CATACOMBS",
+          "target_smart_object": "SO_SLUICE_GATE_01",
+          "target_npc_id": null,
+          "required_item_id": null,
+          "status": "ACTIVE"
+        },
+        {
+          "objective_id": "OBJ_KAELEN_02",
+          "description": "Rendezvous with Kaelen the Smuggler in the lower vaults.",
+          "target_node_id": "NODE_AQUEDUCT_CATACOMBS",
+          "target_smart_object": null,
+          "target_npc_id": "NPC_KAELEN",
+          "required_item_id": null,
+          "status": "LOCKED"
+        }
+      ],
+      "is_completed": false,
+      "completion_debrief": "Subterranean floodwaters hiss into the sea canals. Kaelen hands you a forged cathedral transit permit stamped in tallow wax."
+    },
+    {
+      "quest_id": "QUEST_ACT_3_GARRISON",
+      "title": "Act III: The Episcopal Inquest",
+      "synopsis": "Watch Captain Vane has cordoned the market cross. Infiltrate the checkpoint.",
+      "issuing_npc_id": "NPC_CAPTAIN_VANE",
+      "reward_item_id": "item_sunfire_salve",
+      "reward_stamina": 50.0,
+      "objectives": [
+        {
+          "objective_id": "OBJ_VANE_01",
+          "description": "Inspect the Arch-Prelate's decree at the Market Cross.",
           "target_node_id": "NODE_PLAZA",
           "target_smart_object": "SO_RALLY",
           "target_npc_id": null,
@@ -451,16 +678,17 @@
           "status": "ACTIVE"
         },
         {
-          "objective_id": "OBJ_COMMERCE_02",
-          "description": "Report Arch-Prelate Malakor's tithe rate back to Garrett.",
-          "target_node_id": "NODE_APOTHECARY",
-          "target_smart_object": "SO_GARRETT",
-          "target_npc_id": "NPC_GARRETT",
+          "objective_id": "OBJ_VANE_02",
+          "description": "Confront Watch Captain Vane at the garrison checkpoint.",
+          "target_node_id": "NODE_PLAZA",
+          "target_smart_object": null,
+          "target_npc_id": "NPC_CAPTAIN_VANE",
           "required_item_id": null,
           "status": "LOCKED"
         }
       ],
-      "is_completed": false
+      "is_completed": false,
+      "completion_debrief": "You bypass the city watch perimeter with your forged pass, establishing an unbroken supply corridor across the entire district."
     }
   ]
 }

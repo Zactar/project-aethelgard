@@ -1,10 +1,9 @@
 import json
-import time
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 from schemas.studio_contracts import (
-    StudioMilestone, StudioEpic, MilestoneStatus, BiomeType, SprintGoal
+    BiomeType, MilestoneStatus, SprintGoal, StudioEpic, StudioMilestone
 )
 
 ROADMAP_DIR = Path("build/roadmap")
@@ -33,7 +32,8 @@ DEFAULT_MILESTONES = [
                 assigned_crews=["Systems_Architect", "Gameplay_Specialist"]
             )
         ],
-        release_notes=["Subterranean aqueduct expansion", "Consumable buff system with active timers"]
+        release_notes=["Subterranean aqueduct expansion",
+                       "Consumable buff system with active timers"]
     ),
     StudioMilestone(
         milestone_id="M2_CATHEDRAL_INQUEST",
@@ -57,9 +57,11 @@ DEFAULT_MILESTONES = [
                 assigned_crews=["Systems_Architect", "Narrative_Specialist"]
             )
         ],
-        release_notes=["Martial curfew mechanics", "Cathedral district fortifications", "Emergency food rationing"]
+        release_notes=["Martial curfew mechanics",
+                       "Cathedral district fortifications", "Emergency food rationing"]
     )
 ]
+
 
 class StudioRoadmapEngine:
     def __init__(self):
@@ -80,7 +82,10 @@ class StudioRoadmapEngine:
     def get_active_milestone(self) -> StudioMilestone:
         milestones = self.load_roadmap()
         for m in milestones:
-            if m.status in (MilestoneStatus.IN_PROGRESS, MilestoneStatus.PLANNING):
+            if m.status == MilestoneStatus.IN_PROGRESS:
+                return m
+        for m in milestones:
+            if m.status == MilestoneStatus.PLANNING:
                 return m
         return milestones[-1]
 
@@ -93,21 +98,37 @@ class StudioRoadmapEngine:
                 break
 
         if not active:
+            for m in milestones:
+                if m.status == MilestoneStatus.PLANNING:
+                    m.status = MilestoneStatus.IN_PROGRESS
+                    active = m
+                    break
+
+        if not active:
             return None
 
+        # Check for matching deliverables
         for epic in active.epics:
             if not epic.is_completed:
                 for title in deployed_rfc_titles:
-                    words = [w.lower() for w in epic.title.split() if len(w) > 4]
+                    words = [w.lower()
+                             for w in epic.title.split() if len(w) > 3]
                     if any(w in title.lower() for w in words):
                         epic.is_completed = True
                         break
 
-        # Check if milestone is ready for shippable release
+        # Check if milestone is ready for release
         all_done = all(e.is_completed for e in active.epics)
         if all_done and active.status != MilestoneStatus.SHIPPED:
             active.status = MilestoneStatus.SHIPPED
             shipped_version = active.version_tag
+
+            # Promote next milestone from PLANNING to IN_PROGRESS
+            for m in milestones:
+                if m.status == MilestoneStatus.PLANNING:
+                    m.status = MilestoneStatus.IN_PROGRESS
+                    break
+
             self.save_roadmap(milestones)
             return shipped_version
 

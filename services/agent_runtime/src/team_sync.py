@@ -4,6 +4,15 @@ PROJECT AETHELGARD: DYNAMIC SPRINT CEREMONY & BRAINSTORMING ENGINE
 Synthesizes evolving sprint proposals based on active milestone epics, district biomes, and unrest levels.
 """
 
+from services.agent_runtime.src.virtual_studio_engine import StudioSharedMemoryBus
+from services.agent_runtime.src.roadmap_engine import StudioRoadmapEngine
+from schemas.studio_contracts import (
+    BrainstormIdea, BugSeverity, IdeaDiscipline, MilestoneStatus,
+    SprintGoal, SprintMeetingMinutes
+)
+from typing import Any, Dict, List, Tuple
+import time
+import random
 import sys
 from pathlib import Path
 
@@ -11,54 +20,68 @@ ROOT_DIR = Path(__file__).resolve().parents[3]
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
-import random
-import time
-from typing import Any, Dict, List, Tuple
-
-from schemas.studio_contracts import (
-    BrainstormIdea, BugSeverity, IdeaDiscipline, MilestoneStatus,
-    SprintGoal, SprintMeetingMinutes
-)
-from services.agent_runtime.src.roadmap_engine import StudioRoadmapEngine
-from services.agent_runtime.src.virtual_studio_engine import StudioSharedMemoryBus
 
 # Dynamic proposal generators per discipline
 IDEA_BANKS = {
     IdeaDiscipline.SYSTEMS_DESIGN: [
-        ("Black Market Commodity Arbitrage", "Establish dynamic price fluctuations for smuggled flour and medicinal tinctures."),
-        ("Cathedral Tithe Inspection Protocols", "Enforce 35% grain seizures at city gates with contraband confiscation risk."),
-        ("Emergency Caloric Bread Rationing", "Distribute hardtack ration coupons to de-escalate municipal riot unrest."),
-        ("Guild Loan Sharking & Debt Collateral", "Allow artisans to pledge shop hearths as collateral for black market capital.")
+        ("Black Market Commodity Arbitrage",
+         "Establish dynamic price fluctuations for smuggled flour and medicinal tinctures."),
+        ("Cathedral Tithe Inspection Protocols",
+         "Enforce 35% grain seizures at city gates with contraband confiscation risk."),
+        ("Emergency Caloric Bread Rationing",
+         "Distribute hardtack ration coupons to de-escalate municipal riot unrest."),
+        ("Guild Loan Sharking & Debt Collateral",
+         "Allow artisans to pledge shop hearths as collateral for black market capital.")
     ],
     IdeaDiscipline.LEVEL_ARCHITECTURE: [
-        ("Subterranean Drainage Conduits & Sluice Gates", "Carve canal passages connecting the low docks to hidden distillery vaults."),
-        ("City Watch Garrison & Armory Checkpoints", "Erect fortified iron gates and weapon racks along the Market Cross perimeter."),
-        ("Cathedral Undercroft Ossuary & Catacombs", "Excavate stone crypts beneath the basilica for covert guild rendezvous."),
-        ("Hearthside Taproom & Common Lodgings", "Construct multi-tier wooden common house with peat hearths and ale casks.")
+        ("Subterranean Drainage Conduits & Sluice Gates",
+         "Carve canal passages connecting the low docks to hidden distillery vaults."),
+        ("City Watch Garrison & Armory Checkpoints",
+         "Erect fortified iron gates and weapon racks along the Market Cross perimeter."),
+        ("Cathedral Undercroft Ossuary & Catacombs",
+         "Excavate stone crypts beneath the basilica for covert guild rendezvous."),
+        ("Hearthside Taproom & Common Lodgings",
+         "Construct multi-tier wooden common house with peat hearths and ale casks.")
     ],
     IdeaDiscipline.NARRATIVE_LORE: [
-        ("Inquisitor Vael's Heresy Inquest", "Deploy cathedral investigators interrogating apothecaries about forbidden herbs."),
-        ("Dockmaster Orlov's Waterway Manifests", "Introduce corrupt dockmaster willing to falsify canal shipping registers."),
-        ("Watch Captain Vane's Curfew Decrees", "Station municipal patrol commanders leveling spears at unauthorized gatherings."),
-        ("Smuggler Kaelen's Undercroft Network", "Establish rogue guild contact offering forged tithe stamps for silver.")
+        ("Inquisitor Vael's Heresy Inquest",
+         "Deploy cathedral investigators interrogating apothecaries about forbidden herbs."),
+        ("Dockmaster Orlov's Waterway Manifests",
+         "Introduce corrupt dockmaster willing to falsify canal shipping registers."),
+        ("Watch Captain Vane's Curfew Decrees",
+         "Station municipal patrol commanders leveling spears at unauthorized gatherings."),
+        ("Smuggler Kaelen's Undercroft Network",
+         "Establish rogue guild contact offering forged tithe stamps for silver.")
     ],
     IdeaDiscipline.GAMEPLAY_MECHANICS: [
-        ("Stealth Damping & Guard Line-of-Sight", "Calibrate player movement noise and shadow concealment inside clandestine zones."),
-        ("Locomotion Dash & Stamina Bursts", "Tune high-velocity sprint bursts and rapid recovery envelopes during combat spikes."),
-        ("Lockpicking & Sluice Crank Interaction Envelopes", "Implement mechanical timing checks for opening secured storage chests."),
-        ("Tonic Buff Degradation Curves", "Add decaying visual aura shaders and tapering speed boosts for consumed elixirs.")
+        ("Stealth Damping & Guard Line-of-Sight",
+         "Calibrate player movement noise and shadow concealment inside clandestine zones."),
+        ("Locomotion Dash & Stamina Bursts",
+         "Tune high-velocity sprint bursts and rapid recovery envelopes during combat spikes."),
+        ("Lockpicking & Sluice Crank Interaction Envelopes",
+         "Implement mechanical timing checks for opening secured storage chests."),
+        ("Tonic Buff Degradation Curves",
+         "Add decaying visual aura shaders and tapering speed boosts for consumed elixirs.")
     ],
     IdeaDiscipline.AESTHETIC_STYLE: [
-        ("Volumetric Fog & Smoky Hearth Blooms", "Deploy flickering point lanterns and ambient peat smoke shaders across alleys."),
-        ("Riot Barricade Props & Broken Carts", "Dress streets with splintered grain crates, burning barrels, and protest banners."),
-        ("Cathedral Stained Glass Radiance", "Cast dynamic kaleidoscopic light beams onto polished stone sanctuary floors."),
-        ("Subterranean Water Reflection Shaders", "Simulate specular water ripples and dripping sluice conduits in low canals.")
+        ("Volumetric Fog & Smoky Hearth Blooms",
+         "Deploy flickering point lanterns and ambient peat smoke shaders across alleys."),
+        ("Riot Barricade Props & Broken Carts",
+         "Dress streets with splintered grain crates, burning barrels, and protest banners."),
+        ("Cathedral Stained Glass Radiance",
+         "Cast dynamic kaleidoscopic light beams onto polished stone sanctuary floors."),
+        ("Subterranean Water Reflection Shaders",
+         "Simulate specular water ripples and dripping sluice conduits in low canals.")
     ],
     IdeaDiscipline.QA_COMBAT_BALANCE: [
-        ("Monte Carlo Economic Arbitrage Stress Test", "Simulate 500 barter transactions to detect infinite gold duplication loops."),
-        ("Topological Navmesh Reachability Audit", "Deploy automated pathfinder bots traversing all connected rooms and doors."),
-        ("Smart Object Collision & Facing Yaw Validation", "Ensure all interaction anchors have 360-degree clear approach radius."),
-        ("Consumable Buff Stacking Exploit Audit", "Stress test concurrent elixir ingestion to prevent unbounded velocity multiplication.")
+        ("Monte Carlo Economic Arbitrage Stress Test",
+         "Simulate 500 barter transactions to detect infinite gold duplication loops."),
+        ("Topological Navmesh Reachability Audit",
+         "Deploy automated pathfinder bots traversing all connected rooms and doors."),
+        ("Smart Object Collision & Facing Yaw Validation",
+         "Ensure all interaction anchors have 360-degree clear approach radius."),
+        ("Consumable Buff Stacking Exploit Audit",
+         "Stress test concurrent elixir ingestion to prevent unbounded velocity multiplication.")
     ]
 }
 
@@ -72,8 +95,10 @@ class StudioCeremonyEngine:
 
     def run_sprint_retrospective(self, cycle_history: List[Dict[str, Any]]) -> Dict[str, Any]:
         unresolved_bugs = [b for b in self.memory.bug_ticket_queue]
-        total_p0 = sum(1 for b in unresolved_bugs if b.severity == BugSeverity.P0_CRITICAL)
-        total_p1 = sum(1 for b in unresolved_bugs if b.severity == BugSeverity.P1_HIGH)
+        total_p0 = sum(1 for b in unresolved_bugs if b.severity ==
+                       BugSeverity.P0_CRITICAL)
+        total_p1 = sum(1 for b in unresolved_bugs if b.severity ==
+                       BugSeverity.P1_HIGH)
 
         return {
             "completed_sprint_cycles": len(cycle_history),
@@ -92,7 +117,45 @@ class StudioCeremonyEngine:
 
     def conduct_brainstorming_session(self) -> List[BrainstormIdea]:
         active_milestone = self.roadmap_engine.get_active_milestone()
+        uncompleted_epics = [
+            e for e in active_milestone.epics if not e.is_completed]
         proposals: List[BrainstormIdea] = []
+
+        # 1. Proactively inject uncompleted milestone epics as top-priority sprint proposals
+        for epic in uncompleted_epics:
+            epic_words = epic.title.lower()
+            if any(k in epic_words for k in ["market", "contraband", "economy", "trade", "smuggl"]):
+                proposals.append(BrainstormIdea(
+                    idea_id=f"EPIC-GOAL-{epic.epic_id}",
+                    proposing_agent="Systems_Architect",
+                    discipline=IdeaDiscipline.SYSTEMS_DESIGN,
+                    title="Deploy Black Market Contraband Economy",
+                    pitch=f"[{active_milestone.version_tag}]: {epic.primary_deliverable}",
+                    technical_feasibility_score=0.99,
+                    systemic_emergence_score=0.99
+                ))
+            elif any(k in epic_words for k in ["checkpoint", "garrison", "watch", "barricade"]):
+                proposals.append(BrainstormIdea(
+                    idea_id=f"EPIC-GOAL-{epic.epic_id}",
+                    proposing_agent="Level_Architect",
+                    discipline=IdeaDiscipline.LEVEL_ARCHITECTURE,
+                    title=epic.title,
+                    pitch=f"[{active_milestone.version_tag}]: {epic.primary_deliverable}",
+                    technical_feasibility_score=0.99,
+                    systemic_emergence_score=0.99
+                ))
+            elif any(k in epic_words for k in ["ration", "caloric", "granary", "food"]):
+                proposals.append(BrainstormIdea(
+                    idea_id=f"EPIC-GOAL-{epic.epic_id}",
+                    proposing_agent="Systems_Architect",
+                    discipline=IdeaDiscipline.SYSTEMS_DESIGN,
+                    title=epic.title,
+                    pitch=f"[{active_milestone.version_tag}]: {epic.primary_deliverable}",
+                    technical_feasibility_score=0.99,
+                    systemic_emergence_score=0.99
+                ))
+
+        # 2. Fill remaining proposal roster from discipline banks
         crew_roster = [
             ("Systems_Architect", IdeaDiscipline.SYSTEMS_DESIGN),
             ("Level_Architect", IdeaDiscipline.LEVEL_ARCHITECTURE),
@@ -102,14 +165,14 @@ class StudioCeremonyEngine:
             ("Chaos_Commander", IdeaDiscipline.QA_COMBAT_BALANCE)
         ]
 
-        # Rotate proposals based on world time and simulation phase
-        random.seed(int(self.memory.world_time) + int(self.memory.active_district_unrest * 100))
+        random.seed(int(self.memory.world_time) +
+                    int(self.memory.active_district_unrest * 100))
 
         for agent_name, discipline in crew_roster:
             bank = IDEA_BANKS[discipline]
             title, pitch = random.choice(bank)
-            feasibility = round(random.uniform(0.88, 0.98), 2)
-            emergence = round(random.uniform(0.82, 0.96), 2)
+            feasibility = round(random.uniform(0.85, 0.94), 2)
+            emergence = round(random.uniform(0.80, 0.92), 2)
             prop_id = f"IDEA-{discipline.value[:3]}-{int(self.memory.world_time % 1000):03d}"
 
             proposals.append(BrainstormIdea(
@@ -128,7 +191,8 @@ class StudioCeremonyEngine:
         self, retro: Dict[str, Any], ideas: List[BrainstormIdea], target_district: str
     ) -> Tuple[List[SprintGoal], str]:
         # Filter top emergent ideas
-        sorted_ideas = sorted(ideas, key=lambda x: (x.technical_feasibility_score + x.systemic_emergence_score), reverse=True)
+        sorted_ideas = sorted(ideas, key=lambda x: (
+            x.technical_feasibility_score + x.systemic_emergence_score), reverse=True)
         selected = sorted_ideas[:4]
 
         goals: List[SprintGoal] = []
@@ -155,18 +219,21 @@ class StudioCeremonyEngine:
     ) -> SprintMeetingMinutes:
         print("\n" + "=" * 70)
         print(" [STUDIO ALL-HANDS]: DYNAMIC SPRINT STANDUP & MILESTONE BURNDOWN ")
-        print(f" Phase: {self.memory.active_phase} | District: {target_district} | Time: {self.memory.world_time:.1f}s")
+        print(
+            f" Phase: {self.memory.active_phase} | District: {target_district} | Time: {self.memory.world_time:.1f}s")
         print("=" * 70)
 
         retro = self.run_sprint_retrospective(cycle_history)
         print(f"1. Retrospective Status : {retro['retrospective_consensus']}")
         print(f"   Commodity Reserves   : {retro['commodity_reserves']}")
-        print(f"   Unresolved Bugs      : {retro['backlog_health']['total_unresolved_bugs']}")
+        print(
+            f"   Unresolved Bugs      : {retro['backlog_health']['total_unresolved_bugs']}")
 
         print("\n2. Cross-Crew Brainstorming Proposals:")
         ideas = self.conduct_brainstorming_session()
         for idea in ideas:
-            print(f"   * [{idea.discipline.value}] {idea.proposing_agent}: '{idea.title}'")
+            print(
+                f"   * [{idea.discipline.value}] {idea.proposing_agent}: '{idea.title}'")
 
         goals, notes = self.compile_sprint_goals(retro, ideas, target_district)
         print("\n3. Committed Sprint Goals:")
@@ -188,5 +255,6 @@ class StudioCeremonyEngine:
         with open(minutes_path, "w", encoding="utf-8") as f:
             f.write(meeting_minutes.model_dump_json(indent=2))
 
-        print(f"\n[STUDIO DIRECTOR]: Minutes archived to {minutes_path}\n" + "=" * 70 + "\n")
+        print(
+            f"\n[STUDIO DIRECTOR]: Minutes archived to {minutes_path}\n" + "=" * 70 + "\n")
         return meeting_minutes
