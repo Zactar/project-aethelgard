@@ -1,4 +1,18 @@
 #!/usr/bin/env python3
+"""
+PROJECT AETHELGARD: AUTONOMOUS VIRTUAL STUDIO RUNNER
+Pipes meeting goals directly into downstream sprint asset generation and autonomous RFC authoring.
+"""
+
+from tools.engine_importer import EngineAssetIngester
+from services.agent_runtime.src.virtual_studio_engine import StudioDirectorManagerAgent
+from services.agent_runtime.src.team_sync import StudioCeremonyEngine
+from services.agent_runtime.src.autonomous_authoring import AutonomousFeatureAuthorAgent
+from schemas.studio_contracts import SprintGoal
+from typing import Any, Dict, List
+import time
+import random
+import argparse
 import sys
 from pathlib import Path
 
@@ -6,15 +20,6 @@ ROOT_DIR = Path(__file__).resolve().parents[1]
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
-import argparse
-import time
-import random
-from typing import List, Dict, Any
-
-from schemas.studio_contracts import SprintGoal
-from services.agent_runtime.src.virtual_studio_engine import StudioDirectorManagerAgent
-from services.agent_runtime.src.team_sync import StudioCeremonyEngine
-from tools.engine_importer import EngineAssetIngester
 
 DISTRICT_ROSTER = [
     "District_MarketSquare",
@@ -23,11 +28,13 @@ DISTRICT_ROSTER = [
     "District_CathedralHeights"
 ]
 
+
 class AutonomousStudioRunner:
     def __init__(self, meeting_cadence: int = 3):
         self.director = StudioDirectorManagerAgent()
         self.ingester = EngineAssetIngester()
         self.ceremony_engine = StudioCeremonyEngine(self.director.memory)
+        self.author_agent = AutonomousFeatureAuthorAgent(self.director.memory)
         self.meeting_cadence = meeting_cadence
         self.cycle_count = 0
         self.cycle_history: List[Dict[str, Any]] = []
@@ -47,7 +54,8 @@ class AutonomousStudioRunner:
         sim_seed = 40000 + (cycle_index * 137)
 
         print("\n" + "=" * 70)
-        print(f" >>> [CYCLE {cycle_index:02d}]: SPRINT DISPATCH ON '{district}' (Time: {self.director.memory.world_time:.1f}s) <<<")
+        print(
+            f" >>> [CYCLE {cycle_index:02d}]: SPRINT DISPATCH ON '{district}' (Time: {self.director.memory.world_time:.1f}s) <<<")
         print("=" * 70)
 
         artifact = self.director.dispatch_studio_pipeline(
@@ -80,20 +88,27 @@ class AutonomousStudioRunner:
             return 0
         resolved_count = 0
         for ticket in queue:
-            print(f"  [AUTO-TRIAGE] {ticket.responsible_agent} patched ticket '{ticket.ticket_id}': {ticket.title}")
+            print(
+                f"  [AUTO-TRIAGE] {ticket.responsible_agent} patched ticket '{ticket.ticket_id}': {ticket.title}")
             resolved_count += 1
         self.director.memory.bug_ticket_queue = []
         return resolved_count
 
     def run_sprint_series(self, total_cycles: int, delay_between_cycles_sec: float = 0.2):
         start_time = time.time()
-        print(f"\n[AUTONOMOUS STUDIO RUNNER]: Starting {total_cycles}-cycle goal-driven production run...")
+        print(
+            f"\n[AUTONOMOUS STUDIO RUNNER]: Starting {total_cycles}-cycle goal-driven production run...")
 
+        # Initial sprint standup
         meeting = self.ceremony_engine.conduct_full_team_meeting(
             target_district=DISTRICT_ROSTER[0],
             cycle_history=[]
         )
         self.current_goals = meeting.selected_sprint_goals
+
+        print(
+            "\n[VIRTUAL DEV TEAM AUTHORING]: Drafting features from committed sprint goals...")
+        self.author_agent.execute_autonomous_rfc_cycle(self.current_goals)
 
         for i in range(1, total_cycles + 1):
             self.run_cycle(i)
@@ -105,6 +120,10 @@ class AutonomousStudioRunner:
                     cycle_history=self.cycle_history
                 )
                 self.current_goals = meeting.selected_sprint_goals
+                print(
+                    "\n[VIRTUAL DEV TEAM AUTHORING]: Drafting features from committed sprint goals...")
+                self.author_agent.execute_autonomous_rfc_cycle(
+                    self.current_goals)
 
             if delay_between_cycles_sec > 0:
                 time.sleep(delay_between_cycles_sec)
@@ -118,9 +137,11 @@ class AutonomousStudioRunner:
         print("#" * 70)
         print(f"Total Cycles Completed : {len(ledger)}")
         print(f"Elapsed Wall Time      : {elapsed_sec:.2f} seconds")
-        print(f"Total Assets Deployed  : {len(ledger) * 4} (Curves, PCG Layouts, Dialogues, C++ Headers)")
+        print(
+            f"Total Assets Deployed  : {len(ledger) * 4} (Curves, PCG Layouts, Dialogues, C++ Headers)")
         print("-" * 70)
-        print(f"{'Cycle':<7} | {'District':<26} | {'Target NPC':<14} | {'Action':<24} | {'Soul':<5}")
+        print(
+            f"{'Cycle':<7} | {'District':<26} | {'Target NPC':<14} | {'Action':<24} | {'Soul':<5}")
         print("-" * 70)
         for entry in ledger:
             print(
@@ -133,12 +154,21 @@ class AutonomousStudioRunner:
         print("#" * 70 + "\n")
 
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Run autonomous dev team cycles.")
-    parser.add_argument("--cycles", type=int, default=3, help="Total cycles (default: 3)")
-    parser.add_argument("--cadence", type=int, default=2, help="Cycles between meetings (default: 2)")
-    parser.add_argument("--delay", type=float, default=0.1, help="Delay in seconds")
+def main():
+    parser = argparse.ArgumentParser(
+        description="Run autonomous dev team cycles.")
+    parser.add_argument("--cycles", type=int, default=3,
+                        help="Total cycles (default: 3)")
+    parser.add_argument("--cadence", type=int, default=2,
+                        help="Cycles between meetings (default: 2)")
+    parser.add_argument("--delay", type=float, default=0.1,
+                        help="Delay in seconds")
     args = parser.parse_args()
 
     runner = AutonomousStudioRunner(meeting_cadence=args.cadence)
-    runner.run_sprint_series(total_cycles=args.cycles, delay_between_cycles_sec=args.delay)
+    runner.run_sprint_series(total_cycles=args.cycles,
+                             delay_between_cycles_sec=args.delay)
+
+
+if __name__ == "__main__":
+    main()

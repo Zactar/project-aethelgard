@@ -1,3 +1,10 @@
+from schemas.studio_contracts import SprintGoal
+from services.agent_runtime.src.virtual_studio_engine import StudioDirectorManagerAgent
+import websockets
+from typing import Set, Any
+import logging
+import json
+import asyncio
 import sys
 from pathlib import Path
 
@@ -5,16 +12,9 @@ ROOT_DIR = Path(__file__).resolve().parents[3]
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
-import asyncio
-import json
-import logging
-from typing import Set, Any
-import websockets
 
-from services.agent_runtime.src.virtual_studio_engine import StudioDirectorManagerAgent
-from schemas.studio_contracts import SprintGoal
-
-logging.basicConfig(level=logging.INFO, format="[%(asctime)s] [%(levelname)s] %(message)s")
+logging.basicConfig(level=logging.INFO,
+                    format="[%(asctime)s] [%(levelname)s] %(message)s")
 logger = logging.getLogger("AethelgardServer")
 
 DIRECTOR = StudioDirectorManagerAgent()
@@ -26,7 +26,8 @@ ACTIVE_GOALS = [
         target_district="District_MarketSquare",
         primary_objective="Systemic Quests and Live Dynamic Broadcast",
         driving_ideas=["IDEA-SYS-01", "IDEA-LVL-01"],
-        assigned_crews=["Systems_Architect", "Narrative_Specialist", "Client_Architect"],
+        assigned_crews=["Systems_Architect",
+                        "Narrative_Specialist", "Client_Architect"],
         success_criteria="Live hot-reload verified across browser client"
     )
 ]
@@ -51,8 +52,29 @@ SMART_OBJECT_RESPONSES = {
         "speaker": "MARKET CROSS NOTICE",
         "action": "EXAMINE_PROCLAMATION",
         "dialogue": "A freshly stamped parchment from Arch-Prelate Malakor is posted here: 'All unauthorized milling or assembly after the sixth bell carries an immediate tithe penalty.'"
+    },
+    "SmartObject.Container.SmugglerCache": {
+        "speaker": "UNDERCROFT CACHE",
+        "action": "LOOT_SMUGGLER_CHEST",
+        "dialogue": "You pry open the false stone lining. Inside are smuggled flour bushels and untithed apothecary tinctures hidden beneath oiled sacking."
+    },
+    "SmartObject.Armory.WeaponRack": {
+        "speaker": "GARRISON ARMORY",
+        "action": "INSPECT_WEAPON_RACK",
+        "dialogue": "Heavy iron halberds and riot pikes stand racked in rows, stamped with the Arch-Prelate's hawk insignia."
+    },
+    "SmartObject.Mechanism.CargoCrane": {
+        "speaker": "DOCK CARGO CRANE",
+        "action": "OPERATE_CARGO_WINCH",
+        "dialogue": "The iron chain rattles as the hoist swings over the canal basin, ready to haul clandestine cargo sacks up from the water."
+    },
+    "SmartObject.Craft.AleCask": {
+        "speaker": "HEARTH TAPROOM",
+        "action": "POUR_COMMUNAL_ALE",
+        "dialogue": "Spiced winter ale flows from the brass spigot. The patrons huddle near the peat hearth to whisper about the rising flour prices."
     }
 }
+
 
 async def broadcast_runtime_manifest(manifest_payload: dict):
     if not CONNECTED_CLIENTS:
@@ -61,13 +83,16 @@ async def broadcast_runtime_manifest(manifest_payload: dict):
         "status": "LIVE_HOT_RELOAD",
         "game_runtime_manifest": manifest_payload
     })
-    logger.info(f"Proactively broadcasting live update to {len(CONNECTED_CLIENTS)} client(s)...")
+    logger.info(
+        f"Proactively broadcasting live update to {len(CONNECTED_CLIENTS)} client(s)...")
     await asyncio.gather(*[client.send(message) for client in CONNECTED_CLIENTS], return_exceptions=True)
+
 
 async def handle_state_ipc(websocket: Any):
     client_addr = getattr(websocket, "remote_address", "unknown")
     CONNECTED_CLIENTS.add(websocket)
-    logger.info(f"Client connected: {client_addr} (Pool: {len(CONNECTED_CLIENTS)})")
+    logger.info(
+        f"Client connected: {client_addr} (Pool: {len(CONNECTED_CLIENTS)})")
     try:
         async for message in websocket:
             payload = json.loads(message)
@@ -76,7 +101,8 @@ async def handle_state_ipc(websocket: Any):
             if msg_type in ("TELEMETRY_INGEST", "REQUEST_INITIAL_STATE"):
                 district = payload.get("district_id", "District_MarketSquare")
                 stress = payload.get("player_stress", 0.35)
-                coords = tuple(payload.get("player_coords", [1400.0, 500.0, 0.0]))
+                coords = tuple(payload.get(
+                    "player_coords", [1400.0, 500.0, 0.0]))
                 seed = payload.get("seed", 42109)
 
                 result = DIRECTOR.dispatch_studio_pipeline(
@@ -129,11 +155,14 @@ async def handle_state_ipc(websocket: Any):
         pass
     finally:
         CONNECTED_CLIENTS.discard(websocket)
-        logger.info(f"Client disconnected: {client_addr} (Pool: {len(CONNECTED_CLIENTS)})")
+        logger.info(
+            f"Client disconnected: {client_addr} (Pool: {len(CONNECTED_CLIENTS)})")
+
 
 async def main():
     server = await websockets.serve(handle_state_ipc, "0.0.0.0", 8765)
-    logger.info("Virtual Studio State & Broadcast Server live on ws://0.0.0.0:8765")
+    logger.info(
+        "Virtual Studio State & Broadcast Server live on ws://0.0.0.0:8765")
     await server.wait_closed()
 
 if __name__ == "__main__":
