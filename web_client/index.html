@@ -4,18 +4,18 @@
   <meta charset="UTF-8">
   <title>Project Aethelgard - Architectural Simulation Client</title>
   <style>
-    body { margin: 0; padding: 0; overflow: hidden; background: #07090e; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #e0e0e0; user-select: none; }
+    body { margin: 0; padding: 0; overflow: hidden; background: #06080d; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #e0e0e0; user-select: none; }
     #canvas-container { width: 100vw; height: 100vh; display: block; }
     #hud {
-      position: absolute; top: 16px; left: 16px; width: 330px;
-      background: rgba(13, 17, 24, 0.94); border: 1px solid #283347;
+      position: absolute; top: 16px; left: 16px; width: 320px;
+      background: rgba(11, 15, 22, 0.94); border: 1px solid #232c3d;
       border-radius: 8px; padding: 14px; box-shadow: 0 8px 24px rgba(0,0,0,0.6); z-index: 10;
     }
     #hud h2 { margin: 0 0 8px 0; font-size: 14px; color: #4facfe; text-transform: uppercase; letter-spacing: 1px; }
     .hud-row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 12px; }
     .hud-val { font-weight: bold; color: #fff; }
-    .minimap-container { margin-top: 8px; border-top: 1px solid #283347; padding-top: 8px; text-align: center; }
-    #minimap { background: #0a0d14; border: 1px solid #1f2737; border-radius: 4px; display: block; margin: 0 auto; }
+    .minimap-container { margin-top: 8px; border-top: 1px solid #232c3d; padding-top: 8px; text-align: center; }
+    #minimap { background: #080b11; border: 1px solid #1a2230; border-radius: 4px; display: block; margin: 0 auto; }
     .instructions { margin-top: 8px; font-size: 11px; color: #8a99ad; line-height: 1.4; text-align: left; }
     #interaction-toast {
       position: absolute; top: 24px; left: 50%; transform: translateX(-50%);
@@ -25,17 +25,17 @@
     }
     #dialogue-box {
       position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); width: 720px;
-      background: rgba(13, 17, 24, 0.96); border: 1px solid #3b4760; border-radius: 8px;
+      background: rgba(11, 15, 22, 0.96); border: 1px solid #334057; border-radius: 8px;
       padding: 18px; box-shadow: 0 12px 36px rgba(0,0,0,0.85); display: none; z-index: 10;
     }
     #dialogue-speaker { font-weight: bold; color: #f5af19; font-size: 14px; margin-bottom: 4px; }
     #dialogue-text { font-size: 14px; line-height: 1.5; color: #f0f0f0; font-style: italic; }
     #dialogue-action { margin-top: 8px; font-size: 11px; color: #00f2fe; text-transform: uppercase; letter-spacing: 0.5px; }
     .btn {
-      width: 100%; background: #1c2433; color: #fff; border: 1px solid #4facfe;
+      width: 100%; background: #18202d; color: #fff; border: 1px solid #4facfe;
       padding: 8px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; margin-top: 6px;
     }
-    .btn:hover { background: #4facfe; color: #080a0f; }
+    .btn:hover { background: #4facfe; color: #06080d; }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -54,14 +54,14 @@
     <div class="minimap-container">
       <canvas id="minimap" width="280" height="150"></canvas>
       <div class="instructions">
-        • <b>WASD / Arrows</b>: Walk Player<br>
-        • <b>E Key</b>: Interact with Smart Object<br>
-        • <b>Mouse Left-Drag</b>: Orbit Camera | <b>Scroll</b>: Zoom
+        • <b>WASD / Arrows</b>: Walk | <b>E</b>: Use Workstation<br>
+        • <b>Left-Click Drag</b>: Orbit View | <b>Scroll</b>: Zoom<br>
+        • <b>Spacebar</b>: Snap Camera Behind Player
       </div>
     </div>
   </div>
 
-  <div id="interaction-toast">ACTIVATING SMART OBJECT...</div>
+  <div id="interaction-toast">ACTIVATING WORKSTATION...</div>
 
   <div id="dialogue-box">
     <div id="dialogue-speaker">NPC SPEECH</div>
@@ -72,10 +72,10 @@
   <div id="canvas-container"></div>
 
   <script>
-    // 1. Scene, Camera & Lighting Setup
+    // 1. Scene, Renderer & Shadow Setup
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x07090e);
-    scene.fog = new THREE.FogExp2(0x07090e, 0.00015);
+    scene.background = new THREE.Color(0x06080d);
+    scene.fog = new THREE.FogExp2(0x06080d, 0.00018);
 
     const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 10, 35000);
     camera.position.set(1400, 2400, 2600);
@@ -83,85 +83,102 @@
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     document.getElementById('canvas-container').appendChild(renderer.domElement);
 
-    // Unobtrusive OrbitControls that smoothly follows the player
     const controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.12;
-    controls.maxPolarAngle = Math.PI / 2.15; // Prevent camera clipping below floor
+    controls.maxPolarAngle = Math.PI / 2.12;
     controls.minDistance = 600;
-    controls.maxDistance = 6000;
+    controls.maxDistance = 7000;
     controls.target.set(1400, 80, 500);
 
-    const hemiLight = new THREE.HemisphereLight(0xaaccff, 0x1f2430, 0.75);
+    // Warm Atmospheric Lighting
+    const hemiLight = new THREE.HemisphereLight(0xb0c4de, 0x181c24, 0.7);
     scene.add(hemiLight);
 
-    const sunLight = new THREE.DirectionalLight(0xfff3e0, 0.8);
-    sunLight.position.set(2000, 4500, 2500);
+    const sunLight = new THREE.DirectionalLight(0xfff5ea, 0.75);
+    sunLight.position.set(2200, 4800, 2800);
+    sunLight.castShadow = true;
+    sunLight.shadow.mapSize.width = 2048;
+    sunLight.shadow.mapSize.height = 2048;
+    sunLight.shadow.camera.near = 500;
+    sunLight.shadow.camera.far = 10000;
+    const d = 3500;
+    sunLight.shadow.camera.left = -d;
+    sunLight.shadow.camera.right = d;
+    sunLight.shadow.camera.top = d;
+    sunLight.shadow.camera.bottom = -d;
     scene.add(sunLight);
 
-    const grid = new THREE.GridHelper(16000, 80, 0x1f2737, 0x0f131a);
-    grid.position.y = -5;
+    const grid = new THREE.GridHelper(16000, 80, 0x1b222f, 0x0c0f16);
+    grid.position.y = -6;
     scene.add(grid);
 
+    // Master Groups
     const architecturalGroup = new THREE.Group();
     scene.add(architecturalGroup);
 
     const labelGroup = new THREE.Group();
     scene.add(labelGroup);
 
-    const smartObjectRings = [];
+    const dynamicPropsGroup = new THREE.Group();
+    scene.add(dynamicPropsGroup);
 
-    // 2. Player Entity Construction (Clear Forward Facing)
+    const smartObjectRings = [];
+    let waterMesh = null;
+
+    // 2. Player Entity Construction
     const playerGroup = new THREE.Group();
 
-    // Body Cylinder
     const playerBody = new THREE.Mesh(
-      new THREE.CylinderGeometry(60, 60, 160, 16),
+      new THREE.CylinderGeometry(55, 55, 150, 16),
       new THREE.MeshLambertMaterial({ color: 0x00f2fe, emissive: 0x003344 })
     );
-    playerBody.position.y = 80;
+    playerBody.position.y = 75;
+    playerBody.castShadow = true;
     playerGroup.add(playerBody);
 
-    // Front Visor / Arrow Cone (Points along -Z, our base model forward direction)
-    const arrowGeo = new THREE.ConeGeometry(25, 60, 12);
-    arrowGeo.rotateX(-Math.PI / 2); // Point arrow forward along -Z
+    const arrowGeo = new THREE.ConeGeometry(25, 55, 12);
+    arrowGeo.rotateX(-Math.PI / 2);
     const playerVisor = new THREE.Mesh(
       arrowGeo,
-      new THREE.MeshLambertMaterial({ color: 0xffd700, emissive: 0x554400 })
+      new THREE.MeshLambertMaterial({ color: 0xffd700, emissive: 0x664400 })
     );
-    playerVisor.position.set(0, 100, -65);
+    playerVisor.position.set(0, 95, -60);
     playerGroup.add(playerVisor);
 
     playerGroup.position.set(1400, 0, 500);
     scene.add(playerGroup);
 
-    // NPC Aldous Entity
+    // NPC Aldous
     const npcMesh = new THREE.Mesh(
-      new THREE.CylinderGeometry(60, 60, 160, 16),
+      new THREE.CylinderGeometry(55, 55, 150, 16),
       new THREE.MeshLambertMaterial({ color: 0xf5af19, emissive: 0x442200 })
     );
-    npcMesh.position.set(0, 80, 2300);
+    npcMesh.position.set(0, 75, 2300);
+    npcMesh.castShadow = true;
     scene.add(npcMesh);
 
     let activeRooms = {};
     let activeSmartObjects = [];
     const keys = { w: false, a: false, s: false, d: false };
 
+    // 3. Floating 3D Label Generator
     function makeBillboardText(text, x, y, z, color = "#4facfe") {
       const canvas = document.createElement('canvas');
       canvas.width = 512;
       canvas.height = 128;
       const ctx = canvas.getContext('2d');
-      ctx.fillStyle = "rgba(10, 14, 22, 0.75)";
+      ctx.fillStyle = "rgba(10, 14, 22, 0.78)";
       ctx.strokeStyle = color;
       ctx.lineWidth = 4;
       ctx.roundRect(10, 10, 492, 108, 16);
       ctx.fill();
       ctx.stroke();
 
-      ctx.font = "bold 44px sans-serif";
+      ctx.font = "bold 42px sans-serif";
       ctx.fillStyle = color;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
@@ -170,12 +187,187 @@
       const texture = new THREE.CanvasTexture(canvas);
       const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture, transparent: true }));
       sprite.position.set(x, y, z);
-      sprite.scale.set(600, 150, 1);
+      sprite.scale.set(580, 145, 1);
       labelGroup.add(sprite);
       return sprite;
     }
 
-    // 3. Open-Top Cutaway Architectural Room Builder
+    // 4. Procedural Prop Factory
+    const propMatWood = new THREE.MeshLambertMaterial({ color: 0x5a3d28 });
+    const propMatStone = new THREE.MeshLambertMaterial({ color: 0x48515f });
+    const propMatIron = new THREE.MeshLambertMaterial({ color: 0x22262d, roughness: 0.8 });
+
+    function addCrateCluster(x, y, z, count = 3) {
+      for (let i = 0; i < count; i++) {
+        const size = 70 + (i % 2) * 20;
+        const mesh = new THREE.Mesh(new THREE.BoxGeometry(size, size, size), propMatWood);
+        mesh.position.set(x + (i * 55) - 30, y + (size / 2), z + ((i % 2) * 45));
+        mesh.rotation.y = (i * 0.4);
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+        dynamicPropsGroup.add(mesh);
+      }
+    }
+
+    function addBarrel(x, y, z) {
+      const mesh = new THREE.Mesh(new THREE.CylinderGeometry(35, 38, 90, 12), propMatWood);
+      mesh.position.set(x, y + 45, z);
+      mesh.castShadow = true;
+      dynamicPropsGroup.add(mesh);
+    }
+
+    function buildMarketStall(x, y, z, rotation = 0, awningHex = 0xb22222) {
+      const stall = new THREE.Group();
+      
+      // Counter Table
+      const table = new THREE.Mesh(new THREE.BoxGeometry(220, 80, 100), propMatWood);
+      table.position.y = 40;
+      table.castShadow = true;
+      stall.add(table);
+
+      // Corner Posts
+      const postGeo = new THREE.BoxGeometry(10, 180, 10);
+      const p1 = new THREE.Mesh(postGeo, propMatWood); p1.position.set(-100, 90, -45); stall.add(p1);
+      const p2 = new THREE.Mesh(postGeo, propMatWood); p2.position.set(100, 90, -45); stall.add(p2);
+      const p3 = new THREE.Mesh(postGeo, propMatWood); p3.position.set(-100, 90, 45); stall.add(p3);
+      const p4 = new THREE.Mesh(postGeo, propMatWood); p4.position.set(100, 90, 45); stall.add(p4);
+
+      // Angled Fabric Awning
+      const awning = new THREE.Mesh(
+        new THREE.BoxGeometry(240, 12, 130),
+        new THREE.MeshLambertMaterial({ color: awningHex })
+      );
+      awning.position.set(0, 185, 0);
+      awning.rotation.x = 0.15;
+      stall.add(awning);
+
+      stall.position.set(x, y, z);
+      stall.rotation.y = rotation;
+      dynamicPropsGroup.add(stall);
+    }
+
+    function buildBakeryOven(x, y, z) {
+      const oven = new THREE.Group();
+      // Stone Hearth Base
+      const base = new THREE.Mesh(new THREE.BoxGeometry(280, 140, 240), propMatStone);
+      base.position.y = 70;
+      base.castShadow = true;
+      oven.add(base);
+
+      // Curved Oven Dome
+      const dome = new THREE.Mesh(
+        new THREE.CylinderGeometry(100, 140, 100, 16, 1, false, 0, Math.PI),
+        propMatStone
+      );
+      dome.position.set(0, 140, 0);
+      dome.rotation.x = -Math.PI / 2;
+      oven.add(dome);
+
+      // Chimney Stack
+      const chimney = new THREE.Mesh(new THREE.BoxGeometry(70, 220, 70), propMatStone);
+      chimney.position.set(80, 190, -60);
+      oven.add(chimney);
+
+      // Fire Ember Glow
+      const fire = new THREE.Mesh(
+        new THREE.BoxGeometry(110, 40, 60),
+        new THREE.MeshBasicMaterial({ color: 0xff3b00 })
+      );
+      fire.position.set(0, 50, 95);
+      oven.add(fire);
+
+      const ovenLight = new THREE.PointLight(0xff5500, 2.0, 900);
+      ovenLight.position.set(0, 80, 110);
+      oven.add(ovenLight);
+
+      // Bread Loaves & Prep Table
+      const table = new THREE.Mesh(new THREE.BoxGeometry(200, 70, 90), propMatWood);
+      table.position.set(160, 35, 60);
+      table.rotation.y = -0.3;
+      oven.add(table);
+
+      for (let i = 0; i < 3; i++) {
+        const loaf = new THREE.Mesh(
+          new THREE.CylinderGeometry(12, 12, 40, 8),
+          new THREE.MeshLambertMaterial({ color: 0xc68642 })
+        );
+        loaf.rotation.z = Math.PI / 2;
+        loaf.position.set(130 + (i * 30), 78, 60);
+        oven.add(loaf);
+      }
+
+      oven.position.set(x, y, z);
+      dynamicPropsGroup.add(oven);
+    }
+
+    function buildApothecaryShelves(x, y, z) {
+      const apothecary = new THREE.Group();
+      
+      // Tall Shelving Unit
+      const shelfBack = new THREE.Mesh(new THREE.BoxGeometry(260, 260, 35), propMatWood);
+      shelfBack.position.set(0, 130, -50);
+      shelfBack.castShadow = true;
+      apothecary.add(shelfBack);
+
+      // Glass Potion Bottles with Glowing Materials
+      const bottleColors = [0x2ecc71, 0x9b59b6, 0x3498db, 0xe74c3c, 0xf1c40f];
+      for (let s = 0; s < 3; s++) {
+        const yPos = 60 + (s * 75);
+        for (let b = 0; b < 5; b++) {
+          const col = bottleColors[(s + b) % bottleColors.length];
+          const bottle = new THREE.Mesh(
+            new THREE.CylinderGeometry(8, 12, 28, 8),
+            new THREE.MeshLambertMaterial({ color: col, emissive: col, emissiveIntensity: 0.6 })
+          );
+          bottle.position.set(-90 + (b * 45), yPos, -30);
+          apothecary.add(bottle);
+        }
+      }
+
+      // Pharmacy Counter Table
+      const counter = new THREE.Mesh(new THREE.BoxGeometry(240, 75, 90), propMatWood);
+      counter.position.set(0, 38, 40);
+      counter.castShadow = true;
+      apothecary.add(counter);
+
+      apothecary.position.set(x, y, z);
+      dynamicPropsGroup.add(apothecary);
+    }
+
+    function buildSluiceGateMechanism(x, y, z) {
+      const gate = new THREE.Group();
+
+      // Twin Vertical Guide Rails
+      const railGeo = new THREE.BoxGeometry(30, 320, 30);
+      const rail1 = new THREE.Mesh(railGeo, propMatIron); rail1.position.set(-90, 160, 0); gate.add(rail1);
+      const rail2 = new THREE.Mesh(railGeo, propMatIron); rail2.position.set(90, 160, 0); gate.add(rail2);
+
+      // Cross Arch Header
+      const header = new THREE.Mesh(new THREE.BoxGeometry(230, 40, 40), propMatIron);
+      header.position.set(0, 300, 0);
+      gate.add(header);
+
+      // Sluice Gate Door Slab
+      const slab = new THREE.Mesh(
+        new THREE.BoxGeometry(150, 160, 16),
+        new THREE.MeshLambertMaterial({ color: 0x00a8cc, emissive: 0x004466 })
+      );
+      slab.position.set(0, 90, 0);
+      gate.add(slab);
+
+      // Circular Crank Valve Wheel
+      const wheel = new THREE.Mesh(
+        new THREE.TorusGeometry(32, 8, 8, 24),
+        new THREE.MeshLambertMaterial({ color: 0xd4af37 })
+      );
+      wheel.position.set(0, 260, 24);
+      gate.add(wheel);
+
+      gate.position.set(x, y, z);
+      dynamicPropsGroup.add(gate);
+    }
+
+    // 5. Open-Top Cutaway Architectural Room Builder
     function buildCutawayRoom(nodeId, nodeData) {
       const min = nodeData.bounds_min;
       const max = nodeData.bounds_max;
@@ -185,31 +377,32 @@
       const isCatacomb = nodeId.includes("AQUEDUCT");
       const floorY = center.z;
 
-      let floorColor = 0x181e2b;
-      let curbColor = 0x2e3b52;
+      let floorColor = 0x1b2333;
+      let curbColor = 0x334466;
       let labelColor = "#4facfe";
 
       if (isCatacomb) {
-        floorColor = 0x052a3a;
+        floorColor = 0x072535;
         curbColor = 0x00a8cc;
         labelColor = "#00f2fe";
       } else if (nodeId.includes("BAKERY")) {
-        floorColor = 0x2a1c15;
-        curbColor = 0x7c4323;
+        floorColor = 0x2b1e16;
+        curbColor = 0x884926;
         labelColor = "#f5af19";
       } else if (nodeId.includes("APOTHECARY")) {
-        floorColor = 0x14281f;
-        curbColor = 0x2d6348;
-        labelColor = "#26de81";
+        floorColor = 0x13271c;
+        curbColor = 0x2d6e4b;
+        labelColor = "#2ecc71";
       }
 
       // Floor Slab
       const floorGeo = new THREE.BoxGeometry(width, 16, depth);
       const floorMesh = new THREE.Mesh(floorGeo, new THREE.MeshLambertMaterial({ color: floorColor }));
       floorMesh.position.set(center.x, floorY, center.y);
+      floorMesh.receiveShadow = true;
       architecturalGroup.add(floorMesh);
 
-      // Low Waist-High Perimeter Curbs (70cm height keeps interior visible)
+      // Low Waist-High Perimeter Curbs (70cm preserves sightline)
       const curbHeight = 70;
       const curbThickness = 24;
       const curbMat = new THREE.MeshLambertMaterial({ color: curbColor });
@@ -232,39 +425,103 @@
       eCurb.position.set(center.x + (width / 2), floorY + (curbHeight / 2), center.y);
       architecturalGroup.add(eCurb);
 
-      // Floating Room Title
-      makeBillboardText(nodeData.zone_name, center.x, floorY + 380, center.y, labelColor);
+      // Zone Billboard
+      makeBillboardText(nodeData.zone_name, center.x, floorY + 420, center.y, labelColor);
 
-      // Smart Object Workstations & Ground Indicator Rings
+      // === Contextual Room Set Dressing ===
+      if (nodeId.includes("PLAZA")) {
+        // Central Market Cross Monument
+        const obelisk = new THREE.Mesh(new THREE.CylinderGeometry(20, 45, 340, 4), propMatStone);
+        obelisk.position.set(center.x, floorY + 170, center.y);
+        obelisk.rotation.y = Math.PI / 4;
+        obelisk.castShadow = true;
+        dynamicPropsGroup.add(obelisk);
+
+        const base = new THREE.Mesh(new THREE.BoxGeometry(140, 30, 140), propMatStone);
+        base.position.set(center.x, floorY + 15, center.y);
+        dynamicPropsGroup.add(base);
+
+        // Merchant Stalls & Supply Stacks
+        buildMarketStall(center.x - 700, floorY, center.y - 600, 0.4, 0xb22222);
+        buildMarketStall(center.x + 600, floorY, center.y - 500, -0.5, 0x1e88e5);
+        buildMarketStall(center.x - 500, floorY, center.y + 700, 0.2, 0x2e7d32);
+        addCrateCluster(center.x + 750, floorY, center.y + 600, 4);
+        addBarrel(center.x + 850, floorY, center.y + 700);
+      }
+      else if (nodeId.includes("BAKERY")) {
+        buildBakeryOven(center.x, floorY, center.y + 200);
+        addCrateCluster(center.x - 300, floorY, center.y - 200, 3);
+        addBarrel(center.x - 350, floorY, center.y - 120);
+        addBarrel(center.x - 390, floorY, center.y - 150);
+      }
+      else if (nodeId.includes("APOTHECARY")) {
+        buildApothecaryShelves(center.x, floorY, center.y - 200);
+        addBarrel(center.x + 300, floorY, center.y + 150);
+        addCrateCluster(center.x - 320, floorY, center.y + 120, 2);
+      }
+      else if (nodeId.includes("AQUEDUCT")) {
+        // Flowing Reflective Water Channel
+        const waterGeo = new THREE.PlaneGeometry(width - 60, depth - 60);
+        const waterMat = new THREE.MeshStandardMaterial({
+          color: 0x0088aa,
+          roughness: 0.1,
+          metalness: 0.8,
+          transparent: true,
+          opacity: 0.8
+        });
+        waterMesh = new THREE.Mesh(waterGeo, waterMat);
+        waterMesh.rotation.x = -Math.PI / 2;
+        waterMesh.position.set(center.x, floorY + 14, center.y);
+        dynamicPropsGroup.add(waterMesh);
+
+        // Stone Vaulted Arches
+        for (let a = -1; a <= 1; a++) {
+          const arch = new THREE.Mesh(new THREE.BoxGeometry(width - 100, 40, 60), propMatStone);
+          arch.position.set(center.x, floorY + 280, center.y + (a * 350));
+          dynamicPropsGroup.add(arch);
+        }
+
+        buildSluiceGateMechanism(center.x + 40, floorY, center.y);
+      }
+      else if (nodeId.includes("ALLEY")) {
+        addCrateCluster(center.x, floorY, center.y - 150, 2);
+        addBarrel(center.x + 120, floorY, center.y + 100);
+        addBarrel(center.x + 160, floorY, center.y + 80);
+      }
+
+      // Smart Object Workstation Sockets & Active Floor Rings
       if (nodeData.smart_objects) {
         nodeData.smart_objects.forEach(so => {
           const soPos = { x: so.relative_position.x, y: floorY + 60, z: so.relative_position.y };
           const soColor = isCatacomb ? 0x00f2fe : (nodeId.includes("BAKERY") ? 0xff7b25 : 0xff007f);
 
-          // Workstation Box
-          const soGeo = new THREE.BoxGeometry(110, 120, 110);
-          const soMat = new THREE.MeshLambertMaterial({ color: soColor, emissive: soColor, emissiveIntensity: 0.35 });
-          const soMesh = new THREE.Mesh(soGeo, soMat);
+          // Workstation Box Anchor
+          const soMesh = new THREE.Mesh(
+            new THREE.BoxGeometry(90, 110, 90),
+            new THREE.MeshLambertMaterial({ color: soColor, emissive: soColor, emissiveIntensity: 0.35 })
+          );
           soMesh.position.set(soPos.x, soPos.y, soPos.z);
+          soMesh.castShadow = true;
           architecturalGroup.add(soMesh);
 
-          // Local Lantern Light
+          // Local Workstation Point Lantern
           const lantern = new THREE.PointLight(soColor, 1.4, 1400);
           lantern.position.set(soPos.x, floorY + 200, soPos.y);
           architecturalGroup.add(lantern);
 
-          // Pulsing Floor Ring Indicator (Interaction Boundary: Radius 450)
+          // Pulsing Floor Ring Indicator (Radius 450)
           const ringGeo = new THREE.RingGeometry(400, 450, 32);
           ringGeo.rotateX(-Math.PI / 2);
-          const ringMat = new THREE.MeshBasicMaterial({ color: soColor, side: THREE.DoubleSide, transparent: true, opacity: 0.35 });
-          const ringMesh = new THREE.Mesh(ringGeo, ringMat);
-          ringMesh.position.set(soPos.x, floorY + 8, soPos.y);
+          const ringMesh = new THREE.Mesh(
+            ringGeo,
+            new THREE.MeshBasicMaterial({ color: soColor, side: THREE.DoubleSide, transparent: true, opacity: 0.35 })
+          );
+          ringMesh.position.set(soPos.x, floorY + 10, soPos.y);
           architecturalGroup.add(ringMesh);
           smartObjectRings.push(ringMesh);
 
-          // Floating Label
           const tagShortName = so.smart_object_tag.split('.').pop();
-          makeBillboardText(`[E] ${tagShortName}`, soPos.x, floorY + 240, soPos.z, "#ffffff");
+          makeBillboardText(`[E] ${tagShortName}`, soPos.x, floorY + 250, soPos.z, "#ffffff");
 
           activeSmartObjects.push({
             tag: so.smart_object_tag,
@@ -295,12 +552,73 @@
       }
     }
 
-    // 4. Real-Time Top-Down Minimap Radar
+    // 6. Pre-Cached Fallback Layout (Draws Scene Instantly On Page Load)
+    const INITIAL_FALLBACK_LAYOUT = {
+      "NODE_PLAZA": {
+        "zone_name": "Market Cross Square",
+        "bounds_min": { "x": -1500, "y": -1500, "z": 0 },
+        "bounds_max": { "x": 1500, "y": 1500, "z": 500 },
+        "center_location": { "x": 0, "y": 0, "z": 0 },
+        "connected_node_ids": ["NODE_APOTHECARY", "NODE_BAKERY"],
+        "smart_objects": [{ "anchor_id": "SO_RALLY", "smart_object_tag": "SmartObject.Civic.RallyPoint", "relative_position": { "x": 0, "y": 0, "z": 0 } }]
+      },
+      "NODE_APOTHECARY": {
+        "zone_name": "Garrett's Curatives",
+        "bounds_min": { "x": 1800, "y": -600, "z": 0 },
+        "bounds_max": { "x": 2800, "y": 600, "z": 400 },
+        "center_location": { "x": 2300, "y": 0, "z": 0 },
+        "connected_node_ids": ["NODE_PLAZA", "NODE_ALLEY"],
+        "smart_objects": [{ "anchor_id": "SO_GARRETT", "smart_object_tag": "SmartObject.Merchant.ApothecaryCounter", "relative_position": { "x": 2100, "y": 0, "z": 0 } }]
+      },
+      "NODE_BAKERY": {
+        "zone_name": "The Common Loaf",
+        "bounds_min": { "x": -600, "y": 1800, "z": 0 },
+        "bounds_max": { "x": 600, "y": 2800, "z": 400 },
+        "center_location": { "x": 0, "y": 2300, "z": 0 },
+        "connected_node_ids": ["NODE_PLAZA", "NODE_ALLEY", "NODE_AQUEDUCT_CATACOMBS"],
+        "smart_objects": [{ "anchor_id": "SO_ALDOUS", "smart_object_tag": "SmartObject.Craft.BreadOven", "relative_position": { "x": 0, "y": 2500, "z": 0 } }]
+      },
+      "NODE_ALLEY": {
+        "zone_name": "Shadowed Drainage Way",
+        "bounds_min": { "x": 1500, "y": 1500, "z": 0 },
+        "bounds_max": { "x": 2200, "y": 2200, "z": 300 },
+        "center_location": { "x": 1800, "y": 1800, "z": 0 },
+        "connected_node_ids": ["NODE_APOTHECARY", "NODE_BAKERY", "NODE_AQUEDUCT_CATACOMBS"],
+        "smart_objects": []
+      },
+      "NODE_AQUEDUCT_CATACOMBS": {
+        "zone_name": "Subterranean Aqueduct Conduit",
+        "bounds_min": { "x": 0, "y": 1800, "z": -400 },
+        "bounds_max": { "x": 1600, "y": 2800, "z": -50 },
+        "center_location": { "x": 800, "y": 2300, "z": -250 },
+        "connected_node_ids": ["NODE_BAKERY", "NODE_ALLEY"],
+        "smart_objects": [{ "anchor_id": "SO_SLUICE_GATE_01", "smart_object_tag": "SmartObject.Mechanism.SluiceGate", "relative_position": { "x": 800, "y": 2300, "z": -250 } }]
+      }
+    };
+
+    function renderFullDistrict(nodes) {
+      activeRooms = nodes;
+      activeSmartObjects = [];
+      smartObjectRings.length = 0;
+      while (architecturalGroup.children.length > 0) architecturalGroup.remove(architecturalGroup.children[0]);
+      while (labelGroup.children.length > 0) labelGroup.remove(labelGroup.children[0]);
+      while (dynamicPropsGroup.children.length > 0) dynamicPropsGroup.remove(dynamicPropsGroup.children[0]);
+
+      for (const [nodeId, nodeData] of Object.entries(nodes)) {
+        buildCutawayRoom(nodeId, nodeData);
+      }
+      buildPassageLinks(nodes);
+    }
+
+    // Immediately render default district before network connects!
+    renderFullDistrict(INITIAL_FALLBACK_LAYOUT);
+
+    // 7. Top-Down 2D Minimap Radar
     const mapCanvas = document.getElementById("minimap");
     const mapCtx = mapCanvas.getContext("2d");
 
     function renderMinimap() {
-      mapCtx.fillStyle = "#0a0d14";
+      mapCtx.fillStyle = "#080b11";
       mapCtx.fillRect(0, 0, mapCanvas.width, mapCanvas.height);
 
       const scale = 0.045;
@@ -315,8 +633,8 @@
         const rw = Math.abs(max.x - min.x) * scale;
         const rh = Math.abs(max.y - min.y) * scale;
 
-        mapCtx.fillStyle = nodeId.includes("AQUEDUCT") ? "rgba(0, 168, 204, 0.4)" : "rgba(40, 51, 71, 0.45)";
-        mapCtx.strokeStyle = nodeId.includes("AQUEDUCT") ? "#00f2fe" : "#3b4760";
+        mapCtx.fillStyle = nodeId.includes("AQUEDUCT") ? "rgba(0, 168, 204, 0.4)" : "rgba(35, 44, 61, 0.5)";
+        mapCtx.strokeStyle = nodeId.includes("AQUEDUCT") ? "#00f2fe" : "#334057";
         mapCtx.fillRect(rx, ry, rw, rh);
         mapCtx.strokeRect(rx, ry, rw, rh);
       }
@@ -337,7 +655,7 @@
       mapCtx.fill();
     }
 
-    // 5. WebSocket IPC Bridge (Port 8765)
+    // 8. WebSocket IPC Bridge with Automatic Initial Handshake
     let socket = null;
     function connectWS() {
       let wsUrl;
@@ -355,6 +673,9 @@
       socket.onopen = () => {
         document.getElementById('ui-status').innerText = "Connected (8765)";
         document.getElementById('ui-status').style.color = "#00e676";
+
+        // AUTO-HANDSHAKE: Request latest world state immediately on load!
+        sendStressTelemetry(0.10);
       };
 
       socket.onclose = () => {
@@ -376,16 +697,7 @@
           }
 
           if (data.spatial_layout && data.spatial_layout.nodes) {
-            activeRooms = data.spatial_layout.nodes;
-            activeSmartObjects = [];
-            smartObjectRings.length = 0;
-            while (architecturalGroup.children.length > 0) architecturalGroup.remove(architecturalGroup.children[0]);
-            while (labelGroup.children.length > 0) labelGroup.remove(labelGroup.children[0]);
-
-            for (const [nodeId, nodeData] of Object.entries(activeRooms)) {
-              buildCutawayRoom(nodeId, nodeData);
-            }
-            buildPassageLinks(activeRooms);
+            renderFullDistrict(data.spatial_layout.nodes);
           }
         }
       };
@@ -406,19 +718,16 @@
     function triggerSmartObjectInteraction(so) {
       if (!socket || socket.readyState !== WebSocket.OPEN) return;
 
-      // Visual flash on object mesh
       if (so.mesh) {
         so.mesh.material.emissiveIntensity = 1.0;
         setTimeout(() => { if (so.mesh) so.mesh.material.emissiveIntensity = 0.35; }, 400);
       }
 
-      // Show temporary HUD toast
       const toast = document.getElementById('interaction-toast');
       toast.innerText = `ACTIVATED: ${so.anchor_id}`;
       toast.style.display = 'block';
       setTimeout(() => { toast.style.display = 'none'; }, 2200);
 
-      // Dispatch explicit smart object interaction
       socket.send(JSON.stringify({
         type: "SMART_OBJECT_INTERACT",
         smart_object_id: so.anchor_id,
@@ -429,12 +738,12 @@
     }
 
     function recenterCamera() {
-      controls.target.set(playerGroup.position.x, playerGroup.position.y + 80, playerGroup.position.z);
+      controls.target.set(playerGroup.position.x, playerGroup.position.y + 75, playerGroup.position.z);
       camera.position.set(playerGroup.position.x, playerGroup.position.y + 2200, playerGroup.position.z + 2400);
       controls.update();
     }
 
-    // 6. Keyboard & Proximity Handling
+    // 9. Controls & Smooth Input
     window.addEventListener('keydown', (e) => {
       const k = e.key.toLowerCase();
       if (k === 'w' || k === 'arrowup') keys.w = true;
@@ -444,7 +753,7 @@
       if (k === ' ') recenterCamera();
       if (k === 'e') {
         let nearest = null;
-        let minDist = 480.0; // Expanded, generous activation distance
+        let minDist = 480.0;
         activeSmartObjects.forEach(so => {
           const d = Math.hypot(playerGroup.position.x - so.pos.x, playerGroup.position.z - so.pos.z);
           if (d < minDist) { nearest = so; minDist = d; }
@@ -463,7 +772,6 @@
       if (k === 'd' || k === 'arrowright') keys.d = false;
     });
 
-    // 7. Movement & Camera Physics Loop
     function updatePlayer(delta) {
       const speed = 1400.0 * delta;
       let dx = 0, dz = 0;
@@ -476,21 +784,18 @@
         playerGroup.position.x += dx;
         playerGroup.position.z += dz;
 
-        // FIXED ORIENTATION: Faces forward when pressing W (towards -Z)
         const targetRotation = Math.atan2(-dx, -dz);
         let diff = targetRotation - playerGroup.rotation.y;
         while (diff < -Math.PI) diff += Math.PI * 2;
         while (diff > Math.PI) diff -= Math.PI * 2;
         playerGroup.rotation.y += diff * 0.25;
 
-        // Unobtrusive camera pan with player movement
         camera.position.x += dx;
         camera.position.z += dz;
         controls.target.x += dx;
         controls.target.z += dz;
       }
 
-      // Check Room Boundary and Elevation
       let currentRoomName = "Outdoor Alleyways";
       let targetElevation = 0;
 
@@ -506,10 +811,9 @@
       }
 
       playerGroup.position.y += (targetElevation - playerGroup.position.y) * 0.15;
-      controls.target.y = playerGroup.position.y + 80;
+      controls.target.y = playerGroup.position.y + 75;
       document.getElementById('ui-room').innerText = currentRoomName;
 
-      // Smart Object Proximity Check (Radius 480)
       let promptText = "None";
       activeSmartObjects.forEach(so => {
         const dist = Math.hypot(playerGroup.position.x - so.pos.x, playerGroup.position.z - so.pos.z);
@@ -520,7 +824,7 @@
       document.getElementById('ui-prompt').innerText = promptText;
     }
 
-    // 8. Main Render & Animation Loop
+    // 10. Main Animation Loop
     let lastTime = performance.now();
     function animate() {
       requestAnimationFrame(animate);
@@ -530,9 +834,14 @@
 
       updatePlayer(delta);
 
-      // Pulse Smart Object floor rings
+      // Pulse floor rings
       const pulse = 0.25 + 0.15 * Math.sin(now * 0.005);
       smartObjectRings.forEach(r => { r.material.opacity = pulse; });
+
+      // Animate flowing water ripples in aqueduct
+      if (waterMesh) {
+        waterMesh.material.opacity = 0.75 + 0.08 * Math.sin(now * 0.003);
+      }
 
       controls.update();
       renderer.render(scene, camera);
