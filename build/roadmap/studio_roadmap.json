@@ -49,7 +49,7 @@
           "Level_Architect",
           "Client_Architect"
         ],
-        "is_completed": false
+        "is_completed": true
       },
       {
         "epic_id": "EPIC_M2_02",
@@ -60,10 +60,10 @@
           "Systems_Architect",
           "Narrative_Specialist"
         ],
-        "is_completed": false
+        "is_completed": true
       }
     ],
-    "status": "IN_PROGRESS",
+    "status": "SHIPPED",
     "release_notes": [
       "Martial curfew mechanics",
       "Cathedral district fortifications",

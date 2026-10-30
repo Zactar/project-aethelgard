@@ -1,0 +1,694 @@
+{
+  "manifest_version": 1793403217,
+  "district_id": "District_OldUndercroft",
+  "simulation_phase": "PEACETIME_COMMERCE",
+  "district_unrest": 0.68,
+  "world_time": 1400.0,
+  "lighting": {
+    "ambient_sky_hex": "#b0c4de",
+    "ambient_ground_hex": "#181c24",
+    "sun_color_hex": "#fff5ea",
+    "sun_intensity": 0.75,
+    "fog_color_hex": "#06080d",
+    "fog_density": 0.00018
+  },
+  "ui": {
+    "primary_color_hex": "#4facfe",
+    "accent_color_hex": "#00f2fe",
+    "background_alpha": 0.94,
+    "hud_title": "AETHELGARD GROUND CONTROL",
+    "show_minimap": true,
+    "show_inventory": true,
+    "action_buttons": [
+      {
+        "id": "btn_combat",
+        "label": "Trigger Combat Spike (0.85)",
+        "action": "STRESS_SPIKE"
+      },
+      {
+        "id": "btn_rest",
+        "label": "Peacetime Repose (0.20)",
+        "action": "PEACE_REST"
+      }
+    ]
+  },
+  "mechanics": {
+    "player_base_speed": 1400.0,
+    "sprint_multiplier": 1.6,
+    "stamina_max": 100.0,
+    "stamina_recovery_rate": 15.0,
+    "interaction_radius": 520.0,
+    "camera_fov": 45.0,
+    "camera_default_distance": 3000.0
+  },
+  "items": {
+    "item_bread": {
+      "item_id": "item_bread",
+      "display_name": "Hearth Bread",
+      "category": "CONSUMABLE",
+      "base_value": 6.0,
+      "description": "Dense barley bread baked on communal stones. Restores 35 stamina.",
+      "icon_symbol": "\ud83c\udf5e",
+      "stack_limit": 20,
+      "effects": {
+        "stamina_restore": 35.0
+      }
+    },
+    "item_flour": {
+      "item_id": "item_flour",
+      "display_name": "Milled Flour",
+      "category": "COMMODITY",
+      "base_value": 14.0,
+      "description": "Standard guild-stamped flour bushel for bakery ovens.",
+      "icon_symbol": "\ud83c\udf3e",
+      "stack_limit": 20,
+      "effects": {}
+    },
+    "item_sunfire_salve": {
+      "item_id": "item_sunfire_salve",
+      "display_name": "Sunfire Salve",
+      "category": "CONSUMABLE",
+      "base_value": 24.0,
+      "description": "Apothecary ointment made from mountain blossoms. Increases speed by 25%.",
+      "icon_symbol": "\ud83e\uddea",
+      "stack_limit": 20,
+      "effects": {
+        "speed_boost": 0.25,
+        "duration_sec": 14.0
+      }
+    },
+    "item_contraband_grain": {
+      "item_id": "item_contraband_grain",
+      "display_name": "Illicit Grain Bushel",
+      "category": "CONTRABAND",
+      "base_value": 32.0,
+      "description": "Untithed grain ground in subterranean drainage vaults. Highly illegal.",
+      "icon_symbol": "\ud83e\ude99",
+      "stack_limit": 20,
+      "effects": {
+        "stealth_bonus": 0.35,
+        "duration_sec": 20.0
+      }
+    },
+    "item_proc_commodity_1200": {
+      "item_id": "item_proc_commodity_1200",
+      "display_name": "Smelted Bronze Rivet #1200",
+      "category": "COMMODITY",
+      "base_value": 13.5,
+      "description": "Standard guild trade commodity subject to episcopal verification. Lore anchor: Somatic traits including horns, eye pigment, and species mor...",
+      "icon_symbol": "\ud83c\udf3e",
+      "stack_limit": 20,
+      "effects": {}
+    }
+  },
+  "npcs": {
+    "NPC_ALDOUS": {
+      "npc_id": "NPC_ALDOUS",
+      "name": "Aldous the Baker",
+      "role": "Guild Baker",
+      "faction": "Bakers Fellowship",
+      "color_hex": "#f5af19",
+      "position": {
+        "x": -85.43837673002695,
+        "y": 2311.7295669283635,
+        "z": 0.0
+      },
+      "default_dialogue": "If the watch captain comes knocking, tell him the flour sacks were already moldy.",
+      "inventory": {
+        "item_bread": 12,
+        "item_flour": 5
+      },
+      "assigned_smart_object": "SO_ALDOUS",
+      "current_animation_state": "IDLE",
+      "dialogue_sound_frequency": 320.0,
+      "patrol_waypoints": [
+        {
+          "x": -85.43837673002695,
+          "y": 2311.7295669283635,
+          "z": 0.0
+        },
+        {
+          "x": 80.0,
+          "y": 2500.0,
+          "z": 0.0
+        },
+        {
+          "x": 3.4854210812148096,
+          "y": 78.29808096463185,
+          "z": 0.0
+        },
+        {
+          "x": 1789.7384540545552,
+          "y": 1760.5896214338627,
+          "z": 0.0
+        }
+      ],
+      "current_schedule_activity": "PATROL"
+    },
+    "NPC_GARRETT": {
+      "npc_id": "NPC_GARRETT",
+      "name": "Garrett the Herbalist",
+      "role": "Apothecary Merchant",
+      "faction": "Artisans Guild",
+      "color_hex": "#2ecc71",
+      "position": {
+        "x": -73.53188469559488,
+        "y": -44.34157637415413,
+        "z": 0.0
+      },
+      "default_dialogue": "The church inquisitors checked my ledger twice before the morning bell. Be swift.",
+      "inventory": {
+        "item_sunfire_salve": 4,
+        "item_contraband_grain": 2
+      },
+      "assigned_smart_object": "SO_RALLY",
+      "current_animation_state": "IDLE",
+      "dialogue_sound_frequency": 320.0,
+      "patrol_waypoints": [
+        {
+          "x": -73.53188469559488,
+          "y": -44.34157637415413,
+          "z": 0.0
+        },
+        {
+          "x": 80.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        {
+          "x": 2322.845416941085,
+          "y": 26.32782058479522,
+          "z": 0.0
+        },
+        {
+          "x": 66.03120925463998,
+          "y": 2237.91381849108,
+          "z": 0.0
+        }
+      ],
+      "current_schedule_activity": "PATROL"
+    },
+    "NPC_CAPTAIN_VANE": {
+      "npc_id": "NPC_CAPTAIN_VANE",
+      "name": "Watch Captain Vane",
+      "role": "Garrison Commander",
+      "faction": "City Watch",
+      "color_hex": "#e74c3c",
+      "position": {
+        "x": 40.541943113135574,
+        "y": 1.3415681609953936,
+        "z": 0.0
+      },
+      "default_dialogue": "Arch-Prelate Malakor's tithe carts roll at sundown. Clear the thoroughfare or face the stockade.",
+      "inventory": {
+        "item_forged_permit": 1
+      },
+      "assigned_smart_object": "SO_RALLY",
+      "current_animation_state": "IDLE",
+      "dialogue_sound_frequency": 320.0,
+      "patrol_waypoints": [
+        {
+          "x": 40.541943113135574,
+          "y": 1.3415681609953936,
+          "z": 0.0
+        },
+        {
+          "x": 80.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        {
+          "x": 2351.5265260728274,
+          "y": 29.837363824851252,
+          "z": 0.0
+        },
+        {
+          "x": 93.65836751775512,
+          "y": 2348.875202244292,
+          "z": 0.0
+        }
+      ],
+      "current_schedule_activity": "PATROL"
+    },
+    "NPC_KAELEN": {
+      "npc_id": "NPC_KAELEN",
+      "name": "Kaelen the Smuggler",
+      "role": "Black Market Broker",
+      "faction": "Undercroft Syndicate",
+      "color_hex": "#9b59b6",
+      "position": {
+        "x": 1760.7460226970834,
+        "y": 1761.4778053573891,
+        "z": 0.0
+      },
+      "default_dialogue": "The water sluice is open for the next thirty minutes. If you want untithed barley, pay up front.",
+      "inventory": {
+        "item_smoke_phial": 3,
+        "item_salted_jerky": 5
+      },
+      "assigned_smart_object": null,
+      "current_animation_state": "IDLE",
+      "dialogue_sound_frequency": 320.0,
+      "patrol_waypoints": [
+        {
+          "x": 1760.7460226970834,
+          "y": 1761.4778053573891,
+          "z": 0.0
+        },
+        {
+          "x": 2279.559305171162,
+          "y": 78.53924034241751,
+          "z": 0.0
+        },
+        {
+          "x": 20.21983781175811,
+          "y": 2299.3116414035635,
+          "z": 0.0
+        }
+      ],
+      "current_schedule_activity": "PATROL"
+    },
+    "NPC_ORLOV": {
+      "npc_id": "NPC_ORLOV",
+      "name": "Dockmaster Orlov",
+      "role": "Harbor Overseer",
+      "faction": "Canal Guild",
+      "color_hex": "#3498db",
+      "position": {
+        "x": 2382.2346311122224,
+        "y": 26.959155004895507,
+        "z": 0.0
+      },
+      "default_dialogue": "Sluice gates are groaning under the canal pressure. Hand me that iron wedge.",
+      "inventory": {
+        "item_salted_jerky": 8
+      },
+      "assigned_smart_object": "SO_GARRETT",
+      "current_animation_state": "IDLE",
+      "dialogue_sound_frequency": 320.0,
+      "patrol_waypoints": [
+        {
+          "x": 2382.2346311122224,
+          "y": 26.959155004895507,
+          "z": 0.0
+        },
+        {
+          "x": 2180.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        {
+          "x": 25.095734452046912,
+          "y": 92.57635680018609,
+          "z": 0.0
+        },
+        {
+          "x": 1794.1721942443883,
+          "y": 1714.1289767763544,
+          "z": 0.0
+        }
+      ],
+      "current_schedule_activity": "PATROL"
+    }
+  },
+  "spatial_layout": {
+    "district_id": "District_DocksCommons",
+    "district_name": "DocksCommons Commons",
+    "nodes": {
+      "NODE_PLAZA": {
+        "node_id": "NODE_PLAZA",
+        "zone_name": "Market Cross Square",
+        "function": "CIVIC_PLAZA",
+        "bounds_min": {
+          "x": -1500.0,
+          "y": -1500.0,
+          "z": 0.0
+        },
+        "bounds_max": {
+          "x": 1500.0,
+          "y": 1500.0,
+          "z": 500.0
+        },
+        "center_location": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "connected_node_ids": [
+          "NODE_APOTHECARY",
+          "NODE_BAKERY"
+        ],
+        "smart_objects": [
+          {
+            "anchor_id": "SO_RALLY",
+            "smart_object_tag": "SmartObject.Civic.RallyPoint",
+            "assigned_npc_id": null,
+            "relative_position": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "interaction_facing_yaw": 0.0
+          }
+        ]
+      },
+      "NODE_APOTHECARY": {
+        "node_id": "NODE_APOTHECARY",
+        "zone_name": "Garrett's Curatives",
+        "function": "COMMERCIAL_STALL",
+        "bounds_min": {
+          "x": 1800.0,
+          "y": -600.0,
+          "z": 0.0
+        },
+        "bounds_max": {
+          "x": 2800.0,
+          "y": 600.0,
+          "z": 400.0
+        },
+        "center_location": {
+          "x": 2300.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "connected_node_ids": [
+          "NODE_PLAZA",
+          "NODE_ALLEY"
+        ],
+        "smart_objects": [
+          {
+            "anchor_id": "SO_GARRETT",
+            "smart_object_tag": "SmartObject.Merchant.ApothecaryCounter",
+            "assigned_npc_id": "NPC_GARRETT",
+            "relative_position": {
+              "x": 2100.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "interaction_facing_yaw": 180.0
+          }
+        ]
+      },
+      "NODE_BAKERY": {
+        "node_id": "NODE_BAKERY",
+        "zone_name": "The Common Loaf",
+        "function": "WORKSHOP_CRAFT",
+        "bounds_min": {
+          "x": -600.0,
+          "y": 1800.0,
+          "z": 0.0
+        },
+        "bounds_max": {
+          "x": 600.0,
+          "y": 2800.0,
+          "z": 400.0
+        },
+        "center_location": {
+          "x": 0.0,
+          "y": 2300.0,
+          "z": 0.0
+        },
+        "connected_node_ids": [
+          "NODE_PLAZA",
+          "NODE_ALLEY",
+          "NODE_AQUEDUCT_CATACOMBS"
+        ],
+        "smart_objects": [
+          {
+            "anchor_id": "SO_ALDOUS",
+            "smart_object_tag": "SmartObject.Craft.BreadOven",
+            "assigned_npc_id": "NPC_ALDOUS",
+            "relative_position": {
+              "x": 0.0,
+              "y": 2500.0,
+              "z": 0.0
+            },
+            "interaction_facing_yaw": 90.0
+          }
+        ]
+      },
+      "NODE_ALLEY": {
+        "node_id": "NODE_ALLEY",
+        "zone_name": "Shadowed Drainage Way",
+        "function": "CLANDESTINE_ALLEY",
+        "bounds_min": {
+          "x": 1500.0,
+          "y": 1500.0,
+          "z": 0.0
+        },
+        "bounds_max": {
+          "x": 2200.0,
+          "y": 2200.0,
+          "z": 300.0
+        },
+        "center_location": {
+          "x": 1800.0,
+          "y": 1800.0,
+          "z": 0.0
+        },
+        "connected_node_ids": [
+          "NODE_APOTHECARY",
+          "NODE_BAKERY",
+          "NODE_AQUEDUCT_CATACOMBS"
+        ],
+        "smart_objects": []
+      },
+      "NODE_AQUEDUCT_CATACOMBS": {
+        "node_id": "NODE_AQUEDUCT_CATACOMBS",
+        "zone_name": "Subterranean Aqueduct Conduit",
+        "function": "CLANDESTINE_ALLEY",
+        "bounds_min": {
+          "x": 0.0,
+          "y": 1800.0,
+          "z": -400.0
+        },
+        "bounds_max": {
+          "x": 1600.0,
+          "y": 2800.0,
+          "z": -50.0
+        },
+        "center_location": {
+          "x": 800.0,
+          "y": 2300.0,
+          "z": -250.0
+        },
+        "connected_node_ids": [
+          "NODE_BAKERY",
+          "NODE_ALLEY"
+        ],
+        "smart_objects": [
+          {
+            "anchor_id": "SO_SLUICE_GATE_01",
+            "smart_object_tag": "SmartObject.Mechanism.SluiceGate",
+            "assigned_npc_id": null,
+            "relative_position": {
+              "x": 800.0,
+              "y": 2300.0,
+              "z": -250.0
+            },
+            "interaction_facing_yaw": 0.0
+          }
+        ]
+      }
+    },
+    "is_topologically_sound": true
+  },
+  "props": {
+    "NODE_PLAZA": [
+      {
+        "prop_id": "PROP_OBELISK_01",
+        "primitive_type": "OBELISK",
+        "relative_position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 170.0
+        },
+        "rotation_y": 0.0,
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        },
+        "material_color_hex": "#5a3d28",
+        "emissive_color_hex": null,
+        "emissive_intensity": 0.0,
+        "cast_shadow": true
+      },
+      {
+        "prop_id": "PROP_STALL_RED",
+        "primitive_type": "MARKET_STALL",
+        "relative_position": {
+          "x": -700.0,
+          "y": -600.0,
+          "z": 0.0
+        },
+        "rotation_y": 0.4,
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        },
+        "material_color_hex": "#b22222",
+        "emissive_color_hex": null,
+        "emissive_intensity": 0.0,
+        "cast_shadow": true
+      }
+    ],
+    "NODE_APOTHECARY": [
+      {
+        "prop_id": "PROP_APOTHECARY_SHELF",
+        "primitive_type": "APOTHECARY_SHELF",
+        "relative_position": {
+          "x": 2300.0,
+          "y": -200.0,
+          "z": 0.0
+        },
+        "rotation_y": 0.0,
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        },
+        "material_color_hex": "#5a3d28",
+        "emissive_color_hex": null,
+        "emissive_intensity": 0.0,
+        "cast_shadow": true
+      }
+    ],
+    "NODE_BAKERY": [
+      {
+        "prop_id": "PROP_BAKERY_OVEN",
+        "primitive_type": "BAKERY_OVEN",
+        "relative_position": {
+          "x": 0.0,
+          "y": 2500.0,
+          "z": 0.0
+        },
+        "rotation_y": 0.0,
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        },
+        "material_color_hex": "#48515f",
+        "emissive_color_hex": "#ff5500",
+        "emissive_intensity": 1.5,
+        "cast_shadow": true
+      }
+    ],
+    "NODE_ALLEY": [],
+    "NODE_AQUEDUCT_CATACOMBS": [
+      {
+        "prop_id": "PROP_SLUICE_GATE",
+        "primitive_type": "SLUICE_MECHANISM",
+        "relative_position": {
+          "x": 840.0,
+          "y": 2300.0,
+          "z": -250.0
+        },
+        "rotation_y": 0.0,
+        "scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        },
+        "material_color_hex": "#22262d",
+        "emissive_color_hex": "#00f2fe",
+        "emissive_intensity": 0.8,
+        "cast_shadow": true
+      }
+    ]
+  },
+  "active_quests": [
+    {
+      "quest_id": "QUEST_ACT_1_BREAD",
+      "title": "Act I: The Hearthmother's Tithe",
+      "synopsis": "Aldous requires untithed flour from the undercroft vaults to fire the communal ovens.",
+      "issuing_npc_id": "NPC_ALDOUS",
+      "reward_item_id": "item_bread",
+      "reward_stamina": 35.0,
+      "objectives": [
+        {
+          "objective_id": "OBJ_BREAD_01",
+          "description": "Inspect communal ovens at The Common Loaf.",
+          "target_node_id": "NODE_BAKERY",
+          "target_smart_object": "SO_ALDOUS",
+          "target_npc_id": null,
+          "required_item_id": null,
+          "status": "COMPLETED"
+        },
+        {
+          "objective_id": "OBJ_BREAD_02",
+          "description": "Confer with Garrett regarding herbal nightshade stocks.",
+          "target_node_id": "NODE_APOTHECARY",
+          "target_smart_object": null,
+          "target_npc_id": "NPC_GARRETT",
+          "required_item_id": null,
+          "status": "ACTIVE"
+        }
+      ],
+      "is_completed": false,
+      "completion_debrief": "Aldous banks the untithed flour into the communal ovens, easing bread rations for the district artisans and unlocking access to subterranean smugglers."
+    },
+    {
+      "quest_id": "QUEST_ACT_2_UNDERCROFT",
+      "title": "Act II: The Undercroft Run",
+      "synopsis": "Smuggler Kaelen needs the aqueduct sluice opened to float illicit grain into the harbor.",
+      "issuing_npc_id": "NPC_KAELEN",
+      "reward_item_id": "item_forged_permit",
+      "reward_stamina": 45.0,
+      "objectives": [
+        {
+          "objective_id": "OBJ_KAELEN_01",
+          "description": "Operate Sluice Gate 01 to drain the subterranean basin.",
+          "target_node_id": "NODE_AQUEDUCT_CATACOMBS",
+          "target_smart_object": "SO_SLUICE_GATE_01",
+          "target_npc_id": null,
+          "required_item_id": null,
+          "status": "ACTIVE"
+        },
+        {
+          "objective_id": "OBJ_KAELEN_02",
+          "description": "Rendezvous with Kaelen the Smuggler in the lower vaults.",
+          "target_node_id": "NODE_AQUEDUCT_CATACOMBS",
+          "target_smart_object": null,
+          "target_npc_id": "NPC_KAELEN",
+          "required_item_id": null,
+          "status": "LOCKED"
+        }
+      ],
+      "is_completed": false,
+      "completion_debrief": "Subterranean floodwaters hiss into the sea canals. Kaelen hands you a forged cathedral transit permit stamped in tallow wax."
+    },
+    {
+      "quest_id": "QUEST_ACT_3_GARRISON",
+      "title": "Act III: The Episcopal Inquest",
+      "synopsis": "Watch Captain Vane has cordoned the market cross. Infiltrate the checkpoint.",
+      "issuing_npc_id": "NPC_CAPTAIN_VANE",
+      "reward_item_id": "item_sunfire_salve",
+      "reward_stamina": 50.0,
+      "objectives": [
+        {
+          "objective_id": "OBJ_VANE_01",
+          "description": "Inspect the Arch-Prelate's decree at the Market Cross.",
+          "target_node_id": "NODE_PLAZA",
+          "target_smart_object": "SO_RALLY",
+          "target_npc_id": null,
+          "required_item_id": null,
+          "status": "ACTIVE"
+        },
+        {
+          "objective_id": "OBJ_VANE_02",
+          "description": "Confront Watch Captain Vane at the garrison checkpoint.",
+          "target_node_id": "NODE_PLAZA",
+          "target_smart_object": null,
+          "target_npc_id": "NPC_CAPTAIN_VANE",
+          "required_item_id": null,
+          "status": "LOCKED"
+        }
+      ],
+      "is_completed": false,
+      "completion_debrief": "You bypass the city watch perimeter with your forged pass, establishing an unbroken supply corridor across the entire district."
+    }
+  ]
+}
