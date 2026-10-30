@@ -2,7 +2,7 @@
 """
 PROJECT AETHELGARD: UNIFIED STUDIO & RUNTIME PROCESS MANAGER
 Handles automated daemon startup, shutdown, health monitoring, workspace resets,
-sprint dispatch, and RFC deployment pipelines with transparent error reporting.
+sprint dispatch, RFC deployment pipelines, roadmap tracking, and release packaging.
 """
 
 import argparse
@@ -19,6 +19,9 @@ import time
 import urllib.request
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
 LOG_DIR = ROOT_DIR / "logs"
 PID_FILE = ROOT_DIR / ".studio_pids.json"
 STAGING_DIR = ROOT_DIR / "build" / "staging"
@@ -51,14 +54,12 @@ def save_pids(pids: dict):
 
 
 def kill_port_owner(port: int):
-    # Kill via fuser (SIGKILL)
     subprocess.run(
         f"fuser -k -9 {port}/tcp 2>/dev/null || true",
         shell=True,
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL
     )
-    # Fallback to lsof
     subprocess.run(
         f"lsof -ti:{port} | xargs kill -9 2>/dev/null || true",
         shell=True,
@@ -156,7 +157,6 @@ def cmd_start():
 
     print("[START]: Launching studio infrastructure...")
 
-    # 1. Start Docker ChromaDB if offline
     if not check_chroma_health():
         print("  [DOCKER]: Starting ChromaDB vector database...")
         subprocess.run(["docker", "compose", "up", "-d"],
@@ -171,16 +171,13 @@ def cmd_start():
     else:
         print("  [WARNING] ChromaDB did not reply on /api/v2/heartbeat in time.")
 
-    # 2. Reclaim port bindings cleanly
     kill_port_owner(PORTS["state_ipc"])
     kill_port_owner(PORTS["web_client"])
 
-    # 3. Environment with explicit PYTHONPATH
     env = os.environ.copy()
     env["PYTHONPATH"] = str(
         ROOT_DIR) + (f":{env['PYTHONPATH']}" if "PYTHONPATH" in env else "")
 
-    # 4. Launch State Server with unbuffered output (-u)
     server_script = ROOT_DIR / "services" / "agent_runtime" / "src" / "server.py"
     server_log = open(LOG_DIR / "server.log", "w", encoding="utf-8")
     server_proc = subprocess.Popen(
@@ -192,7 +189,6 @@ def cmd_start():
     )
     pids["state_ipc"] = server_proc.pid
 
-    # 5. Launch HTTP Web Client
     client_log = open(LOG_DIR / "client.log", "w", encoding="utf-8")
     client_proc = subprocess.Popen(
         [sys.executable, "-u", "-m", "http.server",
@@ -206,7 +202,6 @@ def cmd_start():
 
     save_pids(pids)
 
-    # 6. Verify port readiness and monitor for premature crashes
     ipc_ready = False
     client_ready = False
     for _ in range(20):
@@ -266,8 +261,11 @@ def cmd_reset():
         "services/agent_runtime/src/team_sync.py",
         "services/agent_runtime/src/change_request_engine.py",
         "services/agent_runtime/src/autonomous_authoring.py",
+        "services/agent_runtime/src/roadmap_engine.py",
+        "services/agent_runtime/src/optimization_engine.py",
         "services/agent_runtime/src/server.py",
         "tools/engine_importer.py",
+        "tools/release_packager.py",
         "tools/rfc_pipeline.py",
         "tools/autonomous_runner.py",
         "tools/manage.py"
@@ -315,13 +313,42 @@ def cmd_sprint(extra_args: list):
     subprocess.run(cmd, cwd=ROOT_DIR, env=env)
 
 
+def cmd_roadmap():
+    from services.agent_runtime.src.roadmap_engine import StudioRoadmapEngine
+    engine = StudioRoadmapEngine()
+    milestones = engine.load_roadmap()
+
+    print("\n" + "=" * 70)
+    print("             PROJECT AETHELGARD: ACTIVE STUDIO ROADMAP              ")
+    print("=" * 70)
+    for m in milestones:
+        status_val = m.status.value if hasattr(
+            m.status, "value") else str(m.status)
+        print(f"▶ Milestone {m.version_tag}: {m.theme} [{status_val}]")
+        for epic in m.epics:
+            chk = "[x]" if epic.is_completed else "[ ]"
+            biome_val = epic.target_biome.value if hasattr(
+                epic.target_biome, "value") else str(epic.target_biome)
+            print(f"    {chk} {epic.title} ({biome_val})")
+    print("=" * 70 + "\n")
+
+
+def cmd_release():
+    release_script = ROOT_DIR / "tools" / "release_packager.py"
+    env = os.environ.copy()
+    env["PYTHONPATH"] = str(
+        ROOT_DIR) + (f":{env['PYTHONPATH']}" if "PYTHONPATH" in env else "")
+    subprocess.run([sys.executable, str(release_script)],
+                   cwd=ROOT_DIR, env=env)
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Project Aethelgard Studio Process Manager")
     parser.add_argument(
         "action",
-        choices=["start", "stop", "restart",
-                 "status", "reset", "rfc", "sprint"],
+        choices=["start", "stop", "restart", "status",
+                 "reset", "rfc", "sprint", "roadmap", "release"],
         help="Action to execute"
     )
     parser.add_argument("extra_args", nargs=argparse.REMAINDER,
@@ -344,3 +371,7 @@ if __name__ == "__main__":
         cmd_rfc(args.extra_args)
     elif args.action == "sprint":
         cmd_sprint(args.extra_args)
+    elif args.action == "roadmap":
+        cmd_roadmap()
+    elif args.action == "release":
+        cmd_release()

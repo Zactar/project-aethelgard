@@ -1,20 +1,24 @@
 #!/usr/bin/env python3
 """
 PROJECT AETHELGARD: AUTONOMOUS VIRTUAL STUDIO RUNNER
-Pipes meeting goals directly into downstream sprint asset generation and autonomous RFC authoring.
+Pipes meeting goals directly into downstream sprint asset generation,
+autonomous RFC authoring, milestone progression, and release packaging.
 """
 
+from tools.release_packager import package_release
 from tools.engine_importer import EngineAssetIngester
 from services.agent_runtime.src.virtual_studio_engine import StudioDirectorManagerAgent
 from services.agent_runtime.src.team_sync import StudioCeremonyEngine
+from services.agent_runtime.src.roadmap_engine import StudioRoadmapEngine
+from services.agent_runtime.src.optimization_engine import StudioOptimizationProfiler
 from services.agent_runtime.src.autonomous_authoring import AutonomousFeatureAuthorAgent
 from schemas.studio_contracts import SprintGoal
-from typing import Any, Dict, List
-import time
-import random
 import argparse
-import sys
 from pathlib import Path
+import random
+import sys
+import time
+from typing import Any, Dict, List
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
 if str(ROOT_DIR) not in sys.path:
@@ -35,6 +39,8 @@ class AutonomousStudioRunner:
         self.ingester = EngineAssetIngester()
         self.ceremony_engine = StudioCeremonyEngine(self.director.memory)
         self.author_agent = AutonomousFeatureAuthorAgent(self.director.memory)
+        self.roadmap_engine = StudioRoadmapEngine()
+        self.profiler = StudioOptimizationProfiler()
         self.meeting_cadence = meeting_cadence
         self.cycle_count = 0
         self.cycle_history: List[Dict[str, Any]] = []
@@ -99,17 +105,25 @@ class AutonomousStudioRunner:
         print(
             f"\n[AUTONOMOUS STUDIO RUNNER]: Starting {total_cycles}-cycle goal-driven production run...")
 
-        # Initial sprint standup
+        # 1. Initial Sprint Standup
         meeting = self.ceremony_engine.conduct_full_team_meeting(
             target_district=DISTRICT_ROSTER[0],
             cycle_history=[]
         )
         self.current_goals = meeting.selected_sprint_goals
 
+        # 2. Autonomous Feature Authoring
         print(
             "\n[VIRTUAL DEV TEAM AUTHORING]: Drafting features from committed sprint goals...")
         self.author_agent.execute_autonomous_rfc_cycle(self.current_goals)
 
+        # 3. Check Roadmap Burndown
+        shipped_ver = self.roadmap_engine.advance_milestone_progress(
+            [g.primary_objective for g in self.current_goals])
+        if shipped_ver:
+            package_release(shipped_ver, "Shippable Milestone Expansion")
+
+        # 4. Cycle Dispatches
         for i in range(1, total_cycles + 1):
             self.run_cycle(i)
 
@@ -124,6 +138,11 @@ class AutonomousStudioRunner:
                     "\n[VIRTUAL DEV TEAM AUTHORING]: Drafting features from committed sprint goals...")
                 self.author_agent.execute_autonomous_rfc_cycle(
                     self.current_goals)
+                shipped_ver = self.roadmap_engine.advance_milestone_progress(
+                    [g.primary_objective for g in self.current_goals])
+                if shipped_ver:
+                    package_release(
+                        shipped_ver, "Shippable Milestone Expansion")
 
             if delay_between_cycles_sec > 0:
                 time.sleep(delay_between_cycles_sec)
@@ -132,13 +151,20 @@ class AutonomousStudioRunner:
         self.print_executive_summary(self.cycle_history, elapsed)
 
     def print_executive_summary(self, ledger: List[Dict[str, Any]], elapsed_sec: float):
+        manifest = self.author_agent.load_manifest()
+        report = self.profiler.audit_runtime_manifest(manifest)
+
         print("\n" + "#" * 70)
         print("          AUTONOMOUS MULTI-CYCLE SPRINT EXECUTIVE SUMMARY           ")
         print("#" * 70)
-        print(f"Total Cycles Completed : {len(ledger)}")
-        print(f"Elapsed Wall Time      : {elapsed_sec:.2f} seconds")
+        print(f"Total Cycles Completed  : {len(ledger)}")
+        print(f"Elapsed Wall Time       : {elapsed_sec:.2f} seconds")
         print(
-            f"Total Assets Deployed  : {len(ledger) * 4} (Curves, PCG Layouts, Dialogues, C++ Headers)")
+            f"Total Assets Deployed   : {len(ledger) * 4} (Curves, PCG Layouts, Dialogues, C++ Headers)")
+        print(
+            f"WebGL Draw Calls Budget : {report.estimated_draw_calls} (Threshold: 120)")
+        print(f"Runtime Manifest Size   : {report.payload_size_kb:.2f} KB")
+        print(f"Technical Profile       : {report.triage_notes}")
         print("-" * 70)
         print(
             f"{'Cycle':<7} | {'District':<26} | {'Target NPC':<14} | {'Action':<24} | {'Soul':<5}")

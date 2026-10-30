@@ -258,3 +258,86 @@ class ClientPlaytestReport(BaseModel):
     average_socket_latency_ms: float
     out_of_bounds_detected: bool
     verdict: str
+
+
+# ==============================================================================
+# FEATURE & CHANGE REQUEST (RFC) CONTRACTS
+# ==============================================================================
+
+class RFCChangeType(str, Enum):
+    NEW_ITEM = "NEW_ITEM"
+    MODIFY_ITEM = "MODIFY_ITEM"
+    NEW_ROOM_NODE = "NEW_ROOM_NODE"
+    NEW_SMART_OBJECT = "NEW_SMART_OBJECT"
+    ADJUST_MECHANICS = "ADJUST_MECHANICS"
+    UPDATE_UI_THEME = "UPDATE_UI_THEME"
+    NEW_QUEST = "NEW_QUEST"
+
+class RFCStatus(str, Enum):
+    PENDING_REVIEW = "PENDING_REVIEW"
+    APPROVED = "APPROVED"
+    REJECTED = "REJECTED"
+    DEPLOYED = "DEPLOYED"
+
+class AgentReviewVote(BaseModel):
+    agent_id: str
+    approved: bool
+    score: float = Field(ge=0.0, le=1.0)
+    comments: str
+    flagged_risks: List[str] = Field(default_factory=list)
+
+class FeatureChangeRequest(BaseModel):
+    rfc_id: str
+    title: str
+    description: str
+    submitted_by: str
+    change_type: RFCChangeType
+    payload_diff: Dict[str, Any]
+    status: RFCStatus = RFCStatus.PENDING_REVIEW
+    review_votes: List[AgentReviewVote] = Field(default_factory=list)
+    rejection_reasons: List[str] = Field(default_factory=list)
+    created_at: float = Field(default_factory=time.time)
+    resolved_at: Optional[float] = None
+
+
+# ==============================================================================
+# STUDIO PRODUCTION LIFECYCLE, BIOME & ROADMAP CONTRACTS
+# ==============================================================================
+
+class BiomeType(str, Enum):
+    CIVIC_MARKET = "CIVIC_MARKET"
+    SUBTERRANEAN_UNDERCROFT = "SUBTERRANEAN_UNDERCROFT"
+    CATHEDRAL_HEIGHTS = "CATHEDRAL_HEIGHTS"
+    LOW_DOCKS = "LOW_DOCKS"
+
+class MilestoneStatus(str, Enum):
+    PLANNING = "PLANNING"
+    IN_PROGRESS = "IN_PROGRESS"
+    VALIDATION = "VALIDATION"
+    SHIPPED = "SHIPPED"
+
+class StudioEpic(BaseModel):
+    epic_id: str
+    title: str
+    target_biome: BiomeType
+    primary_deliverable: str
+    assigned_crews: List[str]
+    is_completed: bool = False
+
+class StudioMilestone(BaseModel):
+    milestone_id: str
+    version_tag: str
+    theme: str
+    target_phase: str
+    epics: List[StudioEpic] = Field(default_factory=list)
+    status: MilestoneStatus = MilestoneStatus.PLANNING
+    release_notes: List[str] = Field(default_factory=list)
+
+class OptimizationReport(BaseModel):
+    total_nodes: int
+    total_props: int
+    estimated_draw_calls: int
+    payload_size_kb: float
+    instancing_recommended: bool
+    budget_exceeded: bool
+    triage_notes: str
