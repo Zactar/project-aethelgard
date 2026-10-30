@@ -2,7 +2,7 @@
 """
 PROJECT AETHELGARD: UNIFIED STUDIO & RUNTIME PROCESS MANAGER
 Handles automated daemon startup, shutdown, health monitoring, workspace resets,
-sprint dispatch, and RFC deployment pipelines.
+sprint dispatch, and RFC deployment pipelines with transparent error reporting.
 """
 
 import argparse
@@ -33,7 +33,7 @@ PORTS = {
 
 def is_port_open(port: int, host: str = "127.0.0.1") -> bool:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.settimeout(0.6)
+        s.settimeout(0.5)
         return s.connect_ex((host, port)) == 0
 
 
@@ -51,20 +51,21 @@ def save_pids(pids: dict):
 
 
 def kill_port_owner(port: int):
+    # Kill via fuser (SIGKILL)
     subprocess.run(
-        f"fuser -k -TERM {port}/tcp 2>/dev/null || true",
+        f"fuser -k -9 {port}/tcp 2>/dev/null || true",
         shell=True,
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL
     )
-    time.sleep(0.4)
-    if is_port_open(port):
-        subprocess.run(
-            f"fuser -k -KILL {port}/tcp 2>/dev/null || true",
-            shell=True,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL
-        )
+    # Fallback to lsof
+    subprocess.run(
+        f"lsof -ti:{port} | xargs kill -9 2>/dev/null || true",
+        shell=True,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL
+    )
+    time.sleep(0.3)
 
 
 def check_chroma_health() -> bool:
@@ -155,6 +156,7 @@ def cmd_start():
 
     print("[START]: Launching studio infrastructure...")
 
+    # 1. Start Docker ChromaDB if offline
     if not check_chroma_health():
         print("  [DOCKER]: Starting ChromaDB vector database...")
         subprocess.run(["docker", "compose", "up", "-d"],
@@ -169,23 +171,34 @@ def cmd_start():
     else:
         print("  [WARNING] ChromaDB did not reply on /api/v2/heartbeat in time.")
 
+    # 2. Reclaim port bindings cleanly
     kill_port_owner(PORTS["state_ipc"])
     kill_port_owner(PORTS["web_client"])
 
+    # 3. Environment with explicit PYTHONPATH
+    env = os.environ.copy()
+    env["PYTHONPATH"] = str(
+        ROOT_DIR) + (f":{env['PYTHONPATH']}" if "PYTHONPATH" in env else "")
+
+    # 4. Launch State Server with unbuffered output (-u)
     server_script = ROOT_DIR / "services" / "agent_runtime" / "src" / "server.py"
-    server_log = open(LOG_DIR / "server.log", "a", encoding="utf-8")
+    server_log = open(LOG_DIR / "server.log", "w", encoding="utf-8")
     server_proc = subprocess.Popen(
-        [sys.executable, str(server_script)],
+        [sys.executable, "-u", str(server_script)],
         cwd=ROOT_DIR,
+        env=env,
         stdout=server_log,
         stderr=subprocess.STDOUT
     )
     pids["state_ipc"] = server_proc.pid
 
-    client_log = open(LOG_DIR / "client.log", "a", encoding="utf-8")
+    # 5. Launch HTTP Web Client
+    client_log = open(LOG_DIR / "client.log", "w", encoding="utf-8")
     client_proc = subprocess.Popen(
-        [sys.executable, "-m", "http.server", "3000", "--directory", "web_client"],
+        [sys.executable, "-u", "-m", "http.server",
+            "3000", "--directory", "web_client"],
         cwd=ROOT_DIR,
+        env=env,
         stdout=client_log,
         stderr=subprocess.STDOUT
     )
@@ -193,14 +206,44 @@ def cmd_start():
 
     save_pids(pids)
 
-    for _ in range(15):
-        if is_port_open(PORTS["state_ipc"]) and is_port_open(PORTS["web_client"]):
+    # 6. Verify port readiness and monitor for premature crashes
+    ipc_ready = False
+    client_ready = False
+    for _ in range(20):
+        if not ipc_ready and is_port_open(PORTS["state_ipc"]):
+            ipc_ready = True
+        if not client_ready and is_port_open(PORTS["web_client"]):
+            client_ready = True
+        if ipc_ready and client_ready:
             break
-        time.sleep(0.4)
+        if server_proc.poll() is not None:
+            break
+        time.sleep(0.3)
 
-    print("  [OK] State Server active on port 8765 (PID: %d)" %
-          server_proc.pid)
-    print("  [OK] Web Client active on port 3000 (PID: %d)" % client_proc.pid)
+    if server_proc.poll() is not None or not ipc_ready:
+        print(
+            f"  [ERROR]: State Server (port 8765) failed to start! (Exit code: {server_proc.poll()})")
+        server_log.flush()
+        err_text = (
+            LOG_DIR / "server.log").read_text(encoding="utf-8", errors="replace")
+        print(
+            f"--- [logs/server.log] ---\n{err_text.strip()}\n-------------------------")
+    else:
+        print("  [OK] State Server active on port 8765 (PID: %d)" %
+              server_proc.pid)
+
+    if client_proc.poll() is not None or not client_ready:
+        print(
+            f"  [ERROR]: Web Client (port 3000) failed to start! (Exit code: {client_proc.poll()})")
+        client_log.flush()
+        err_text = (
+            LOG_DIR / "client.log").read_text(encoding="utf-8", errors="replace")
+        print(
+            f"--- [logs/client.log] ---\n{err_text.strip()}\n-------------------------")
+    else:
+        print("  [OK] Web Client active on port 3000 (PID: %d)" %
+              client_proc.pid)
+
     cmd_status()
 
 

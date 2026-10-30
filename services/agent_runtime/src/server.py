@@ -88,7 +88,7 @@ async def broadcast_runtime_manifest(manifest_payload: dict):
     await asyncio.gather(*[client.send(message) for client in CONNECTED_CLIENTS], return_exceptions=True)
 
 
-async def handle_state_ipc(websocket: Any):
+async def handle_state_ipc(websocket: Any, *args, **kwargs):
     client_addr = getattr(websocket, "remote_address", "unknown")
     CONNECTED_CLIENTS.add(websocket)
     logger.info(
