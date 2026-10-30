@@ -2,30 +2,32 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Project Aethelgard - Interactive Browser Client</title>
+  <title>Project Aethelgard - Architectural Simulation Client</title>
   <style>
-    body { margin: 0; padding: 0; overflow: hidden; background: #080a0f; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #e0e0e0; }
+    body { margin: 0; padding: 0; overflow: hidden; background: #07090e; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #e0e0e0; user-select: none; }
     #canvas-container { width: 100vw; height: 100vh; display: block; }
     #hud {
-      position: absolute; top: 16px; left: 16px; width: 340px;
-      background: rgba(14, 18, 26, 0.94); border: 1px solid #2d3548;
-      border-radius: 8px; padding: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.6); z-index: 10;
+      position: absolute; top: 16px; left: 16px; width: 320px;
+      background: rgba(13, 17, 24, 0.94); border: 1px solid #283347;
+      border-radius: 8px; padding: 14px; box-shadow: 0 8px 24px rgba(0,0,0,0.6); z-index: 10;
     }
-    #hud h2 { margin: 0 0 8px 0; font-size: 15px; color: #4facfe; text-transform: uppercase; letter-spacing: 1px; }
-    .hud-row { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 13px; }
+    #hud h2 { margin: 0 0 8px 0; font-size: 14px; color: #4facfe; text-transform: uppercase; letter-spacing: 1px; }
+    .hud-row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 12px; }
     .hud-val { font-weight: bold; color: #fff; }
-    .instructions { margin-top: 10px; padding-top: 8px; border-top: 1px solid #2d3548; font-size: 12px; color: #8a99ad; line-height: 1.4; }
+    .minimap-container { margin-top: 10px; border-top: 1px solid #283347; padding-top: 8px; text-align: center; }
+    #minimap { background: #0a0d14; border: 1px solid #1f2737; border-radius: 4px; display: block; margin: 0 auto; }
+    .instructions { margin-top: 8px; font-size: 11px; color: #8a99ad; line-height: 1.4; text-align: left; }
     #dialogue-box {
-      position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); width: 700px;
-      background: rgba(14, 18, 26, 0.96); border: 1px solid #3b4560; border-radius: 8px;
-      padding: 18px; box-shadow: 0 8px 30px rgba(0,0,0,0.8); display: none; z-index: 10;
+      position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); width: 720px;
+      background: rgba(13, 17, 24, 0.96); border: 1px solid #3b4760; border-radius: 8px;
+      padding: 18px; box-shadow: 0 12px 36px rgba(0,0,0,0.85); display: none; z-index: 10;
     }
-    #dialogue-speaker { font-weight: bold; color: #f5af19; font-size: 14px; margin-bottom: 6px; }
-    #dialogue-text { font-size: 15px; line-height: 1.5; color: #f0f0f0; font-style: italic; }
-    #dialogue-action { margin-top: 8px; font-size: 12px; color: #00f2fe; text-transform: uppercase; letter-spacing: 0.5px; }
+    #dialogue-speaker { font-weight: bold; color: #f5af19; font-size: 14px; margin-bottom: 4px; }
+    #dialogue-text { font-size: 14px; line-height: 1.5; color: #f0f0f0; font-style: italic; }
+    #dialogue-action { margin-top: 8px; font-size: 11px; color: #00f2fe; text-transform: uppercase; letter-spacing: 0.5px; }
     .btn {
-      width: 100%; background: #22293a; color: #fff; border: 1px solid #4facfe;
-      padding: 8px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; margin-top: 6px;
+      width: 100%; background: #1c2433; color: #fff; border: 1px solid #4facfe;
+      padding: 8px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; margin-top: 6px;
     }
     .btn:hover { background: #4facfe; color: #080a0f; }
   </style>
@@ -34,19 +36,21 @@
 </head>
 <body>
   <div id="hud">
-    <h2>Aethelgard Telemetry</h2>
+    <h2>Aethelgard Ground Control</h2>
     <div class="hud-row"><span>District:</span><span id="ui-district" class="hud-val">MarketSquare</span></div>
-    <div class="hud-row"><span>Simulation Phase:</span><span id="ui-phase" class="hud-val">PEACETIME</span></div>
-    <div class="hud-row"><span>District Unrest:</span><span id="ui-unrest" class="hud-val">0.58</span></div>
-    <div class="hud-row"><span>Player Coords:</span><span id="ui-coords" class="hud-val">1400, 500, 0</span></div>
-    <div class="hud-row"><span>Nearby Interaction:</span><span id="ui-prompt" class="hud-val" style="color: #f5af19;">None</span></div>
+    <div class="hud-row"><span>Current Room:</span><span id="ui-room" class="hud-val" style="color: #00f2fe;">Plaza</span></div>
+    <div class="hud-row"><span>Unrest / Phase:</span><span id="ui-phase" class="hud-val">0.58 (PEACETIME)</span></div>
+    <div class="hud-row"><span>Smart Object:</span><span id="ui-prompt" class="hud-val" style="color: #f5af19;">None</span></div>
     <div class="hud-row"><span>IPC Status:</span><span id="ui-status" class="hud-val" style="color: #ffb300;">Connecting...</span></div>
-    <button class="btn" onclick="triggerManualStress(0.85)">Trigger Combat Spike (Stress 0.85)</button>
-    <div class="instructions">
-      <b>Controls:</b><br>
-      • <b>WASD / Arrow Keys</b>: Walk Player Character<br>
-      • <b>E Key</b>: Interact with nearby Smart Object<br>
-      • <b>Left Click + Drag</b>: Orbit Camera
+    <button class="btn" onclick="sendStressTelemetry(0.85)">Trigger Combat Spike (Stress 0.85)</button>
+    <button class="btn" onclick="toggleCameraMode()">Toggle Camera (Chase / Orbit)</button>
+    
+    <div class="minimap-container">
+      <canvas id="minimap" width="280" height="160"></canvas>
+      <div class="instructions">
+        • <b>WASD / Arrows</b>: Walk | <b>E</b>: Use Smart Object<br>
+        • <b>Cyan Dot</b>: Player | <b>Yellow Dot</b>: NPC | <b>Pink</b>: Sockets
+      </div>
     </div>
   </div>
 
@@ -59,117 +63,265 @@
   <div id="canvas-container"></div>
 
   <script>
+    // 1. Scene & Lighting Setup
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x080a0f);
-    scene.fog = new THREE.FogExp2(0x080a0f, 0.00025);
+    scene.background = new THREE.Color(0x07090e);
+    scene.fog = new THREE.FogExp2(0x07090e, 0.00015);
 
-    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 10, 30000);
-    camera.position.set(0, 4200, 4800);
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 10, 35000);
+    camera.position.set(1400, 2200, 2800);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.shadowMap.enabled = true;
     document.getElementById('canvas-container').appendChild(renderer.domElement);
 
     const controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
-    controls.target.set(0, 0, 0);
+    controls.enabled = false; // Starts in smooth chase camera mode
 
-    scene.add(new THREE.AmbientLight(0xffffff, 0.5));
-    const dirLight = new THREE.DirectionalLight(0xffecd2, 0.85);
-    dirLight.position.set(1500, 4000, 1500);
-    scene.add(dirLight);
+    // Dual Sky/Ground Ambient Illumination
+    const hemiLight = new THREE.HemisphereLight(0x88aaff, 0x1f2430, 0.65);
+    scene.add(hemiLight);
 
-    const grid = new THREE.GridHelper(12000, 60, 0x2d3548, 0x141824);
-    grid.position.y = -1;
+    const sunLight = new THREE.DirectionalLight(0xfff3e0, 0.6);
+    sunLight.position.set(2000, 4500, 2500);
+    scene.add(sunLight);
+
+    const grid = new THREE.GridHelper(16000, 80, 0x1f2737, 0x0f131a);
+    grid.position.y = -5;
     scene.add(grid);
 
-    const roomGroup = new THREE.Group();
-    scene.add(roomGroup);
+    // 2. Entities & Groups
+    const architecturalGroup = new THREE.Group();
+    scene.add(architecturalGroup);
 
-    // Player Mesh
-    const playerMesh = new THREE.Mesh(
-      new THREE.CylinderGeometry(70, 70, 180, 16),
-      new THREE.MeshLambertMaterial({ color: 0x00f2fe })
+    const labelGroup = new THREE.Group();
+    scene.add(labelGroup);
+
+    // Player Mesh (Cyan Cylinder with direction visor)
+    const playerGroup = new THREE.Group();
+    const playerBody = new THREE.Mesh(
+      new THREE.CylinderGeometry(60, 60, 160, 16),
+      new THREE.MeshLambertMaterial({ color: 0x00f2fe, emissive: 0x004455 })
     );
-    playerMesh.position.set(1400, 90, 500);
-    scene.add(playerMesh);
+    playerBody.position.y = 80;
+    playerGroup.add(playerBody);
+    const playerVisor = new THREE.Mesh(
+      new THREE.BoxGeometry(40, 20, 40),
+      new THREE.MeshBasicMaterial({ color: 0xffffff })
+    );
+    playerVisor.position.set(0, 120, -45);
+    playerGroup.add(playerVisor);
+    playerGroup.position.set(1400, 0, 500);
+    scene.add(playerGroup);
 
-    // NPC Aldous Mesh
+    // NPC Aldous Mesh (Amber Cylinder)
     const npcMesh = new THREE.Mesh(
-      new THREE.CylinderGeometry(70, 70, 180, 16),
-      new THREE.MeshLambertMaterial({ color: 0xf5af19 })
+      new THREE.CylinderGeometry(60, 60, 160, 16),
+      new THREE.MeshLambertMaterial({ color: 0xf5af19, emissive: 0x442200 })
     );
-    npcMesh.position.set(0, 90, 2300);
+    npcMesh.position.set(0, 80, 2300);
     scene.add(npcMesh);
 
-    // Key states
-    const keys = { w: false, a: false, s: false, d: false };
-    window.addEventListener('keydown', (e) => {
-      const k = e.key.toLowerCase();
-      if (k === 'w' || k === 'arrowup') keys.w = true;
-      if (k === 'a' || k === 'arrowleft') keys.a = true;
-      if (k === 's' || k === 'arrowdown') keys.s = true;
-      if (k === 'd' || k === 'arrowright') keys.d = true;
-      if (k === 'e') interactNearbyObject();
-    });
-    window.addEventListener('keyup', (e) => {
-      const k = e.key.toLowerCase();
-      if (k === 'w' || k === 'arrowup') keys.w = false;
-      if (k === 'a' || k === 'arrowleft') keys.a = false;
-      if (k === 's' || k === 'arrowdown') keys.s = false;
-      if (k === 'd' || k === 'arrowright') keys.d = false;
-    });
-
+    // Dynamic Tracking State
+    let activeRooms = {};
     let activeSmartObjects = [];
+    let isChaseCam = true;
+    const keys = { w: false, a: false, s: false, d: false };
 
-    function buildDynamicRoom(nodeId, nodeData) {
+    // 3. Floating 3D Text Label Builder
+    function makeBillboardText(text, x, y, z, color = "#4facfe") {
+      const canvas = document.createElement('canvas');
+      canvas.width = 512;
+      canvas.height = 128;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = "rgba(10, 14, 22, 0.75)";
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 4;
+      ctx.roundRect(10, 10, 492, 108, 16);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.font = "bold 44px sans-serif";
+      ctx.fillStyle = color;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(text, 256, 64);
+
+      const texture = new THREE.CanvasTexture(canvas);
+      const mat = new THREE.SpriteMaterial({ map: texture, transparent: true });
+      const sprite = new THREE.Sprite(mat);
+      sprite.position.set(x, y, z);
+      sprite.scale.set(600, 150, 1);
+      labelGroup.add(sprite);
+      return sprite;
+    }
+
+    // 4. Open-Top Cutaway Architectural Room Builder
+    function buildCutawayRoom(nodeId, nodeData) {
       const min = nodeData.bounds_min;
       const max = nodeData.bounds_max;
       const width = Math.abs(max.x - min.x);
-      const height = Math.abs(max.z - min.z) || 120;
       const depth = Math.abs(max.y - min.y);
       const center = nodeData.center_location;
+      const isCatacomb = nodeId.includes("AQUEDUCT");
+      const floorY = center.z;
 
-      let color = 0x1f2636;
-      let opacity = 0.85;
+      // Color Palette by Zone
+      let floorColor = 0x181e2b;
+      let curbColor = 0x2e3b52;
+      let labelColor = "#4facfe";
 
-      if (nodeId.includes("AQUEDUCT")) {
-        color = 0x005b96;
-        opacity = 0.95;
+      if (isCatacomb) {
+        floorColor = 0x052a3a;
+        curbColor = 0x00a8cc;
+        labelColor = "#00f2fe";
       } else if (nodeId.includes("BAKERY")) {
-        color = 0x3d2b1f;
+        floorColor = 0x2a1c15;
+        curbColor = 0x7c4323;
+        labelColor = "#f5af19";
       } else if (nodeId.includes("APOTHECARY")) {
-        color = 0x1e3a2f;
+        floorColor = 0x14281f;
+        curbColor = 0x2d6348;
+        labelColor = "#26de81";
       }
 
-      const geo = new THREE.BoxGeometry(width, height, depth);
-      const mat = new THREE.MeshLambertMaterial({ color: color, transparent: true, opacity: opacity });
-      const mesh = new THREE.Mesh(geo, mat);
-      mesh.position.set(center.x, center.z + (height / 2), center.y);
-      roomGroup.add(mesh);
+      // A. Floor Slab (Solid, illuminated from above)
+      const floorGeo = new THREE.BoxGeometry(width, 16, depth);
+      const floorMat = new THREE.MeshLambertMaterial({ color: floorColor });
+      const floorMesh = new THREE.Mesh(floorGeo, floorMat);
+      floorMesh.position.set(center.x, floorY, center.y);
+      architecturalGroup.add(floorMesh);
 
-      const wireColor = nodeId.includes("AQUEDUCT") ? 0x00f2fe : 0x4facfe;
-      const edges = new THREE.EdgesGeometry(geo);
-      mesh.add(new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: wireColor, linewidth: 2 })));
+      // Floor Perimeter Wire
+      const floorEdges = new THREE.EdgesGeometry(floorGeo);
+      floorMesh.add(new THREE.LineSegments(floorEdges, new THREE.LineBasicMaterial({ color: curbColor, linewidth: 2 })));
 
+      // B. Low-Profile Cutaway Perimeter Curbs (Waist-high: 70cm, keeping interiors 100% visible)
+      const curbHeight = 70;
+      const curbThickness = 24;
+      const curbMat = new THREE.MeshLambertMaterial({ color: curbColor });
+
+      // North & South Curbs
+      const nsCurbGeo = new THREE.BoxGeometry(width, curbHeight, curbThickness);
+      const northCurb = new THREE.Mesh(nsCurbGeo, curbMat);
+      northCurb.position.set(center.x, floorY + (curbHeight / 2), center.y - (depth / 2));
+      architecturalGroup.add(northCurb);
+
+      const southCurb = new THREE.Mesh(nsCurbGeo, curbMat);
+      southCurb.position.set(center.x, floorY + (curbHeight / 2), center.y + (depth / 2));
+      architecturalGroup.add(southCurb);
+
+      // East & West Curbs
+      const ewCurbGeo = new THREE.BoxGeometry(curbThickness, curbHeight, depth);
+      const westCurb = new THREE.Mesh(ewCurbGeo, curbMat);
+      westCurb.position.set(center.x - (width / 2), floorY + (curbHeight / 2), center.y);
+      architecturalGroup.add(westCurb);
+
+      const eastCurb = new THREE.Mesh(ewCurbGeo, curbMat);
+      eastCurb.position.set(center.x + (width / 2), floorY + (curbHeight / 2), center.y);
+      architecturalGroup.add(eastCurb);
+
+      // C. Floating Zone Name Billboard
+      makeBillboardText(nodeData.zone_name, center.x, floorY + 380, center.y, labelColor);
+
+      // D. Smart Object Workstations & Dedicated Point Lights
       if (nodeData.smart_objects) {
         nodeData.smart_objects.forEach(so => {
-          const soGeo = new THREE.BoxGeometry(120, 200, 120);
-          const soMat = new THREE.MeshLambertMaterial({ color: 0xff007f });
+          const soGeo = new THREE.BoxGeometry(100, 120, 100);
+          const soColor = isCatacomb ? 0x00f2fe : (nodeId.includes("BAKERY") ? 0xff7b25 : 0xff007f);
+          const soMat = new THREE.MeshLambertMaterial({ color: soColor, emissive: soColor, emissiveIntensity: 0.3 });
           const soMesh = new THREE.Mesh(soGeo, soMat);
-          const soPos = { x: so.relative_position.x, y: center.z + 100, z: so.relative_position.y };
+          const soPos = { x: so.relative_position.x, y: floorY + 60, z: so.relative_position.y };
           soMesh.position.set(soPos.x, soPos.y, soPos.z);
-          roomGroup.add(soMesh);
+          architecturalGroup.add(soMesh);
 
-          activeSmartObjects.push({
-            tag: so.smart_object_tag,
-            anchor_id: so.anchor_id,
-            pos: soPos
-          });
+          // Local Lantern Light over Interactive Sockets
+          const lantern = new THREE.PointLight(soColor, 1.2, 1200);
+          lantern.position.set(soPos.x, floorY + 180, soPos.y);
+          architecturalGroup.add(lantern);
+
+          activeSmartObjects.push({ tag: so.smart_object_tag, anchor_id: so.anchor_id, pos: soPos });
         });
       }
     }
 
+    // 5. Build Dynamic Passage Arches Between Connected Nodes
+    function buildPassageLinks(nodes) {
+      const lineMat = new THREE.LineDashedMaterial({ color: 0x4facfe, dashSize: 60, gapSize: 30, linewidth: 2 });
+      for (const [nodeId, nodeData] of Object.entries(nodes)) {
+        nodeData.connected_node_ids.forEach(targetId => {
+          if (nodes[targetId] && nodeId < targetId) { // Prevent duplicates
+            const start = nodeData.center_location;
+            const end = nodes[targetId].center_location;
+            const points = [
+              new THREE.Vector3(start.x, start.z + 10, start.y),
+              new THREE.Vector3(end.x, end.z + 10, end.y)
+            ];
+            const geo = new THREE.BufferGeometry().setFromPoints(points);
+            const line = new THREE.Line(geo, lineMat);
+            line.computeLineDistances();
+            architecturalGroup.add(line);
+          }
+        });
+      }
+    }
+
+    // 6. Real-Time Top-Down 2D Minimap Radar
+    const mapCanvas = document.getElementById("minimap");
+    const mapCtx = mapCanvas.getContext("2d");
+
+    function renderMinimap() {
+      mapCtx.fillStyle = "#0a0d14";
+      mapCtx.fillRect(0, 0, mapCanvas.width, mapCanvas.height);
+
+      const scale = 0.045;
+      const offsetX = mapCanvas.width / 2;
+      const offsetY = mapCanvas.height / 2;
+
+      // Draw Rooms
+      for (const [nodeId, node] of Object.entries(activeRooms)) {
+        const min = node.bounds_min;
+        const max = node.bounds_max;
+        const rx = (min.x * scale) + offsetX;
+        const ry = (min.y * scale) + offsetY;
+        const rw = Math.abs(max.x - min.x) * scale;
+        const rh = Math.abs(max.y - min.y) * scale;
+
+        mapCtx.fillStyle = nodeId.includes("AQUEDUCT") ? "rgba(0, 168, 204, 0.35)" : "rgba(40, 51, 71, 0.4)";
+        mapCtx.strokeStyle = nodeId.includes("AQUEDUCT") ? "#00f2fe" : "#3b4760";
+        mapCtx.lineWidth = 1;
+        mapCtx.fillRect(rx, ry, rw, rh);
+        mapCtx.strokeRect(rx, ry, rw, rh);
+      }
+
+      // Draw Smart Objects
+      activeSmartObjects.forEach(so => {
+        const sx = (so.pos.x * scale) + offsetX;
+        const sy = (so.pos.z * scale) + offsetY;
+        mapCtx.fillStyle = "#ff007f";
+        mapCtx.fillRect(sx - 2, sy - 2, 4, 4);
+      });
+
+      // Draw Aldous NPC Dot
+      const nx = (npcMesh.position.x * scale) + offsetX;
+      const ny = (npcMesh.position.z * scale) + offsetY;
+      mapCtx.fillStyle = "#f5af19";
+      mapCtx.beginPath();
+      mapCtx.arc(nx, ny, 4, 0, Math.PI * 2);
+      mapCtx.fill();
+
+      // Draw Player Dot
+      const px = (playerGroup.position.x * scale) + offsetX;
+      const py = (playerGroup.position.z * scale) + offsetY;
+      mapCtx.fillStyle = "#00f2fe";
+      mapCtx.beginPath();
+      mapCtx.arc(px, py, 5, 0, Math.PI * 2);
+      mapCtx.fill();
+    }
+
+    // 7. WebSocket State Bridge (Port 8765)
     let socket = null;
     function connectWS() {
       let wsUrl;
@@ -204,105 +356,136 @@
           document.getElementById('dialogue-box').style.display = 'block';
 
           if (data.district_unrest !== undefined) {
-            document.getElementById('ui-unrest').innerText = data.district_unrest.toFixed(2);
-            document.getElementById('ui-phase').innerText = data.active_phase;
+            document.getElementById('ui-phase').innerText = `${data.district_unrest.toFixed(2)} (${data.active_phase || 'PEACETIME'})`;
           }
 
           if (data.spatial_layout && data.spatial_layout.nodes) {
+            activeRooms = data.spatial_layout.nodes;
             activeSmartObjects = [];
-            while (roomGroup.children.length > 0) {
-              roomGroup.remove(roomGroup.children[0]);
+            while (architecturalGroup.children.length > 0) architecturalGroup.remove(architecturalGroup.children[0]);
+            while (labelGroup.children.length > 0) labelGroup.remove(labelGroup.children[0]);
+
+            for (const [nodeId, nodeData] of Object.entries(activeRooms)) {
+              buildCutawayRoom(nodeId, nodeData);
             }
-            for (const [nodeId, nodeData] of Object.entries(data.spatial_layout.nodes)) {
-              buildDynamicRoom(nodeId, nodeData);
-            }
+            buildPassageLinks(activeRooms);
           }
         }
       };
     }
     connectWS();
 
-    function sendPlayerTelemetry(stress = 0.45) {
+    function sendStressTelemetry(stress) {
       if (!socket || socket.readyState !== WebSocket.OPEN) return;
       const packet = {
         type: "TELEMETRY_INGEST",
         district_id: "District_MarketSquare",
         player_stress: stress,
-        player_coords: [playerMesh.position.x, playerMesh.position.z, playerMesh.position.y],
+        player_coords: [playerGroup.position.x, playerGroup.position.z, playerGroup.position.y],
         seed: Math.floor(Math.random() * 90000)
       };
       socket.send(JSON.stringify(packet));
     }
 
-    function triggerManualStress(val) {
-      sendPlayerTelemetry(val);
+    function toggleCameraMode() {
+      isChaseCam = !isChaseCam;
+      controls.enabled = !isChaseCam;
     }
 
-    function interactNearbyObject() {
-      let nearest = null;
-      let minDist = 400.0;
-      activeSmartObjects.forEach(so => {
-        const d = Math.hypot(playerMesh.position.x - so.pos.x, playerMesh.position.z - so.pos.z);
-        if (d < minDist) {
-          nearest = so;
-          minDist = d;
+    // 8. Keyboard Controller & Proximity Auditing
+    window.addEventListener('keydown', (e) => {
+      const k = e.key.toLowerCase();
+      if (k === 'w' || k === 'arrowup') keys.w = true;
+      if (k === 'a' || k === 'arrowleft') keys.a = true;
+      if (k === 's' || k === 'arrowdown') keys.s = true;
+      if (k === 'd' || k === 'arrowright') keys.d = true;
+      if (k === 'c') toggleCameraMode();
+      if (k === 'e') {
+        let nearest = null;
+        let minDist = 350.0;
+        activeSmartObjects.forEach(so => {
+          const d = Math.hypot(playerGroup.position.x - so.pos.x, playerGroup.position.z - so.pos.z);
+          if (d < minDist) { nearest = so; minDist = d; }
+        });
+        if (nearest) {
+          sendStressTelemetry(0.82);
         }
-      });
-
-      if (nearest) {
-        alert(`Interacted with Smart Object: ${nearest.tag} (${nearest.anchor_id})`);
-        sendPlayerTelemetry(0.80);
       }
-    }
+    });
 
-    let lastTelemetryTime = 0;
-    function updatePlayerMovement(delta) {
-      const speed = 1200.0 * delta;
-      let moved = false;
+    window.addEventListener('keyup', (e) => {
+      const k = e.key.toLowerCase();
+      if (k === 'w' || k === 'arrowup') keys.w = false;
+      if (k === 'a' || k === 'arrowleft') keys.a = false;
+      if (k === 's' || k === 'arrowdown') keys.s = false;
+      if (k === 'd' || k === 'arrowright') keys.d = false;
+    });
 
-      if (keys.w) { playerMesh.position.z -= speed; moved = true; }
-      if (keys.s) { playerMesh.position.z += speed; moved = true; }
-      if (keys.a) { playerMesh.position.x -= speed; moved = true; }
-      if (keys.d) { playerMesh.position.x += speed; moved = true; }
+    function updatePlayer(delta) {
+      const speed = 1400.0 * delta;
+      let dx = 0, dz = 0;
+      if (keys.w) dz -= speed;
+      if (keys.s) dz += speed;
+      if (keys.a) dx -= speed;
+      if (keys.d) dx += speed;
 
-      // Adjust height if descending into subterranean aqueducts (X > 0 and Z > 1800)
-      if (playerMesh.position.x >= 0 && playerMesh.position.x <= 1600 && playerMesh.position.z >= 1800) {
-        playerMesh.position.y = -200; // In catacomb elevation
-      } else {
-        playerMesh.position.y = 90; // Standard ground elevation
-      }
-
-      if (moved) {
-        document.getElementById('ui-coords').innerText = 
-          `${playerMesh.position.x.toFixed(0)}, ${playerMesh.position.z.toFixed(0)}, ${playerMesh.position.y.toFixed(0)}`;
+      if (dx !== 0 || dz !== 0) {
+        playerGroup.position.x += dx;
+        playerGroup.position.z += dz;
+        playerGroup.rotation.y = Math.atan2(dx, dz);
       }
 
-      // Check proximity to Smart Objects
-      let nearTag = "None";
+      // Check Active Room Boundaries & Elevation (Catacomb Drop)
+      let currentRoomName = "Outdoor Alleyways";
+      let targetElevation = 0;
+
+      for (const [nodeId, node] of Object.entries(activeRooms)) {
+        const min = node.bounds_min;
+        const max = node.bounds_max;
+        if (playerGroup.position.x >= min.x && playerGroup.position.x <= max.x &&
+            playerGroup.position.z >= min.y && playerGroup.position.z <= max.y) {
+          currentRoomName = node.zone_name;
+          targetElevation = node.center_location.z;
+          break;
+        }
+      }
+
+      // Smooth step elevation transition
+      playerGroup.position.y += (targetElevation - playerGroup.position.y) * 0.15;
+      document.getElementById('ui-room').innerText = currentRoomName;
+
+      // Smart Object Prompt Check
+      let promptText = "None";
       activeSmartObjects.forEach(so => {
-        const d = Math.hypot(playerMesh.position.x - so.pos.x, playerMesh.position.z - so.pos.z);
-        if (d < 350.0) nearTag = `${so.tag} [Press E]`;
+        const dist = Math.hypot(playerGroup.position.x - so.pos.x, playerGroup.position.z - so.pos.z);
+        if (dist < 320.0) promptText = `${so.tag.split('.').pop()} [Press E]`;
       });
-      document.getElementById('ui-prompt').innerText = nearTag;
+      document.getElementById('ui-prompt').innerText = promptText;
 
-      // Send telemetry every 1.5 seconds if moving
-      const now = performance.now();
-      if (moved && now - lastTelemetryTime > 1500) {
-        sendPlayerTelemetry(0.50);
-        lastTelemetryTime = now;
+      // Smooth Isometric Chase Camera
+      if (isChaseCam) {
+        const targetCamX = playerGroup.position.x;
+        const targetCamY = playerGroup.position.y + 1600;
+        const targetCamZ = playerGroup.position.z + 1800;
+        camera.position.x += (targetCamX - camera.position.x) * 0.08;
+        camera.position.y += (targetCamY - camera.position.y) * 0.08;
+        camera.position.z += (targetCamZ - camera.position.z) * 0.08;
+        camera.lookAt(playerGroup.position.x, playerGroup.position.y + 60, playerGroup.position.z);
       }
     }
 
-    let lastFrame = performance.now();
+    // 9. Main Render Loop
+    let lastTime = performance.now();
     function animate() {
       requestAnimationFrame(animate);
       const now = performance.now();
-      const delta = (now - lastFrame) / 1000.0;
-      lastFrame = now;
+      const delta = (now - lastTime) / 1000.0;
+      lastTime = now;
 
-      updatePlayerMovement(delta);
-      controls.update();
+      updatePlayer(delta);
+      if (!isChaseCam) controls.update();
       renderer.render(scene, camera);
+      renderMinimap();
     }
     animate();
 
