@@ -19,13 +19,23 @@
   },
   "brainstorm_proposals": [
     {
+      "idea_id": "EPIC-GOAL-EPIC_M4_02",
+      "proposing_agent": "Systems_Architect",
+      "discipline": "SYSTEMS_DESIGN",
+      "title": "Deploy Black Market Contraband Economy",
+      "pitch": "[v0.5.0]: Live commodity price bidding and dynamic loan debt liquidation",
+      "technical_feasibility_score": 0.99,
+      "systemic_emergence_score": 0.99,
+      "estimated_complexity": "MEDIUM"
+    },
+    {
       "idea_id": "IDEA-SYS-400",
       "proposing_agent": "Systems_Architect",
       "discipline": "SYSTEMS_DESIGN",
       "title": "Emergency Caloric Bread Rationing",
-      "pitch": "[v0.2.0 - The Subterranean Smuggling Conduit]: Distribute hardtack ration coupons to de-escalate municipal riot unrest.",
-      "technical_feasibility_score": 0.88,
-      "systemic_emergence_score": 0.93,
+      "pitch": "[v0.5.0 - The Episcopal Conclave & Grand Sluice Network]: Distribute hardtack ration coupons to de-escalate municipal riot unrest.",
+      "technical_feasibility_score": 0.85,
+      "systemic_emergence_score": 0.9,
       "estimated_complexity": "MEDIUM"
     },
     {
@@ -33,9 +43,9 @@
       "proposing_agent": "Level_Architect",
       "discipline": "LEVEL_ARCHITECTURE",
       "title": "City Watch Garrison & Armory Checkpoints",
-      "pitch": "[v0.2.0 - The Subterranean Smuggling Conduit]: Erect fortified iron gates and weapon racks along the Market Cross perimeter.",
-      "technical_feasibility_score": 0.89,
-      "systemic_emergence_score": 0.88,
+      "pitch": "[v0.5.0 - The Episcopal Conclave & Grand Sluice Network]: Erect fortified iron gates and weapon racks along the Market Cross perimeter.",
+      "technical_feasibility_score": 0.86,
+      "systemic_emergence_score": 0.85,
       "estimated_complexity": "MEDIUM"
     },
     {
@@ -43,9 +53,9 @@
       "proposing_agent": "Narrative_Specialist",
       "discipline": "NARRATIVE_LORE",
       "title": "Inquisitor Vael's Heresy Inquest",
-      "pitch": "[v0.2.0 - The Subterranean Smuggling Conduit]: Deploy cathedral investigators interrogating apothecaries about forbidden herbs.",
-      "technical_feasibility_score": 0.95,
-      "systemic_emergence_score": 0.93,
+      "pitch": "[v0.5.0 - The Episcopal Conclave & Grand Sluice Network]: Deploy cathedral investigators interrogating apothecaries about forbidden herbs.",
+      "technical_feasibility_score": 0.91,
+      "systemic_emergence_score": 0.89,
       "estimated_complexity": "MEDIUM"
     },
     {
@@ -53,9 +63,9 @@
       "proposing_agent": "Gameplay_Specialist",
       "discipline": "GAMEPLAY_MECHANICS",
       "title": "Locomotion Dash & Stamina Bursts",
-      "pitch": "[v0.2.0 - The Subterranean Smuggling Conduit]: Tune high-velocity sprint bursts and rapid recovery envelopes during combat spikes.",
-      "technical_feasibility_score": 0.92,
-      "systemic_emergence_score": 0.94,
+      "pitch": "[v0.5.0 - The Episcopal Conclave & Grand Sluice Network]: Tune high-velocity sprint bursts and rapid recovery envelopes during combat spikes.",
+      "technical_feasibility_score": 0.89,
+      "systemic_emergence_score": 0.91,
       "estimated_complexity": "MEDIUM"
     },
     {
@@ -63,9 +73,9 @@
       "proposing_agent": "Client_Architect",
       "discipline": "AESTHETIC_STYLE",
       "title": "Subterranean Water Reflection Shaders",
-      "pitch": "[v0.2.0 - The Subterranean Smuggling Conduit]: Simulate specular water ripples and dripping sluice conduits in low canals.",
-      "technical_feasibility_score": 0.96,
-      "systemic_emergence_score": 0.83,
+      "pitch": "[v0.5.0 - The Episcopal Conclave & Grand Sluice Network]: Simulate specular water ripples and dripping sluice conduits in low canals.",
+      "technical_feasibility_score": 0.92,
+      "systemic_emergence_score": 0.81,
       "estimated_complexity": "MEDIUM"
     },
     {
@@ -73,15 +83,29 @@
       "proposing_agent": "Chaos_Commander",
       "discipline": "QA_COMBAT_BALANCE",
       "title": "Topological Navmesh Reachability Audit",
-      "pitch": "[v0.2.0 - The Subterranean Smuggling Conduit]: Deploy automated pathfinder bots traversing all connected rooms and doors.",
-      "technical_feasibility_score": 0.9,
-      "systemic_emergence_score": 0.83,
+      "pitch": "[v0.5.0 - The Episcopal Conclave & Grand Sluice Network]: Deploy automated pathfinder bots traversing all connected rooms and doors.",
+      "technical_feasibility_score": 0.87,
+      "systemic_emergence_score": 0.81,
       "estimated_complexity": "MEDIUM"
     }
   ],
   "selected_sprint_goals": [
     {
       "goal_id": "GOAL-W14-01",
+      "target_district": "District_DocksCommons",
+      "primary_objective": "Deploy Black Market Contraband Economy",
+      "driving_ideas": [
+        "EPIC-GOAL-EPIC_M4_02"
+      ],
+      "assigned_crews": [
+        "Systems_Architect",
+        "Studio_Director"
+      ],
+      "success_criteria": "Verified in District_DocksCommons across engine and web client.",
+      "is_completed": false
+    },
+    {
+      "goal_id": "GOAL-W14-02",
       "target_district": "District_DocksCommons",
       "primary_objective": "Inquisitor Vael's Heresy Inquest",
       "driving_ideas": [
@@ -95,7 +119,7 @@
       "is_completed": false
     },
     {
-      "goal_id": "GOAL-W14-02",
+      "goal_id": "GOAL-W14-03",
       "target_district": "District_DocksCommons",
       "primary_objective": "Locomotion Dash & Stamina Bursts",
       "driving_ideas": [
@@ -109,7 +133,7 @@
       "is_completed": false
     },
     {
-      "goal_id": "GOAL-W14-03",
+      "goal_id": "GOAL-W14-04",
       "target_district": "District_DocksCommons",
       "primary_objective": "Emergency Caloric Bread Rationing",
       "driving_ideas": [
@@ -121,22 +145,8 @@
       ],
       "success_criteria": "Verified in District_DocksCommons across engine and web client.",
       "is_completed": false
-    },
-    {
-      "goal_id": "GOAL-W14-04",
-      "target_district": "District_DocksCommons",
-      "primary_objective": "Subterranean Water Reflection Shaders",
-      "driving_ideas": [
-        "IDEA-AES-400"
-      ],
-      "assigned_crews": [
-        "Client_Architect",
-        "Studio_Director"
-      ],
-      "success_criteria": "Verified in District_DocksCommons across engine and web client.",
-      "is_completed": false
     }
   ],
-  "director_closing_notes": "Sprint goals committed for District_DocksCommons under v0.2.0 (The Subterranean Smuggling Conduit). Phase: PEACETIME_COMMERCE | Unrest: 0.58. All crews cleared to build.",
-  "timestamp": 1793401981.517337
+  "director_closing_notes": "Sprint goals committed for District_DocksCommons under v0.5.0 (The Episcopal Conclave & Grand Sluice Network). Phase: PEACETIME_COMMERCE | Unrest: 0.58. All crews cleared to build.",
+  "timestamp": 1793404181.4177003
 }

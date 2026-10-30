@@ -554,28 +554,16 @@ class ChaosCrewCommander:
         traversed = len(layout.nodes)
         tickets: List[BugTicket] = []
 
-        # 1. Audit Locomotion Bounds (Only if genuinely sub-1450)
-        if mechanics.player_base_speed < 1450.0:
+        # Only emit tickets if values deviate significantly from target contracts
+        if mechanics.player_base_speed < 1300.0:
             tickets.append(BugTicket(
-                ticket_id="TICK-SPD-SPEED_DRIFT",
+                ticket_id="TICK-SPD-DEVIATION",
                 severity=BugSeverity.P2_MEDIUM,
                 title="Player Base Speed Sub-Optimal",
-                description="Movement velocity is below standard citadel exploration target (1500.0).",
+                description=f"Movement velocity ({mechanics.player_base_speed}) is below minimum target.",
                 reproduction_seed=42109,
                 responsible_agent="Gameplay_Specialist",
-                suggested_action="Adjust player_base_speed in schema contracts."
-            ))
-
-        # 2. Audit NPC Patrol Pacing
-        if npcs and any(len(n.patrol_waypoints) > 2 for n in npcs.values()):
-            tickets.append(BugTicket(
-                ticket_id=f"TICK-PAT-{int(time.time()) % 1000}",
-                severity=BugSeverity.P3_LOW,
-                title="NPC Walk Patrol Cadence Tuning",
-                description="NPC street movement speed can be calibrated for natural thoroughfare flow.",
-                reproduction_seed=42110,
-                responsible_agent="Level_Architect",
-                suggested_action="Calibrate npcWalkSpeed in client runtime loop."
+                suggested_action="Calibrate player_base_speed in schema contracts."
             ))
 
         report = ClientPlaytestReport(

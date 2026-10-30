@@ -1,0 +1,142 @@
+{
+  "meeting_id": "SYNC-W1600",
+  "world_time_marker": 1600.0,
+  "retrospective_summary": {
+    "completed_sprint_cycles": 4,
+    "current_district_unrest": 0.58,
+    "active_phase": "PEACETIME_COMMERCE",
+    "commodity_reserves": {
+      "Grain": 120.0,
+      "Flour": 85.0,
+      "Bread": 60.0
+    },
+    "backlog_health": {
+      "total_unresolved_bugs": 0,
+      "p0_blockers": 0,
+      "p1_exploits": 0
+    },
+    "retrospective_consensus": "STABLE_PRODUCTION"
+  },
+  "brainstorm_proposals": [
+    {
+      "idea_id": "IDEA-SYS-600",
+      "proposing_agent": "Systems_Architect",
+      "discipline": "SYSTEMS_DESIGN",
+      "title": "Guild Loan Sharking & Debt Collateral",
+      "pitch": "[v0.3.0 - Martial Law & Theocratic Tithe Seizures]: Allow artisans to pledge shop hearths as collateral for black market capital.",
+      "technical_feasibility_score": 0.89,
+      "systemic_emergence_score": 0.81,
+      "estimated_complexity": "MEDIUM"
+    },
+    {
+      "idea_id": "IDEA-LEV-600",
+      "proposing_agent": "Level_Architect",
+      "discipline": "LEVEL_ARCHITECTURE",
+      "title": "Hearthside Taproom & Common Lodgings",
+      "pitch": "[v0.3.0 - Martial Law & Theocratic Tithe Seizures]: Construct multi-tier wooden common house with peat hearths and ale casks.",
+      "technical_feasibility_score": 0.93,
+      "systemic_emergence_score": 0.87,
+      "estimated_complexity": "MEDIUM"
+    },
+    {
+      "idea_id": "IDEA-NAR-600",
+      "proposing_agent": "Narrative_Specialist",
+      "discipline": "NARRATIVE_LORE",
+      "title": "Dockmaster Orlov's Waterway Manifests",
+      "pitch": "[v0.3.0 - Martial Law & Theocratic Tithe Seizures]: Introduce corrupt dockmaster willing to falsify canal shipping registers.",
+      "technical_feasibility_score": 0.85,
+      "systemic_emergence_score": 0.92,
+      "estimated_complexity": "MEDIUM"
+    },
+    {
+      "idea_id": "IDEA-GAM-600",
+      "proposing_agent": "Gameplay_Specialist",
+      "discipline": "GAMEPLAY_MECHANICS",
+      "title": "Locomotion Dash & Stamina Bursts",
+      "pitch": "[v0.3.0 - Martial Law & Theocratic Tithe Seizures]: Tune high-velocity sprint bursts and rapid recovery envelopes during combat spikes.",
+      "technical_feasibility_score": 0.92,
+      "systemic_emergence_score": 0.85,
+      "estimated_complexity": "MEDIUM"
+    },
+    {
+      "idea_id": "IDEA-AES-600",
+      "proposing_agent": "Client_Architect",
+      "discipline": "AESTHETIC_STYLE",
+      "title": "Riot Barricade Props & Broken Carts",
+      "pitch": "[v0.3.0 - Martial Law & Theocratic Tithe Seizures]: Dress streets with splintered grain crates, burning barrels, and protest banners.",
+      "technical_feasibility_score": 0.92,
+      "systemic_emergence_score": 0.82,
+      "estimated_complexity": "MEDIUM"
+    },
+    {
+      "idea_id": "IDEA-QA_-600",
+      "proposing_agent": "Chaos_Commander",
+      "discipline": "QA_COMBAT_BALANCE",
+      "title": "Monte Carlo Economic Arbitrage Stress Test",
+      "pitch": "[v0.3.0 - Martial Law & Theocratic Tithe Seizures]: Simulate 500 barter transactions to detect infinite gold duplication loops.",
+      "technical_feasibility_score": 0.92,
+      "systemic_emergence_score": 0.81,
+      "estimated_complexity": "MEDIUM"
+    }
+  ],
+  "selected_sprint_goals": [
+    {
+      "goal_id": "GOAL-W16-01",
+      "target_district": "District_MarketSquare",
+      "primary_objective": "Hearthside Taproom & Common Lodgings",
+      "driving_ideas": [
+        "IDEA-LEV-600"
+      ],
+      "assigned_crews": [
+        "Level_Architect",
+        "Studio_Director"
+      ],
+      "success_criteria": "Verified in District_MarketSquare across engine and web client.",
+      "is_completed": false
+    },
+    {
+      "goal_id": "GOAL-W16-02",
+      "target_district": "District_MarketSquare",
+      "primary_objective": "Dockmaster Orlov's Waterway Manifests",
+      "driving_ideas": [
+        "IDEA-NAR-600"
+      ],
+      "assigned_crews": [
+        "Narrative_Specialist",
+        "Studio_Director"
+      ],
+      "success_criteria": "Verified in District_MarketSquare across engine and web client.",
+      "is_completed": false
+    },
+    {
+      "goal_id": "GOAL-W16-03",
+      "target_district": "District_MarketSquare",
+      "primary_objective": "Locomotion Dash & Stamina Bursts",
+      "driving_ideas": [
+        "IDEA-GAM-600"
+      ],
+      "assigned_crews": [
+        "Gameplay_Specialist",
+        "Studio_Director"
+      ],
+      "success_criteria": "Verified in District_MarketSquare across engine and web client.",
+      "is_completed": false
+    },
+    {
+      "goal_id": "GOAL-W16-04",
+      "target_district": "District_MarketSquare",
+      "primary_objective": "Riot Barricade Props & Broken Carts",
+      "driving_ideas": [
+        "IDEA-AES-600"
+      ],
+      "assigned_crews": [
+        "Client_Architect",
+        "Studio_Director"
+      ],
+      "success_criteria": "Verified in District_MarketSquare across engine and web client.",
+      "is_completed": false
+    }
+  ],
+  "director_closing_notes": "Sprint goals committed for District_MarketSquare under v0.3.0 (Martial Law & Theocratic Tithe Seizures). Phase: PEACETIME_COMMERCE | Unrest: 0.58. All crews cleared to build.",
+  "timestamp": 1793403217.7540662
+}

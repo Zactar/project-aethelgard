@@ -1,0 +1,46 @@
+{
+  "rfc_id": "RFC-SYS-217352",
+  "title": "Synthesize Item: Smelted Bronze Rivet #1200",
+  "description": "Systems Architect derived item from scarcity. Base value: 13.5 gold.",
+  "submitted_by": "Systems_Architect",
+  "change_type": "NEW_ITEM",
+  "payload_diff": {
+    "item": {
+      "item_id": "item_proc_commodity_1200",
+      "display_name": "Smelted Bronze Rivet #1200",
+      "category": "COMMODITY",
+      "base_value": 13.5,
+      "description": "Standard guild trade commodity subject to episcopal verification. Lore anchor: Somatic traits including horns, eye pigment, and species mor...",
+      "icon_symbol": "🌾",
+      "stack_limit": 20,
+      "effects": {}
+    }
+  },
+  "status": "DEPLOYED",
+  "review_votes": [
+    {
+      "agent_id": "Systems_Architect",
+      "approved": true,
+      "score": 0.95,
+      "comments": "Balanced economic payload.",
+      "flagged_risks": []
+    },
+    {
+      "agent_id": "Lore_Auditor",
+      "approved": true,
+      "score": 0.98,
+      "comments": "Complies with canon dogmas.",
+      "flagged_risks": []
+    },
+    {
+      "agent_id": "Chaos_Commander",
+      "approved": true,
+      "score": 0.95,
+      "comments": "Passed stress test.",
+      "flagged_risks": []
+    }
+  ],
+  "rejection_reasons": [],
+  "created_at": 1793403217.3525658,
+  "resolved_at": 1793403217.3526387
+}

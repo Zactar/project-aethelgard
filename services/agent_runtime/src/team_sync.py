@@ -124,32 +124,32 @@ class StudioCeremonyEngine:
         # 1. Proactively inject uncompleted milestone epics as top-priority sprint proposals
         for epic in uncompleted_epics:
             epic_words = epic.title.lower()
-            if any(k in epic_words for k in ["market", "contraband", "economy", "trade", "smuggl"]):
+            if any(k in epic_words for k in ["barricade", "riot", "thoroughfare"]):
+                proposals.append(BrainstormIdea(
+                    idea_id=f"EPIC-GOAL-{epic.epic_id}",
+                    proposing_agent="Level_Architect",
+                    discipline=IdeaDiscipline.LEVEL_ARCHITECTURE,
+                    title="Erect Riot Barricades & Fortified Thoroughfares",
+                    pitch=f"[{active_milestone.version_tag}]: {epic.primary_deliverable}",
+                    technical_feasibility_score=0.99,
+                    systemic_emergence_score=0.99
+                ))
+            elif any(k in epic_words for k in ["sanctum", "infiltrate", "malakor"]):
+                proposals.append(BrainstormIdea(
+                    idea_id=f"EPIC-GOAL-{epic.epic_id}",
+                    proposing_agent="Narrative_Specialist",
+                    discipline=IdeaDiscipline.NARRATIVE_LORE,
+                    title="Infiltrate Arch-Prelate Malakor's Inner Sanctum",
+                    pitch=f"[{active_milestone.version_tag}]: {epic.primary_deliverable}",
+                    technical_feasibility_score=0.99,
+                    systemic_emergence_score=0.99
+                ))
+            elif any(k in epic_words for k in ["market", "contraband", "economy", "trade", "smuggl"]):
                 proposals.append(BrainstormIdea(
                     idea_id=f"EPIC-GOAL-{epic.epic_id}",
                     proposing_agent="Systems_Architect",
                     discipline=IdeaDiscipline.SYSTEMS_DESIGN,
                     title="Deploy Black Market Contraband Economy",
-                    pitch=f"[{active_milestone.version_tag}]: {epic.primary_deliverable}",
-                    technical_feasibility_score=0.99,
-                    systemic_emergence_score=0.99
-                ))
-            elif any(k in epic_words for k in ["checkpoint", "garrison", "watch", "barricade"]):
-                proposals.append(BrainstormIdea(
-                    idea_id=f"EPIC-GOAL-{epic.epic_id}",
-                    proposing_agent="Level_Architect",
-                    discipline=IdeaDiscipline.LEVEL_ARCHITECTURE,
-                    title=epic.title,
-                    pitch=f"[{active_milestone.version_tag}]: {epic.primary_deliverable}",
-                    technical_feasibility_score=0.99,
-                    systemic_emergence_score=0.99
-                ))
-            elif any(k in epic_words for k in ["ration", "caloric", "granary", "food"]):
-                proposals.append(BrainstormIdea(
-                    idea_id=f"EPIC-GOAL-{epic.epic_id}",
-                    proposing_agent="Systems_Architect",
-                    discipline=IdeaDiscipline.SYSTEMS_DESIGN,
-                    title=epic.title,
                     pitch=f"[{active_milestone.version_tag}]: {epic.primary_deliverable}",
                     technical_feasibility_score=0.99,
                     systemic_emergence_score=0.99

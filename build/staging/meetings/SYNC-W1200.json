@@ -19,11 +19,21 @@
   },
   "brainstorm_proposals": [
     {
-      "idea_id": "EPIC-GOAL-EPIC_M1_02",
-      "proposing_agent": "Systems_Architect",
-      "discipline": "SYSTEMS_DESIGN",
-      "title": "Deploy Black Market Contraband Economy",
-      "pitch": "[v0.2.0]: Forged seals, illicit grain arbitration, and stealth buff items",
+      "idea_id": "EPIC-GOAL-EPIC_M3_01",
+      "proposing_agent": "Level_Architect",
+      "discipline": "LEVEL_ARCHITECTURE",
+      "title": "Erect Riot Barricades & Fortified Thoroughfares",
+      "pitch": "[v0.4.0]: Obstacle barricades, splintered timber carts, and high-unrest crimson lighting",
+      "technical_feasibility_score": 0.99,
+      "systemic_emergence_score": 0.99,
+      "estimated_complexity": "MEDIUM"
+    },
+    {
+      "idea_id": "EPIC-GOAL-EPIC_M3_02",
+      "proposing_agent": "Narrative_Specialist",
+      "discipline": "NARRATIVE_LORE",
+      "title": "Infiltrate Arch-Prelate Malakor's Inner Sanctum",
+      "pitch": "[v0.4.0]: Sanctum keycard puzzle, episcopal decree ledger, and high-tier stealth items",
       "technical_feasibility_score": 0.99,
       "systemic_emergence_score": 0.99,
       "estimated_complexity": "MEDIUM"
@@ -33,7 +43,7 @@
       "proposing_agent": "Systems_Architect",
       "discipline": "SYSTEMS_DESIGN",
       "title": "Guild Loan Sharking & Debt Collateral",
-      "pitch": "[v0.2.0 - The Subterranean Smuggling Conduit]: Allow artisans to pledge shop hearths as collateral for black market capital.",
+      "pitch": "[v0.4.0 - The Bread Riot & Siege of the High Seat]: Allow artisans to pledge shop hearths as collateral for black market capital.",
       "technical_feasibility_score": 0.87,
       "systemic_emergence_score": 0.83,
       "estimated_complexity": "MEDIUM"
@@ -43,7 +53,7 @@
       "proposing_agent": "Level_Architect",
       "discipline": "LEVEL_ARCHITECTURE",
       "title": "Cathedral Undercroft Ossuary & Catacombs",
-      "pitch": "[v0.2.0 - The Subterranean Smuggling Conduit]: Excavate stone crypts beneath the basilica for covert guild rendezvous.",
+      "pitch": "[v0.4.0 - The Bread Riot & Siege of the High Seat]: Excavate stone crypts beneath the basilica for covert guild rendezvous.",
       "technical_feasibility_score": 0.91,
       "systemic_emergence_score": 0.84,
       "estimated_complexity": "MEDIUM"
@@ -53,7 +63,7 @@
       "proposing_agent": "Narrative_Specialist",
       "discipline": "NARRATIVE_LORE",
       "title": "Inquisitor Vael's Heresy Inquest",
-      "pitch": "[v0.2.0 - The Subterranean Smuggling Conduit]: Deploy cathedral investigators interrogating apothecaries about forbidden herbs.",
+      "pitch": "[v0.4.0 - The Bread Riot & Siege of the High Seat]: Deploy cathedral investigators interrogating apothecaries about forbidden herbs.",
       "technical_feasibility_score": 0.93,
       "systemic_emergence_score": 0.85,
       "estimated_complexity": "MEDIUM"
@@ -63,7 +73,7 @@
       "proposing_agent": "Gameplay_Specialist",
       "discipline": "GAMEPLAY_MECHANICS",
       "title": "Locomotion Dash & Stamina Bursts",
-      "pitch": "[v0.2.0 - The Subterranean Smuggling Conduit]: Tune high-velocity sprint bursts and rapid recovery envelopes during combat spikes.",
+      "pitch": "[v0.4.0 - The Bread Riot & Siege of the High Seat]: Tune high-velocity sprint bursts and rapid recovery envelopes during combat spikes.",
       "technical_feasibility_score": 0.87,
       "systemic_emergence_score": 0.88,
       "estimated_complexity": "MEDIUM"
@@ -73,7 +83,7 @@
       "proposing_agent": "Client_Architect",
       "discipline": "AESTHETIC_STYLE",
       "title": "Riot Barricade Props & Broken Carts",
-      "pitch": "[v0.2.0 - The Subterranean Smuggling Conduit]: Dress streets with splintered grain crates, burning barrels, and protest banners.",
+      "pitch": "[v0.4.0 - The Bread Riot & Siege of the High Seat]: Dress streets with splintered grain crates, burning barrels, and protest banners.",
       "technical_feasibility_score": 0.9,
       "systemic_emergence_score": 0.81,
       "estimated_complexity": "MEDIUM"
@@ -83,7 +93,7 @@
       "proposing_agent": "Chaos_Commander",
       "discipline": "QA_COMBAT_BALANCE",
       "title": "Monte Carlo Economic Arbitrage Stress Test",
-      "pitch": "[v0.2.0 - The Subterranean Smuggling Conduit]: Simulate 500 barter transactions to detect infinite gold duplication loops.",
+      "pitch": "[v0.4.0 - The Bread Riot & Siege of the High Seat]: Simulate 500 barter transactions to detect infinite gold duplication loops.",
       "technical_feasibility_score": 0.88,
       "systemic_emergence_score": 0.8,
       "estimated_complexity": "MEDIUM"
@@ -93,12 +103,12 @@
     {
       "goal_id": "GOAL-W12-01",
       "target_district": "District_MarketSquare",
-      "primary_objective": "Deploy Black Market Contraband Economy",
+      "primary_objective": "Erect Riot Barricades & Fortified Thoroughfares",
       "driving_ideas": [
-        "EPIC-GOAL-EPIC_M1_02"
+        "EPIC-GOAL-EPIC_M3_01"
       ],
       "assigned_crews": [
-        "Systems_Architect",
+        "Level_Architect",
         "Studio_Director"
       ],
       "success_criteria": "Verified in District_MarketSquare across engine and web client.",
@@ -106,6 +116,20 @@
     },
     {
       "goal_id": "GOAL-W12-02",
+      "target_district": "District_MarketSquare",
+      "primary_objective": "Infiltrate Arch-Prelate Malakor's Inner Sanctum",
+      "driving_ideas": [
+        "EPIC-GOAL-EPIC_M3_02"
+      ],
+      "assigned_crews": [
+        "Narrative_Specialist",
+        "Studio_Director"
+      ],
+      "success_criteria": "Verified in District_MarketSquare across engine and web client.",
+      "is_completed": false
+    },
+    {
+      "goal_id": "GOAL-W12-03",
       "target_district": "District_MarketSquare",
       "primary_objective": "Inquisitor Vael's Heresy Inquest",
       "driving_ideas": [
@@ -119,7 +143,7 @@
       "is_completed": false
     },
     {
-      "goal_id": "GOAL-W12-03",
+      "goal_id": "GOAL-W12-04",
       "target_district": "District_MarketSquare",
       "primary_objective": "Cathedral Undercroft Ossuary & Catacombs",
       "driving_ideas": [
@@ -131,22 +155,8 @@
       ],
       "success_criteria": "Verified in District_MarketSquare across engine and web client.",
       "is_completed": false
-    },
-    {
-      "goal_id": "GOAL-W12-04",
-      "target_district": "District_MarketSquare",
-      "primary_objective": "Locomotion Dash & Stamina Bursts",
-      "driving_ideas": [
-        "IDEA-GAM-200"
-      ],
-      "assigned_crews": [
-        "Gameplay_Specialist",
-        "Studio_Director"
-      ],
-      "success_criteria": "Verified in District_MarketSquare across engine and web client.",
-      "is_completed": false
     }
   ],
-  "director_closing_notes": "Sprint goals committed for District_MarketSquare under v0.2.0 (The Subterranean Smuggling Conduit). Phase: PEACETIME_COMMERCE | Unrest: 0.58. All crews cleared to build.",
-  "timestamp": 1793402818.8416266
+  "director_closing_notes": "Sprint goals committed for District_MarketSquare under v0.4.0 (The Bread Riot & Siege of the High Seat). Phase: PEACETIME_COMMERCE | Unrest: 0.58. All crews cleared to build.",
+  "timestamp": 1793404181.3417377
 }
