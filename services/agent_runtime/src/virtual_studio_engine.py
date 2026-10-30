@@ -5,20 +5,40 @@ Drives algorithmic district layouts, dynamic NPC roster generation, adaptive pac
 and multi-tier chaos playtesting.
 """
 
-from schemas.studio_contracts import (
-    AestheticVerdict, BugSeverity, ClientPlaytestReport, ContentType,
-    DistrictSpatialLayout, GameReadyArtifact, GameRuntimeManifest,
-    GameplayMechanicsSpec, ItemCategory, ItemSpec, LightingProfile,
-    NPCActorSpec, ObjectiveStatus, ProceduralPropSpec, PropPrimitiveType,
-    ProposedGameBeat, QuestObjective, SmartObjectAnchor, SpatialRoomNode,
-    SprintGoal, StyleEvaluationReport, SystemicQuest, UIThemeSpec, Vector3D
-)
-from typing import Any, Dict, List, Optional, Tuple
-import random
-import math
 import json
+import math
+import random
 import sys
 from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+
+from schemas.studio_contracts import (
+    AestheticVerdict,
+    BugSeverity,
+    ClientPlaytestReport,
+    ContentType,
+    DistrictSpatialLayout,
+    GameplayMechanicsSpec,
+    GameReadyArtifact,
+    GameRuntimeManifest,
+    ItemCategory,
+    ItemSpec,
+    LightingProfile,
+    NPCActorSpec,
+    ObjectiveStatus,
+    ProceduralPropSpec,
+    ProposedGameBeat,
+    PropPrimitiveType,
+    QuestObjective,
+    SmartObjectAnchor,
+    SpatialRoomNode,
+    SprintGoal,
+    StyleEvaluationReport,
+    SystemicQuest,
+    UIThemeSpec,
+    Vector3D,
+)
+from services.agent_runtime.src.chroma_lore_bus import ChromaLoreBus
 
 ROOT_DIR = Path(__file__).resolve().parents[3]
 if str(ROOT_DIR) not in sys.path:
@@ -141,6 +161,10 @@ class StudioSharedMemoryBus:
             "Grain": 120.0, "Flour": 85.0, "Bread": 60.0}
         self.bug_ticket_queue: List[Any] = []
         self.active_phase: str = "PEACETIME_COMMERCE"
+        self.lore_bus = ChromaLoreBus()
+
+    def query_lore(self, query: str) -> List[str]:
+        return self.lore_bus.query_lore_context(query, top_k=2)
 
 
 class SystemsArchitectAgent:
@@ -317,6 +341,7 @@ class NarrativeNPCSpecialistAgent:
         self, layout: DistrictSpatialLayout, phase: str, unrest: float
     ) -> Dict[str, NPCActorSpec]:
         roster: Dict[str, NPCActorSpec] = {}
+        nodes_list = list(layout.nodes.values())
 
         for arc in NPC_ARCHETYPES:
             matching_node = None
@@ -325,16 +350,31 @@ class NarrativeNPCSpecialistAgent:
                     matching_node = node
                     break
 
-            # If no perfect room match, pick an available room
             if not matching_node:
-                matching_node = list(layout.nodes.values())[
-                    len(roster) % len(layout.nodes)]
+                matching_node = nodes_list[len(roster) % len(nodes_list)]
 
-            cx = matching_node.center_location.x + random.uniform(-180, 180)
-            cy = matching_node.center_location.y + random.uniform(-180, 180)
+            cx = matching_node.center_location.x + random.uniform(-120, 120)
+            cy = matching_node.center_location.y + random.uniform(-120, 120)
             cz = matching_node.center_location.z
 
             so_id = matching_node.smart_objects[0].anchor_id if matching_node.smart_objects else None
+
+            # Calculate dynamic patrol route between home zone, connected corridors, and rally points
+            waypoints: List[Vector3D] = [Vector3D(x=cx, y=cy, z=cz)]
+            if matching_node.smart_objects:
+                so_pos = matching_node.smart_objects[0].relative_position
+                waypoints.append(
+                    Vector3D(x=so_pos.x + 80.0, y=so_pos.y, z=so_pos.z))
+
+            # Add connected room centers to patrol path
+            for neighbor_id in matching_node.connected_node_ids[:2]:
+                if neighbor_id in layout.nodes:
+                    n_center = layout.nodes[neighbor_id].center_location
+                    waypoints.append(Vector3D(
+                        x=n_center.x + random.uniform(-100, 100),
+                        y=n_center.y + random.uniform(-100, 100),
+                        z=n_center.z
+                    ))
 
             roster[arc["npc_id"]] = NPCActorSpec(
                 npc_id=arc["npc_id"],
@@ -345,7 +385,9 @@ class NarrativeNPCSpecialistAgent:
                 position=Vector3D(x=cx, y=cy, z=cz),
                 default_dialogue=random.choice(arc["dialogues"]),
                 inventory=arc["inventory"],
-                assigned_smart_object=so_id
+                assigned_smart_object=so_id,
+                patrol_waypoints=waypoints,
+                current_schedule_activity="PATROL"
             )
 
         return roster
@@ -353,56 +395,53 @@ class NarrativeNPCSpecialistAgent:
     def synthesize_systemic_quests(
         self, phase: str, unrest: float, goals: List[SprintGoal], npcs: Dict[str, NPCActorSpec]
     ) -> List[SystemicQuest]:
-        goal_titles = [g.primary_objective.lower() for g in goals]
-        quests: List[SystemicQuest] = []
-
-        if any("tithe" in t or "garrison" in t or "curfew" in t for t in goal_titles):
-            quests.append(SystemicQuest(
-                quest_id="QUEST_GARRISON_INQUEST",
-                title="The Episcopal Inquest",
-                synopsis="Watch Captain Vane has cordoned the market cross. Intercept the patrol manifest.",
-                issuing_npc_id="NPC_CAPTAIN_VANE",
-                reward_item_id="item_forged_permit",
-                reward_stamina=40.0,
-                objectives=[
-                    QuestObjective(objective_id="OBJ_VANE_01", description="Inspect the City Watch proclamation.",
-                                   target_node_id="NODE_PLAZA", target_smart_object="SO_RALLY", status=ObjectiveStatus.ACTIVE),
-                    QuestObjective(objective_id="OBJ_VANE_02", description="Confront Watch Captain Vane at the garrison checkpoint.",
-                                   target_node_id="NODE_WATCH_GARRISON", target_npc_id="NPC_CAPTAIN_VANE", status=ObjectiveStatus.LOCKED)
-                ]
-            ))
-        elif any("canal" in t or "smuggl" in t or "waterway" in t for t in goal_titles):
-            quests.append(SystemicQuest(
-                quest_id="QUEST_UNDERCROFT_CONDUIT",
-                title="The Undercroft Run",
-                synopsis="Smuggler Kaelen needs the aqueduct sluice opened to float contraband into the harbor.",
-                issuing_npc_id="NPC_KAELEN",
-                reward_item_id="item_smoke_phial",
-                reward_stamina=50.0,
-                objectives=[
-                    QuestObjective(objective_id="OBJ_KAELEN_01", description="Operate Sluice Gate 01 to drain the subterranean basin.",
-                                   target_node_id="NODE_AQUEDUCT_CATACOMBS", target_smart_object="SO_SLUICE_GATE_01", status=ObjectiveStatus.ACTIVE),
-                    QuestObjective(objective_id="OBJ_KAELEN_02", description="Retrieve the smuggled grain cache in the undercroft vaults.",
-                                   target_node_id="NODE_UNDERCROFT_VAULT", target_smart_object="SO_SMUGGLER_CACHE", status=ObjectiveStatus.LOCKED)
-                ]
-            ))
-        else:
-            quests.append(SystemicQuest(
-                quest_id="QUEST_COMMUNAL_BREAD",
-                title="The Hearthmother's Tithe",
+        return [
+            SystemicQuest(
+                quest_id="QUEST_ACT_1_BREAD",
+                title="Act I: The Hearthmother's Tithe",
                 synopsis="Aldous requires untithed flour from the undercroft vaults to fire the communal ovens.",
                 issuing_npc_id="NPC_ALDOUS",
                 reward_item_id="item_bread",
-                reward_stamina=30.0,
+                reward_stamina=35.0,
+                completion_debrief="Aldous banks the untithed flour into the communal ovens, easing bread rations for the district artisans and unlocking access to subterranean smugglers.",
                 objectives=[
                     QuestObjective(objective_id="OBJ_BREAD_01", description="Inspect communal ovens at The Common Loaf.",
                                    target_node_id="NODE_BAKERY", target_smart_object="SO_ALDOUS", status=ObjectiveStatus.ACTIVE),
                     QuestObjective(objective_id="OBJ_BREAD_02", description="Confer with Garrett regarding herbal nightshade stocks.",
                                    target_node_id="NODE_APOTHECARY", target_npc_id="NPC_GARRETT", status=ObjectiveStatus.LOCKED)
                 ]
-            ))
-
-        return quests
+            ),
+            SystemicQuest(
+                quest_id="QUEST_ACT_2_UNDERCROFT",
+                title="Act II: The Undercroft Run",
+                synopsis="Smuggler Kaelen needs the aqueduct sluice opened to float illicit grain into the harbor.",
+                issuing_npc_id="NPC_KAELEN",
+                reward_item_id="item_forged_permit",
+                reward_stamina=45.0,
+                completion_debrief="Subterranean floodwaters hiss into the sea canals. Kaelen hands you a forged cathedral transit permit stamped in tallow wax.",
+                objectives=[
+                    QuestObjective(objective_id="OBJ_KAELEN_01", description="Operate Sluice Gate 01 to drain the subterranean basin.",
+                                   target_node_id="NODE_AQUEDUCT_CATACOMBS", target_smart_object="SO_SLUICE_GATE_01", status=ObjectiveStatus.ACTIVE),
+                    QuestObjective(objective_id="OBJ_KAELEN_02", description="Rendezvous with Kaelen the Smuggler in the lower vaults.",
+                                   target_node_id="NODE_AQUEDUCT_CATACOMBS", target_npc_id="NPC_KAELEN", status=ObjectiveStatus.LOCKED)
+                ]
+            ),
+            SystemicQuest(
+                quest_id="QUEST_ACT_3_GARRISON",
+                title="Act III: The Episcopal Inquest",
+                synopsis="Watch Captain Vane has cordoned the market cross. Infiltrate the checkpoint.",
+                issuing_npc_id="NPC_CAPTAIN_VANE",
+                reward_item_id="item_sunfire_salve",
+                reward_stamina=50.0,
+                completion_debrief="You bypass the city watch perimeter with your forged pass, establishing an unbroken supply corridor across the entire district.",
+                objectives=[
+                    QuestObjective(objective_id="OBJ_VANE_01", description="Inspect the Arch-Prelate's decree at the Market Cross.",
+                                   target_node_id="NODE_PLAZA", target_smart_object="SO_RALLY", status=ObjectiveStatus.ACTIVE),
+                    QuestObjective(objective_id="OBJ_VANE_02", description="Confront Watch Captain Vane at the garrison checkpoint.",
+                                   target_node_id="NODE_PLAZA", target_npc_id="NPC_CAPTAIN_VANE", status=ObjectiveStatus.LOCKED)
+                ]
+            )
+        ]
 
 
 class DMDirectorAgent:

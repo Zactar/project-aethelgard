@@ -205,6 +205,8 @@ class NPCActorSpec(BaseModel):
     assigned_smart_object: Optional[str] = None
     current_animation_state: AnimationState = AnimationState.IDLE
     dialogue_sound_frequency: float = 320.0
+    patrol_waypoints: List[Vector3D] = Field(default_factory=list)
+    current_schedule_activity: str = "PATROL"
 
 
 class UIThemeSpec(BaseModel):
@@ -250,6 +252,7 @@ class SystemicQuest(BaseModel):
     reward_stamina: float = 0.0
     objectives: List[QuestObjective] = Field(default_factory=list)
     is_completed: bool = False
+    completion_debrief: str = ""
 
 
 class GameRuntimeManifest(BaseModel):
