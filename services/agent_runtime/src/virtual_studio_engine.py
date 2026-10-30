@@ -343,11 +343,27 @@ class ClientArchitectAgent:
 
 class GameplayMechanicsSpecialistAgent:
     def tune_mechanics(self, unrest: float, phase: str) -> GameplayMechanicsSpec:
-        speed = 1550.0 if phase == "MUNICIPAL_BREAD_RIOT" else 1400.0
+        manifest_path = Path("web_client/game_runtime_manifest.json")
+        base_speed = 1500.0
+        if manifest_path.exists():
+            try:
+                m = json.loads(manifest_path.read_text(encoding="utf-8"))
+                base_speed = m.get("mechanics", {}).get(
+                    "player_base_speed", 1500.0)
+            except Exception:
+                pass
+
+        if phase == "MUNICIPAL_BREAD_RIOT":
+            base_speed += 150.0
+
         return GameplayMechanicsSpec(
-            player_base_speed=speed, sprint_multiplier=1.6,
-            stamina_max=100.0, stamina_recovery_rate=14.0,
-            interaction_radius=480.0, camera_fov=45.0, camera_default_distance=3000.0
+            player_base_speed=base_speed,
+            sprint_multiplier=1.6,
+            stamina_max=100.0,
+            stamina_recovery_rate=15.0,
+            interaction_radius=520.0,
+            camera_fov=45.0,
+            camera_default_distance=3000.0
         )
 
 
@@ -538,10 +554,10 @@ class ChaosCrewCommander:
         traversed = len(layout.nodes)
         tickets: List[BugTicket] = []
 
-        # 1. Audit Locomotion Bounds
+        # 1. Audit Locomotion Bounds (Only if genuinely sub-1450)
         if mechanics.player_base_speed < 1450.0:
             tickets.append(BugTicket(
-                ticket_id=f"TICK-SPD-{int(time.time()) % 1000}",
+                ticket_id="TICK-SPD-SPEED_DRIFT",
                 severity=BugSeverity.P2_MEDIUM,
                 title="Player Base Speed Sub-Optimal",
                 description="Movement velocity is below standard citadel exploration target (1500.0).",

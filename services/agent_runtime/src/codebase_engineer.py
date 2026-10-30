@@ -33,6 +33,7 @@ class CodebaseEngineerAgent:
     def __init__(self, workspace_root: Optional[Path] = None):
         self.workspace_root = workspace_root or ROOT_DIR
         self.applied_patches_log: List[Dict[str, Any]] = []
+        self.resolved_ticket_signatures: set = set()
 
     def apply_atomic_replacement(
         self, relative_path: str, search_target: str, replacement: str
@@ -79,8 +80,10 @@ class CodebaseEngineerAgent:
 
     def inspect_and_patch_ticket(self, ticket: BugTicket) -> Tuple[bool, str]:
         """Translates a triage ticket into an autonomous code modification."""
+        if ticket.ticket_id in self.resolved_ticket_signatures:
+            return True, f"Ticket {ticket.ticket_id} already satisfied in current codebase."
+
         title_lower = ticket.title.lower()
-        desc_lower = ticket.description.lower()
 
         # 1. Autonomous Camera Tuning
         if "camera" in title_lower or "damping" in title_lower:
@@ -116,11 +119,14 @@ class CodebaseEngineerAgent:
 
         # 5. Locomotion Base Speed Tuning
         if "player speed" in title_lower or "base speed" in title_lower:
-            return self.apply_atomic_replacement(
+            success, msg = self.apply_atomic_replacement(
                 "schemas/studio_contracts.py",
                 "player_base_speed: float = 1400.0",
                 "player_base_speed: float = 1500.0"
             )
+            if success:
+                self.resolved_ticket_signatures.add(ticket.ticket_id)
+            return success, msg
 
         return False, f"No deterministic patching rule matched ticket: '{ticket.title}'"
 
