@@ -901,8 +901,9 @@
 
     function checkQuestAdvancement(targetId, targetTag) {
       if (!activeQuests || activeQuests.length === 0) return;
-      const q = activeQuests[currentQuestIndex % activeQuests.length];
-      if (q.is_completed) return;
+      // Always target the active, uncompleted quest in the campaign
+      const q = activeQuests.find(quest => !quest.is_completed);
+      if (!q) return;
 
       let advanced = false;
 
@@ -910,13 +911,20 @@
         const obj = q.objectives[i];
         if (obj.status === "ACTIVE") {
           const matchSO = obj.target_smart_object && (targetId === obj.target_smart_object || targetTag.includes(obj.target_smart_object));
-          const matchNPC = obj.target_npc_id && targetId === obj.target_npc_id;
+
+          // Match NPC directly or via their assigned workstation
+          const matchNPC = obj.target_npc_id && (
+            targetId === obj.target_npc_id ||
+            (obj.target_npc_id === "NPC_GARRETT" && (targetId === "SO_GARRETT" || targetTag.includes("Apothecary"))) ||
+            (obj.target_npc_id === "NPC_ALDOUS" && (targetId === "SO_ALDOUS" || targetTag.includes("BreadOven"))) ||
+            (obj.target_npc_id === "NPC_KAELEN" && (targetId === "SO_KAELEN" || targetId.includes("SMUGGLER")))
+          );
 
           if (matchSO || matchNPC) {
             obj.status = "COMPLETED";
             advanced = true;
 
-            // Activate next objective in DAG
+            // Activate subsequent objective
             if (i + 1 < q.objectives.length) {
               q.objectives[i + 1].status = "ACTIVE";
             }
@@ -942,27 +950,22 @@
             document.getElementById('ui-stamina').innerText = `${playerStamina.toFixed(0)} / ${(runtimeMechanics.stamina_max || 100).toFixed(0)}`;
           }
 
-          // Display Full Narrative Debrief Modal Banner
           const toast = document.getElementById('interaction-toast');
           const debriefMsg = q.completion_debrief || "The district political tension shifts under your actions.";
-          toast.innerHTML = `<b style="color: #ffd700; font-size: 15px;">★ CHAPTER CONCLUDED: ${q.title} ★</b><br><span style="color: #fff; font-size: 12px; font-style: italic;">"${debriefMsg}"</span><br><small style="color: #00f2fe;">Awarded ${q.reward_item_id} (+${q.reward_stamina.toFixed(0)} Stamina)</small>`;
+          toast.innerHTML = `<b style="color: #ffd700; font-size: 15px;">★ CHAPTER CONCLUDED: ${q.title} ★</b><br><span style="color: #fff; font-size: 12px; font-style: italic;">"${debriefMsg}"</span><br><small style="color: #00f2fe;">Awarded ${q.reward_item_id || 'Silver'} (+${(q.reward_stamina || 35).toFixed(0)} Stamina)</small>`;
           toast.style.display = 'block';
 
           setTimeout(() => {
             toast.style.display = 'none';
-            // Advance to next chapter
-            currentQuestIndex = (currentQuestIndex + 1) % activeQuests.length;
-            const nextQuest = activeQuests[currentQuestIndex];
-            nextQuest.is_completed = false;
-            nextQuest.objectives.forEach((obj, idx) => {
-              obj.status = (idx === 0) ? "ACTIVE" : "LOCKED";
-            });
             renderQuestHUD();
 
-            const nextToast = document.getElementById('interaction-toast');
-            nextToast.innerHTML = `<span style="color: #00f2fe;">NEW CHAPTER UNLOCKED:</span> <b>${nextQuest.title}</b>`;
-            nextToast.style.display = 'block';
-            setTimeout(() => { nextToast.style.display = 'none'; }, 2800);
+            const nextQ = activeQuests.find(quest => !quest.is_completed);
+            if (nextQ) {
+              const nextToast = document.getElementById('interaction-toast');
+              nextToast.innerHTML = `<span style="color: #00f2fe;">NEW CHAPTER UNLOCKED:</span> <b>${nextQ.title}</b>`;
+              nextToast.style.display = 'block';
+              setTimeout(() => { nextToast.style.display = 'none'; }, 2800);
+            }
           }, 4500);
         }
       }
@@ -1260,12 +1263,11 @@
       controls.target.y = playerGroup.position.y + 75;
       document.getElementById('ui-room').innerText = currentRoomName;
 
-      // Proximity checks: prioritize stationary workstations/smart objects over roaming NPCs
+      // Unified proximity check: selects the absolute closest interactable (NPC or Smart Object)
       nearestInteractable = null;
       let minDistance = runtimeMechanics.interaction_radius || 520.0;
       let promptText = "None";
 
-      // 1. Check Smart Objects first with priority weighting
       activeSmartObjects.forEach(so => {
         const d = Math.hypot(playerGroup.position.x - so.pos.x, playerGroup.position.z - so.pos.z);
         if (d < minDistance) {
@@ -1275,17 +1277,15 @@
         }
       });
 
-      // 2. Check NPCs only if no smart object is in immediate reach
-      if (!nearestInteractable) {
-        activeNPCActors.forEach(actor => {
-          const d = Math.hypot(playerGroup.position.x - actor.group.position.x, playerGroup.position.z - actor.group.position.z);
-          if (d < minDistance) {
-            minDistance = d;
-            nearestInteractable = { type: "NPC", data: actor };
-            promptText = `[E] Talk to ${actor.name}`;
-          }
-        });
-      }
+      // NPC interaction check (weighted with a 90-unit priority bonus for character conversation)
+      activeNPCActors.forEach(actor => {
+        const d = Math.hypot(playerGroup.position.x - actor.group.position.x, playerGroup.position.z - actor.group.position.z) - 90.0;
+        if (d < minDistance) {
+          minDistance = d;
+          nearestInteractable = { type: "NPC", data: actor };
+          promptText = `[E] Talk to ${actor.name}`;
+        }
+      });
 
       document.getElementById('ui-prompt').innerText = promptText;
     }

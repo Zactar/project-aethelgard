@@ -5,6 +5,7 @@ Pipes meeting goals directly into downstream sprint asset generation,
 autonomous RFC authoring, codebase engineer patching, and release packaging.
 """
 
+from services.agent_runtime.src.studio_self_healer import StudioSelfHealer
 from tools.release_packager import package_release
 from tools.engine_importer import EngineAssetIngester
 from services.agent_runtime.src.virtual_studio_engine import StudioDirectorManagerAgent
@@ -39,6 +40,7 @@ class AutonomousStudioRunner:
         self.director = StudioDirectorManagerAgent()
         self.ingester = EngineAssetIngester()
         self.ceremony_engine = StudioCeremonyEngine(self.director.memory)
+        self.self_healer = StudioSelfHealer()
         self.author_agent = AutonomousFeatureAuthorAgent(self.director.memory)
         self.roadmap_engine = StudioRoadmapEngine()
         self.profiler = StudioOptimizationProfiler()
@@ -75,6 +77,10 @@ class AutonomousStudioRunner:
         )
 
         self.ingester.run_once()
+        heal_report = self.self_healer.audit_and_repair_studio_health()
+        if heal_report["status"] == "REPAIRED":
+            print(
+                f"  [STUDIO SELF-HEALER]: Added {heal_report['spatial_nodes_added']} room(s), verified topological corridors.")
         resolved_count = self.triage_bug_backlog()
 
         result = {

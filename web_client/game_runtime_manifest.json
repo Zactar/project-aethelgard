@@ -58,7 +58,7 @@
       "item_id": "item_flour",
       "display_name": "Milled Flour",
       "category": "COMMODITY",
-      "base_value": 14.0,
+      "base_value": 5.0,
       "description": "Standard guild-stamped flour bushel for bakery ovens.",
       "icon_symbol": "\ud83c\udf3e",
       "stack_limit": 20,
@@ -99,8 +99,8 @@
       "faction": "Bakers Fellowship",
       "color_hex": "#f5af19",
       "position": {
-        "x": -85.30804364361495,
-        "y": 2373.567712517862,
+        "x": -46.75809412114664,
+        "y": 2341.6807435184214,
         "z": 0.0
       },
       "default_dialogue": "The ovens haven't had clean timber since the river freeze. Take what's on the stone.",
@@ -113,8 +113,8 @@
       "dialogue_sound_frequency": 320.0,
       "patrol_waypoints": [
         {
-          "x": -85.30804364361495,
-          "y": 2373.567712517862,
+          "x": -46.75809412114664,
+          "y": 2341.6807435184214,
           "z": 0.0
         },
         {
@@ -123,13 +123,13 @@
           "z": 0.0
         },
         {
-          "x": 83.17466248340429,
-          "y": -72.31123079239974,
+          "x": 31.79694964859067,
+          "y": 79.26854040574693,
           "z": 0.0
         },
         {
-          "x": 1886.0604622458377,
-          "y": 1749.9429407257712,
+          "x": 1887.505470819978,
+          "y": 1855.2820120743784,
           "z": 0.0
         }
       ],
@@ -142,11 +142,11 @@
       "faction": "Artisans Guild",
       "color_hex": "#2ecc71",
       "position": {
-        "x": -90.75827905079059,
-        "y": 25.468047338808248,
+        "x": 66.3297297345442,
+        "y": -64.48110294715426,
         "z": 0.0
       },
-      "default_dialogue": "Looking for mountain salves or the untagged grain from the undervaults?",
+      "default_dialogue": "The church inquisitors checked my ledger twice before the morning bell. Be swift.",
       "inventory": {
         "item_sunfire_salve": 4,
         "item_contraband_grain": 2
@@ -156,8 +156,8 @@
       "dialogue_sound_frequency": 320.0,
       "patrol_waypoints": [
         {
-          "x": -90.75827905079059,
-          "y": 25.468047338808248,
+          "x": 66.3297297345442,
+          "y": -64.48110294715426,
           "z": 0.0
         },
         {
@@ -166,13 +166,13 @@
           "z": 0.0
         },
         {
-          "x": 2394.761451478278,
-          "y": -48.11798523829363,
+          "x": 2327.1059654304013,
+          "y": 36.18112388329638,
           "z": 0.0
         },
         {
-          "x": -44.32796271183641,
-          "y": 2293.8894284203143,
+          "x": -36.336944897279345,
+          "y": 2391.25759147164,
           "z": 0.0
         }
       ],
@@ -185,8 +185,8 @@
       "faction": "City Watch",
       "color_hex": "#e74c3c",
       "position": {
-        "x": 102.47974493118673,
-        "y": -115.09310158570219,
+        "x": -100.25932076166873,
+        "y": -116.8256997057691,
         "z": 0.0
       },
       "default_dialogue": "Arch-Prelate Malakor's tithe carts roll at sundown. Clear the thoroughfare or face the stockade.",
@@ -198,8 +198,8 @@
       "dialogue_sound_frequency": 320.0,
       "patrol_waypoints": [
         {
-          "x": 102.47974493118673,
-          "y": -115.09310158570219,
+          "x": -100.25932076166873,
+          "y": -116.8256997057691,
           "z": 0.0
         },
         {
@@ -208,13 +208,13 @@
           "z": 0.0
         },
         {
-          "x": 2399.3934840250467,
-          "y": 24.52711989537903,
+          "x": 2253.8573347653337,
+          "y": -12.37106250851292,
           "z": 0.0
         },
         {
-          "x": -12.694506339205034,
-          "y": 2327.434058881689,
+          "x": 38.04348094031792,
+          "y": 2297.729678610963,
           "z": 0.0
         }
       ],
@@ -227,11 +227,11 @@
       "faction": "Undercroft Syndicate",
       "color_hex": "#9b59b6",
       "position": {
-        "x": 1745.1612554541516,
-        "y": 1711.4966978251844,
+        "x": 1910.8859448367239,
+        "y": 1818.7302085952695,
         "z": 0.0
       },
-      "default_dialogue": "The water sluice is open for the next thirty minutes. If you want untithed barley, pay up front.",
+      "default_dialogue": "Watch out for the garrison scouts near the canal grates. They've doubled the guard.",
       "inventory": {
         "item_smoke_phial": 3,
         "item_salted_jerky": 5
@@ -241,18 +241,18 @@
       "dialogue_sound_frequency": 320.0,
       "patrol_waypoints": [
         {
-          "x": 1745.1612554541516,
-          "y": 1711.4966978251844,
+          "x": 1910.8859448367239,
+          "y": 1818.7302085952695,
           "z": 0.0
         },
         {
-          "x": 2240.7295721834666,
-          "y": 71.32589975503492,
+          "x": 2310.5862907882192,
+          "y": -2.853914652163894,
           "z": 0.0
         },
         {
-          "x": 49.366354960703575,
-          "y": 2263.8759483620897,
+          "x": 58.52399961691927,
+          "y": 2261.767190164561,
           "z": 0.0
         }
       ],
@@ -265,11 +265,11 @@
       "faction": "Canal Guild",
       "color_hex": "#3498db",
       "position": {
-        "x": 2407.5065241475027,
-        "y": -89.15521165164051,
+        "x": 2262.0370178324406,
+        "y": -56.32666636248412,
         "z": 0.0
       },
-      "default_dialogue": "Sluice gates are groaning under the canal pressure. Hand me that iron wedge.",
+      "default_dialogue": "The mountain barges came in light this morning. Grain prices will double by nightfall.",
       "inventory": {
         "item_salted_jerky": 8
       },
@@ -278,8 +278,8 @@
       "dialogue_sound_frequency": 320.0,
       "patrol_waypoints": [
         {
-          "x": 2407.5065241475027,
-          "y": -89.15521165164051,
+          "x": 2262.0370178324406,
+          "y": -56.32666636248412,
           "z": 0.0
         },
         {
@@ -288,13 +288,13 @@
           "z": 0.0
         },
         {
-          "x": 39.48732208030964,
-          "y": -69.54711942847563,
+          "x": 61.650715113137636,
+          "y": 7.122563308564736,
           "z": 0.0
         },
         {
-          "x": 1743.7934446385498,
-          "y": 1872.8027394388653,
+          "x": 1883.3840228503154,
+          "y": 1782.9026643037419,
           "z": 0.0
         }
       ],
@@ -326,7 +326,8 @@
         },
         "connected_node_ids": [
           "NODE_APOTHECARY",
-          "NODE_BAKERY"
+          "NODE_BAKERY",
+          "NODE_CANAL_SLUICE_CONCOURSE_6"
         ],
         "smart_objects": [
           {
@@ -363,7 +364,8 @@
         },
         "connected_node_ids": [
           "NODE_PLAZA",
-          "NODE_ALLEY"
+          "NODE_ALLEY",
+          "NODE_UNDERCROFT_OSSUARY_7"
         ],
         "smart_objects": [
           {
@@ -439,7 +441,8 @@
         "connected_node_ids": [
           "NODE_APOTHECARY",
           "NODE_BAKERY",
-          "NODE_AQUEDUCT_CATACOMBS"
+          "NODE_AQUEDUCT_CATACOMBS",
+          "NODE_GARRISON_BASTION_9"
         ],
         "smart_objects": []
       },
@@ -464,7 +467,8 @@
         },
         "connected_node_ids": [
           "NODE_BAKERY",
-          "NODE_ALLEY"
+          "NODE_ALLEY",
+          "NODE_UNDERCROFT_OSSUARY_8"
         ],
         "smart_objects": [
           {
@@ -475,6 +479,150 @@
               "x": 800.0,
               "y": 2300.0,
               "z": -250.0
+            },
+            "interaction_facing_yaw": 0.0
+          }
+        ]
+      },
+      "NODE_CANAL_SLUICE_CONCOURSE_6": {
+        "node_id": "NODE_CANAL_SLUICE_CONCOURSE_6",
+        "zone_name": "Canal Sluice Concourse 6",
+        "function": "TRANSIT_WATERWAY",
+        "bounds_min": {
+          "x": -3150.0,
+          "y": -600.0,
+          "z": 0.0
+        },
+        "bounds_max": {
+          "x": -1750.0,
+          "y": 600.0,
+          "z": 400.0
+        },
+        "center_location": {
+          "x": -2450.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "connected_node_ids": [
+          "NODE_PLAZA"
+        ],
+        "smart_objects": [
+          {
+            "anchor_id": "SO_CANAL__06",
+            "smart_object_tag": "SmartObject.Mechanism.CargoCrane",
+            "assigned_npc_id": null,
+            "relative_position": {
+              "x": -2450.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "interaction_facing_yaw": 0.0
+          }
+        ]
+      },
+      "NODE_UNDERCROFT_OSSUARY_7": {
+        "node_id": "NODE_UNDERCROFT_OSSUARY_7",
+        "zone_name": "Undercroft Ossuary 7",
+        "function": "CLANDESTINE_STORAGE",
+        "bounds_min": {
+          "x": 3050.0,
+          "y": -600.0,
+          "z": 0.0
+        },
+        "bounds_max": {
+          "x": 4450.0,
+          "y": 600.0,
+          "z": 400.0
+        },
+        "center_location": {
+          "x": 3750.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "connected_node_ids": [
+          "NODE_APOTHECARY"
+        ],
+        "smart_objects": [
+          {
+            "anchor_id": "SO_UNDERC_07",
+            "smart_object_tag": "SmartObject.Container.SmugglerCache",
+            "assigned_npc_id": null,
+            "relative_position": {
+              "x": 3750.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "interaction_facing_yaw": 0.0
+          }
+        ]
+      },
+      "NODE_UNDERCROFT_OSSUARY_8": {
+        "node_id": "NODE_UNDERCROFT_OSSUARY_8",
+        "zone_name": "Undercroft Ossuary 8",
+        "function": "CLANDESTINE_STORAGE",
+        "bounds_min": {
+          "x": 100.0,
+          "y": 3050.0,
+          "z": -250.0
+        },
+        "bounds_max": {
+          "x": 1500.0,
+          "y": 4250.0,
+          "z": 150.0
+        },
+        "center_location": {
+          "x": 800.0,
+          "y": 3650.0,
+          "z": -250.0
+        },
+        "connected_node_ids": [
+          "NODE_AQUEDUCT_CATACOMBS"
+        ],
+        "smart_objects": [
+          {
+            "anchor_id": "SO_UNDERC_08",
+            "smart_object_tag": "SmartObject.Container.SmugglerCache",
+            "assigned_npc_id": null,
+            "relative_position": {
+              "x": 800.0,
+              "y": 3650.0,
+              "z": -250.0
+            },
+            "interaction_facing_yaw": 0.0
+          }
+        ]
+      },
+      "NODE_GARRISON_BASTION_9": {
+        "node_id": "NODE_GARRISON_BASTION_9",
+        "zone_name": "Garrison Bastion 9",
+        "function": "MILITARY_CHECKPOINT",
+        "bounds_min": {
+          "x": 2400.0,
+          "y": 1200.0,
+          "z": 0.0
+        },
+        "bounds_max": {
+          "x": 3800.0,
+          "y": 2400.0,
+          "z": 400.0
+        },
+        "center_location": {
+          "x": 3100.0,
+          "y": 1800.0,
+          "z": 0.0
+        },
+        "connected_node_ids": [
+          "NODE_ALLEY"
+        ],
+        "smart_objects": [
+          {
+            "anchor_id": "SO_GARRIS_09",
+            "smart_object_tag": "SmartObject.Armory.WeaponRack",
+            "assigned_npc_id": null,
+            "relative_position": {
+              "x": 3100.0,
+              "y": 1800.0,
+              "z": 0.0
             },
             "interaction_facing_yaw": 0.0
           }
@@ -587,7 +735,11 @@
         "emissive_intensity": 0.8,
         "cast_shadow": true
       }
-    ]
+    ],
+    "NODE_CANAL_SLUICE_CONCOURSE_6": [],
+    "NODE_UNDERCROFT_OSSUARY_7": [],
+    "NODE_UNDERCROFT_OSSUARY_8": [],
+    "NODE_GARRISON_BASTION_9": []
   },
   "active_quests": [
     {
@@ -665,7 +817,7 @@
           "target_smart_object": "SO_RALLY",
           "target_npc_id": null,
           "required_item_id": null,
-          "status": "ACTIVE"
+          "status": "COMPLETED"
         },
         {
           "objective_id": "OBJ_VANE_02",
@@ -674,10 +826,10 @@
           "target_smart_object": null,
           "target_npc_id": "NPC_CAPTAIN_VANE",
           "required_item_id": null,
-          "status": "LOCKED"
+          "status": "COMPLETED"
         }
       ],
-      "is_completed": false,
+      "is_completed": true,
       "completion_debrief": "You bypass the city watch perimeter with your forged pass, establishing an unbroken supply corridor across the entire district."
     }
   ]
