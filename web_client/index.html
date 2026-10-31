@@ -1122,6 +1122,9 @@
         toast.style.display = 'block';
         setTimeout(() => { toast.style.display = 'none'; }, 2000);
 
+        // Optimistically advance quest objective on client immediately
+        checkQuestAdvancement(so.anchor_id, so.tag);
+
         if (socket && socket.readyState === WebSocket.OPEN) {
           socket.send(JSON.stringify({
             type: "SMART_OBJECT_INTERACT",
@@ -1141,6 +1144,9 @@
         document.getElementById('dialogue-box').style.display = 'block';
 
         speakNPCDialogue(npc.dialogue, npc.id);
+
+        // Optimistically advance quest objective on client immediately
+        checkQuestAdvancement(npc.id, "");
 
         if (socket && socket.readyState === WebSocket.OPEN) {
           socket.send(JSON.stringify({
@@ -1254,12 +1260,12 @@
       controls.target.y = playerGroup.position.y + 75;
       document.getElementById('ui-room').innerText = currentRoomName;
 
-      // Proximity checks for BOTH Smart Objects and NPCs
+      // Proximity checks: prioritize stationary workstations/smart objects over roaming NPCs
       nearestInteractable = null;
       let minDistance = runtimeMechanics.interaction_radius || 520.0;
       let promptText = "None";
 
-      // 1. Check Smart Objects
+      // 1. Check Smart Objects first with priority weighting
       activeSmartObjects.forEach(so => {
         const d = Math.hypot(playerGroup.position.x - so.pos.x, playerGroup.position.z - so.pos.z);
         if (d < minDistance) {
@@ -1269,15 +1275,17 @@
         }
       });
 
-      // 2. Check NPCs
-      activeNPCActors.forEach(actor => {
-        const d = Math.hypot(playerGroup.position.x - actor.group.position.x, playerGroup.position.z - actor.group.position.z);
-        if (d < minDistance) {
-          minDistance = d;
-          nearestInteractable = { type: "NPC", data: actor };
-          promptText = `[E] Talk to ${actor.name}`;
-        }
-      });
+      // 2. Check NPCs only if no smart object is in immediate reach
+      if (!nearestInteractable) {
+        activeNPCActors.forEach(actor => {
+          const d = Math.hypot(playerGroup.position.x - actor.group.position.x, playerGroup.position.z - actor.group.position.z);
+          if (d < minDistance) {
+            minDistance = d;
+            nearestInteractable = { type: "NPC", data: actor };
+            promptText = `[E] Talk to ${actor.name}`;
+          }
+        });
+      }
 
       document.getElementById('ui-prompt').innerText = promptText;
     }

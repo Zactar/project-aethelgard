@@ -165,23 +165,68 @@ class StudioRoadmapEngine:
         if not active:
             return None
 
-        # Check for matching deliverables
+        manifest_path = Path("web_client/game_runtime_manifest.json")
+        manifest_data = {}
+        if manifest_path.exists():
+            try:
+                manifest_data = json.loads(
+                    manifest_path.read_text(encoding="utf-8"))
+            except Exception:
+                pass
+
+        existing_nodes = list(manifest_data.get(
+            "spatial_layout", {}).get("nodes", {}).keys())
+        existing_items = list(manifest_data.get("items", {}).keys())
+
+        # Strict Verification: Epic completes ONLY if matching physical nodes, items, or RFCs exist
         for epic in active.epics:
             if not epic.is_completed:
-                for title in deployed_rfc_titles:
-                    words = [w.lower()
-                             for w in epic.title.split() if len(w) > 3]
-                    if any(w in title.lower() for w in words):
-                        epic.is_completed = True
-                        break
+                epic_words = epic.title.lower()
 
-        # Check if milestone is ready for release
+                # 1. Undercroft / Vault verification
+                if "vault" in epic_words or "aqueduct" in epic_words:
+                    if any("AQUEDUCT" in n or "VAULT" in n or "UNDERCROFT" in n for n in existing_nodes):
+                        epic.is_completed = True
+
+                # 2. Black Market Economy verification
+                elif "contraband" in epic_words or "black market" in epic_words:
+                    if any("contraband" in i or "permit" in i for i in existing_items):
+                        epic.is_completed = True
+
+                # 3. Garrison Checkpoints / Barricades verification
+                elif "checkpoint" in epic_words or "garrison" in epic_words or "barricade" in epic_words:
+                    has_node = any(
+                        "GARRISON" in n or "BASTION" in n or "BARRICADE" in n for n in existing_nodes)
+                    has_rfc = any("garrison" in t.lower(
+                    ) or "barricade" in t.lower() for t in deployed_rfc_titles)
+                    if has_node or has_rfc:
+                        epic.is_completed = True
+
+                # 4. Caloric Rationing / Grain verification
+                elif "ration" in epic_words or "caloric" in epic_words:
+                    has_item = any(
+                        "ration" in i or "flour" in i or "hard tack" in i for i in existing_items)
+                    has_rfc = any("ration" in t.lower() or "bread" in t.lower()
+                                  for t in deployed_rfc_titles)
+                    if has_item or has_rfc:
+                        epic.is_completed = True
+
+                # 5. Sanctum Infiltration verification
+                elif "sanctum" in epic_words or "malakor" in epic_words:
+                    has_node = any(
+                        "SANCTUM" in n or "CATHEDRAL" in n for n in existing_nodes)
+                    has_rfc = any("sanctum" in t.lower()
+                                  for t in deployed_rfc_titles)
+                    if has_node or has_rfc:
+                        epic.is_completed = True
+
+        # Complete milestone only when all epics are strictly satisfied
         all_done = all(e.is_completed for e in active.epics)
         if all_done and active.status != MilestoneStatus.SHIPPED:
             active.status = MilestoneStatus.SHIPPED
             shipped_version = active.version_tag
 
-            # Promote next milestone from PLANNING to IN_PROGRESS
+            # Promote next milestone
             for m in milestones:
                 if m.status == MilestoneStatus.PLANNING:
                     m.status = MilestoneStatus.IN_PROGRESS

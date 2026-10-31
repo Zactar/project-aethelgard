@@ -131,13 +131,13 @@ class AutonomousStudioRunner:
             self.current_goals)
 
         # 3. Check Roadmap Burndown
-        deployed_titles = [r.title for r in rfcs if r.status.value in (
-            "APPROVED", "DEPLOYED")] + [g.primary_objective for g in self.current_goals]
+        deployed_titles = [
+            r.title for r in rfcs if r.status.value in ("APPROVED", "DEPLOYED")]
         shipped_ver = self.roadmap_engine.advance_milestone_progress(
             deployed_titles)
-
         if shipped_ver:
             package_release(shipped_ver, "Shippable Milestone Expansion")
+
         meeting = self.ceremony_engine.conduct_full_team_meeting(
             target_district=DISTRICT_ROSTER[0],
             cycle_history=[]
@@ -147,8 +147,8 @@ class AutonomousStudioRunner:
             "\n[VIRTUAL DEV TEAM AUTHORING]: Drafting features from committed sprint goals...")
         rfcs = self.author_agent.execute_autonomous_rfc_cycle(
             self.current_goals)
-        deployed_titles = [r.title for r in rfcs if r.status.value in (
-            "APPROVED", "DEPLOYED")] + [g.primary_objective for g in self.current_goals]
+        deployed_titles = [
+            r.title for r in rfcs if r.status.value in ("APPROVED", "DEPLOYED")]
         shipped_ver = self.roadmap_engine.advance_milestone_progress(
             deployed_titles)
         if shipped_ver:
@@ -158,8 +158,10 @@ class AutonomousStudioRunner:
             "\n[VIRTUAL DEV TEAM AUTHORING]: Drafting features from committed sprint goals...")
         self.author_agent.execute_autonomous_rfc_cycle(self.current_goals)
 
+        deployed_titles = [
+            r.title for r in rfcs if r.status.value in ("APPROVED", "DEPLOYED")]
         shipped_ver = self.roadmap_engine.advance_milestone_progress(
-            [g.primary_objective for g in self.current_goals])
+            deployed_titles)
         if shipped_ver:
             package_release(shipped_ver, "Shippable Milestone Expansion")
 

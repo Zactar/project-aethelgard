@@ -21,6 +21,7 @@ import random
 import sys
 import time
 from typing import Any, Dict, List, Optional, Tuple
+from services.agent_runtime.src.procedural_spatial_generator import ProceduralSpatialGenerator
 
 ROOT_DIR = Path(__file__).resolve().parents[3]
 if str(ROOT_DIR) not in sys.path:
@@ -150,6 +151,20 @@ class StudioSharedMemoryBus:
         self.active_phase: str = "PEACETIME_COMMERCE"
         self.lore_bus = ChromaLoreBus()
         self.active_quests: List[SystemicQuest] = []
+        self._hydrate_from_disk()
+
+    def _hydrate_from_disk(self):
+        manifest_path = ROOT_DIR / "web_client" / "game_runtime_manifest.json"
+        if manifest_path.exists():
+            try:
+                data = json.loads(manifest_path.read_text(encoding="utf-8"))
+                if "active_quests" in data and data["active_quests"]:
+                    self.active_quests = [SystemicQuest.model_validate(
+                        q) for q in data["active_quests"]]
+                if "district_unrest" in data:
+                    self.active_district_unrest = data["district_unrest"]
+            except Exception:
+                pass
 
     def query_lore(self, query: str) -> List[str]:
         return self.lore_bus.query_lore_context(query, top_k=2)
@@ -238,49 +253,75 @@ class SystemsArchitectAgent:
 
 
 class LevelArchitectAgent:
+    def __init__(self):
+        self.spatial_gen = ProceduralSpatialGenerator(margin_buffer=80.0)
+
     def generate_and_refine_layout(
         self, district_id: str, active_goals: List[SprintGoal]
     ) -> DistrictSpatialLayout:
         manifest_path = Path("web_client/game_runtime_manifest.json")
+        layout = None
+
         if manifest_path.exists():
             try:
                 manifest = GameRuntimeManifest.model_validate_json(
                     manifest_path.read_text(encoding="utf-8"))
-                return manifest.spatial_layout
+                layout = manifest.spatial_layout
             except Exception:
                 pass
 
-        nodes = {
-            "NODE_PLAZA": SpatialRoomNode(
-                node_id="NODE_PLAZA", zone_name="Market Cross Square", function="CIVIC_PLAZA",
-                bounds_min=Vector3D(x=-1500, y=-1500, z=0), bounds_max=Vector3D(x=1500, y=1500, z=500),
-                center_location=Vector3D(x=0, y=0, z=0), connected_node_ids=["NODE_APOTHECARY", "NODE_BAKERY"],
-                smart_objects=[SmartObjectAnchor(anchor_id="SO_RALLY", smart_object_tag="SmartObject.Civic.RallyPoint", relative_position=Vector3D(
-                    x=0, y=0, z=0), interaction_facing_yaw=0.0)]
-            ),
-            "NODE_APOTHECARY": SpatialRoomNode(
-                node_id="NODE_APOTHECARY", zone_name="Garrett's Curatives", function="COMMERCIAL_STALL",
-                bounds_min=Vector3D(x=1800, y=-600, z=0), bounds_max=Vector3D(x=2800, y=600, z=400),
-                center_location=Vector3D(x=2300, y=0, z=0), connected_node_ids=["NODE_PLAZA"],
-                smart_objects=[SmartObjectAnchor(anchor_id="SO_GARRETT", smart_object_tag="SmartObject.Merchant.ApothecaryCounter",
-                                                 assigned_npc_id="NPC_GARRETT", relative_position=Vector3D(x=2100, y=0, z=0), interaction_facing_yaw=180.0)]
-            ),
-            "NODE_BAKERY": SpatialRoomNode(
-                node_id="NODE_BAKERY", zone_name="The Common Loaf", function="WORKSHOP_CRAFT",
-                bounds_min=Vector3D(x=-600, y=1800, z=0), bounds_max=Vector3D(x=600, y=2800, z=400),
-                center_location=Vector3D(x=0, y=2300, z=0), connected_node_ids=["NODE_PLAZA"],
-                smart_objects=[SmartObjectAnchor(anchor_id="SO_ALDOUS", smart_object_tag="SmartObject.Craft.BreadOven",
-                                                 assigned_npc_id="NPC_ALDOUS", relative_position=Vector3D(x=0, y=2500, z=0), interaction_facing_yaw=90.0)]
-            ),
-            "NODE_AQUEDUCT_CATACOMBS": SpatialRoomNode(
-                node_id="NODE_AQUEDUCT_CATACOMBS", zone_name="Subterranean Aqueduct Conduit", function="CLANDESTINE_ALLEY",
-                bounds_min=Vector3D(x=0, y=1800, z=-400), bounds_max=Vector3D(x=1600, y=2800, z=-50),
-                center_location=Vector3D(x=800, y=2300, z=-250), connected_node_ids=["NODE_BAKERY"],
-                smart_objects=[SmartObjectAnchor(anchor_id="SO_SLUICE_GATE_01", smart_object_tag="SmartObject.Mechanism.SluiceGate",
-                                                 relative_position=Vector3D(x=800, y=2300, z=-250), interaction_facing_yaw=0.0)]
-            )
-        }
-        return DistrictSpatialLayout(district_id=district_id, district_name=district_id.replace("District_", "") + " Commons", nodes=nodes, is_topologically_sound=True)
+        if not layout:
+            # Baseline layout
+            nodes = {
+                "NODE_PLAZA": SpatialRoomNode(
+                    node_id="NODE_PLAZA", zone_name="Market Cross Square", function="CIVIC_PLAZA",
+                    bounds_min=Vector3D(x=-1500, y=-1500, z=0), bounds_max=Vector3D(x=1500, y=1500, z=500),
+                    center_location=Vector3D(x=0, y=0, z=0), connected_node_ids=["NODE_APOTHECARY", "NODE_BAKERY"],
+                    smart_objects=[SmartObjectAnchor(anchor_id="SO_RALLY", smart_object_tag="SmartObject.Civic.RallyPoint", relative_position=Vector3D(
+                        x=0, y=0, z=0), interaction_facing_yaw=0.0)]
+                ),
+                "NODE_APOTHECARY": SpatialRoomNode(
+                    node_id="NODE_APOTHECARY", zone_name="Garrett's Curatives", function="COMMERCIAL_STALL",
+                    bounds_min=Vector3D(x=1800, y=-600, z=0), bounds_max=Vector3D(x=2800, y=600, z=400),
+                    center_location=Vector3D(x=2300, y=0, z=0), connected_node_ids=["NODE_PLAZA"],
+                    smart_objects=[SmartObjectAnchor(anchor_id="SO_GARRETT", smart_object_tag="SmartObject.Merchant.ApothecaryCounter",
+                                                     assigned_npc_id="NPC_GARRETT", relative_position=Vector3D(x=2100, y=0, z=0), interaction_facing_yaw=180.0)]
+                ),
+                "NODE_BAKERY": SpatialRoomNode(
+                    node_id="NODE_BAKERY", zone_name="The Common Loaf", function="WORKSHOP_CRAFT",
+                    bounds_min=Vector3D(x=-600, y=1800, z=0), bounds_max=Vector3D(x=600, y=2800, z=400),
+                    center_location=Vector3D(x=0, y=2300, z=0), connected_node_ids=["NODE_PLAZA"],
+                    smart_objects=[SmartObjectAnchor(anchor_id="SO_ALDOUS", smart_object_tag="SmartObject.Craft.BreadOven",
+                                                     assigned_npc_id="NPC_ALDOUS", relative_position=Vector3D(x=0, y=2500, z=0), interaction_facing_yaw=90.0)]
+                ),
+                "NODE_AQUEDUCT_CATACOMBS": SpatialRoomNode(
+                    node_id="NODE_AQUEDUCT_CATACOMBS", zone_name="Subterranean Aqueduct Conduit", function="CLANDESTINE_ALLEY",
+                    bounds_min=Vector3D(x=0, y=1800, z=-400), bounds_max=Vector3D(x=1600, y=2800, z=-50),
+                    center_location=Vector3D(x=800, y=2300, z=-250), connected_node_ids=["NODE_BAKERY"],
+                    smart_objects=[SmartObjectAnchor(anchor_id="SO_SLUICE_GATE_01", smart_object_tag="SmartObject.Mechanism.SluiceGate", relative_position=Vector3D(
+                        x=800, y=2300, z=-250), interaction_facing_yaw=0.0)]
+                )
+            }
+            layout = DistrictSpatialLayout(district_id=district_id, district_name=district_id.replace(
+                "District_", "") + " Commons", nodes=nodes, is_topologically_sound=True)
+
+        # Algorithmic expansion: If goals demand new fortifications, sanctums, or barricades, carve them!
+        goal_text = " ".join([g.primary_objective.lower()
+                             for g in active_goals])
+        if any(k in goal_text for k in ["barricade", "garrison", "checkpoint", "sanctum", "ossuary", "taproom"]):
+            if len(layout.nodes) < 8:
+                new_node = self.spatial_gen.generate_next_spatial_node(
+                    layout.nodes, theme_hint=goal_text)
+                if new_node:
+                    anchor_id = new_node.connected_node_ids[0]
+                    if anchor_id in layout.nodes and new_node.node_id not in layout.nodes[anchor_id].connected_node_ids:
+                        layout.nodes[anchor_id].connected_node_ids.append(
+                            new_node.node_id)
+                    layout.nodes[new_node.node_id] = new_node
+                    print(
+                        f"  [LEVEL ARCHITECT]: Carved real physical expansion '{new_node.zone_name}' ({new_node.node_id})")
+
+        return layout
 
 
 class ClientArchitectAgent:

@@ -1,9 +1,9 @@
 {
-  "manifest_version": 1300,
-  "district_id": "District_MarketSquare",
+  "manifest_version": 1600,
+  "district_id": "District_CathedralHeights",
   "simulation_phase": "PEACETIME_COMMERCE",
-  "district_unrest": 0.58,
-  "world_time": 1300.0,
+  "district_unrest": 0.7800000000000001,
+  "world_time": 1600.0,
   "lighting": {
     "ambient_sky_hex": "#b0c4de",
     "ambient_ground_hex": "#181c24",
@@ -36,8 +36,8 @@
     "player_base_speed": 1400.0,
     "sprint_multiplier": 1.6,
     "stamina_max": 100.0,
-    "stamina_recovery_rate": 14.0,
-    "interaction_radius": 480.0,
+    "stamina_recovery_rate": 15.0,
+    "interaction_radius": 520.0,
     "camera_fov": 45.0,
     "camera_default_distance": 3000.0
   },
@@ -58,7 +58,7 @@
       "item_id": "item_flour",
       "display_name": "Milled Flour",
       "category": "COMMODITY",
-      "base_value": 5.0,
+      "base_value": 14.0,
       "description": "Standard guild-stamped flour bushel for bakery ovens.",
       "icon_symbol": "\ud83c\udf3e",
       "stack_limit": 20,
@@ -99,11 +99,11 @@
       "faction": "Bakers Fellowship",
       "color_hex": "#f5af19",
       "position": {
-        "x": -108.57830556289527,
-        "y": 2406.542662234771,
+        "x": -85.30804364361495,
+        "y": 2373.567712517862,
         "z": 0.0
       },
-      "default_dialogue": "Communal hearths are banked under ash; cathedral tithes took half the barley.",
+      "default_dialogue": "The ovens haven't had clean timber since the river freeze. Take what's on the stone.",
       "inventory": {
         "item_bread": 12,
         "item_flour": 5
@@ -113,8 +113,8 @@
       "dialogue_sound_frequency": 320.0,
       "patrol_waypoints": [
         {
-          "x": -108.57830556289527,
-          "y": 2406.542662234771,
+          "x": -85.30804364361495,
+          "y": 2373.567712517862,
           "z": 0.0
         },
         {
@@ -123,13 +123,13 @@
           "z": 0.0
         },
         {
-          "x": 63.76212111416376,
-          "y": 39.10683423096452,
+          "x": 83.17466248340429,
+          "y": -72.31123079239974,
           "z": 0.0
         },
         {
-          "x": 1863.0509465292216,
-          "y": 1775.3844172614008,
+          "x": 1886.0604622458377,
+          "y": 1749.9429407257712,
           "z": 0.0
         }
       ],
@@ -142,8 +142,8 @@
       "faction": "Artisans Guild",
       "color_hex": "#2ecc71",
       "position": {
-        "x": 14.638988925305284,
-        "y": -73.57711383939026,
+        "x": -90.75827905079059,
+        "y": 25.468047338808248,
         "z": 0.0
       },
       "default_dialogue": "Looking for mountain salves or the untagged grain from the undervaults?",
@@ -156,8 +156,8 @@
       "dialogue_sound_frequency": 320.0,
       "patrol_waypoints": [
         {
-          "x": 14.638988925305284,
-          "y": -73.57711383939026,
+          "x": -90.75827905079059,
+          "y": 25.468047338808248,
           "z": 0.0
         },
         {
@@ -166,13 +166,13 @@
           "z": 0.0
         },
         {
-          "x": 2233.452151723812,
-          "y": 39.578896294636536,
+          "x": 2394.761451478278,
+          "y": -48.11798523829363,
           "z": 0.0
         },
         {
-          "x": -30.036877956435475,
-          "y": 2225.7001464244895,
+          "x": -44.32796271183641,
+          "y": 2293.8894284203143,
           "z": 0.0
         }
       ],
@@ -185,11 +185,11 @@
       "faction": "City Watch",
       "color_hex": "#e74c3c",
       "position": {
-        "x": -83.54159154599799,
-        "y": -17.994306146888476,
+        "x": 102.47974493118673,
+        "y": -115.09310158570219,
         "z": 0.0
       },
-      "default_dialogue": "You smell of canal silt. Step forward for inspection before you cross the gate.",
+      "default_dialogue": "Arch-Prelate Malakor's tithe carts roll at sundown. Clear the thoroughfare or face the stockade.",
       "inventory": {
         "item_forged_permit": 1
       },
@@ -198,8 +198,8 @@
       "dialogue_sound_frequency": 320.0,
       "patrol_waypoints": [
         {
-          "x": -83.54159154599799,
-          "y": -17.994306146888476,
+          "x": 102.47974493118673,
+          "y": -115.09310158570219,
           "z": 0.0
         },
         {
@@ -208,13 +208,13 @@
           "z": 0.0
         },
         {
-          "x": 2258.290470474314,
-          "y": 17.53500963698791,
+          "x": 2399.3934840250467,
+          "y": 24.52711989537903,
           "z": 0.0
         },
         {
-          "x": -11.660867869816016,
-          "y": 2388.3536888390336,
+          "x": -12.694506339205034,
+          "y": 2327.434058881689,
           "z": 0.0
         }
       ],
@@ -227,8 +227,8 @@
       "faction": "Undercroft Syndicate",
       "color_hex": "#9b59b6",
       "position": {
-        "x": 1900.5153074807936,
-        "y": 1905.57920124184,
+        "x": 1745.1612554541516,
+        "y": 1711.4966978251844,
         "z": 0.0
       },
       "default_dialogue": "The water sluice is open for the next thirty minutes. If you want untithed barley, pay up front.",
@@ -241,18 +241,18 @@
       "dialogue_sound_frequency": 320.0,
       "patrol_waypoints": [
         {
-          "x": 1900.5153074807936,
-          "y": 1905.57920124184,
+          "x": 1745.1612554541516,
+          "y": 1711.4966978251844,
           "z": 0.0
         },
         {
-          "x": 2372.7380855225742,
-          "y": 25.19498836909584,
+          "x": 2240.7295721834666,
+          "y": 71.32589975503492,
           "z": 0.0
         },
         {
-          "x": 67.26998681920509,
-          "y": 2265.7083876650427,
+          "x": 49.366354960703575,
+          "y": 2263.8759483620897,
           "z": 0.0
         }
       ],
@@ -265,8 +265,8 @@
       "faction": "Canal Guild",
       "color_hex": "#3498db",
       "position": {
-        "x": 2403.87717412727,
-        "y": -110.0826500404425,
+        "x": 2407.5065241475027,
+        "y": -89.15521165164051,
         "z": 0.0
       },
       "default_dialogue": "Sluice gates are groaning under the canal pressure. Hand me that iron wedge.",
@@ -278,8 +278,8 @@
       "dialogue_sound_frequency": 320.0,
       "patrol_waypoints": [
         {
-          "x": 2403.87717412727,
-          "y": -110.0826500404425,
+          "x": 2407.5065241475027,
+          "y": -89.15521165164051,
           "z": 0.0
         },
         {
@@ -288,13 +288,13 @@
           "z": 0.0
         },
         {
-          "x": -36.021567859173764,
-          "y": -47.20886575493135,
+          "x": 39.48732208030964,
+          "y": -69.54711942847563,
           "z": 0.0
         },
         {
-          "x": 1705.3549952279911,
-          "y": 1790.1438230799022,
+          "x": 1743.7934446385498,
+          "y": 1872.8027394388653,
           "z": 0.0
         }
       ],
@@ -605,7 +605,7 @@
           "target_smart_object": "SO_ALDOUS",
           "target_npc_id": null,
           "required_item_id": null,
-          "status": "ACTIVE"
+          "status": "COMPLETED"
         },
         {
           "objective_id": "OBJ_BREAD_02",
@@ -614,10 +614,10 @@
           "target_smart_object": null,
           "target_npc_id": "NPC_GARRETT",
           "required_item_id": null,
-          "status": "LOCKED"
+          "status": "COMPLETED"
         }
       ],
-      "is_completed": false,
+      "is_completed": true,
       "completion_debrief": "Aldous banks the untithed flour into the communal ovens, easing bread rations for the district artisans and unlocking access to subterranean smugglers."
     },
     {
@@ -635,7 +635,7 @@
           "target_smart_object": "SO_SLUICE_GATE_01",
           "target_npc_id": null,
           "required_item_id": null,
-          "status": "ACTIVE"
+          "status": "COMPLETED"
         },
         {
           "objective_id": "OBJ_KAELEN_02",
@@ -644,10 +644,10 @@
           "target_smart_object": null,
           "target_npc_id": "NPC_KAELEN",
           "required_item_id": null,
-          "status": "LOCKED"
+          "status": "COMPLETED"
         }
       ],
-      "is_completed": false,
+      "is_completed": true,
       "completion_debrief": "Subterranean floodwaters hiss into the sea canals. Kaelen hands you a forged cathedral transit permit stamped in tallow wax."
     },
     {
