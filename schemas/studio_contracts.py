@@ -1,4 +1,6 @@
 from __future__ import annotations
+from datetime import datetime
+from typing import List, Optional, Dict, Any
 from enum import Enum
 import time
 from typing import Any, Dict, List, Optional
@@ -270,6 +272,77 @@ class GameRuntimeManifest(BaseModel):
     props: Dict[str, List[ProceduralPropSpec]] = Field(default_factory=dict)
     active_quests: List[SystemicQuest] = Field(default_factory=list)
 
+
+# ==============================================================================
+# RETROSPECTIVE MEMORY & POST-MORTEM SCHEMAS
+# ==============================================================================
+
+
+class IncidentSeverity(str, Enum):
+    """Categorization of failure impact across engine, client, and runtime."""
+    LOW = "LOW"             # Telemetry blips, cosmetic warnings, minor draw-call budget creep
+    MEDIUM = "MEDIUM"       # Balance anomalies, soft-locks, state desync, quest state loop
+    HIGH = "HIGH"           # Functional failure, collision entrapment, raycast hijacking
+    CRITICAL = "CRITICAL"   # Engine crash, AST parse failure, topological break, server halt
+
+
+class DisciplineType(str, Enum):
+    """Virtual studio disciplines with role-specific agency."""
+    SYSTEMS = "Systems"
+    LEVEL = "Level"
+    NARRATIVE = "Narrative"
+    GAMEPLAY = "Gameplay"
+    CLIENT = "Client"
+    CHAOS_QA = "Chaos QA"
+
+
+class PostMortemRecord(BaseModel):
+    """Deterministic post-mortem event schema for retrospective tracking."""
+    incident_id: str = Field(...,
+                             description="Unique slug: e.g. INC-20261028-LVL-01")
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    milestone_tag: str = Field(...,
+                               description="Target release milestone (e.g., v0.4.0, v0.5.0)")
+    discipline: DisciplineType = Field(
+        ..., description="Responsible or affected studio discipline")
+    severity: IncidentSeverity = Field(...,
+                                       description="Severity level of the incident")
+    summary: str = Field(...,
+                         description="Concise description of the failure event")
+    root_cause: str = Field(
+        ..., description="Underlying architectural, topological, or code failure")
+    symptoms: List[str] = Field(
+        default_factory=list, description="Observed error logs or telemetry signatures")
+    mitigation_applied: str = Field(
+        ..., description="Remediation, patch, or self-healing rollback applied")
+    prevention_rule: str = Field(
+        ..., description="Negative constraint rule injected into future agent prompts")
+    affected_files: List[str] = Field(
+        default_factory=list, description="Files modified or broken by this regression")
+    metadata: Dict[str, Any] = Field(
+        default_factory=dict, description="Arbitrary telemetry or engine coordinates")
+
+    class Config:
+        use_enum_values = True
+        json_encoders = {
+            datetime: lambda v: v.isoformat()
+        }
+
+
+class DisciplineCompetency(BaseModel):
+    """Historical reliability metrics calculated across release milestones."""
+    discipline: DisciplineType
+    total_proposals: int = Field(default=0)
+    accepted_rfcs: int = Field(default=0)
+    regressions_caused: int = Field(default=0)
+    clean_streak: int = Field(
+        default=0, description="Consecutive deployments without a regression")
+    active_friction_notes: List[str] = Field(default_factory=list)
+
+    class Config:
+        use_enum_values = True
+
+
 # ==============================================================================
 # AUDIT, LORE, & QA CONTRACTS
 # ==============================================================================
@@ -412,3 +485,105 @@ class OptimizationReport(BaseModel):
     instancing_recommended: bool
     budget_exceeded: bool
     triage_notes: str
+
+
+# ==============================================================================
+# REVIEW BOARD QUORUM SCHEMAS
+# ==============================================================================
+
+class ReviewVote(str, Enum):
+    APPROVE = "APPROVE"
+    REQUEST_CHANGES = "REQUEST_CHANGES"
+    REJECT = "REJECT"
+
+
+class DisciplineBallot(BaseModel):
+    reviewer: DisciplineType
+    vote: ReviewVote
+    critique: str
+    friction_points: List[str] = Field(default_factory=list)
+    veto: bool = Field(
+        default=False, description="Hard block preventing RFC approval")
+
+    class Config:
+        use_enum_values = True
+
+
+class ReviewQuorumResult(BaseModel):
+    rfc_id: str
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    status: str = Field(...,
+                        description="APPROVED, REJECTED, or REVISION_REQUIRED")
+    quorum_reached: bool
+    total_votes: int
+    approvals: int
+    rejections: int
+    vetoes_cast: int
+    ballots: List[DisciplineBallot]
+    synthesis_summary: str
+    actionable_directives: List[str] = Field(default_factory=list)
+
+    class Config:
+        use_enum_values = True
+        json_encoders = {
+            datetime: lambda v: v.isoformat()
+        }
+
+# ==============================================================================
+# ROADMAP & MILESTONE EVOLUTION SCHEMAS
+# ==============================================================================
+
+
+class MilestoneStatus(str, Enum):
+    PLANNED = "PLANNED"
+    IN_PROGRESS = "IN_PROGRESS"
+    VALIDATING = "VALIDATING"
+    SHIPPED = "SHIPPED"
+
+
+class DeliverableStatus(str, Enum):
+    PENDING = "PENDING"
+    IN_REVIEW = "IN_REVIEW"
+    VERIFIED = "VERIFIED"
+
+
+class MilestoneDeliverable(BaseModel):
+    deliverable_id: str
+    discipline: DisciplineType
+    title: str
+    target_subsystem: str
+    acceptance_criteria: List[str]
+    status: DeliverableStatus = DeliverableStatus.PENDING
+    verified_artifact: Optional[str] = None
+
+    class Config:
+        use_enum_values = True
+
+
+class StudioMilestone(BaseModel):
+    version: str
+    codename: str
+    theme: str
+    status: MilestoneStatus = MilestoneStatus.PLANNED
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    completed_at: Optional[datetime] = None
+    deliverables: List[MilestoneDeliverable] = Field(default_factory=list)
+    completion_percentage: float = 0.0
+
+    class Config:
+        use_enum_values = True
+        json_encoders = {
+            datetime: lambda v: v.isoformat()
+        }
+
+
+class StudioRoadmapState(BaseModel):
+    active_version: str
+    milestones: List[StudioMilestone]
+    last_updated: datetime = Field(default_factory=datetime.utcnow)
+
+    class Config:
+        use_enum_values = True
+        json_encoders = {
+            datetime: lambda v: v.isoformat()
+        }
