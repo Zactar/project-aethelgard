@@ -1,2001 +1,223 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
-  <title>Project Aethelgard - Living World Simulation</title>
+  <title>Frogger River Crossing - Project Runtime</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    * {
-      box-sizing: border-box;
-      user-select: none;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      overflow: hidden;
-      background: #070a0e;
-      font-family: 'Segoe UI', monospace;
-      color: #eceff4;
-    }
-
-    #canvas-container {
-      width: 100vw;
-      height: 100vh;
-      display: block;
-      position: absolute;
-      top: 0;
-      left: 0;
-      z-index: 1;
-    }
-
-    /* Top Commodity & Clock Ticker */
-    #commodity-ticker {
-      position: absolute;
-      top: 14px;
-      left: 16px;
-      right: 230px;
-      display: flex;
-      gap: 18px;
-      align-items: center;
-      background: rgba(13, 17, 23, 0.94);
-      border: 1px solid #434c5e;
-      padding: 9px 18px;
-      border-radius: 6px;
-      font-size: 12px;
-      backdrop-filter: blur(8px);
-      z-index: 10;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
-    }
-
-    .ticker-title {
-      color: #88c0d0;
-      font-weight: bold;
-      letter-spacing: 0.5px;
-    }
-
-    .ticker-item {
-      display: flex;
-      gap: 6px;
-      align-items: center;
-    }
-
-    .ticker-price {
-      color: #a3be8c;
-      font-weight: bold;
-    }
-
-    #clock-display {
-      color: #ebcb8b;
-      font-weight: bold;
-      margin-left: auto;
-    }
-
-    /* Faction & Regime Bar */
-    #faction-hud {
-      position: absolute;
-      top: 58px;
-      left: 16px;
-      display: flex;
-      gap: 14px;
-      align-items: center;
-      background: rgba(15, 20, 28, 0.92);
-      border: 1px solid #4c566a;
-      padding: 6px 14px;
-      border-radius: 6px;
-      font-size: 11px;
-      z-index: 10;
-    }
-
-    .faction-badge {
-      display: flex;
-      gap: 4px;
-      align-items: center;
-    }
-
-    .faction-val {
-      font-weight: bold;
-    }
-
-    /* Radar Minimap */
-    #radar-container {
-      position: absolute;
-      top: 14px;
-      right: 16px;
-      width: 180px;
-      height: 180px;
-      background: rgba(13, 17, 23, 0.94);
-      border: 2px solid #5e81ac;
-      border-radius: 50%;
-      overflow: hidden;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
-      z-index: 10;
-    }
-
-    #radar-canvas {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
-
-    #keyring-hud {
-      position: absolute;
-      top: 204px;
-      right: 16px;
-      width: 180px;
-      background: rgba(13, 17, 23, 0.88);
-      border: 1px solid #5e81ac;
-      border-radius: 6px;
-      padding: 8px 12px;
-      font-size: 11px;
-      z-index: 10;
-    }
-
-    .key-item {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      color: #ebcb8b;
-      margin-top: 4px;
-    }
-
-    #stealth-hud {
-      position: absolute;
-      top: 96px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: none;
-      align-items: center;
-      gap: 12px;
-      background: rgba(46, 52, 64, 0.96);
-      border: 1px solid #d08770;
-      padding: 8px 22px;
-      border-radius: 24px;
-      box-shadow: 0 4px 24px rgba(208, 135, 112, 0.4);
-      z-index: 10;
-    }
-
-    #stealth-label {
-      color: #d08770;
-      font-weight: bold;
-      font-size: 11px;
-      letter-spacing: 1px;
-    }
-
-    #stealth-meter-bar {
-      width: 140px;
-      height: 8px;
-      background: #2e3440;
-      border-radius: 4px;
-      overflow: hidden;
-    }
-
-    #stealth-meter-fill {
-      width: 0%;
-      height: 100%;
-      background: #bf616a;
-      transition: width 0.1s linear;
-    }
-
-    #light-hud {
-      position: absolute;
-      top: 132px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      background: rgba(13, 17, 23, 0.9);
-      border: 1px solid #4c566a;
-      padding: 4px 16px;
-      border-radius: 16px;
-      z-index: 10;
-    }
-
-    #quest-banner {
-      position: absolute;
-      bottom: 20px;
-      left: 20px;
-      background: rgba(22, 27, 34, 0.94);
-      border-left: 4px solid #88c0d0;
-      padding: 14px 20px;
-      border-radius: 4px;
-      z-index: 10;
-      max-width: 380px;
-      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.6);
-      backdrop-filter: blur(6px);
-    }
-
-    #quest-act {
-      font-size: 11px;
-      text-transform: uppercase;
-      color: #81a1c1;
-      letter-spacing: 1.5px;
-    }
-
-    #quest-title {
-      font-size: 15px;
-      font-weight: bold;
-      margin: 4px 0;
-      color: #eceff4;
-    }
-
-    #quest-obj {
-      font-size: 12px;
-      color: #d8dee9;
-      line-height: 1.4;
-    }
-
-    #backpack-hud {
-      position: absolute;
-      bottom: 20px;
-      right: 20px;
-      display: flex;
-      gap: 10px;
-      background: rgba(22, 27, 34, 0.94);
-      border: 1px solid #434c5e;
-      padding: 10px 14px;
-      border-radius: 8px;
-      z-index: 10;
-      backdrop-filter: blur(6px);
-      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.6);
-    }
-
-    .backpack-slot {
-      width: 50px;
-      height: 50px;
-      background: #2e3440;
-      border: 1px solid #4c566a;
-      border-radius: 6px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      position: relative;
-      transition: all 0.15s ease;
-    }
-
-    .backpack-slot:hover {
-      border-color: #88c0d0;
-      transform: translateY(-2px);
-    }
-
-    .backpack-slot .key-tag {
-      position: absolute;
-      top: 2px;
-      left: 4px;
-      font-size: 9px;
-      color: #81a1c1;
-    }
-
-    .backpack-slot .item-icon {
-      font-size: 20px;
-    }
-
-    .backpack-slot .item-count {
-      position: absolute;
-      bottom: 2px;
-      right: 4px;
-      font-size: 10px;
-      font-weight: bold;
-      color: #eceff4;
-    }
-
-    /* Interactive Prompts */
-    #interaction-prompt,
-    #crafting-prompt,
-    #gate-prompt,
-    #proclamation-prompt,
-    #altar-prompt {
-      position: absolute;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      display: none;
-      padding: 10px 24px;
-      border-radius: 20px;
-      font-size: 13px;
-      font-weight: bold;
-      letter-spacing: 0.5px;
-      z-index: 10;
-    }
-
-    #interaction-prompt {
-      top: 60%;
-      background: rgba(13, 17, 23, 0.95);
-      border: 1px solid #ebcb8b;
-      color: #ebcb8b;
-    }
-
-    #crafting-prompt {
-      top: 66%;
-      background: rgba(13, 17, 23, 0.95);
-      border: 1px solid #a3be8c;
-      color: #a3be8c;
-    }
-
-    #gate-prompt {
-      top: 54%;
-      background: rgba(13, 17, 23, 0.95);
-      border: 1px solid #88c0d0;
-      color: #88c0d0;
-    }
-
-    #proclamation-prompt {
-      top: 48%;
-      background: rgba(15, 20, 28, 0.95);
-      border: 1px solid #d08770;
-      color: #d08770;
-    }
-
-    #altar-prompt {
-      top: 42%;
-      background: rgba(20, 16, 28, 0.95);
-      border: 1px solid #b48ead;
-      color: #b48ead;
-    }
-
-    /* Proclamation Board Modal */
-    #edict-modal {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      display: none;
-      width: 440px;
-      background: rgba(15, 20, 28, 0.98);
-      border: 2px solid #d08770;
-      border-radius: 8px;
-      padding: 20px;
-      z-index: 30;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.9);
-    }
-
-    .modal-title {
-      font-size: 16px;
-      font-weight: bold;
-      color: #d08770;
-      margin-bottom: 12px;
-    }
-
-    .edict-btn {
-      width: 100%;
-      padding: 10px;
-      margin-top: 8px;
-      background: #2e3440;
-      border: 1px solid #4c566a;
-      color: #eceff4;
-      font-weight: bold;
-      cursor: pointer;
-      border-radius: 4px;
-    }
-
-    .edict-btn:hover {
-      border-color: #88c0d0;
-    }
-
-    #dialogue-box {
-      position: absolute;
-      bottom: 95px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: none;
-      width: 520px;
-      background: rgba(15, 20, 28, 0.97);
-      border: 1px solid #81a1c1;
-      border-radius: 8px;
-      padding: 16px 22px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.85);
-      z-index: 20;
-    }
-
-    #dialogue-speaker {
-      font-size: 13px;
-      font-weight: bold;
-      color: #88c0d0;
-      margin-bottom: 6px;
-    }
-
-    #dialogue-text {
-      font-size: 14px;
-      line-height: 1.5;
-      color: #e5e9f0;
-    }
-
-    #zone-banner {
-      position: absolute;
-      top: 120px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 18px;
-      font-weight: bold;
-      letter-spacing: 3px;
-      color: #88c0d0;
-      text-transform: uppercase;
-      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
-      opacity: 0;
-      transition: opacity 0.6s ease;
-      pointer-events: none;
-      z-index: 15;
-    }
-
-    #camera-controls-hint {
-      position: absolute;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(13, 17, 23, 0.85);
-      border: 1px solid #434c5e;
-      padding: 6px 16px;
-      border-radius: 20px;
-      font-size: 11px;
-      color: #81a1c1;
-      pointer-events: none;
-      z-index: 10;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    body { background: #0a0e14; color: #eceff4; font-family: monospace; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
+    #game-header { position: absolute; top: 16px; display: flex; gap: 24px; font-size: 14px; background: rgba(15,20,28,0.95); padding: 10px 20px; border-radius: 6px; border: 1px solid #4c566a; z-index: 10; }
+    .hud-val { color: #a3be8c; font-weight: bold; }
+    #viewport-canvas { background: #1a1f29; border: 2px solid #5e81ac; border-radius: 4px; box-shadow: 0 8px 32px rgba(0,0,0,0.8); display: block; }
+    #game-over-banner { position: absolute; font-size: 24px; font-weight: bold; color: #bf616a; display: none; }
   </style>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
-
 <body>
-  <div id="commodity-ticker">
-    <div class="ticker-title">CITADEL COMMODITIES:</div>
-    <div class="ticker-item"><span>Bread:</span> <span id="tick-bread" class="ticker-price">5.00s</span></div>
-    <div class="ticker-item"><span>Salve:</span> <span id="tick-salve" class="ticker-price">25.00s</span></div>
-    <div class="ticker-item"><span>Permit:</span> <span id="tick-permit" class="ticker-price">65.00s</span></div>
-    <div class="ticker-item"><span>Silver:</span> <span id="tick-silver" class="ticker-price">100.00s</span></div>
-    <div id="clock-display">⏰ HOUR: 14:00 (DAYLIGHT)</div>
+  <div id="game-header">
+    <div>PROJECT: <span class="hud-val">FROGGER RIVER CROSSING</span></div>
+    <div>SCORE: <span id="hud-score" class="hud-val">0</span></div>
+    <div>LIVES: <span id="hud-lives" class="hud-val">3</span></div>
   </div>
 
-  <div id="faction-hud">
-    <div class="faction-badge"><span style="color: #d08770;">REGIME:</span> <span id="regime-name"
-        class="faction-val">CITADEL THEOCRACY</span></div>
-    <div class="faction-badge"><span>Clerisy:</span> <span id="fac-clerisy" class="faction-val"
-        style="color: #ebcb8b;">85%</span></div>
-    <div class="faction-badge"><span>Guilds:</span> <span id="fac-guilds" class="faction-val"
-        style="color: #a3be8c;">40%</span></div>
-    <div class="faction-badge"><span>Commons:</span> <span id="fac-commons" class="faction-val"
-        style="color: #88c0d0;">30%</span></div>
-    <div class="faction-badge"><span>Watch:</span> <span id="fac-watch" class="faction-val"
-        style="color: #bf616a;">65%</span></div>
-  </div>
-
-  <div id="radar-container">
-    <canvas id="radar-canvas" width="180" height="180"></canvas>
-  </div>
-
-  <div id="keyring-hud">
-    <div style="font-weight: bold; color: #81a1c1;">KEYRING & TOKENS:</div>
-    <div class="key-item"><span>🔑</span> <span id="key-undercroft">Undercroft Key</span></div>
-    <div class="key-item"><span>📜</span> <span id="key-permit">Forged Transit Permit</span></div>
-  </div>
-
-  <div id="stealth-hud">
-    <span id="stealth-label">CURFEW ALERT:</span>
-    <div id="stealth-meter-bar">
-      <div id="stealth-meter-fill"></div>
-    </div>
-  </div>
-
-  <div id="light-hud">
-    <span style="font-size: 10px; color: #88c0d0; font-weight: bold;">LIGHT LEVEL:</span>
-    <div style="width: 80px; height: 6px; background: #1a202c; border-radius: 3px; overflow: hidden;">
-      <div id="light-meter-fill" style="width: 10%; height: 100%; background: #ebcb8b; transition: width 0.1s linear;">
-      </div>
-    </div>
-    <span id="crouch-indicator" style="font-size: 10px; color: #64748b; font-weight: bold;">STAND</span>
-  </div>
-
-  <div id="zone-banner">MARKET CROSS SQUARE</div>
-
-  <div id="quest-banner">
-    <div id="quest-act">Act VIII: Daily Routines</div>
-    <div id="quest-title">The Living World of Aethelgard</div>
-    <div id="quest-obj">Observe NPC daily schedules, inspect the Proclamation Board, or make offerings at the Undercroft
-      Altar.</div>
-  </div>
+  <div id="game-over-banner">GAME OVER - PRESS [SPACE] TO RESTART</div>
+  <canvas id="viewport-canvas" width="640" height="480"></canvas>
 
   
-  <div id="granary-hud" style="position: absolute; top: 168px; left: 16px; background: rgba(15, 20, 28, 0.92); border: 1px solid #a3be8c; padding: 6px 14px; border-radius: 6px; font-size: 11px; z-index: 10;">
-    <span style="color: #a3be8c; font-weight: bold;">GRANARY STOCKPILE:</span> <span id="granary-bushels" style="font-weight: bold;">150</span> Bushels
-  </div>
-  <div id="crate-prompt" style="position: absolute; top: 36%; left: 50%; transform: translate(-50%, -50%); display: none; background: rgba(20, 24, 34, 0.95); border: 1px solid #ebcb8b; color: #ebcb8b; padding: 10px 24px; border-radius: 20px; font-size: 13px; font-weight: bold; z-index: 10;">[G] Haul Grain Crate</div>
-
-  <div id="backpack-hud">
-    <div class="backpack-slot" onclick="consumeItem('bread')">
-      <span class="key-tag">1</span><span class="item-icon">🍞</span><span class="item-count" id="count-bread">3</span>
-    </div>
-    <div class="backpack-slot" onclick="consumeItem('salve')">
-      <span class="key-tag">2</span><span class="item-icon">🧪</span><span class="item-count" id="count-salve">1</span>
-    </div>
-    <div class="backpack-slot" onclick="consumeItem('permit')">
-      <span class="key-tag">3</span><span class="item-icon">📜</span><span class="item-count" id="count-permit">1</span>
-    </div>
-    <div class="backpack-slot" title="Flour">
-      <span class="key-tag">4</span><span class="item-icon">🌾</span><span class="item-count" id="count-flour">2</span>
-    </div>
-  </div>
-
-  <div id="interaction-prompt">[E] Speak</div>
-  <div id="crafting-prompt">[F] Craft at Workstation</div>
-  <div id="gate-prompt">[E] Unlock Portcullis</div>
-  <div id="proclamation-prompt">[E] Inspect Proclamation Board</div>
-  <div id="altar-prompt">[F] Make Offering at Heretical Altar</div>
-
-  <!-- Proclamation Board Edict Modal -->
-  <div id="edict-modal">
-    <div class="modal-title">CITADEL PROCLAMATION & EDICTS</div>
-    <p style="font-size: 12px; color: #d8dee9; line-height: 1.4; margin-bottom: 12px;">
-      Authority: <span id="modal-authority" style="color: #a3be8c; font-weight: bold;">Stable (70%)</span><br>
-      Active Regime: <span id="modal-regime" style="color: #ebcb8b; font-weight: bold;">Citadel Theocracy</span>
-    </p>
-    <button class="edict-btn" id="btn-toggle-curfew" onclick="toggleCurfewEdict()">[EDICT] REPEAL NIGHT CURFEW</button>
-    <button class="edict-btn" onclick="distributeGrainRations()">[EDICT] DECREE EMERGENCY GRAIN RELIEF</button>
-    <button class="edict-btn" style="background: #3b4252; margin-top: 14px;"
-      onclick="closeEdictModal()">[CLOSE]</button>
-  </div>
-
-  <div id="dialogue-box">
-    <div id="dialogue-speaker">NPC Name</div>
-    <div id="dialogue-text">Dialogue message content here...</div>
-  </div>
-
-  <div id="camera-controls-hint">WASD: Move | Shift: Sprint | C: Crouch | E: Interact/Board | F: Craft/Altar | T:
-    Advance Hour</div>
-  <div id="canvas-container"></div>
-
   <script>
-    // =========================================================================
-    // 1. PROCEDURAL AUDIO & SPEECH ENGINES
-    // =========================================================================
-    class ProceduralAudioEngine {
-      constructor() { this.ctx = null; }
-      init() {
-        if (!this.ctx) {
-          const AudioContext = window.AudioContext || window.webkitAudioContext;
-          this.ctx = new AudioContext();
-        }
-      }
-      playFootstep() {
-        if (!this.ctx) return;
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(85, this.ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(30, this.ctx.currentTime + 0.08);
-        gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.08);
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start();
-        osc.stop(this.ctx.currentTime + 0.08);
-      }
-      playPortcullisGrind() {
-        if (!this.ctx) return;
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(65, this.ctx.currentTime);
-        osc.frequency.linearRampToValueAtTime(110, this.ctx.currentTime + 1.2);
-        gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 1.2);
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start();
-        osc.stop(this.ctx.currentTime + 1.2);
-      }
-      playCraftingSizzle() {
-        if (!this.ctx) return;
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(140, this.ctx.currentTime);
-        osc.frequency.linearRampToValueAtTime(320, this.ctx.currentTime + 0.6);
-        gain.gain.setValueAtTime(0.14, this.ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.6);
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start();
-        osc.stop(this.ctx.currentTime + 0.6);
-      }
-      playAltarHum() {
-        if (!this.ctx) return;
-        [110.0, 164.81, 220.0].forEach(f => {
-          const osc = this.ctx.createOscillator();
-          const gain = this.ctx.createGain();
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(f, this.ctx.currentTime);
-          gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 1.4);
-          osc.connect(gain);
-          gain.connect(this.ctx.destination);
-          osc.start();
-          osc.stop(this.ctx.currentTime + 1.4);
-        });
-      }
-      playBuffChime() {
-        if (!this.ctx) return;
-        [261.63, 329.63, 392.00, 523.25].forEach((freq, idx) => {
-          const osc = this.ctx.createOscillator();
-          const gain = this.ctx.createGain();
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(freq, this.ctx.currentTime + idx * 0.06);
-          gain.gain.setValueAtTime(0.12, this.ctx.currentTime + idx * 0.06);
-          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + idx * 0.06 + 0.25);
-          osc.connect(gain);
-          gain.connect(this.ctx.destination);
-          osc.start(this.ctx.currentTime + idx * 0.06);
-          osc.stop(this.ctx.currentTime + idx * 0.06 + 0.25);
-        });
-      }
-      playFanfare() {
-        if (!this.ctx) return;
-        [392.00, 493.88, 587.33, 783.99].forEach(freq => {
-          const osc = this.ctx.createOscillator();
-          const gain = this.ctx.createGain();
-          osc.type = 'triangle';
-          osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-          gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.7);
-          osc.connect(gain);
-          gain.connect(this.ctx.destination);
-          osc.start();
-          osc.stop(this.ctx.currentTime + 0.7);
-        });
-      }
-    }
-    const audio = new ProceduralAudioEngine();
-    window.addEventListener('keydown', () => audio.init(), { once: true });
-    window.addEventListener('click', () => audio.init(), { once: true });
+    const canvas = document.getElementById('viewport-canvas');
+    const ctx = canvas.getContext('2d');
 
-    function speakNPC(text, pitch = 1.0, rate = 1.0) {
-      if (!('speechSynthesis' in window)) return;
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.pitch = pitch;
-      utterance.rate = rate;
-      window.speechSynthesis.speak(utterance);
-    }
+    const gridSize = 40;
+    const cols = 16; // 640px
+    const rows = 12; // 480px
 
-    // =========================================================================
-    // 2. THREE.JS SCENE SETUP, SHADOWS & CAMERA
-    // =========================================================================
-    const container = document.getElementById('canvas-container');
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color('#070a0e');
-    scene.fog = new THREE.FogExp2('#070a0e', 0.012);
+    let score = 0;
+    let lives = 3;
+    let gameOver = false;
+    let highestRow = rows - 1;
 
-    const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.5, 300);
-    camera.position.set(0, 16, 14);
-    camera.lookAt(0, 0, 0);
+    // Player Frog
+    const player = {
+      col: 8,
+      row: rows - 1,
+      width: 32,
+      height: 32,
+      color: '#a3be8c'
+    };
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    container.appendChild(renderer.domElement);
-
-    const ambientLight = new THREE.AmbientLight('#6272a4', 0.85);
-    scene.add(ambientLight);
-
-    const sun = new THREE.DirectionalLight('#ffffff', 1.3);
-    sun.position.set(40, 60, 30);
-    sun.castShadow = true;
-    sun.shadow.mapSize.width = 1024;
-    sun.shadow.mapSize.height = 1024;
-    scene.add(sun);
-
-    // =========================================================================
-    // 3. TEXTURES & PROCEDURAL TILES
-    // =========================================================================
-    function makeTileTexture(baseColor, mortarColor, rows = 4, cols = 4) {
-      const c = document.createElement('canvas');
-      c.width = 256; c.height = 256;
-      const ctx = c.getContext('2d');
-      ctx.fillStyle = mortarColor;
-      ctx.fillRect(0, 0, 256, 256);
-
-      const rh = 256 / rows, cw = 256 / cols;
-      for (let r = 0; r < rows; r++) {
-        const offset = (r % 2) * (cw / 2);
-        for (let col = -1; col <= cols; col++) {
-          const x = col * cw + offset;
-          const y = r * rh;
-          ctx.fillStyle = baseColor;
-          ctx.fillRect(x + 3, y + 3, cw - 6, rh - 6);
-          ctx.fillStyle = 'rgba(255,255,255,0.18)';
-          ctx.fillRect(x + 3, y + 3, cw - 6, 3);
-          ctx.fillStyle = 'rgba(0,0,0,0.25)';
-          ctx.fillRect(x + 3, y + rh - 6, cw - 6, 3);
-        }
-      }
-      const tex = new THREE.CanvasTexture(c);
-      tex.wrapS = THREE.RepeatWrapping;
-      tex.wrapT = THREE.RepeatWrapping;
-      tex.needsUpdate = true;
-      return tex;
-    }
-
-    const marketTex = makeTileTexture('#7d8b9e', '#1c222d', 4, 4);
-    const bakeryTex = makeTileTexture('#b07044', '#361d10', 8, 2);
-    const curativeTex = makeTileTexture('#c46c52', '#3d1b12', 4, 4);
-    const undercroftTex = makeTileTexture('#475569', '#0f141c', 4, 4);
-
-    // =========================================================================
-    // 4. ANIMATED PLAYER RIG & CROUCH POSTURE
-    // =========================================================================
-    const playerGroup = new THREE.Group();
-    playerGroup.position.set(0, 0, 0);
-
-    const cloakMat = new THREE.MeshStandardMaterial({ color: 0x5e81ac, roughness: 0.35 });
-    const armorMat = new THREE.MeshStandardMaterial({ color: 0x2e3440, roughness: 0.4, metalness: 0.3 });
-    const skinMat = new THREE.MeshStandardMaterial({ color: 0xd8dee9, roughness: 0.3 });
-
-    const torso = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.9, 0.42), cloakMat);
-    torso.position.y = 0.95;
-    torso.castShadow = true;
-    playerGroup.add(torso);
-
-    const head = new THREE.Mesh(new THREE.SphereGeometry(0.28, 16, 16), skinMat);
-    head.position.y = 1.62;
-    head.castShadow = true;
-    playerGroup.add(head);
-
-    const hood = new THREE.Mesh(new THREE.ConeGeometry(0.33, 0.45, 8), cloakMat);
-    hood.rotation.x = -0.3;
-    hood.position.set(0, 1.72, -0.08);
-    playerGroup.add(hood);
-
-    const armL = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.7, 0.2), cloakMat);
-    armL.position.set(-0.48, 0.95, 0);
-    armL.castShadow = true;
-    playerGroup.add(armL);
-
-    const armR = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.7, 0.2), cloakMat);
-    armR.position.set(0.48, 0.95, 0);
-    armR.castShadow = true;
-    playerGroup.add(armR);
-
-    const legL = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.58, 0.25), armorMat);
-    legL.position.set(-0.19, 0.29, 0);
-    legL.castShadow = true;
-    playerGroup.add(legL);
-
-    const legR = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.58, 0.25), armorMat);
-    legR.position.set(0.19, 0.29, 0);
-    legR.castShadow = true;
-    playerGroup.add(legR);
-
-    const chevronGeo = new THREE.BufferGeometry();
-    const chevronVerts = new Float32Array([
-      0.0, 0.05, -1.35,
-      -0.48, 0.05, -0.65,
-      0.0, 0.05, -0.85,
-      0.48, 0.05, -0.65
-    ]);
-    chevronGeo.setAttribute('position', new THREE.BufferAttribute(chevronVerts, 3));
-    chevronGeo.setIndex([0, 1, 2, 0, 2, 3]);
-    const chevronMesh = new THREE.Mesh(chevronGeo, new THREE.MeshBasicMaterial({ color: 0x88c0d0, side: THREE.DoubleSide }));
-    playerGroup.add(chevronMesh);
-
-    const lantern = new THREE.PointLight(0xffcc66, 1.4, 16);
-    lantern.position.set(0.5, 0.9, 0.25);
-    lantern.castShadow = true;
-    playerGroup.add(lantern);
-
-    scene.add(playerGroup);
-
-    const stepParticles = [];
-    function spawnFootstepParticle(x, y, z) {
-      const ring = new THREE.Mesh(
-        new THREE.RingGeometry(0.15, 0.3, 16),
-        new THREE.MeshBasicMaterial({ color: 0x88c0d0, transparent: true, opacity: 0.6, side: THREE.DoubleSide })
-      );
-      ring.rotation.x = -Math.PI / 2;
-      ring.position.set(x, y + 0.02, z);
-      scene.add(ring);
-      stepParticles.push({ mesh: ring, life: 1.0 });
-    }
-
-    // =========================================================================
-    // 5. PROCLAMATION BOARD, ALTAR, GATES & WORKSTATIONS
-    // =========================================================================
-    const gateRecords = [];
-    const ironGateMat = new THREE.MeshStandardMaterial({ color: 0x2e3440, roughness: 0.3, metalness: 0.85 });
-
-    function spawnPhysicalPortcullis(id, x, y, z, width = 3.6, height = 3.4) {
-      const group = new THREE.Group();
-      const barCount = 7;
-      const barSpacing = width / (barCount + 1);
-
-      for (let i = 1; i <= barCount; i++) {
-        const bar = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, height, 8), ironGateMat);
-        bar.position.set(-width / 2 + i * barSpacing, height / 2, 0);
-        bar.castShadow = true;
-        group.add(bar);
-      }
-
-      [0.6, height / 2, height - 0.4].forEach(hy => {
-        const cross = new THREE.Mesh(new THREE.BoxGeometry(width, 0.12, 0.12), ironGateMat);
-        cross.position.set(0, hy, 0);
-        cross.castShadow = true;
-        group.add(cross);
-      });
-
-      group.position.set(x, y, z);
-      scene.add(group);
-
-      gateRecords.push({
-        id, group, baseY: y, targetY: y, pos: new THREE.Vector3(x, y, z), isLocked: true
-      });
-    }
-
-    spawnPhysicalPortcullis("gate_undercroft", 0.0, 0.0, -15.0);
-    spawnPhysicalPortcullis("gate_garrison", 0.0, 0.0, -38.0);
-
-    // Civic Proclamation Board in Market Square
-    const proclamationGroup = new THREE.Group();
-    const woodMat = new THREE.MeshStandardMaterial({ color: 0x5c3a21, roughness: 0.8 });
-    const postL = new THREE.Mesh(new THREE.BoxGeometry(0.2, 2.8, 0.2), woodMat);
-    postL.position.set(-1.2, 1.4, 0);
-    proclamationGroup.add(postL);
-    const postR = new THREE.Mesh(new THREE.BoxGeometry(0.2, 2.8, 0.2), woodMat);
-    postR.position.set(1.2, 1.4, 0);
-    proclamationGroup.add(postR);
-    const board = new THREE.Mesh(new THREE.BoxGeometry(2.4, 1.6, 0.15), woodMat);
-    board.position.set(0, 1.8, 0);
-    proclamationGroup.add(board);
-    const paper = new THREE.Mesh(new THREE.BoxGeometry(2.1, 1.3, 0.02), new THREE.MeshStandardMaterial({ color: 0xeedbb2 }));
-    paper.position.set(0, 1.8, 0.09);
-    proclamationGroup.add(paper);
-    proclamationGroup.position.set(-4.0, 0.0, -2.5);
-    scene.add(proclamationGroup);
-
-    // Underground Heretical Altar in Subterranean Undercroft
-    const altarGroup = new THREE.Group();
-    const altarStoneMat = new THREE.MeshStandardMaterial({ color: 0x1e1b2e, roughness: 0.6 });
-    const altarBase = new THREE.Mesh(new THREE.BoxGeometry(2.8, 0.9, 1.8), altarStoneMat);
-    altarBase.position.y = 0.45;
-    altarBase.castShadow = true;
-    altarGroup.add(altarBase);
-
-    const altarSigil = new THREE.Mesh(
-      new THREE.RingGeometry(0.5, 0.65, 16),
-      new THREE.MeshBasicMaterial({ color: 0xb48ead, side: THREE.DoubleSide })
-    );
-    altarSigil.rotation.x = -Math.PI / 2;
-    altarSigil.position.y = 0.91;
-    altarGroup.add(altarSigil);
-
-    const altarLight = new THREE.PointLight(0xb48ead, 1.8, 8);
-    altarLight.position.set(0, 1.4, 0);
-    altarGroup.add(altarLight);
-    altarGroup.position.set(22.0, -4.5, -28.0);
-    scene.add(altarGroup);
-
-    const workstationRecords = [];
-    const craftingProgressRing = new THREE.Mesh(
-      new THREE.RingGeometry(1.2, 1.4, 32, 1, 0, 0),
-      new THREE.MeshBasicMaterial({ color: 0xa3be8c, side: THREE.DoubleSide })
-    );
-    craftingProgressRing.rotation.x = -Math.PI / 2;
-    craftingProgressRing.visible = false;
-    scene.add(craftingProgressRing);
-
-    let activeCrafting = null;
-
-    
-    // =========================================================================
-    // 5B. GRANARY SILO, SUPPLY WAGONS & PHYSICAL CRATES (v0.30.0 Autonomous Patch)
-    // =========================================================================
-    const granarySiloGroup = new THREE.Group();
-    const siloBody = new THREE.Mesh(new THREE.CylinderGeometry(2.2, 2.2, 4.5, 20), new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: 0.8 }));
-    siloBody.position.y = 2.25; siloBody.castShadow = true; granarySiloGroup.add(siloBody);
-    const siloRoof = new THREE.Mesh(new THREE.ConeGeometry(2.6, 1.8, 20), new THREE.MeshStandardMaterial({ color: 0x991b1b }));
-    siloRoof.position.y = 5.4; granarySiloGroup.add(siloRoof);
-    granarySiloGroup.position.set(-16.0, 0.0, 6.0);
-    scene.add(granarySiloGroup);
-
-    // Supply Wagon with Sacks
-    const wagonGroup = new THREE.Group();
-    const wagonBed = new THREE.Mesh(new THREE.BoxGeometry(3.6, 0.4, 1.8), new THREE.MeshStandardMaterial({ color: 0x5c3a21 }));
-    wagonBed.position.y = 0.8; wagonBed.castShadow = true; wagonGroup.add(wagonBed);
-    [-1.2, 1.2].forEach(wx => {
-      [-1.0, 1.0].forEach(wz => {
-        const wheel = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.15, 16), new THREE.MeshStandardMaterial({ color: 0x2e3440, metalness: 0.8 }));
-        wheel.rotation.z = Math.PI / 2;
-        wheel.position.set(wx, 0.5, wz);
-        wagonGroup.add(wheel);
-      });
-    });
-    wagonGroup.position.set(8.0, 0.0, -2.0);
-    scene.add(wagonGroup);
-
-    // Physical Haulable Grain Crate
-    const haulableCrates = [
-      { id: "crate_01", pos: new THREE.Vector3(7.0, 0.4, -2.5), mesh: null, isCarried: false }
+    // Obstacles & Hazards (Lanes)
+    const lanes = [
+      { row: 1, type: 'goal', items: [2, 5, 8, 11, 14].map(c => ({ col: c, filled: false })) },
+      { row: 2, type: 'river', speed: -2.2, width: 90, color: '#4c566a', items: [0, 240, 480] },
+      { row: 3, type: 'river', speed: 1.8, width: 70, color: '#4c566a', items: [60, 300, 540] },
+      { row: 4, type: 'river', speed: -2.8, width: 110, color: '#4c566a', items: [100, 380] },
+      { row: 5, type: 'river', speed: 1.5, width: 80, color: '#4c566a', items: [40, 260, 480] },
+      { row: 6, type: 'safe', color: '#3b4252' }, // Median
+      { row: 7, type: 'road', speed: -3.0, width: 50, color: '#bf616a', items: [50, 250, 450] },
+      { row: 8, type: 'road', speed: 2.0, width: 65, color: '#d08770', items: [0, 300] },
+      { row: 9, type: 'road', speed: -1.8, width: 45, color: '#ebcb8b', items: [80, 280, 480] },
+      { row: 10, type: 'road', speed: 2.5, width: 80, color: '#bf616a', items: [120, 380] },
+      { row: 11, type: 'safe', color: '#2e3440' } // Starting Pavement
     ];
-    const crateBoxMat = new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.6 });
-    const crateMesh = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.8, 0.8), crateBoxMat);
-    crateMesh.position.copy(haulableCrates[0].pos);
-    crateMesh.castShadow = true;
-    scene.add(crateMesh);
-    haulableCrates[0].mesh = crateMesh;
-
-    let isCarryingCrate = false;
-    let carriedCrate = null;
-    let granaryBushels = 150;
 
     window.addEventListener('keydown', e => {
-      if (e.key === 'g' || e.key === 'G') {
-        triggerCrateHaul();
+      if (gameOver) {
+        if (e.code === 'Space') resetGame();
+        return;
       }
+      if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') hop(0, -1);
+      if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') hop(0, 1);
+      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') hop(-1, 0);
+      if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') hop(1, 0);
     });
 
-    function triggerCrateHaul() {
-      if (isCarryingCrate) {
-        // Check if near Granary Silo to deposit
-        if (playerPos.distanceTo(granarySiloGroup.position) < 4.0) {
-          granaryBushels += 10;
-          document.getElementById('granary-bushels').innerText = granaryBushels;
-          audio.playFanfare();
-          document.getElementById('quest-obj').innerText = "Grain crate deposited into the Citadel Granary! (+10 Bushels)";
-        } else {
-          // Drop on ground
-          carriedCrate.mesh.position.set(playerPos.x, playerPos.y + 0.4, playerPos.z);
-          scene.add(carriedCrate.mesh);
-          audio.playFootstep();
-        }
-        carriedCrate.isCarried = false;
-        playerGroup.remove(carriedCrate.mesh);
-        isCarryingCrate = false;
-        carriedCrate = null;
-      } else {
-        // Pick up nearby crate
-        for (const c of haulableCrates) {
-          if (!c.isCarried && playerPos.distanceTo(c.mesh.position) < 2.5) {
-            c.isCarried = true;
-            isCarryingCrate = true;
-            carriedCrate = c;
-            c.mesh.position.set(0, 1.2, -0.6);
-            playerGroup.add(c.mesh);
-            audio.playBuffChime();
-            break;
-          }
-        }
+    function hop(dx, dy) {
+      player.col = Math.max(0, Math.min(cols - 1, player.col + dx));
+      player.row = Math.max(0, Math.min(rows - 1, player.row + dy));
+
+      if (dy < 0 && player.row < highestRow) {
+        highestRow = player.row;
+        score += 10;
+        document.getElementById('hud-score').innerText = score;
       }
     }
 
-    
-    // =========================================================================
-    // 5C. CIVIC PROCLAMATION POSTERS & REVOLUTION DECALS (v0.32.0 Autonomous Patch)
-    // =========================================================================
-    const posterMat = new THREE.MeshStandardMaterial({ color: 0xebcb8b, roughness: 0.9 });
-    const posterGeometry = new THREE.PlaneGeometry(1.2, 1.6);
-    
-    // Wall Proclamation Posters in Market Square
-    [[-11.7, 2.0, -4.0, Math.PI / 2], [11.7, 2.0, 4.0, -Math.PI / 2]].forEach(([px, py, pz, rotY]) => {
-      const poster = new THREE.Mesh(posterGeometry, posterMat);
-      poster.position.set(px, py, pz);
-      poster.rotation.y = rotY;
-      poster.receiveShadow = true;
-      scene.add(poster);
-    });
-
-    
-    // =========================================================================
-    // 5C. CIVIC PROCLAMATION POSTERS & REVOLUTION DECALS (v0.32.0 Autonomous Patch)
-    // =========================================================================
-    const posterMat = new THREE.MeshStandardMaterial({ color: 0xebcb8b, roughness: 0.9 });
-    const posterGeometry = new THREE.PlaneGeometry(1.2, 1.6);
-    
-    // Wall Proclamation Posters in Market Square
-    [[-11.7, 2.0, -4.0, Math.PI / 2], [11.7, 2.0, 4.0, -Math.PI / 2]].forEach(([px, py, pz, rotY]) => {
-      const poster = new THREE.Mesh(posterGeometry, posterMat);
-      poster.position.set(px, py, pz);
-      poster.rotation.y = rotY;
-      poster.receiveShadow = true;
-      scene.add(poster);
-    });
-
-    function registerWorkstation(id, type, name, recipeId, pos) {
-      workstationRecords.push({ id, type, name, recipeId, pos: new THREE.Vector3(...pos) });
+    function killPlayer() {
+      lives--;
+      document.getElementById('hud-lives').innerText = lives;
+      player.col = 8;
+      player.row = rows - 1;
+      highestRow = rows - 1;
+      if (lives <= 0) {
+        gameOver = true;
+        document.getElementById('game-over-banner').style.display = 'block';
+      }
     }
 
-    registerWorkstation("oven_bakery_01", "BAKERY_OVEN", "Baking Hearth", "bake_bread", [24.0, 1.1, -4.5]);
-    registerWorkstation("alembic_curatives_01", "APOTHECARY_ALEMBIC", "Apothecary Alembic", "brew_salve", [-24.0, 0.8, -4.5]);
+    function resetGame() {
+      lives = 3;
+      score = 0;
+      gameOver = false;
+      document.getElementById('hud-score').innerText = score;
+      document.getElementById('hud-lives').innerText = lives;
+      document.getElementById('game-over-banner').style.display = 'none';
+      lanes[0].items.forEach(g => g.filled = false);
+      player.col = 8;
+      player.row = rows - 1;
+    }
 
-    // =========================================================================
-    // 6. SPATIAL TOPOLOGY & MANIFEST INGESTION
-    // =========================================================================
-    let roomRecords = [];
-    let actorRecords = [];
-    let waterMesh = null;
+    function update(delta) {
+      if (gameOver) return;
 
-    fetch('game_runtime_manifest.json')
-      .then(res => res.json())
-      .then(manifest => {
-        buildCitadelGeometry(manifest);
-        buildThoroughfares(manifest);
-        spawnLivingActors(manifest);
-      });
-
-    function buildCitadelGeometry(manifest) {
-      const curbMat = new THREE.MeshStandardMaterial({ color: 0x1a202c, roughness: 0.95 });
-      const wallMat = new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.8 });
-      const pillarMat = new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: 0.7 });
-      const waterMat = new THREE.MeshStandardMaterial({
-        color: 0x0284c7, roughness: 0.05, metalness: 0.9, transparent: true, opacity: 0.85
-      });
-
-      (manifest.rooms || []).forEach(room => {
-        const [w, h, d] = room.dimensions;
-        const [x, y, z] = room.position;
-
-        let chosenTex = marketTex;
-        if (room.room_id.includes('bakery')) chosenTex = bakeryTex;
-        if (room.room_id.includes('curatives')) chosenTex = curativeTex;
-        if (room.room_id.includes('undercroft') || room.room_id.includes('conduit') || room.room_id.includes('mill') || room.room_id.includes('sector')) {
-          chosenTex = undercroftTex;
-        }
-
-        const tCloned = chosenTex.clone();
-        tCloned.repeat.set(Math.max(w / 1.8, 2), Math.max(d / 1.8, 2));
-        tCloned.needsUpdate = true;
-
-        const floorMat = room.water_channel ? waterMat : new THREE.MeshStandardMaterial({
-          map: tCloned, roughness: 0.7, metalness: 0.1
-        });
-        const floor = new THREE.Mesh(new THREE.BoxGeometry(w, 0.4, d), floorMat);
-        floor.position.set(x, y - 0.2, z);
-        floor.receiveShadow = true;
-        scene.add(floor);
-        roomRecords.push({ box: new THREE.Box3().setFromObject(floor), room: room });
-
-        if (room.water_channel) waterMesh = floor;
-
-        const curb = new THREE.Mesh(new THREE.BoxGeometry(w + 0.6, 0.35, d + 0.6), curbMat);
-        curb.position.set(x, y - 0.15, z);
-        curb.receiveShadow = true;
-        scene.add(curb);
-
-        const wallH = 3.5;
-        const wallT = 0.5;
-        const sockets = room.corridor_sockets || [];
-        function hasSocket(axis, side) {
-          return sockets.some(s => {
-            const sx = s.position[0] - x;
-            const sz = s.position[2] - z;
-            if (axis === 'z' && side === -1) return sz < -d / 4;
-            if (axis === 'z' && side === 1) return sz > d / 4;
-            if (axis === 'x' && side === -1) return sx < -w / 4;
-            if (axis === 'x' && side === 1) return sx > w / 4;
-            return false;
+      // Update Lane Obstacle Positions
+      lanes.forEach(lane => {
+        if (lane.speed && lane.items) {
+          lane.items = lane.items.map(x => {
+            let nextX = x + lane.speed * delta * 60;
+            if (lane.speed > 0 && nextX > canvas.width + 40) nextX = -lane.width;
+            if (lane.speed < 0 && nextX < -lane.width - 40) nextX = canvas.width;
+            return nextX;
           });
         }
-
-        if (!hasSocket('z', -1)) {
-          const wN = new THREE.Mesh(new THREE.BoxGeometry(w, wallH, wallT), wallMat);
-          wN.position.set(x, y + wallH / 2, z - d / 2);
-          wN.castShadow = true; wN.receiveShadow = true;
-          scene.add(wN);
-        }
-        if (!hasSocket('z', 1)) {
-          const wS = new THREE.Mesh(new THREE.BoxGeometry(w, wallH, wallT), wallMat);
-          wS.position.set(x, y + wallH / 2, z + d / 2);
-          wS.castShadow = true; wS.receiveShadow = true;
-          scene.add(wS);
-        }
-        if (!hasSocket('x', -1)) {
-          const wW = new THREE.Mesh(new THREE.BoxGeometry(wallT, wallH, d), wallMat);
-          wW.position.set(x - w / 2, y + wallH / 2, z);
-          wW.castShadow = true; wW.receiveShadow = true;
-          scene.add(wW);
-        }
-        if (!hasSocket('x', 1)) {
-          const wE = new THREE.Mesh(new THREE.BoxGeometry(wallT, wallH, d), wallMat);
-          wE.position.set(x + w / 2, y + wallH / 2, z);
-          wE.castShadow = true; wE.receiveShadow = true;
-          scene.add(wE);
-        }
-
-        [
-          [x - w / 2, y, z - d / 2],
-          [x + w / 2, y, z - d / 2],
-          [x - w / 2, y, z + d / 2],
-          [x + w / 2, y, z + d / 2]
-        ].forEach(([cx, cy, cz]) => {
-          const pillar = new THREE.Mesh(new THREE.BoxGeometry(0.8, wallH + 0.5, 0.8), pillarMat);
-          pillar.position.set(cx, cy + (wallH + 0.5) / 2, cz);
-          pillar.castShadow = true; pillar.receiveShadow = true;
-          scene.add(pillar);
-        });
-
-        if (room.room_id.includes('market')) {
-          spawnMarketStallsAndWell(x, y, z);
-        } else if (room.room_id.includes('bakery')) {
-          spawnBakeryOvenAndTables(x, y, z);
-        } else if (room.room_id.includes('curatives')) {
-          spawnApothecaryStation(x, y, z);
-        } else if (room.room_id.includes('aqueduct') || room.room_id.includes('conduit')) {
-          spawnAqueductSluiceValve(x, y, z);
-        }
-
-        [
-          [x - w / 2 + 0.8, y + 2.0, z - d / 2 + 0.8],
-          [x + w / 2 - 0.8, y + 2.0, z + d / 2 - 0.8]
-        ].forEach(([px, py, pz]) => {
-          const fire = new THREE.PointLight(0xffa726, 1.4, 16);
-          fire.position.set(px, py, pz);
-          scene.add(fire);
-        });
       });
-    }
 
-    function buildThoroughfares(manifest) {
-      const roadMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.85 });
-      (manifest.thoroughfares || []).forEach(t => {
-        const rFrom = (manifest.rooms || []).find(r => r.room_id === t.from);
-        const rTo = (manifest.rooms || []).find(r => r.room_id === t.to);
-        if (!rFrom || !rTo) return;
+      // Collision Detection
+      const currentLane = lanes.find(l => l.row === player.row);
+      const px = player.col * gridSize + 4;
+      const py = player.row * gridSize + 4;
 
-        const mx = (rFrom.position[0] + rTo.position[0]) / 2;
-        const my = (rFrom.position[1] + rTo.position[1]) / 2;
-        const mz = (rFrom.position[2] + rTo.position[2]) / 2;
-
-        const dx = rTo.position[0] - rFrom.position[0];
-        const dy = rTo.position[1] - rFrom.position[1];
-        const dz = rTo.position[2] - rFrom.position[2];
-        const dist = Math.sqrt(dx * dx + dz * dz);
-
-        const road = new THREE.Mesh(new THREE.BoxGeometry(t.width || 3.2, 0.4, dist), roadMat);
-        road.position.set(mx, my - 0.2, mz);
-        road.rotation.y = Math.atan2(dx, dz);
-        road.rotation.x = Math.atan2(dy, dist);
-        road.receiveShadow = true;
-        scene.add(road);
-      });
-    }
-
-    function spawnMarketStallsAndWell(x, y, z) {
-      const well = new THREE.Mesh(new THREE.CylinderGeometry(1.4, 1.4, 0.9, 16), new THREE.MeshStandardMaterial({ color: 0x64748b }));
-      well.position.set(x, y + 0.45, z);
-      well.castShadow = true;
-      scene.add(well);
-
-      [[-5, -4, 0xef4444], [5, -4, 0x3b82f6], [-6, 5, 0x10b981], [6, 5, 0xf59e0b]].forEach(([sx, sz, color]) => {
-        const stall = new THREE.Group();
-        const wood = new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.8 });
-        const table = new THREE.Mesh(new THREE.BoxGeometry(2.8, 0.8, 1.4), wood);
-        table.position.y = 0.4;
-        table.castShadow = true;
-        stall.add(table);
-
-        const awning = new THREE.Mesh(new THREE.BoxGeometry(3.0, 0.1, 1.8), new THREE.MeshStandardMaterial({ color: color }));
-        awning.position.set(0, 2.1, 0);
-        awning.rotation.x = 0.15;
-        awning.castShadow = true;
-        stall.add(awning);
-
-        stall.position.set(x + sx, y, z + sz);
-        scene.add(stall);
-      });
-    }
-
-    function spawnBakeryOvenAndTables(x, y, z) {
-      const oven = new THREE.Mesh(new THREE.BoxGeometry(3.0, 2.2, 1.8), new THREE.MeshStandardMaterial({ color: 0x334155 }));
-      oven.position.set(x, y + 1.1, z - 4.5);
-      oven.castShadow = true;
-      scene.add(oven);
-
-      const ovenGlow = new THREE.PointLight(0xf97316, 2.5, 10);
-      ovenGlow.position.set(x, y + 1.0, z - 3.5);
-      scene.add(ovenGlow);
-
-      const table = new THREE.Mesh(new THREE.BoxGeometry(3.2, 0.8, 1.4), new THREE.MeshStandardMaterial({ color: 0x92400e }));
-      table.position.set(x - 2.5, y + 0.4, z + 1);
-      table.castShadow = true;
-      scene.add(table);
-    }
-
-    function spawnApothecaryStation(x, y, z) {
-      const bench = new THREE.Mesh(new THREE.BoxGeometry(3.5, 0.8, 1.4), new THREE.MeshStandardMaterial({ color: 0x1e293b }));
-      bench.position.set(x, y + 0.4, z - 4.5);
-      bench.castShadow = true;
-      scene.add(bench);
-
-      const flask1 = new THREE.PointLight(0x06b6d4, 1.5, 6);
-      flask1.position.set(x - 0.8, y + 1.2, z - 4.5);
-      scene.add(flask1);
-
-      const flask2 = new THREE.PointLight(0xa855f7, 1.5, 6);
-      flask2.position.set(x + 0.8, y + 1.2, z - 4.5);
-      scene.add(flask2);
-    }
-
-    function spawnAqueductSluiceValve(x, y, z) {
-      const wheel = new THREE.Mesh(new THREE.TorusGeometry(0.7, 0.12, 8, 24), new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.85 }));
-      wheel.position.set(x + 4.5, y + 1.3, z - 3.5);
-      wheel.castShadow = true;
-      scene.add(wheel);
-    }
-
-    // =========================================================================
-    // 7. STATETREE LIVING CITIZENS & AUTONOMOUS SCHEDULE PATHING
-    // =========================================================================
-    function makeBillboardText(text, color = '#88c0d0') {
-      const c = document.createElement('canvas');
-      c.width = 256; c.height = 64;
-      const ctx = c.getContext('2d');
-      ctx.fillStyle = 'rgba(13, 17, 23, 0.92)';
-      ctx.fillRect(8, 8, 240, 48);
-      ctx.strokeStyle = color;
-      ctx.lineWidth = 3;
-      ctx.strokeRect(8, 8, 240, 48);
-      ctx.fillStyle = color;
-      ctx.font = 'bold 20px monospace';
-      ctx.textAlign = 'center';
-      ctx.fillText(text, 128, 40);
-
-      const tex = new THREE.CanvasTexture(c);
-      const spriteMat = new THREE.SpriteMaterial({ map: tex, depthTest: false });
-      const sprite = new THREE.Sprite(spriteMat);
-      sprite.scale.set(3.0, 0.75, 1);
-      return sprite;
-    }
-
-    function spawnLivingActors(manifest) {
-      (manifest.actors || []).forEach(actor => {
-        const group = new THREE.Group();
-        const isWatchman = actor.actor_id.includes('watchman');
-        const isElspeth = actor.actor_id.includes('elspeth');
-
-        const cloakColor = isWatchman ? 0xef4444 : (isElspeth ? 0x10b981 : 0xf59e0b);
-        const npcMat = new THREE.MeshStandardMaterial({ color: cloakColor, roughness: 0.4 });
-        const npcBody = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.42, 1.45, 16), npcMat);
-        npcBody.position.y = 0.725;
-        npcBody.castShadow = true;
-        group.add(npcBody);
-
-        const npcHead = new THREE.Mesh(new THREE.SphereGeometry(0.28, 16, 16), skinMat);
-        npcHead.position.y = 1.6;
-        npcHead.castShadow = true;
-        group.add(npcHead);
-
-        // Limbs for autonomous pathing animation
-        const npcLegL = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.55, 0.2), armorMat);
-        npcLegL.position.set(-0.18, 0.28, 0);
-        group.add(npcLegL);
-        const npcLegR = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.55, 0.2), armorMat);
-        npcLegR.position.set(0.18, 0.28, 0);
-        group.add(npcLegR);
-
-        const ring = new THREE.Mesh(
-          new THREE.RingGeometry(0.9, 1.1, 24),
-          new THREE.MeshBasicMaterial({ color: cloakColor, side: THREE.DoubleSide })
-        );
-        ring.rotation.x = -Math.PI / 2;
-        ring.position.y = 0.05;
-        group.add(ring);
-
-        const tag = makeBillboardText(actor.name, isWatchman ? '#ef4444' : '#38bdf8');
-        tag.position.y = 2.4;
-        group.add(tag);
-
-        group.position.set(...actor.position);
-        scene.add(group);
-
-        // Schedule waypoints definition
-        let waypoints = [];
-        if (isElspeth) {
-          waypoints = [
-            { pos: new THREE.Vector3(24.0, 0.0, 2.0), label: "Baking Bread", minHour: 6, maxHour: 17 },
-            { pos: new THREE.Vector3(2.0, 0.0, 2.0), label: "Dwelling at Well", minHour: 17, maxHour: 20 },
-            { pos: new THREE.Vector3(24.0, 0.0, -2.0), label: "Barricaded for Night", minHour: 20, maxHour: 6 }
-          ];
-        } else if (isWatchman) {
-          waypoints = [
-            { pos: new THREE.Vector3(0.0, 0.0, -12.0), label: "Guarding Portcullis", minHour: 8, maxHour: 19 },
-            { pos: new THREE.Vector3(0.0, 0.0, -32.0), label: "Patrolling Garrison", minHour: 19, maxHour: 8 }
-          ];
-        } else {
-          waypoints = [
-            { pos: new THREE.Vector3(-24.0, 0.0, 2.0), label: "Distilling Salves", minHour: 8, maxHour: 18 },
-            { pos: new THREE.Vector3(-2.0, 0.0, -2.0), label: "Street Shrine Prayer", minHour: 18, maxHour: 21 }
-          ];
-        }
-
-        actorRecords.push({
-          group, actor, tag, legL: npcLegL, legR: npcLegR,
-          waypoints, currentWaypointIndex: 0, walkCycle: 0
-        });
-      });
-    }
-
-    // =========================================================================
-    // 8. SIMULATION CLOCK, REGIMES & EDICTS
-    // =========================================================================
-    let simulatedHour = 14.0;
-    let curfewActive = true;
-    let citadelLegitimacy = 0.70;
-    let faithFervor = 0.75;
-    let heresyStrength = 0.25;
-
-    function advanceClock(deltaHours) {
-      simulatedHour = (simulatedHour + deltaHours) % 24;
-      const hourInt = Math.floor(simulatedHour);
-      const isNight = hourInt >= 20 || hourInt < 6;
-
-      document.getElementById('clock-display').innerText =
-        `⏰ HOUR: ${hourInt.toString().padStart(2, '0')}:00 (${isNight ? 'NIGHT CURFEW' : 'DAYLIGHT'})`;
-
-      // Daylight sky shift
-      if (isNight) {
-        sun.intensity = 0.15;
-        ambientLight.intensity = 0.35;
-        scene.background.set('#040609');
-      } else {
-        sun.intensity = 1.3;
-        ambientLight.intensity = 0.95;
-        scene.background.set('#070a0e');
-      }
-    }
-
-    function toggleCurfewEdict() {
-      curfewActive = !curfewActive;
-      const btn = document.getElementById('btn-toggle-curfew');
-      btn.innerText = curfewActive ? "[EDICT] REPEAL NIGHT CURFEW" : "[EDICT] DECREE NIGHT CURFEW";
-      document.getElementById('fac-guilds').innerText = curfewActive ? "40%" : "75%";
-      document.getElementById('fac-commons').innerText = curfewActive ? "30%" : "65%";
-      document.getElementById('quest-obj').innerText = curfewActive
-        ? "Night Curfew re-enacted. Guard scrutiny heightened."
-        : "Curfew abolished by proclamation! Free trade permitted through the night.";
-      audio.playFanfare();
-      closeEdictModal();
-    }
-
-    function distributeGrainRations() {
-      citadelLegitimacy = Math.min(1.0, citadelLegitimacy + 0.15);
-      document.getElementById('fac-commons').innerText = "85%";
-      document.getElementById('quest-obj').innerText = "Emergency grain distributed! Laborers celebrate in the streets.";
-      audio.playFanfare();
-      closeEdictModal();
-    }
-
-    function openEdictModal() {
-      document.getElementById('edict-modal').style.display = 'block';
-      document.getElementById('modal-authority').innerText = `${Math.round(citadelLegitimacy * 100)}%`;
-    }
-    function closeEdictModal() {
-      document.getElementById('edict-modal').style.display = 'none';
-    }
-
-    // =========================================================================
-    // 9. INPUT, CROUCH & LOCOMOTION
-    // =========================================================================
-    const keys = {};
-    let isCrouching = false;
-
-    window.addEventListener('keydown', e => {
-      keys[e.key.toLowerCase()] = true;
-      if (e.key === '1') consumeItem('bread');
-      if (e.key === '2') consumeItem('salve');
-      if (e.key === '3') consumeItem('permit');
-      if (e.key === 'e' || e.key === 'E') triggerInteraction();
-      if (e.key === 'f' || e.key === 'F') triggerCraftingOrAltar();
-      if (e.key === 't' || e.key === 'T') advanceClock(2.0); // Fast forward time
-      if (e.key === 'c' || e.key === 'C') {
-        isCrouching = !isCrouching;
-        document.getElementById('crouch-indicator').innerText = isCrouching ? "CROUCH" : "STAND";
-        document.getElementById('crouch-indicator').style.color = isCrouching ? "#a3be8c" : "#64748b";
-        audio.playFootstep();
-      }
-    });
-    window.addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
-
-    let playerPos = new THREE.Vector3(0, 0, 0);
-    let playerHeading = 0;
-    let speedBuff = 1.0;
-    let stepTimer = 0;
-    let walkCycle = 0;
-    let currentRoomId = "";
-
-    function updatePlayer(delta) {
-      let inputX = 0, inputZ = 0;
-      if (keys['w'] || keys['arrowup']) inputZ -= 1;
-      if (keys['s'] || keys['arrowdown']) inputZ += 1;
-      if (keys['a'] || keys['arrowleft']) inputX -= 1;
-      if (keys['d'] || keys['arrowright']) inputX += 1;
-
-      const isMoving = inputX !== 0 || inputZ !== 0;
-      if (isMoving && !activeCrafting) {
-        const moveVec = new THREE.Vector3(inputX, 0, inputZ).normalize();
-        const crouchMod = isCrouching ? 0.55 : 1.0;
-        const currentSpeed = 9.5 * speedBuff * crouchMod * (keys['shift'] && !isCrouching ? 1.4 : 1.0);
-
-        const nextX = playerPos.x + moveVec.x * currentSpeed * delta;
-        const nextZ = playerPos.z + moveVec.z * currentSpeed * delta;
-
-        let blockedByGate = false;
-        for (const gate of gateRecords) {
-          if (gate.isLocked && Math.abs(nextZ - gate.pos.z) < 1.0 && Math.abs(nextX - gate.pos.x) < 2.0) {
-            blockedByGate = true;
-            break;
+      if (currentLane) {
+        if (currentLane.type === 'road') {
+          for (let ox of currentLane.items) {
+            if (px < ox + currentLane.width && px + player.width > ox) {
+              killPlayer();
+              return;
+            }
           }
-        }
-
-        if (!blockedByGate) {
-          playerPos.x = nextX;
-          playerPos.z = nextZ;
-        }
-
-        playerHeading = Math.atan2(-moveVec.x, -moveVec.z);
-        playerGroup.rotation.y = playerHeading;
-
-        walkCycle += delta * (isCrouching ? 8 : (keys['shift'] ? 18 : 12));
-        legL.position.z = Math.sin(walkCycle) * (isCrouching ? 0.14 : 0.28);
-        legR.position.z = -Math.sin(walkCycle) * (isCrouching ? 0.14 : 0.28);
-        armL.position.z = -Math.sin(walkCycle) * (isCrouching ? 0.14 : 0.28);
-        armR.position.z = Math.sin(walkCycle) * (isCrouching ? 0.14 : 0.28);
-        torso.position.y = (isCrouching ? 0.55 : 0.95) + Math.abs(Math.sin(walkCycle * 2)) * 0.04;
-
-        stepTimer += delta;
-        if (stepTimer > (keys['shift'] ? 0.20 : 0.30)) {
-          audio.playFootstep();
-          spawnFootstepParticle(playerPos.x, playerPos.y, playerPos.z);
-          stepTimer = 0;
-        }
-      } else {
-        legL.position.z = 0; legR.position.z = 0;
-        armL.position.z = 0; armR.position.z = 0;
-        torso.position.y = isCrouching ? 0.55 : 0.95;
-      }
-
-      head.position.y = isCrouching ? 1.15 : 1.62;
-      hood.position.y = isCrouching ? 1.25 : 1.72;
-      lantern.intensity = isCrouching ? 0.35 : 1.4;
-
-      let targetFloorY = 0.0;
-      for (const { box, room } of roomRecords) {
-        if (
-          Math.abs(playerPos.x - room.position[0]) <= room.dimensions[0] / 2 + 0.5 &&
-          Math.abs(playerPos.z - room.position[2]) <= room.dimensions[2] / 2 + 0.5
-        ) {
-          targetFloorY = room.position[1];
-          break;
-        }
-      }
-      playerPos.y += (targetFloorY - playerPos.y) * 0.12;
-      playerGroup.position.copy(playerPos);
-
-      sampleSceneLighting();
-
-      const targetCamPos = new THREE.Vector3(playerPos.x, playerPos.y + 16, playerPos.z + 14);
-      camera.position.lerp(targetCamPos, 0.055);
-      camera.lookAt(playerPos.x, playerPos.y + 0.8, playerPos.z);
-
-      checkRoomTransition();
-      checkProximityPrompts();
-      updateCraftingProgress(delta);
-      updateGates(delta);
-      updateAutonomousNPCRoutines(delta);
-    }
-
-    // =========================================================================
-    // 10. AUTONOMOUS NPC WAYPOINT PATHING & SCHEDULE DISPATCH
-    // =========================================================================
-    function updateAutonomousNPCRoutines(delta) {
-      const currentH = Math.floor(simulatedHour);
-
-      actorRecords.forEach(record => {
-        // Find matching schedule waypoint for current hour
-        let targetWP = record.waypoints[0];
-        for (const wp of record.waypoints) {
-          if (wp.minHour <= wp.maxHour) {
-            if (currentH >= wp.minHour && currentH < wp.maxHour) { targetWP = wp; break; }
+        } else if (currentLane.type === 'river') {
+          let onLog = false;
+          for (let ox of currentLane.items) {
+            if (px >= ox - 10 && px + player.width <= ox + currentLane.width + 10) {
+              onLog = true;
+              player.col += (currentLane.speed * delta * 60) / gridSize;
+              break;
+            }
+          }
+          if (!onLog || player.col < 0 || player.col >= cols) {
+            killPlayer();
+            return;
+          }
+        } else if (currentLane.type === 'goal') {
+          let landedBay = currentLane.items.find(b => Math.abs(b.col - player.col) < 0.8 && !b.filled);
+          if (landedBay) {
+            landedBay.filled = true;
+            score += 50;
+            document.getElementById('hud-score').innerText = score;
+            player.col = 8;
+            player.row = rows - 1;
+            highestRow = rows - 1;
           } else {
-            if (currentH >= wp.minHour || currentH < wp.maxHour) { targetWP = wp; break; }
+            killPlayer();
           }
         }
+      }
+    }
 
-        // Steer NPC group toward target waypoint
-        const dist = record.group.position.distanceTo(targetWP.pos);
-        if (dist > 0.4) {
-          const dir = new THREE.Vector3().subVectors(targetWP.pos, record.group.position).normalize();
-          record.group.position.x += dir.x * 2.8 * delta;
-          record.group.position.z += dir.z * 2.8 * delta;
-          record.group.rotation.y = Math.atan2(-dir.x, -dir.z);
+    function render() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-          // Animate NPC limbs while moving
-          record.walkCycle += delta * 10;
-          record.legL.position.z = Math.sin(record.walkCycle) * 0.22;
-          record.legR.position.z = -Math.sin(record.walkCycle) * 0.22;
+      // Render Lanes
+      lanes.forEach(lane => {
+        const y = lane.row * gridSize;
+        if (lane.type === 'river') {
+          ctx.fillStyle = '#1e3a5f';
+          ctx.fillRect(0, y, canvas.width, gridSize);
+          ctx.fillStyle = lane.color;
+          lane.items.forEach(ox => {
+            ctx.fillRect(ox, y + 6, lane.width, gridSize - 12);
+          });
+        } else if (lane.type === 'road') {
+          ctx.fillStyle = '#1f2430';
+          ctx.fillRect(0, y, canvas.width, gridSize);
+          ctx.fillStyle = lane.color;
+          lane.items.forEach(ox => {
+            ctx.fillRect(ox, y + 8, lane.width, gridSize - 16);
+          });
+        } else if (lane.type === 'goal') {
+          ctx.fillStyle = '#0f172a';
+          ctx.fillRect(0, y, canvas.width, gridSize);
+          lane.items.forEach(b => {
+            ctx.fillStyle = b.filled ? '#a3be8c' : '#334155';
+            ctx.fillRect(b.col * gridSize, y + 4, gridSize, gridSize - 8);
+          });
         } else {
-          record.legL.position.z = 0;
-          record.legR.position.z = 0;
+          ctx.fillStyle = lane.color || '#2e3440';
+          ctx.fillRect(0, y, canvas.width, gridSize);
         }
       });
-    }
 
-    function sampleSceneLighting() {
-      const torches = [
-        [-11.2, -11.2], [11.2, 11.2], [24.0, -3.5], [-24.0, -4.5], [26.0, -25.0]
-      ];
-      let minTorchDist = 999.0;
-      for (const [tx, tz] of torches) {
-        const d = Math.sqrt((playerPos.x - tx) ** 2 + (playerPos.z - tz) ** 2);
-        if (d < minTorchDist) minTorchDist = d;
-      }
-
-      let exposure = 0.1;
-      if (minTorchDist < 12.0) {
-        exposure = 0.1 + Math.pow(1.0 - (minTorchDist / 12.0), 2) * 0.9;
-      }
-      if (isCrouching) exposure *= 0.65;
-
-      const fill = document.getElementById('light-meter-fill');
-      if (fill) fill.style.width = (Math.min(exposure, 1.0) * 100) + '%';
-    }
-
-    function checkRoomTransition() {
-      for (const { box, room } of roomRecords) {
-        if (box.containsPoint(playerPos) && room.room_id !== currentRoomId) {
-          currentRoomId = room.room_id;
-          const banner = document.getElementById('zone-banner');
-          banner.innerText = room.name.toUpperCase();
-          banner.style.opacity = '1';
-          setTimeout(() => { banner.style.opacity = '0'; }, 2400);
-          break;
-        }
+      // Render Player Frog
+      if (!gameOver) {
+        ctx.fillStyle = player.color;
+        const px = Math.round(player.col * gridSize) + 4;
+        const py = Math.round(player.row * gridSize) + 4;
+        ctx.fillRect(px, py, player.width, player.height);
+        ctx.fillStyle = '#ebcb8b';
+        ctx.fillRect(px + 4, py + 4, 6, 6);
+        ctx.fillRect(px + player.width - 10, py + 4, 6, 6);
       }
     }
 
-    // =========================================================================
-    // 11. INVENTORY, GATES, PROCLAMATION & ALTAR INTERACTIVITY
-    // =========================================================================
-    const inventory = { bread: 3, salve: 1, permit: 1, flour: 2, undercroft_key: 1 };
-
-    function consumeItem(type) {
-      if (inventory[type] <= 0) return;
-      inventory[type]--;
-      document.getElementById(`count-${type}`).innerText = inventory[type];
-      audio.playBuffChime();
-
-      if (type === 'salve') {
-        speedBuff = 1.45;
-        torso.material.emissive.setHex(0xd08770);
-        setTimeout(() => {
-          speedBuff = 1.0;
-          torso.material.emissive.setHex(0x000000);
-        }, 8000);
-      } else if (type === 'bread') {
-        audio.playFanfare();
-        document.getElementById('quest-obj').innerText = "Stamina fully restored by Hearth Bread.";
-      }
-    }
-
-    let activeWorkstation = null;
-    let activeGate = null;
-    let activeProclamation = false;
-    let activeAltar = false;
-    let currentActor = null;
-
-    function checkProximityPrompts() {
-      // 0. Granary Crate Proximity Check
-      const promptCrate = document.getElementById('crate-prompt');
-      if (isCarryingCrate) {
-        promptCrate.style.display = 'block';
-        promptCrate.innerText = playerPos.distanceTo(granarySiloGroup.position) < 4.0
-          ? "[G] Deposit Grain into Granary Silo"
-          : "[G] Drop Grain Crate";
-      } else {
-        let nearCrate = false;
-        for (const c of haulableCrates) {
-          if (!c.isCarried && playerPos.distanceTo(c.mesh.position) < 2.5) {
-            promptCrate.style.display = 'block';
-            promptCrate.innerText = "[G] Pick Up Grain Crate";
-            nearCrate = true;
-            break;
-          }
-        }
-        if (!nearCrate) promptCrate.style.display = 'none';
-      }
-
-      const promptE = document.getElementById('interaction-prompt');
-      const promptF = document.getElementById('crafting-prompt');
-      const promptGate = document.getElementById('gate-prompt');
-      const promptProc = document.getElementById('proclamation-prompt');
-      const promptAltar = document.getElementById('altar-prompt');
-
-      currentActor = null;
-      activeWorkstation = null;
-      activeGate = null;
-      activeProclamation = false;
-      activeAltar = false;
-
-      // 1. Proclamation Board Proximity
-      if (proclamationGroup.position.distanceTo(playerPos) < 3.2) {
-        activeProclamation = true;
-        promptProc.style.display = 'block';
-      } else {
-        promptProc.style.display = 'none';
-      }
-
-      // 2. Heretical Altar Proximity
-      if (altarGroup.position.distanceTo(playerPos) < 3.4) {
-        activeAltar = true;
-        promptAltar.style.display = 'block';
-      } else {
-        promptAltar.style.display = 'none';
-      }
-
-      // 3. Closest NPC Proximity
-      let minActorDist = 3.4;
-      for (const { group, actor } of actorRecords) {
-        const d = group.position.distanceTo(playerPos);
-        if (d < minActorDist) {
-          minActorDist = d;
-          currentActor = actor;
-        }
-      }
-
-      if (currentActor && !activeProclamation) {
-        promptE.style.display = 'block';
-        promptE.innerText = `[E] Speak with ${currentActor.name}`;
-      } else if (!activeProclamation) {
-        promptE.style.display = 'none';
-        document.getElementById('dialogue-box').style.display = 'none';
-      }
-
-      // 4. Portcullis Gates
-      for (const gate of gateRecords) {
-        if (gate.pos.distanceTo(playerPos) < 3.2 && gate.isLocked) {
-          activeGate = gate;
-          promptGate.style.display = 'block';
-          promptGate.innerText = inventory.undercroft_key > 0
-            ? "[E] Unlock Portcullis (Undercroft Key)"
-            : "[E] Bribe with Forged Permit";
-          break;
-        }
-      }
-      if (!activeGate) promptGate.style.display = 'none';
-
-      // 5. Workstations
-      for (const ws of workstationRecords) {
-        if (ws.pos.distanceTo(playerPos) < 3.4) {
-          activeWorkstation = ws;
-          promptF.style.display = 'block';
-          promptF.innerText = ws.recipeId === 'bake_bread'
-            ? `[F] Bake Hearth Bread (1 Flour)`
-            : `[F] Brew Sunfire Salve`;
-          break;
-        }
-      }
-      if (!activeWorkstation && !activeAltar) promptF.style.display = 'none';
-    }
-
-    function triggerInteraction() {
-      // 1. Proclamation Board modal
-      if (activeProclamation) {
-        openEdictModal();
-        return;
-      }
-
-      // 2. Gate unlock
-      if (activeGate) {
-        if (inventory.undercroft_key > 0 || inventory.permit > 0) {
-          activeGate.isLocked = false;
-          activeGate.targetY = activeGate.baseY + 3.8;
-          audio.playPortcullisGrind();
-          audio.playFanfare();
-          document.getElementById('quest-obj').innerText = "Portcullis raised! Undercroft passage breached.";
-          return;
-        }
-      }
-
-      // 3. NPC dialogue
-      if (!currentActor) return;
-      const box = document.getElementById('dialogue-box');
-      box.style.display = 'block';
-      document.getElementById('dialogue-speaker').innerText = currentActor.name;
-
-      const currentH = Math.floor(simulatedHour);
-      let speechText = "";
-      if (currentActor.actor_id.includes('elspeth')) {
-        speechText = currentH > 18
-          ? "The curfew approaches. I've finished the grain tithes for today."
-          : "The oven is blazing. Bake what grain you have, runner.";
-      } else if (currentActor.actor_id.includes('garrett')) {
-        speechText = currentH > 17
-          ? "I am lighting votives for the evening prayers. Leave me be."
-          : "The curatives are pure, but the Clerisy takes half in tithes.";
-      } else if (currentActor.actor_id.includes('watchman')) {
-        speechText = curfewActive
-          ? "Curfew holds throughout the ward. Keep moving or face arrest."
-          : "Curfew was lifted by the board. Trade moves freely tonight.";
-      }
-
-      document.getElementById('dialogue-text').innerText = speechText;
-      speakNPC(speechText, 0.9, 1.0);
-    }
-
-    function triggerCraftingOrAltar() {
-      if (activeAltar) {
-        // Altar offering
-        if (inventory.bread > 0) {
-          inventory.bread -= 1;
-          document.getElementById('count-bread').innerText = inventory.bread;
-          heresyStrength = Math.min(1.0, heresyStrength + 0.15);
-          faithFervor = Math.max(0.0, faithFervor - 0.10);
-          audio.playAltarHum();
-          document.getElementById('quest-obj').innerText =
-            "Bread sacrificed to the Whispering Icon. Heretical influence grows in the Undercroft.";
-        } else {
-          alert("Altar requires bread offering to invoke the rite.");
-        }
-        return;
-      }
-
-      if (activeWorkstation && !activeCrafting) {
-        if (activeWorkstation.recipeId === 'bake_bread') {
-          if (inventory.flour < 1) { alert("Need 1 Flour to bake."); return; }
-          activeCrafting = {
-            recipeId: 'bake_bread', startTime: performance.now(), duration: 1800,
-            workstationPos: activeWorkstation.pos
-          };
-          audio.playCraftingSizzle();
-        } else if (activeWorkstation.recipeId === 'brew_salve') {
-          activeCrafting = {
-            recipeId: 'brew_salve', startTime: performance.now(), duration: 1800,
-            workstationPos: activeWorkstation.pos
-          };
-          audio.playCraftingSizzle();
-        }
-      }
-    }
-
-    function updateGates(delta) {
-      for (const gate of gateRecords) {
-        if (Math.abs(gate.group.position.y - gate.targetY) > 0.05) {
-          gate.group.position.y += (gate.targetY - gate.group.position.y) * 0.08;
-        }
-      }
-    }
-
-    function updateCraftingProgress(delta) {
-      if (!activeCrafting) {
-        craftingProgressRing.visible = false;
-        return;
-      }
-
-      const elapsed = performance.now() - activeCrafting.startTime;
-      const progress = Math.min(elapsed / activeCrafting.duration, 1.0);
-
-      craftingProgressRing.visible = true;
-      craftingProgressRing.position.set(
-        activeCrafting.workstationPos.x,
-        activeCrafting.workstationPos.y + 0.05,
-        activeCrafting.workstationPos.z
-      );
-
-      craftingProgressRing.geometry.dispose();
-      craftingProgressRing.geometry = new THREE.RingGeometry(1.0, 1.25, 32, 1, 0, progress * Math.PI * 2);
-
-      if (progress >= 1.0) {
-        if (activeCrafting.recipeId === 'bake_bread') {
-          inventory.flour -= 1;
-          inventory.bread += 1;
-          document.getElementById('count-flour').innerText = inventory.flour;
-          document.getElementById('count-bread').innerText = inventory.bread;
-          document.getElementById('quest-obj').innerText = "Loaf baked! Hearth bread added to backpack.";
-        } else if (activeCrafting.recipeId === 'brew_salve') {
-          inventory.salve += 1;
-          document.getElementById('count-salve').innerText = inventory.salve;
-          document.getElementById('quest-obj').innerText = "Curative brewed! Sunfire salve added to backpack.";
-        }
-        audio.playFanfare();
-        activeCrafting = null;
-        craftingProgressRing.visible = false;
-      }
-    }
-
-    // =========================================================================
-    // 12. WEBSOCKET IPC & RADAR MINIMAP
-    // =========================================================================
-    const wsProto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsHost = window.location.hostname.replace('-3000', '-8765');
-    const wsUrl = window.location.hostname.includes('github.dev')
-      ? `${wsProto}//${wsHost}`
-      : 'ws://localhost:8765';
-
-    let ws = null;
-    let telemetryTimer = 0;
-    function connectIPC() {
-      try {
-        ws = new WebSocket(wsUrl);
-        ws.onopen = () => console.log("[IPC] Connected to server state.");
-        ws.onmessage = evt => {
-          try {
-            const msg = JSON.parse(evt.data);
-            if (msg.type === "WORLD_STATE_INIT") updateTicker(msg.market_quotes);
-            if (msg.type === "STEALTH_STATUS" && curfewActive) updateStealthHUD(msg);
-          } catch (e) { }
-        };
-        ws.onclose = () => setTimeout(connectIPC, 3000);
-      } catch (e) { }
-    }
-    connectIPC();
-
-    function updateTicker(quotes) {
-      if (!quotes) return;
-      if (quotes.HEARTH_BREAD) document.getElementById('tick-bread').innerText = quotes.HEARTH_BREAD.current_bid.toFixed(2) + 's';
-      if (quotes.SUNFIRE_SALVE) document.getElementById('tick-salve').innerText = quotes.SUNFIRE_SALVE.current_bid.toFixed(2) + 's';
-      if (quotes.FORGED_PERMIT) document.getElementById('tick-permit').innerText = quotes.FORGED_PERMIT.current_bid.toFixed(2) + 's';
-      if (quotes.AQUEDUCT_SILVER) document.getElementById('tick-silver').innerText = quotes.AQUEDUCT_SILVER.current_bid.toFixed(2) + 's';
-    }
-
-    function updateStealthHUD(status) {
-      const hud = document.getElementById('stealth-hud');
-      const fill = document.getElementById('stealth-meter-fill');
-      if (status.in_curfew_sight && status.alerts.length > 0) {
-        hud.style.display = 'flex';
-        fill.style.width = (status.alerts[0].alert_level * 100) + '%';
-      } else {
-        hud.style.display = 'none';
-      }
-    }
-
-    const radarCanvas = document.getElementById('radar-canvas');
-    const rCtx = radarCanvas.getContext('2d');
-
-    function renderRadar() {
-      rCtx.clearRect(0, 0, 180, 180);
-      rCtx.save();
-      rCtx.translate(90, 90);
-
-      const scale = 1.8;
-
-      rCtx.strokeStyle = '#3b4252';
-      rCtx.lineWidth = 4;
-      roomRecords.forEach(({ room }) => {
-        (room.corridor_sockets || []).forEach(sock => {
-          const sx = (sock.position[0] - playerPos.x) * scale;
-          const sz = (sock.position[2] - playerPos.z) * scale;
-          const rx = (room.position[0] - playerPos.x) * scale;
-          const rz = (room.position[2] - playerPos.z) * scale;
-          rCtx.beginPath();
-          rCtx.moveTo(rx, rz);
-          rCtx.lineTo(sx, sz);
-          rCtx.stroke();
-        });
-      });
-
-      rCtx.strokeStyle = '#5e81ac';
-      rCtx.lineWidth = 1.5;
-      roomRecords.forEach(({ room }) => {
-        const rx = (room.position[0] - playerPos.x) * scale;
-        const rz = (room.position[2] - playerPos.z) * scale;
-        const rw = room.dimensions[0] * scale;
-        const rd = room.dimensions[2] * scale;
-
-        if (room.room_id === currentRoomId) {
-          rCtx.fillStyle = 'rgba(94, 129, 172, 0.15)';
-          rCtx.fillRect(rx - rw / 2, rz - rd / 2, rw, rd);
-          rCtx.strokeStyle = '#88c0d0';
-        } else {
-          rCtx.strokeStyle = '#4c566a';
-        }
-        rCtx.strokeRect(rx - rw / 2, rz - rd / 2, rw, rd);
-      });
-
-      // Gates
-      gateRecords.forEach(gate => {
-        const gx = (gate.pos.x - playerPos.x) * scale;
-        const gz = (gate.pos.z - playerPos.z) * scale;
-        rCtx.strokeStyle = gate.isLocked ? '#bf616a' : '#88c0d0';
-        rCtx.lineWidth = 3;
-        rCtx.beginPath();
-        rCtx.moveTo(gx - 6, gz);
-        rCtx.lineTo(gx + 6, gz);
-        rCtx.stroke();
-      });
-
-      // Proclamation Board (Orange square)
-      const px = (proclamationGroup.position.x - playerPos.x) * scale;
-      const pz = (proclamationGroup.position.z - playerPos.z) * scale;
-      rCtx.fillStyle = '#d08770';
-      rCtx.fillRect(px - 3, pz - 3, 6, 6);
-
-      // Undercroft Altar (Purple diamond)
-      const ax = (altarGroup.position.x - playerPos.x) * scale;
-      const az = (altarGroup.position.z - playerPos.z) * scale;
-      rCtx.fillStyle = '#b48ead';
-      rCtx.beginPath();
-      rCtx.moveTo(ax, az - 4);
-      rCtx.lineTo(ax + 4, az);
-      rCtx.lineTo(ax, az + 4);
-      rCtx.lineTo(ax - 4, az);
-      rCtx.closePath();
-      rCtx.fill();
-
-      // Living NPCs
-      actorRecords.forEach(({ group, actor }) => {
-        const nx = (group.position.x - playerPos.x) * scale;
-        const nz = (group.position.z - playerPos.z) * scale;
-        rCtx.fillStyle = actor.actor_id.includes('watchman') ? '#ef4444' : '#f59e0b';
-        rCtx.beginPath();
-        rCtx.arc(nx, nz, 3.5, 0, Math.PI * 2);
-        rCtx.fill();
-      });
-
-      // Player Heading Chevron
-      rCtx.save();
-      rCtx.rotate(-playerHeading);
-      rCtx.fillStyle = '#88c0d0';
-      rCtx.beginPath();
-      rCtx.moveTo(0, -8);
-      rCtx.lineTo(-5, 5);
-      rCtx.lineTo(0, 2);
-      rCtx.lineTo(5, 5);
-      rCtx.closePath();
-      rCtx.fill();
-      rCtx.restore();
-
-      rCtx.restore();
-    }
-
-    // =========================================================================
-    // 13. MAIN ANIMATION LOOP
-    // =========================================================================
     let lastTime = performance.now();
-    function animate(now) {
-      requestAnimationFrame(animate);
-      const delta = Math.min((now - lastTime) / 1000, 0.1);
+    function gameLoop(now) {
+      requestAnimationFrame(gameLoop);
+      const delta = (now - lastTime) / 1000;
       lastTime = now;
-
-      // Advance clock slightly in real time (1 hour every 45 seconds)
-      advanceClock((delta / 45.0));
-
-      updatePlayer(delta);
-      renderRadar();
-
-      for (let i = stepParticles.length - 1; i >= 0; i--) {
-        const p = stepParticles[i];
-        p.life -= delta * 1.8;
-        p.mesh.scale.multiplyScalar(1.02);
-        p.mesh.material.opacity = p.life * 0.5;
-        if (p.life <= 0) {
-          scene.remove(p.mesh);
-          p.mesh.geometry.dispose();
-          p.mesh.material.dispose();
-          stepParticles.splice(i, 1);
-        }
-      }
-
-      if (waterMesh) {
-        waterMesh.material.opacity = 0.8 + Math.sin(now * 0.003) * 0.08;
-      }
-
-      try {
-        telemetryTimer += delta;
-        if (telemetryTimer > 0.12 && ws && ws.readyState === WebSocket.OPEN) {
-          ws.send(JSON.stringify({ type: "PLAYER_TELEMETRY", position: [playerPos.x, playerPos.y, playerPos.z] }));
-          telemetryTimer = 0;
-        }
-      } catch (err) { }
-
-      renderer.render(scene, camera);
+      update(delta);
+      render();
     }
-    requestAnimationFrame(animate);
-
-    window.addEventListener('resize', () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    });
+    requestAnimationFrame(gameLoop);
   </script>
 </body>
-
 </html>
