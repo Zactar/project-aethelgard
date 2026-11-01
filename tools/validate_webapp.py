@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 tools/validate_webapp.py
-Project Frogger River Crossing: Autonomous Validation Harness
+Project Croak & Dagger: A Frogger Roguelike: Autonomous Validation Harness
 """
 
 import sys
@@ -12,7 +12,7 @@ import subprocess
 from pathlib import Path
 
 WORKSPACE_ROOT = Path(__file__).resolve().parent.parent
-logger = logging.getLogger("frogger_river_crossing.Validator")
+logger = logging.getLogger("croak__dagger_a_frogger_roguelike.Validator")
 logging.basicConfig(level=logging.INFO, format="[%(asctime)s] [%(levelname)s] [%(name)s]: %(message)s")
 
 def is_port_listening(port: int = 3000) -> bool:
@@ -50,7 +50,7 @@ def verify_client_runtime() -> bool:
         return False
 
 def run_full_validation() -> bool:
-    logger.info("=== CHAOS QA: INVARIANT VERIFICATION FOR FROGGER RIVER CROSSING ===")
+    logger.info("=== CHAOS QA: INVARIANT VERIFICATION FOR CROAK & DAGGER: A FROGGER ROGUELIKE ===")
     ok = verify_client_runtime()
     if ok:
         logger.info("[✓] ALL GAME INVARIANTS PASSED.")
