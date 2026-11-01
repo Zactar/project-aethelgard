@@ -2,42 +2,141 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Frogger River Crossing - Project Runtime</title>
+  <title>Croak & Dagger - Roguelike Frogger</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
-    body { background: #0a0e14; color: #eceff4; font-family: monospace; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
-    #game-header { position: absolute; top: 16px; display: flex; gap: 24px; font-size: 14px; background: rgba(15,20,28,0.95); padding: 10px 20px; border-radius: 6px; border: 1px solid #4c566a; z-index: 10; }
+    body { background: #080c10; color: #eceff4; font-family: monospace; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
+    
+    #game-header {
+      position: absolute; top: 16px; display: flex; gap: 20px; font-size: 13px;
+      background: rgba(15,20,28,0.95); padding: 10px 22px; border-radius: 6px;
+      border: 1px solid #4c566a; z-index: 10; box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+    }
+    .hud-label { color: #81a1c1; }
     .hud-val { color: #a3be8c; font-weight: bold; }
-    #viewport-canvas { background: #1a1f29; border: 2px solid #5e81ac; border-radius: 4px; box-shadow: 0 8px 32px rgba(0,0,0,0.8); display: block; }
-    #game-over-banner { position: absolute; font-size: 24px; font-weight: bold; color: #bf616a; display: none; }
+
+    #viewport-canvas {
+      background: #111822; border: 2px solid #5e81ac; border-radius: 4px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.85); display: block;
+    }
+
+    #relic-bar {
+      position: absolute; bottom: 20px; display: flex; gap: 12px;
+      background: rgba(15,20,28,0.92); padding: 8px 16px; border-radius: 6px;
+      border: 1px solid #434c5e; z-index: 10; font-size: 11px;
+    }
+    .relic-pill { background: #2e3440; padding: 4px 10px; border-radius: 4px; border: 1px solid #88c0d0; color: #88c0d0; }
+
+    /* Pond Shop Modal */
+    #pond-shop-modal {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      display: none; width: 480px; background: rgba(15, 23, 36, 0.98);
+      border: 2px solid #ebcb8b; border-radius: 8px; padding: 24px; z-index: 30;
+      box-shadow: 0 12px 48px rgba(0,0,0,0.95); text-align: center;
+    }
+    .shop-title { font-size: 18px; font-weight: bold; color: #ebcb8b; margin-bottom: 6px; }
+    .shop-subtitle { font-size: 12px; color: #81a1c1; margin-bottom: 16px; }
+    .shop-grid { display: flex; gap: 12px; justify-content: center; margin-bottom: 18px; }
+    .shop-item {
+      flex: 1; background: #1e2634; border: 1px solid #4c566a; border-radius: 6px;
+      padding: 12px; display: flex; flex-direction: column; align-items: center;
+      justify-content: space-between; cursor: pointer; transition: all 0.15s ease;
+    }
+    .shop-item:hover { border-color: #a3be8c; transform: translateY(-3px); }
+    .shop-item .item-icon { font-size: 24px; margin-bottom: 6px; }
+    .shop-item .item-name { font-size: 12px; font-weight: bold; color: #eceff4; margin-bottom: 4px; }
+    .shop-item .item-cost { font-size: 11px; color: #ebcb8b; font-weight: bold; }
+    .shop-close-btn {
+      padding: 8px 24px; background: #3b4252; border: 1px solid #5e81ac;
+      color: #eceff4; font-weight: bold; cursor: pointer; border-radius: 4px;
+    }
+    .shop-close-btn:hover { background: #434c5e; border-color: #88c0d0; }
+
+    #game-over-banner {
+      position: absolute; font-size: 24px; font-weight: bold; color: #bf616a;
+      display: none; z-index: 20; background: rgba(15,20,28,0.95);
+      padding: 16px 28px; border-radius: 8px; border: 1px solid #bf616a;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
   <div id="game-header">
-    <div>PROJECT: <span class="hud-val">FROGGER RIVER CROSSING</span></div>
+    <div>STAGE: <span id="hud-stage" class="hud-val">1-1</span></div>
+    <div>HEARTS: <span id="hud-hearts" style="color: #bf616a; font-weight: bold;">❤❤❤</span></div>
+    <div>FLIES: <span id="hud-flies" class="hud-val">0</span> 🪰</div>
     <div>SCORE: <span id="hud-score" class="hud-val">0</span></div>
-    <div>LIVES: <span id="hud-lives" class="hud-val">3</span></div>
+    <div>AMBER: <span id="hud-amber" style="color: #ebcb8b; font-weight: bold;">0</span> 🔶</div>
   </div>
 
-  <div id="game-over-banner">GAME OVER - PRESS [SPACE] TO RESTART</div>
+  <div id="game-over-banner">
+    <div>PERMADEATH - RUN FINISHED</div>
+    <div style="font-size: 12px; color: #d8dee9; margin: 8px 0;" id="death-stats">Gained 0 Amber Resin</div>
+    <div style="font-size: 14px; color: #88c0d0;">PRESS [SPACE] TO RETURN TO SANCTUARY</div>
+  </div>
+
+  <div id="pond-shop-modal">
+    <div class="shop-title">THE POND PEDDLER</div>
+    <div class="shop-subtitle">Stage Cleared! Spend your flies on relics before the next crossing:</div>
+    <div class="shop-grid">
+      <div class="shop-item" onclick="buyRelic('sticky_tongue', 15)">
+        <div class="item-icon">👅</div>
+        <div class="item-name">Sticky Tongue</div>
+        <div style="font-size: 10px; color: #81a1c1; margin-bottom: 6px;">Auto-catch flies in 1 tile</div>
+        <div class="item-cost">15 Flies</div>
+      </div>
+      <div class="shop-item" onclick="buyRelic('turtle_shell', 20)">
+        <div class="item-icon">🐢</div>
+        <div class="item-name">Turtle Shell</div>
+        <div style="font-size: 10px; color: #81a1c1; margin-bottom: 6px;">Absorb 1 vehicle crash</div>
+        <div class="item-cost">20 Flies</div>
+      </div>
+      <div class="shop-item" onclick="buyRelic('heart_heal', 10)">
+        <div class="item-icon">💖</div>
+        <div class="item-name">Water Lily</div>
+        <div style="font-size: 10px; color: #81a1c1; margin-bottom: 6px;">Restore 1 Lost Heart</div>
+        <div class="item-cost">10 Flies</div>
+      </div>
+    </div>
+    <button class="shop-close-btn" onclick="closeShop()">CONTINUE TO NEXT STAGE [ENTER]</button>
+  </div>
+
   <canvas id="viewport-canvas" width="640" height="480"></canvas>
 
-  
+  <div id="relic-bar">
+    <span class="hud-label">ACTIVE RELICS:</span>
+    <span id="relic-list" style="display: flex; gap: 8px; color: #88c0d0;">None</span>
+  </div>
+
   <script>
     const canvas = document.getElementById('viewport-canvas');
     const ctx = canvas.getContext('2d');
 
     const gridSize = 40;
-    const cols = 16; // 640px
-    const rows = 12; // 480px
+    const cols = 16;
+    const rows = 12;
 
+    // Run-State & Progression
+    let stage = 1;
+    let hearts = 3;
+    let maxHearts = 3;
+    let flies = 0;
     let score = 0;
-    let lives = 3;
+    let amberResin = parseInt(localStorage.getItem('croak_amber') || '0', 10);
+    document.getElementById('hud-amber').innerText = amberResin;
+
+    let inShop = false;
     let gameOver = false;
     let highestRow = rows - 1;
 
-    // Player Frog
+    const relics = {
+      sticky_tongue: false,
+      turtle_shell: false,
+      has_shield: false
+    };
+
+    // Frog Avatar
     const player = {
       col: 8,
       row: rows - 1,
@@ -46,8 +145,15 @@
       color: '#a3be8c'
     };
 
-    // Obstacles & Hazards (Lanes)
-    const lanes = [
+    // Floating Collectibles (Flies)
+    let laneFlies = [
+      { col: 4, row: 9, active: true },
+      { col: 12, row: 7, active: true },
+      { col: 6, row: 4, active: true }
+    ];
+
+    // Hazard Lanes
+    let lanes = [
       { row: 1, type: 'goal', items: [2, 5, 8, 11, 14].map(c => ({ col: c, filled: false })) },
       { row: 2, type: 'river', speed: -2.2, width: 90, color: '#4c566a', items: [0, 240, 480] },
       { row: 3, type: 'river', speed: 1.8, width: 70, color: '#4c566a', items: [60, 300, 540] },
@@ -58,12 +164,20 @@
       { row: 8, type: 'road', speed: 2.0, width: 65, color: '#d08770', items: [0, 300] },
       { row: 9, type: 'road', speed: -1.8, width: 45, color: '#ebcb8b', items: [80, 280, 480] },
       { row: 10, type: 'road', speed: 2.5, width: 80, color: '#bf616a', items: [120, 380] },
-      { row: 11, type: 'safe', color: '#2e3440' } // Starting Pavement
+      { row: 11, type: 'safe', color: '#2e3440' }
     ];
 
+    function updateHeartsDisplay() {
+      document.getElementById('hud-hearts').innerText = '❤'.repeat(Math.max(0, hearts));
+    }
+
     window.addEventListener('keydown', e => {
+      if (inShop) {
+        if (e.key === 'Enter' || e.key === 'Escape') closeShop();
+        return;
+      }
       if (gameOver) {
-        if (e.code === 'Space') resetGame();
+        if (e.code === 'Space') restartRun();
         return;
       }
       if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') hop(0, -1);
@@ -81,34 +195,127 @@
         score += 10;
         document.getElementById('hud-score').innerText = score;
       }
+
+      // Check Fly Pickups
+      checkFlyCollisions();
     }
 
-    function killPlayer() {
-      lives--;
-      document.getElementById('hud-lives').innerText = lives;
+    function checkFlyCollisions() {
+      laneFlies.forEach(f => {
+        if (!f.active) return;
+        const dist = Math.hypot(f.col - player.col, f.row - player.row);
+        const pickupRadius = relics.sticky_tongue ? 1.5 : 0.8;
+        if (dist <= pickupRadius) {
+          f.active = false;
+          flies += 5;
+          score += 25;
+          document.getElementById('hud-flies').innerText = flies;
+          document.getElementById('hud-score').innerText = score;
+        }
+      });
+    }
+
+    function takeDamage() {
+      if (relics.turtle_shell && relics.has_shield) {
+        relics.has_shield = false;
+        renderRelics();
+        return;
+      }
+
+      hearts--;
+      updateHeartsDisplay();
       player.col = 8;
       player.row = rows - 1;
       highestRow = rows - 1;
-      if (lives <= 0) {
+
+      if (hearts <= 0) {
         gameOver = true;
+        const earnedAmber = Math.floor(score / 50) + flies;
+        amberResin += earnedAmber;
+        localStorage.setItem('croak_amber', amberResin.toString());
+        document.getElementById('hud-amber').innerText = amberResin;
+        document.getElementById('death-stats').innerText = `Gained +${earnedAmber} Amber Resin for the Sanctuary!`;
         document.getElementById('game-over-banner').style.display = 'block';
       }
     }
 
-    function resetGame() {
-      lives = 3;
+    function restartRun() {
+      hearts = maxHearts;
+      stage = 1;
       score = 0;
+      flies = 0;
       gameOver = false;
+      document.getElementById('hud-stage').innerText = `1-${stage}`;
+      document.getElementById('hud-flies').innerText = flies;
       document.getElementById('hud-score').innerText = score;
-      document.getElementById('hud-lives').innerText = lives;
+      updateHeartsDisplay();
       document.getElementById('game-over-banner').style.display = 'none';
       lanes[0].items.forEach(g => g.filled = false);
+      resetLanesForStage();
+    }
+
+    function openShop() {
+      inShop = true;
+      document.getElementById('pond-shop-modal').style.display = 'block';
+    }
+
+    function closeShop() {
+      inShop = false;
+      document.getElementById('pond-shop-modal').style.display = 'none';
+      stage++;
+      document.getElementById('hud-stage').innerText = `1-${stage}`;
+      lanes[0].items.forEach(g => g.filled = false);
+      resetLanesForStage();
+    }
+
+    function buyRelic(type, cost) {
+      if (flies < cost) {
+        alert("Not enough flies!");
+        return;
+      }
+      flies -= cost;
+      document.getElementById('hud-flies').innerText = flies;
+
+      if (type === 'sticky_tongue') relics.sticky_tongue = true;
+      if (type === 'turtle_shell') { relics.turtle_shell = true; relics.has_shield = true; }
+      if (type === 'heart_heal') { hearts = Math.min(maxHearts, hearts + 1); updateHeartsDisplay(); }
+
+      renderRelics();
+    }
+
+    function renderRelics() {
+      const container = document.getElementById('relic-list');
+      const list = [];
+      if (relics.sticky_tongue) list.push('<span class="relic-pill">👅 Sticky Tongue</span>');
+      if (relics.turtle_shell) list.push(`<span class="relic-pill">🐢 Shell (${relics.has_shield ? 'Active' : 'Broken'})</span>`);
+      container.innerHTML = list.length > 0 ? list.join('') : 'None';
+    }
+
+    function resetLanesForStage() {
       player.col = 8;
       player.row = rows - 1;
+      highestRow = rows - 1;
+      if (relics.turtle_shell) relics.has_shield = true;
+      renderRelics();
+
+      // Scale speed with stage
+      const speedMult = 1.0 + (stage - 1) * 0.22;
+      lanes[2].speed = -2.2 * speedMult;
+      lanes[3].speed = 1.8 * speedMult;
+      lanes[4].speed = -2.8 * speedMult;
+      lanes[7].speed = -3.0 * speedMult;
+      lanes[8].speed = 2.0 * speedMult;
+
+      // Respawn Flies
+      laneFlies = [
+        { col: Math.floor(Math.random() * 14) + 1, row: 8, active: true },
+        { col: Math.floor(Math.random() * 14) + 1, row: 4, active: true },
+        { col: Math.floor(Math.random() * 14) + 1, row: 2, active: true }
+      ];
     }
 
     function update(delta) {
-      if (gameOver) return;
+      if (gameOver || inShop) return;
 
       // Update Lane Obstacle Positions
       lanes.forEach(lane => {
@@ -131,7 +338,7 @@
         if (currentLane.type === 'road') {
           for (let ox of currentLane.items) {
             if (px < ox + currentLane.width && px + player.width > ox) {
-              killPlayer();
+              takeDamage();
               return;
             }
           }
@@ -145,7 +352,7 @@
             }
           }
           if (!onLog || player.col < 0 || player.col >= cols) {
-            killPlayer();
+            takeDamage();
             return;
           }
         } else if (currentLane.type === 'goal') {
@@ -157,8 +364,13 @@
             player.col = 8;
             player.row = rows - 1;
             highestRow = rows - 1;
+
+            // Check if all 5 bays filled -> Complete Stage & Open Shop
+            if (currentLane.items.every(b => b.filled)) {
+              openShop();
+            }
           } else {
-            killPlayer();
+            takeDamage();
           }
         }
       }
@@ -197,11 +409,31 @@
         }
       });
 
-      // Render Player Frog
+      // Render Floating Collectible Flies
+      laneFlies.forEach(f => {
+        if (!f.active) return;
+        const fx = f.col * gridSize + 14;
+        const fy = f.row * gridSize + 14;
+        ctx.fillStyle = '#ebcb8b';
+        ctx.beginPath();
+        ctx.arc(fx, fy, 5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = 'rgba(255,255,255,0.7)';
+        ctx.fillRect(fx - 4, fy - 6, 8, 3);
+      });
+
+      // Render Player Frog (with Shield halo if active)
       if (!gameOver) {
-        ctx.fillStyle = player.color;
         const px = Math.round(player.col * gridSize) + 4;
         const py = Math.round(player.row * gridSize) + 4;
+
+        if (relics.turtle_shell && relics.has_shield) {
+          ctx.strokeStyle = '#88c0d0';
+          ctx.lineWidth = 2;
+          ctx.strokeRect(px - 3, py - 3, player.width + 6, player.height + 6);
+        }
+
+        ctx.fillStyle = player.color;
         ctx.fillRect(px, py, player.width, player.height);
         ctx.fillStyle = '#ebcb8b';
         ctx.fillRect(px + 4, py + 4, 6, 6);
