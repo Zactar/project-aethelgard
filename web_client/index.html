@@ -968,6 +968,22 @@
       }
     }
 
+    
+    // =========================================================================
+    // 5C. CIVIC PROCLAMATION POSTERS & REVOLUTION DECALS (v0.32.0 Autonomous Patch)
+    // =========================================================================
+    const posterMat = new THREE.MeshStandardMaterial({ color: 0xebcb8b, roughness: 0.9 });
+    const posterGeometry = new THREE.PlaneGeometry(1.2, 1.6);
+    
+    // Wall Proclamation Posters in Market Square
+    [[-11.7, 2.0, -4.0, Math.PI / 2], [11.7, 2.0, 4.0, -Math.PI / 2]].forEach(([px, py, pz, rotY]) => {
+      const poster = new THREE.Mesh(posterGeometry, posterMat);
+      poster.position.set(px, py, pz);
+      poster.rotation.y = rotY;
+      poster.receiveShadow = true;
+      scene.add(poster);
+    });
+
     function registerWorkstation(id, type, name, recipeId, pos) {
       workstationRecords.push({ id, type, name, recipeId, pos: new THREE.Vector3(...pos) });
     }
