@@ -1,7 +1,6 @@
 """
 services/agent_runtime/src/schedule_engine.py
 Project Aethelgard: StateTree NPC Schedule & Daily Citizen Routine Engine
-Autonomous implementation by CodebaseEngineerAgent.
 """
 
 from enum import Enum
