@@ -3,1363 +3,1525 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>Project Aethelgard - Modular Game Runtime</title>
+  <title>Project Aethelgard - Citadel Web Runtime</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body {
+    * {
+      box-sizing: border-box;
+      user-select: none;
       margin: 0;
       padding: 0;
+    }
+
+    body {
       overflow: hidden;
-      background: #06080d;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      color: #e0e0e0;
-      user-select: none;
+      background: #070a0e;
+      font-family: 'Segoe UI', monospace;
+      color: #eceff4;
     }
 
     #canvas-container {
       width: 100vw;
       height: 100vh;
       display: block;
-    }
-
-    /* Top-Left Telemetry HUD */
-    #hud {
       position: absolute;
-      top: 16px;
-      left: 16px;
-      width: 330px;
-      background: rgba(11, 15, 22, 0.94);
-      border: 1px solid #232c3d;
-      border-radius: 8px;
-      padding: 14px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
-      z-index: 10;
-    }
-
-    #hud h2 {
-      margin: 0 0 8px 0;
-      font-size: 14px;
-      color: #4facfe;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .hud-row {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 5px;
-      font-size: 12px;
-    }
-
-    .hud-val {
-      font-weight: bold;
-      color: #fff;
-    }
-
-    /* Top-Right Quest HUD */
-    #quest-hud {
-      position: absolute;
-      top: 16px;
-      right: 16px;
-      width: 350px;
-      background: rgba(11, 15, 22, 0.94);
-      border: 1px solid #232c3d;
-      border-radius: 8px;
-      padding: 14px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
-      z-index: 10;
-    }
-
-    #quest-hud h2 {
-      margin: 0 0 6px 0;
-      font-size: 13px;
-      color: #f5af19;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .quest-title {
-      font-weight: bold;
-      font-size: 13px;
-      color: #fff;
-      margin-bottom: 4px;
-    }
-
-    .quest-desc {
-      font-size: 11px;
-      color: #8a99ad;
-      line-height: 1.4;
-      margin-bottom: 8px;
-    }
-
-    .obj-item {
-      font-size: 12px;
-      margin-bottom: 5px;
-      padding-left: 16px;
-      position: relative;
-    }
-
-    .obj-item.ACTIVE {
-      color: #00f2fe;
-      font-weight: bold;
-    }
-
-    .obj-item.COMPLETED {
-      color: #00e676;
-      text-decoration: line-through;
-      opacity: 0.65;
-    }
-
-    .obj-item.LOCKED {
-      color: #6b7280;
-    }
-
-    .obj-item::before {
-      content: "•";
-      position: absolute;
+      top: 0;
       left: 0;
-      font-size: 14px;
+      z-index: 1;
     }
 
-    .obj-item.ACTIVE::before {
-      content: "▶";
-      color: #00f2fe;
-      font-size: 10px;
-      top: 1px;
-    }
-
-    /* Bottom-Left Backpack HUD */
-    #inventory-bar {
+    #commodity-ticker {
       position: absolute;
-      bottom: 20px;
+      top: 14px;
       left: 16px;
-      width: 330px;
-      background: rgba(11, 15, 22, 0.94);
-      border: 1px solid #232c3d;
-      border-radius: 8px;
-      padding: 12px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+      right: 230px;
+      display: flex;
+      gap: 18px;
+      align-items: center;
+      background: rgba(13, 17, 23, 0.94);
+      border: 1px solid #434c5e;
+      padding: 9px 18px;
+      border-radius: 6px;
+      font-size: 12px;
+      backdrop-filter: blur(8px);
       z-index: 10;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
     }
 
-    #inventory-bar h3 {
-      margin: 0 0 8px 0;
-      font-size: 12px;
-      color: #f5af19;
-      text-transform: uppercase;
+    .ticker-title {
+      color: #88c0d0;
+      font-weight: bold;
       letter-spacing: 0.5px;
     }
 
-    .inv-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
+    .ticker-item {
+      display: flex;
+      gap: 6px;
+      align-items: center;
     }
 
-    .inv-slot {
-      background: #141b27;
-      border: 1px solid #28364d;
-      border-radius: 6px;
-      padding: 8px 6px;
-      text-align: center;
+    .ticker-price {
+      color: #a3be8c;
+      font-weight: bold;
+    }
+
+    #radar-container {
+      position: absolute;
+      top: 14px;
+      right: 16px;
+      width: 180px;
+      height: 180px;
+      background: rgba(13, 17, 23, 0.94);
+      border: 2px solid #5e81ac;
+      border-radius: 50%;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
+      z-index: 10;
+    }
+
+    #radar-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    #stealth-hud {
+      position: absolute;
+      top: 76px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: none;
+      align-items: center;
+      gap: 12px;
+      background: rgba(46, 52, 64, 0.96);
+      border: 1px solid #d08770;
+      padding: 8px 22px;
+      border-radius: 24px;
+      box-shadow: 0 4px 24px rgba(208, 135, 112, 0.4);
+      z-index: 10;
+    }
+
+    #stealth-label {
+      color: #d08770;
+      font-weight: bold;
       font-size: 11px;
+      letter-spacing: 1px;
+    }
+
+    #stealth-meter-bar {
+      width: 140px;
+      height: 8px;
+      background: #2e3440;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    #stealth-meter-fill {
+      width: 0%;
+      height: 100%;
+      background: #bf616a;
+      transition: width 0.1s linear;
+    }
+
+    #light-hud {
+      position: absolute;
+      top: 112px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(13, 17, 23, 0.9);
+      border: 1px solid #4c566a;
+      padding: 4px 16px;
+      border-radius: 16px;
+      z-index: 10;
+    }
+
+    #quest-banner {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      background: rgba(22, 27, 34, 0.94);
+      border-left: 4px solid #88c0d0;
+      padding: 14px 20px;
+      border-radius: 4px;
+      z-index: 10;
+      max-width: 380px;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(6px);
+    }
+
+    #quest-act {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: #81a1c1;
+      letter-spacing: 1.5px;
+    }
+
+    #quest-title {
+      font-size: 15px;
+      font-weight: bold;
+      margin: 4px 0;
+      color: #eceff4;
+    }
+
+    #quest-obj {
+      font-size: 12px;
+      color: #d8dee9;
+      line-height: 1.4;
+    }
+
+    #backpack-hud {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      display: flex;
+      gap: 10px;
+      background: rgba(22, 27, 34, 0.94);
+      border: 1px solid #434c5e;
+      padding: 10px 14px;
+      border-radius: 8px;
+      z-index: 10;
+      backdrop-filter: blur(6px);
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.6);
+    }
+
+    .backpack-slot {
+      width: 50px;
+      height: 50px;
+      background: #2e3440;
+      border: 1px solid #4c566a;
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
+      position: relative;
       transition: all 0.15s ease;
     }
 
-    .inv-slot:hover {
-      border-color: #00f2fe;
-      background: #1c273a;
+    .backpack-slot:hover {
+      border-color: #88c0d0;
       transform: translateY(-2px);
     }
 
-    .inv-slot:active {
-      transform: translateY(0);
-    }
-
-    .inv-icon {
-      font-size: 20px;
-      margin-bottom: 3px;
-    }
-
-    .minimap-container {
-      margin-top: 8px;
-      border-top: 1px solid #232c3d;
-      padding-top: 8px;
-      text-align: center;
-    }
-
-    #minimap {
-      background: #080b11;
-      border: 1px solid #1a2230;
-      border-radius: 4px;
-      display: block;
-      margin: 0 auto;
-    }
-
-    .instructions {
-      margin-top: 8px;
-      font-size: 11px;
-      color: #8a99ad;
-      line-height: 1.4;
-      text-align: left;
-    }
-
-    /* Central Notification Toast */
-    #interaction-toast {
+    .backpack-slot .key-tag {
       position: absolute;
-      top: 24px;
+      top: 2px;
+      left: 4px;
+      font-size: 9px;
+      color: #81a1c1;
+    }
+
+    .backpack-slot .item-icon {
+      font-size: 20px;
+    }
+
+    .backpack-slot .item-count {
+      position: absolute;
+      bottom: 2px;
+      right: 4px;
+      font-size: 10px;
+      font-weight: bold;
+      color: #eceff4;
+    }
+
+    #keyring-hud {
+      position: absolute;
+      top: 204px;
+      right: 16px;
+      width: 180px;
+      background: rgba(13, 17, 23, 0.88);
+      border: 1px solid #5e81ac;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 11px;
+      z-index: 10;
+    }
+
+    .key-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #ebcb8b;
+      margin-top: 4px;
+    }
+
+    #interaction-prompt {
+      position: absolute;
+      top: 60%;
       left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0, 242, 254, 0.22);
-      border: 1px solid #00f2fe;
-      color: #00f2fe;
-      padding: 10px 28px;
+      transform: translate(-50%, -50%);
+      display: none;
+      background: rgba(13, 17, 23, 0.95);
+      border: 1px solid #ebcb8b;
+      color: #ebcb8b;
+      padding: 10px 24px;
       border-radius: 20px;
       font-size: 13px;
       font-weight: bold;
       letter-spacing: 0.5px;
-      display: none;
-      z-index: 20;
-      box-shadow: 0 0 20px rgba(0, 242, 254, 0.45);
-      text-align: center;
+      z-index: 10;
+      box-shadow: 0 4px 20px rgba(235, 203, 139, 0.3);
     }
 
-    /* Dialogue & Narrative Feed */
+    #crafting-prompt {
+      position: absolute;
+      top: 66%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: none;
+      background: rgba(13, 17, 23, 0.95);
+      border: 1px solid #a3be8c;
+      color: #a3be8c;
+      padding: 10px 24px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+      z-index: 10;
+      box-shadow: 0 4px 20px rgba(163, 190, 140, 0.3);
+    }
+
+    #gate-prompt {
+      position: absolute;
+      top: 54%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: none;
+      background: rgba(13, 17, 23, 0.95);
+      border: 1px solid #88c0d0;
+      color: #88c0d0;
+      padding: 10px 24px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+      z-index: 10;
+      box-shadow: 0 4px 20px rgba(136, 192, 208, 0.3);
+    }
+
     #dialogue-box {
       position: absolute;
-      bottom: 20px;
+      bottom: 95px;
       left: 50%;
       transform: translateX(-50%);
-      width: 680px;
-      background: rgba(11, 15, 22, 0.96);
-      border: 1px solid #334057;
-      border-radius: 8px;
-      padding: 16px 20px;
-      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.85);
       display: none;
-      z-index: 10;
+      width: 520px;
+      background: rgba(15, 20, 28, 0.97);
+      border: 1px solid #81a1c1;
+      border-radius: 8px;
+      padding: 16px 22px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.85);
+      z-index: 20;
     }
 
     #dialogue-speaker {
+      font-size: 13px;
       font-weight: bold;
-      color: #f5af19;
-      font-size: 14px;
-      margin-bottom: 4px;
+      color: #88c0d0;
+      margin-bottom: 6px;
     }
 
     #dialogue-text {
       font-size: 14px;
       line-height: 1.5;
-      color: #f0f0f0;
-      font-style: italic;
+      color: #e5e9f0;
     }
 
-    #dialogue-action {
-      margin-top: 6px;
-      font-size: 11px;
-      color: #00f2fe;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .btn {
-      width: 100%;
-      background: #18202d;
-      color: #fff;
-      border: 1px solid #4facfe;
-      padding: 8px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 12px;
+    #zone-banner {
+      position: absolute;
+      top: 120px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 18px;
       font-weight: bold;
-      margin-top: 6px;
+      letter-spacing: 3px;
+      color: #88c0d0;
+      text-transform: uppercase;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
+      opacity: 0;
+      transition: opacity 0.6s ease;
+      pointer-events: none;
+      z-index: 15;
     }
 
-    .btn:hover {
-      background: #4facfe;
-      color: #06080d;
+    #camera-controls-hint {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(13, 17, 23, 0.85);
+      border: 1px solid #434c5e;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 11px;
+      color: #81a1c1;
+      pointer-events: none;
+      z-index: 10;
     }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 </head>
 
 <body>
-  <div id="hud">
-    <h2 id="ui-title">AETHELGARD RUNTIME CLIENT</h2>
-    <div class="hud-row"><span>District:</span><span id="ui-district" class="hud-val">MarketSquare</span></div>
-    <div class="hud-row"><span>Zone:</span><span id="ui-room" class="hud-val" style="color: #00f2fe;">Plaza</span></div>
-    <div class="hud-row"><span>Phase:</span><span id="ui-phase" class="hud-val">PEACETIME_COMMERCE</span></div>
-    <div class="hud-row"><span>Stamina:</span><span id="ui-stamina" class="hud-val" style="color: #00e676;">100 /
-        100</span></div>
-    <div class="hud-row"><span>Active Buff:</span><span id="ui-buff" class="hud-val" style="color: #f5af19;">None</span>
+  <div id="commodity-ticker">
+    <div class="ticker-title">CITADEL COMMODITIES:</div>
+    <div class="ticker-item"><span>Hearth Bread:</span> <span id="tick-bread" class="ticker-price">5.00s</span></div>
+    <div class="ticker-item"><span>Sunfire Salve:</span> <span id="tick-salve" class="ticker-price">25.00s</span></div>
+    <div class="ticker-item"><span>Forged Permit:</span> <span id="tick-permit" class="ticker-price">65.00s</span></div>
+    <div class="ticker-item"><span>Aqueduct Silver:</span> <span id="tick-silver" class="ticker-price">100.00s</span>
     </div>
-    <div class="hud-row"><span>Proximity Target:</span><span id="ui-prompt" class="hud-val"
-        style="color: #f5af19;">None</span></div>
-    <div class="hud-row"><span>IPC Bridge:</span><span id="ui-status" class="hud-val"
-        style="color: #ffb300;">Connecting...</span></div>
-    <div id="ui-action-buttons"></div>
-    <button class="btn" onclick="recenterCamera()">Recenter Camera (Spacebar)</button>
+  </div>
 
-    <div class="minimap-container">
-      <canvas id="minimap" width="280" height="150"></canvas>
-      <div class="instructions">
-        • <b>WASD / Arrows</b>: Walk | <b>E</b>: Talk / Operate<br>
-        • <b>Click Item</b>: Consume Buff | <b>Spacebar</b>: Snap Camera
+  <div id="radar-container">
+    <canvas id="radar-canvas" width="180" height="180"></canvas>
+  </div>
+
+  <div id="keyring-hud">
+    <div style="font-weight: bold; color: #81a1c1;">KEYRING & TOKENS:</div>
+    <div class="key-item"><span>🔑</span> <span id="key-undercroft">Undercroft Key</span></div>
+    <div class="key-item"><span>📜</span> <span id="key-permit">Forged Transit Permit</span></div>
+  </div>
+
+  <div id="stealth-hud">
+    <span id="stealth-label">CURFEW ALERT:</span>
+    <div id="stealth-meter-bar">
+      <div id="stealth-meter-fill"></div>
+    </div>
+  </div>
+
+  <div id="light-hud">
+    <span style="font-size: 10px; color: #88c0d0; font-weight: bold;">LIGHT LEVEL:</span>
+    <div style="width: 80px; height: 6px; background: #1a202c; border-radius: 3px; overflow: hidden;">
+      <div id="light-meter-fill" style="width: 10%; height: 100%; background: #ebcb8b; transition: width 0.1s linear;">
       </div>
     </div>
+    <span id="crouch-indicator" style="font-size: 10px; color: #64748b; font-weight: bold;">STAND</span>
   </div>
 
-  <div id="quest-hud">
-    <h2>Active Quest Objective</h2>
-    <div id="quest-content">
-      <div class="quest-title">Loading objectives...</div>
-      <div class="quest-desc">...</div>
+  <div id="zone-banner">MARKET CROSS SQUARE</div>
+
+  <div id="quest-banner">
+    <div id="quest-act">Act VII: Security Thresholds</div>
+    <div id="quest-title">Keys to the Undercroft</div>
+    <div id="quest-obj">Unlock the Iron Portcullis using your Key or Forged Permit to bypass curfew.</div>
+  </div>
+
+  <div id="backpack-hud">
+    <div class="backpack-slot" onclick="consumeItem('bread')">
+      <span class="key-tag">1</span><span class="item-icon">🍞</span><span class="item-count" id="count-bread">3</span>
+    </div>
+    <div class="backpack-slot" onclick="consumeItem('salve')">
+      <span class="key-tag">2</span><span class="item-icon">🧪</span><span class="item-count" id="count-salve">1</span>
+    </div>
+    <div class="backpack-slot" onclick="consumeItem('permit')">
+      <span class="key-tag">3</span><span class="item-icon">📜</span><span class="item-count" id="count-permit">1</span>
+    </div>
+    <div class="backpack-slot" title="Flour (Baking Ingredient)">
+      <span class="key-tag">4</span><span class="item-icon">🌾</span><span class="item-count" id="count-flour">2</span>
     </div>
   </div>
 
-  <div id="inventory-bar">
-    <h3>Backpack Storage</h3>
-    <div id="inv-slots" class="inv-grid"></div>
-  </div>
-
-  <div id="interaction-toast">ACTIVATING...</div>
+  <div id="interaction-prompt">[E] Speak</div>
+  <div id="crafting-prompt">[F] Craft at Workstation</div>
+  <div id="gate-prompt">[E] Unlock Iron Portcullis</div>
 
   <div id="dialogue-box">
-    <div id="dialogue-speaker">NPC SPEECH</div>
-    <div id="dialogue-text">...</div>
-    <div id="dialogue-action">ACTION: NONE</div>
+    <div id="dialogue-speaker">NPC Name</div>
+    <div id="dialogue-text">Dialogue message content here...</div>
   </div>
 
+  <div id="camera-controls-hint">WASD: Move | Shift: Sprint | C: Crouch | E: Interact/Unlock | F: Craft</div>
   <div id="canvas-container"></div>
 
   <script>
     // =========================================================================
-    // 1. PROCEDURAL WEB AUDIO SYNTHESIZER & SPEECH TTS ENGINE
+    // 1. PROCEDURAL AUDIO & SPEECH ENGINES
     // =========================================================================
-    let audioCtx = null;
-
-    function initAudioContext() {
-      if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    class ProceduralAudioEngine {
+      constructor() { this.ctx = null; }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioContext();
+        }
       }
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
+      playFootstep() {
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(85, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(30, this.ctx.currentTime + 0.08);
+        gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.08);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.08);
+      }
+      playPortcullisGrind() {
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(65, this.ctx.currentTime);
+        osc.frequency.linearRampToValueAtTime(110, this.ctx.currentTime + 1.2);
+        gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 1.2);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 1.2);
+      }
+      playCraftingSizzle() {
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(140, this.ctx.currentTime);
+        osc.frequency.linearRampToValueAtTime(320, this.ctx.currentTime + 0.6);
+        gain.gain.setValueAtTime(0.14, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.6);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.6);
+      }
+      playBuffChime() {
+        if (!this.ctx) return;
+        [261.63, 329.63, 392.00, 523.25].forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime + idx * 0.06);
+          gain.gain.setValueAtTime(0.12, this.ctx.currentTime + idx * 0.06);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + idx * 0.06 + 0.25);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(this.ctx.currentTime + idx * 0.06);
+          osc.stop(this.ctx.currentTime + idx * 0.06 + 0.25);
+        });
+      }
+      playFanfare() {
+        if (!this.ctx) return;
+        [392.00, 493.88, 587.33, 783.99].forEach(freq => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+          gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.7);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + 0.7);
+        });
       }
     }
-    window.addEventListener('click', initAudioContext, { once: true });
-    window.addEventListener('keydown', initAudioContext, { once: true });
+    const audio = new ProceduralAudioEngine();
+    window.addEventListener('keydown', () => audio.init(), { once: true });
+    window.addEventListener('click', () => audio.init(), { once: true });
 
-    const SoundEngine = {
-      playClick() {
-        if (!audioCtx) return;
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = "sine";
-        osc.frequency.setValueAtTime(680, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(320, audioCtx.currentTime + 0.08);
-        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.08);
-      },
-
-      playFootstep() {
-        if (!audioCtx) return;
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = "triangle";
-        osc.frequency.setValueAtTime(130, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(45, audioCtx.currentTime + 0.06);
-        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.06);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.06);
-      },
-
-      playBuffChime() {
-        if (!audioCtx) return;
-        const notes = [440.0, 554.37, 659.25, 880.0];
-        notes.forEach((freq, idx) => {
-          const osc = audioCtx.createOscillator();
-          const gain = audioCtx.createGain();
-          osc.type = "sine";
-          osc.frequency.setValueAtTime(freq, audioCtx.currentTime + (idx * 0.07));
-          gain.gain.setValueAtTime(0.22, audioCtx.currentTime + (idx * 0.07));
-          gain.gain.exponentialRampToValueAtTime(0.005, audioCtx.currentTime + (idx * 0.07) + 0.35);
-          osc.connect(gain);
-          gain.connect(audioCtx.destination);
-          osc.start(audioCtx.currentTime + (idx * 0.07));
-          osc.stop(audioCtx.currentTime + (idx * 0.07) + 0.35);
-        });
-      },
-
-      playQuestCompleteFanfare() {
-        if (!audioCtx) return;
-        const chords = [523.25, 659.25, 783.99, 1046.50];
-        chords.forEach((freq, idx) => {
-          const osc = audioCtx.createOscillator();
-          const gain = audioCtx.createGain();
-          osc.type = "triangle";
-          osc.frequency.setValueAtTime(freq, audioCtx.currentTime + (idx * 0.10));
-          gain.gain.setValueAtTime(0.3, audioCtx.currentTime + (idx * 0.10));
-          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + (idx * 0.10) + 0.7);
-          osc.connect(gain);
-          gain.connect(audioCtx.destination);
-          osc.start(audioCtx.currentTime + (idx * 0.10));
-          osc.stop(audioCtx.currentTime + (idx * 0.10) + 0.7);
-        });
-      },
-
-      playMechanismRumble(baseFreq = 160.0) {
-        if (!audioCtx) return;
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = "sawtooth";
-        osc.frequency.setValueAtTime(baseFreq, audioCtx.currentTime);
-        osc.frequency.linearRampToValueAtTime(baseFreq * 0.6, audioCtx.currentTime + 0.45);
-        gain.gain.setValueAtTime(0.32, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.45);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.45);
-      }
-    };
-
-    function speakNPCDialogue(text, npcId) {
-      if (!window.speechSynthesis) return;
+    function speakNPC(text, pitch = 1.0, rate = 1.0) {
+      if (!('speechSynthesis' in window)) return;
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(text);
-      if (npcId === "NPC_ALDOUS") {
-        utterance.pitch = 0.85; utterance.rate = 0.95;
-      } else if (npcId === "NPC_GARRETT") {
-        utterance.pitch = 1.15; utterance.rate = 1.05;
-      } else if (npcId === "NPC_CAPTAIN_VANE") {
-        utterance.pitch = 0.70; utterance.rate = 0.90;
-      } else if (npcId === "NPC_KAELEN") {
-        utterance.pitch = 0.95; utterance.rate = 1.10;
-      } else if (npcId === "NPC_ORLOV") {
-        utterance.pitch = 0.80; utterance.rate = 0.90;
-      } else {
-        utterance.pitch = 1.0; utterance.rate = 1.0;
-      }
+      utterance.pitch = pitch;
+      utterance.rate = rate;
       window.speechSynthesis.speak(utterance);
     }
 
     // =========================================================================
-    // 2. SCENE & GLOBAL RUNTIME STATE
+    // 2. THREE.JS SCENE SETUP, SHADOWS & CAMERA
     // =========================================================================
-    const FALLBACK_ITEMS = {
-      "item_bread": { display_name: "Hearth Bread", icon_symbol: "🍞", description: "Dense barley loaf. Restores 35 stamina.", effects: { stamina_restore: 35.0 } },
-      "item_sunfire_salve": { display_name: "Sunfire Salve", icon_symbol: "🧪", description: "Grants +25% move speed for 14s.", effects: { speed_boost: 0.25, duration_sec: 14.0 } },
-      "item_forged_permit": { display_name: "Forged Tithe Permit", icon_symbol: "📜", description: "Grants +35% move speed for 18s.", effects: { speed_boost: 0.35, duration_sec: 18.0 } }
-    };
-
-    let activeManifest = null;
-    let playerInventory = { "item_bread": 2, "item_sunfire_salve": 1, "item_forged_permit": 1 };
-    let activeBuffs = { speedBoost: 0.0, speedTimer: 0.0, buffLabel: "None" };
-    let runtimeMechanics = { player_base_speed: 1400.0, interaction_radius: 520.0, stamina_max: 100.0 };
-    let playerStamina = 100.0;
-    let activeQuests = [];
-    let currentQuestIndex = 0;
-    let footstepDistanceAccumulator = 0.0;
-
-    const renderedRoomIds = new Set();
-    const renderedCorridors = new Set();
-    const renderedPropIds = new Set();
-    const renderedNpcMap = new Map();
-
+    const container = document.getElementById('canvas-container');
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x06080d);
-    scene.fog = new THREE.FogExp2(0x06080d, 0.00018);
+    scene.background = new THREE.Color('#070a0e');
+    scene.fog = new THREE.FogExp2('#070a0e', 0.012);
 
-    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 10, 35000);
-    camera.position.set(0, 2600, 2800);
+    const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.5, 300);
+    camera.position.set(0, 16, 14);
+    camera.lookAt(0, 0, 0);
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
     renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    document.getElementById('canvas-container').appendChild(renderer.domElement);
+    container.appendChild(renderer.domElement);
 
-    const controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.12;
-    controls.maxPolarAngle = Math.PI / 2.12;
-    controls.minDistance = 600;
-    controls.maxDistance = 7500;
-    controls.target.set(0, 80, 0);
+    const ambientLight = new THREE.AmbientLight('#6272a4', 0.95);
+    scene.add(ambientLight);
 
-    const hemiLight = new THREE.HemisphereLight(0xb0c4de, 0x181c24, 0.7);
-    scene.add(hemiLight);
+    const sun = new THREE.DirectionalLight('#ffffff', 1.3);
+    sun.position.set(40, 60, 30);
+    sun.castShadow = true;
+    sun.shadow.mapSize.width = 1024;
+    sun.shadow.mapSize.height = 1024;
+    scene.add(sun);
 
-    const sunLight = new THREE.DirectionalLight(0xfff5ea, 0.75);
-    sunLight.position.set(2200, 4800, 2800);
-    sunLight.castShadow = true;
-    scene.add(sunLight);
+    // =========================================================================
+    // 3. TEXTURE BUILDERS & MATERIALS
+    // =========================================================================
+    function makeTileTexture(baseColor, mortarColor, rows = 4, cols = 4) {
+      const c = document.createElement('canvas');
+      c.width = 256; c.height = 256;
+      const ctx = c.getContext('2d');
+      ctx.fillStyle = mortarColor;
+      ctx.fillRect(0, 0, 256, 256);
 
-    const grid = new THREE.GridHelper(24000, 120, 0x1b222f, 0x0c0f16);
-    grid.position.y = -6;
-    scene.add(grid);
+      const rh = 256 / rows, cw = 256 / cols;
+      for (let r = 0; r < rows; r++) {
+        const offset = (r % 2) * (cw / 2);
+        for (let col = -1; col <= cols; col++) {
+          const x = col * cw + offset;
+          const y = r * rh;
+          ctx.fillStyle = baseColor;
+          ctx.fillRect(x + 3, y + 3, cw - 6, rh - 6);
+          ctx.fillStyle = 'rgba(255,255,255,0.18)';
+          ctx.fillRect(x + 3, y + 3, cw - 6, 3);
+          ctx.fillStyle = 'rgba(0,0,0,0.25)';
+          ctx.fillRect(x + 3, y + rh - 6, cw - 6, 3);
+        }
+      }
+      const tex = new THREE.CanvasTexture(c);
+      tex.wrapS = THREE.RepeatWrapping;
+      tex.wrapT = THREE.RepeatWrapping;
+      tex.needsUpdate = true;
+      return tex;
+    }
 
-    const architecturalGroup = new THREE.Group(); scene.add(architecturalGroup);
-    const corridorGroup = new THREE.Group(); scene.add(corridorGroup);
-    const labelGroup = new THREE.Group(); scene.add(labelGroup);
-    const dynamicPropsGroup = new THREE.Group(); scene.add(dynamicPropsGroup);
-    const npcActorGroup = new THREE.Group(); scene.add(npcActorGroup);
+    const marketTex = makeTileTexture('#7d8b9e', '#1c222d', 4, 4);
+    const bakeryTex = makeTileTexture('#b07044', '#361d10', 8, 2);
+    const curativeTex = makeTileTexture('#c46c52', '#3d1b12', 4, 4);
+    const undercroftTex = makeTileTexture('#475569', '#0f141c', 4, 4);
 
-    const smartObjectRings = [];
-
-    // Player Mesh
+    // =========================================================================
+    // 4. ANIMATED PLAYER RIG & CROUCH POSTURE
+    // =========================================================================
     const playerGroup = new THREE.Group();
-    const playerBody = new THREE.Mesh(
-      new THREE.CylinderGeometry(55, 55, 150, 16),
-      new THREE.MeshLambertMaterial({ color: 0x00f2fe, emissive: 0x003344, emissiveIntensity: 0.35 })
-    );
-    playerBody.position.y = 75;
-    playerBody.castShadow = true;
-    playerGroup.add(playerBody);
-
-    const arrowGeo = new THREE.ConeGeometry(25, 55, 12);
-    arrowGeo.rotateX(-Math.PI / 2);
-    const playerVisor = new THREE.Mesh(
-      arrowGeo,
-      new THREE.MeshLambertMaterial({ color: 0xffd700, emissive: 0x664400 })
-    );
-    playerVisor.position.set(0, 95, -60);
-    playerGroup.add(playerVisor);
     playerGroup.position.set(0, 0, 0);
+
+    const cloakMat = new THREE.MeshStandardMaterial({ color: 0x5e81ac, roughness: 0.35 });
+    const armorMat = new THREE.MeshStandardMaterial({ color: 0x2e3440, roughness: 0.4, metalness: 0.3 });
+    const skinMat = new THREE.MeshStandardMaterial({ color: 0xd8dee9, roughness: 0.3 });
+
+    const torso = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.9, 0.42), cloakMat);
+    torso.position.y = 0.95;
+    torso.castShadow = true;
+    playerGroup.add(torso);
+
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.28, 16, 16), skinMat);
+    head.position.y = 1.62;
+    head.castShadow = true;
+    playerGroup.add(head);
+
+    const hood = new THREE.Mesh(new THREE.ConeGeometry(0.33, 0.45, 8), cloakMat);
+    hood.rotation.x = -0.3;
+    hood.position.set(0, 1.72, -0.08);
+    playerGroup.add(hood);
+
+    const armL = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.7, 0.2), cloakMat);
+    armL.position.set(-0.48, 0.95, 0);
+    armL.castShadow = true;
+    playerGroup.add(armL);
+
+    const armR = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.7, 0.2), cloakMat);
+    armR.position.set(0.48, 0.95, 0);
+    armR.castShadow = true;
+    playerGroup.add(armR);
+
+    const legL = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.58, 0.25), armorMat);
+    legL.position.set(-0.19, 0.29, 0);
+    legL.castShadow = true;
+    playerGroup.add(legL);
+
+    const legR = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.58, 0.25), armorMat);
+    legR.position.set(0.19, 0.29, 0);
+    legR.castShadow = true;
+    playerGroup.add(legR);
+
+    const chevronGeo = new THREE.BufferGeometry();
+    const chevronVerts = new Float32Array([
+      0.0, 0.05, -1.35,
+      -0.48, 0.05, -0.65,
+      0.0, 0.05, -0.85,
+      0.48, 0.05, -0.65
+    ]);
+    chevronGeo.setAttribute('position', new THREE.BufferAttribute(chevronVerts, 3));
+    chevronGeo.setIndex([0, 1, 2, 0, 2, 3]);
+    const chevronMesh = new THREE.Mesh(chevronGeo, new THREE.MeshBasicMaterial({ color: 0x88c0d0, side: THREE.DoubleSide }));
+    playerGroup.add(chevronMesh);
+
+    const lantern = new THREE.PointLight(0xffcc66, 1.4, 16);
+    lantern.position.set(0.5, 0.9, 0.25);
+    lantern.castShadow = true;
+    playerGroup.add(lantern);
+
     scene.add(playerGroup);
 
-    let activeRooms = {};
-    let activeSmartObjects = [];
-    let activeNPCActors = [];
-    let nearestInteractable = null;
-    const keys = { w: false, a: false, s: false, d: false };
-
-    // =========================================================================
-    // 3. INVENTORY & CONSUMABLE ACTIONS
-    // =========================================================================
-    function getItemSpec(itemId) {
-      if (activeManifest && activeManifest.items && activeManifest.items[itemId]) {
-        return activeManifest.items[itemId];
-      }
-      return FALLBACK_ITEMS[itemId] || { display_name: itemId, icon_symbol: "📦", effects: {} };
+    const stepParticles = [];
+    function spawnFootstepParticle(x, y, z) {
+      const ring = new THREE.Mesh(
+        new THREE.RingGeometry(0.15, 0.3, 16),
+        new THREE.MeshBasicMaterial({ color: 0x88c0d0, transparent: true, opacity: 0.6, side: THREE.DoubleSide })
+      );
+      ring.rotation.x = -Math.PI / 2;
+      ring.position.set(x, y + 0.02, z);
+      scene.add(ring);
+      stepParticles.push({ mesh: ring, life: 1.0 });
     }
 
-    function consumeItem(itemId) {
-      initAudioContext();
-      if (!playerInventory[itemId] || playerInventory[itemId] <= 0) return;
+    // =========================================================================
+    // 5. PHYSICAL PORTCULLIS GATES & WORKSTATIONS
+    // =========================================================================
+    const gateRecords = [];
+    const ironGateMat = new THREE.MeshStandardMaterial({ color: 0x2e3440, roughness: 0.3, metalness: 0.85 });
 
-      const spec = getItemSpec(itemId);
-      const effects = spec.effects || {};
+    function spawnPhysicalPortcullis(id, x, y, z, width = 3.6, height = 3.4) {
+      const group = new THREE.Group();
+      const barCount = 7;
+      const barSpacing = width / (barCount + 1);
 
-      if (effects.stamina_restore) {
-        playerStamina = Math.min(runtimeMechanics.stamina_max || 100, playerStamina + effects.stamina_restore);
-        document.getElementById('ui-stamina').innerText = `${playerStamina.toFixed(0)} / ${(runtimeMechanics.stamina_max || 100).toFixed(0)}`;
+      // Vertical iron bars
+      for (let i = 1; i <= barCount; i++) {
+        const bar = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, height, 8), ironGateMat);
+        bar.position.set(-width / 2 + i * barSpacing, height / 2, 0);
+        bar.castShadow = true;
+        group.add(bar);
       }
 
-      if (effects.speed_boost) {
-        activeBuffs.speedBoost = effects.speed_boost;
-        activeBuffs.speedTimer = effects.duration_sec || 15.0;
-        activeBuffs.buffLabel = `+${Math.round(effects.speed_boost * 100)}% Speed`;
-        playerBody.material.emissive.setHex(0xffaa00);
-        playerBody.material.emissiveIntensity = 0.85;
-      }
+      // Horizontal crosspieces
+      [0.6, height / 2, height - 0.4].forEach(hy => {
+        const cross = new THREE.Mesh(new THREE.BoxGeometry(width, 0.12, 0.12), ironGateMat);
+        cross.position.set(0, hy, 0);
+        cross.castShadow = true;
+        group.add(cross);
+      });
 
-      SoundEngine.playBuffChime();
+      group.position.set(x, y, z);
+      scene.add(group);
 
-      playerInventory[itemId] -= 1;
-      if (playerInventory[itemId] <= 0) delete playerInventory[itemId];
-
-      const toast = document.getElementById('interaction-toast');
-      toast.innerText = `CONSUMED: ${spec.display_name} ${effects.speed_boost ? `(${activeBuffs.buffLabel})` : '(+Stamina)'}`;
-      toast.style.display = 'block';
-      setTimeout(() => { toast.style.display = 'none'; }, 2200);
-
-      renderInventoryUI();
+      gateRecords.push({
+        id,
+        group,
+        baseY: y,
+        targetY: y,
+        pos: new THREE.Vector3(x, y, z),
+        isLocked: true
+      });
     }
 
-    function renderInventoryUI() {
-      const invContainer = document.getElementById('inv-slots');
-      if (!invContainer) return;
-      invContainer.innerHTML = "";
+    // Spawn Portcullis Gates at Strategic Chokepoints
+    spawnPhysicalPortcullis("gate_undercroft", 0.0, 0.0, -15.0);
+    spawnPhysicalPortcullis("gate_garrison", 0.0, 0.0, -38.0);
 
-      const itemKeys = Object.keys(playerInventory);
-      if (itemKeys.length === 0) {
-        invContainer.innerHTML = '<div style="grid-column: span 3; color: #6b7280; font-size: 11px; padding: 6px;">Empty backpack</div>';
-        return;
-      }
+    const workstationRecords = [];
+    const craftingProgressRing = new THREE.Mesh(
+      new THREE.RingGeometry(1.2, 1.4, 32, 1, 0, 0),
+      new THREE.MeshBasicMaterial({ color: 0xa3be8c, side: THREE.DoubleSide })
+    );
+    craftingProgressRing.rotation.x = -Math.PI / 2;
+    craftingProgressRing.visible = false;
+    scene.add(craftingProgressRing);
 
-      for (const [itemId, qty] of Object.entries(playerInventory)) {
-        const spec = getItemSpec(itemId);
-        const slot = document.createElement('div');
-        slot.className = "inv-slot";
-        slot.title = spec.description || "Click to consume";
-        slot.innerHTML = `<div class="inv-icon">${spec.icon_symbol || "📦"}</div><b>${spec.display_name}</b><br><small style="color: #4facfe;">Qty: ${qty}</small>`;
-        slot.onclick = () => {
-          SoundEngine.playClick();
-          consumeItem(itemId);
-        };
-        invContainer.appendChild(slot);
-      }
+    let activeCrafting = null;
+
+    function registerWorkstation(id, type, name, recipeId, pos) {
+      workstationRecords.push({ id, type, name, recipeId, pos: new THREE.Vector3(...pos) });
     }
-    renderInventoryUI();
+
+    registerWorkstation("oven_bakery_01", "BAKERY_OVEN", "Baking Hearth", "bake_bread", [24.0, 1.1, -4.5]);
+    registerWorkstation("alembic_curatives_01", "APOTHECARY_ALEMBIC", "Apothecary Alembic", "brew_salve", [-24.0, 0.8, -4.5]);
 
     // =========================================================================
-    // 4. CORRIDOR BUILDER & PROCEDURAL ROOM RECONCILIATION
+    // 6. SPATIAL GEOMETRY & MANIFEST INGESTION
     // =========================================================================
-    function makeBillboardText(text, x, y, z, color = "#4facfe") {
-      const canvas = document.createElement('canvas');
-      canvas.width = 512; canvas.height = 128;
-      const ctx = canvas.getContext('2d');
-      ctx.fillStyle = "rgba(10, 14, 22, 0.78)";
-      ctx.strokeStyle = color; ctx.lineWidth = 4;
-      ctx.roundRect(10, 10, 492, 108, 16);
-      ctx.fill(); ctx.stroke();
-      ctx.font = "bold 42px sans-serif";
-      ctx.fillStyle = color; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-      ctx.fillText(text, 256, 64);
+    let roomRecords = [];
+    let actorRecords = [];
+    let waterMesh = null;
 
-      const texture = new THREE.CanvasTexture(canvas);
-      const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture, transparent: true }));
-      sprite.position.set(x, y, z);
-      sprite.scale.set(580, 145, 1);
-      labelGroup.add(sprite);
+    fetch('game_runtime_manifest.json')
+      .then(res => res.json())
+      .then(manifest => {
+        buildCitadelGeometry(manifest);
+        buildThoroughfares(manifest);
+        spawnInteractiveActors(manifest);
+      });
+
+    function buildCitadelGeometry(manifest) {
+      const curbMat = new THREE.MeshStandardMaterial({ color: 0x1a202c, roughness: 0.95 });
+      const wallMat = new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.8 });
+      const pillarMat = new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: 0.7 });
+      const waterMat = new THREE.MeshStandardMaterial({
+        color: 0x0284c7, roughness: 0.05, metalness: 0.9, transparent: true, opacity: 0.85
+      });
+
+      (manifest.rooms || []).forEach(room => {
+        const [w, h, d] = room.dimensions;
+        const [x, y, z] = room.position;
+
+        let chosenTex = marketTex;
+        if (room.room_id.includes('bakery')) chosenTex = bakeryTex;
+        if (room.room_id.includes('curatives')) chosenTex = curativeTex;
+        if (room.room_id.includes('undercroft') || room.room_id.includes('conduit') || room.room_id.includes('mill') || room.room_id.includes('sector')) {
+          chosenTex = undercroftTex;
+        }
+
+        const tCloned = chosenTex.clone();
+        tCloned.repeat.set(Math.max(w / 1.8, 2), Math.max(d / 1.8, 2));
+        tCloned.needsUpdate = true;
+
+        const floorMat = room.water_channel ? waterMat : new THREE.MeshStandardMaterial({
+          map: tCloned, roughness: 0.7, metalness: 0.1
+        });
+        const floor = new THREE.Mesh(new THREE.BoxGeometry(w, 0.4, d), floorMat);
+        floor.position.set(x, y - 0.2, z);
+        floor.receiveShadow = true;
+        scene.add(floor);
+        roomRecords.push({ box: new THREE.Box3().setFromObject(floor), room: room });
+
+        if (room.water_channel) waterMesh = floor;
+
+        const curb = new THREE.Mesh(new THREE.BoxGeometry(w + 0.6, 0.35, d + 0.6), curbMat);
+        curb.position.set(x, y - 0.15, z);
+        curb.receiveShadow = true;
+        scene.add(curb);
+
+        const wallH = 3.5;
+        const wallT = 0.5;
+        const sockets = room.corridor_sockets || [];
+        function hasSocket(axis, side) {
+          return sockets.some(s => {
+            const sx = s.position[0] - x;
+            const sz = s.position[2] - z;
+            if (axis === 'z' && side === -1) return sz < -d / 4;
+            if (axis === 'z' && side === 1) return sz > d / 4;
+            if (axis === 'x' && side === -1) return sx < -w / 4;
+            if (axis === 'x' && side === 1) return sx > w / 4;
+            return false;
+          });
+        }
+
+        if (!hasSocket('z', -1)) {
+          const wN = new THREE.Mesh(new THREE.BoxGeometry(w, wallH, wallT), wallMat);
+          wN.position.set(x, y + wallH / 2, z - d / 2);
+          wN.castShadow = true; wN.receiveShadow = true;
+          scene.add(wN);
+        }
+        if (!hasSocket('z', 1)) {
+          const wS = new THREE.Mesh(new THREE.BoxGeometry(w, wallH, wallT), wallMat);
+          wS.position.set(x, y + wallH / 2, z + d / 2);
+          wS.castShadow = true; wS.receiveShadow = true;
+          scene.add(wS);
+        }
+        if (!hasSocket('x', -1)) {
+          const wW = new THREE.Mesh(new THREE.BoxGeometry(wallT, wallH, d), wallMat);
+          wW.position.set(x - w / 2, y + wallH / 2, z);
+          wW.castShadow = true; wW.receiveShadow = true;
+          scene.add(wW);
+        }
+        if (!hasSocket('x', 1)) {
+          const wE = new THREE.Mesh(new THREE.BoxGeometry(wallT, wallH, d), wallMat);
+          wE.position.set(x + w / 2, y + wallH / 2, z);
+          wE.castShadow = true; wE.receiveShadow = true;
+          scene.add(wE);
+        }
+
+        [
+          [x - w / 2, y, z - d / 2],
+          [x + w / 2, y, z - d / 2],
+          [x - w / 2, y, z + d / 2],
+          [x + w / 2, y, z + d / 2]
+        ].forEach(([cx, cy, cz]) => {
+          const pillar = new THREE.Mesh(new THREE.BoxGeometry(0.8, wallH + 0.5, 0.8), pillarMat);
+          pillar.position.set(cx, cy + (wallH + 0.5) / 2, cz);
+          pillar.castShadow = true; pillar.receiveShadow = true;
+          scene.add(pillar);
+        });
+
+        if (room.room_id.includes('market')) {
+          spawnMarketStallsAndWell(x, y, z);
+        } else if (room.room_id.includes('bakery')) {
+          spawnBakeryOvenAndTables(x, y, z);
+        } else if (room.room_id.includes('curatives')) {
+          spawnApothecaryStation(x, y, z);
+        } else if (room.room_id.includes('aqueduct') || room.room_id.includes('conduit')) {
+          spawnAqueductSluiceValve(x, y, z);
+        }
+
+        [
+          [x - w / 2 + 0.8, y + 2.0, z - d / 2 + 0.8],
+          [x + w / 2 - 0.8, y + 2.0, z + d / 2 - 0.8]
+        ].forEach(([px, py, pz]) => {
+          const fire = new THREE.PointLight(0xffa726, 1.4, 16);
+          fire.position.set(px, py, pz);
+          scene.add(fire);
+        });
+      });
+    }
+
+    function buildThoroughfares(manifest) {
+      const roadMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.85 });
+      (manifest.thoroughfares || []).forEach(t => {
+        const rFrom = (manifest.rooms || []).find(r => r.room_id === t.from);
+        const rTo = (manifest.rooms || []).find(r => r.room_id === t.to);
+        if (!rFrom || !rTo) return;
+
+        const mx = (rFrom.position[0] + rTo.position[0]) / 2;
+        const my = (rFrom.position[1] + rTo.position[1]) / 2;
+        const mz = (rFrom.position[2] + rTo.position[2]) / 2;
+
+        const dx = rTo.position[0] - rFrom.position[0];
+        const dy = rTo.position[1] - rFrom.position[1];
+        const dz = rTo.position[2] - rFrom.position[2];
+        const dist = Math.sqrt(dx * dx + dz * dz);
+
+        const road = new THREE.Mesh(new THREE.BoxGeometry(t.width || 3.2, 0.4, dist), roadMat);
+        road.position.set(mx, my - 0.2, mz);
+        road.rotation.y = Math.atan2(dx, dz);
+        road.rotation.x = Math.atan2(dy, dist);
+        road.receiveShadow = true;
+        scene.add(road);
+      });
+    }
+
+    function spawnMarketStallsAndWell(x, y, z) {
+      const well = new THREE.Mesh(new THREE.CylinderGeometry(1.4, 1.4, 0.9, 16), new THREE.MeshStandardMaterial({ color: 0x64748b }));
+      well.position.set(x, y + 0.45, z);
+      well.castShadow = true;
+      scene.add(well);
+
+      [[-5, -4, 0xef4444], [5, -4, 0x3b82f6], [-6, 5, 0x10b981], [6, 5, 0xf59e0b]].forEach(([sx, sz, color]) => {
+        const stall = new THREE.Group();
+        const wood = new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.8 });
+        const table = new THREE.Mesh(new THREE.BoxGeometry(2.8, 0.8, 1.4), wood);
+        table.position.y = 0.4;
+        table.castShadow = true;
+        stall.add(table);
+
+        const awning = new THREE.Mesh(new THREE.BoxGeometry(3.0, 0.1, 1.8), new THREE.MeshStandardMaterial({ color: color }));
+        awning.position.set(0, 2.1, 0);
+        awning.rotation.x = 0.15;
+        awning.castShadow = true;
+        stall.add(awning);
+
+        stall.position.set(x + sx, y, z + sz);
+        scene.add(stall);
+      });
+    }
+
+    function spawnBakeryOvenAndTables(x, y, z) {
+      const oven = new THREE.Mesh(new THREE.BoxGeometry(3.0, 2.2, 1.8), new THREE.MeshStandardMaterial({ color: 0x334155 }));
+      oven.position.set(x, y + 1.1, z - 4.5);
+      oven.castShadow = true;
+      scene.add(oven);
+
+      const ovenGlow = new THREE.PointLight(0xf97316, 2.5, 10);
+      ovenGlow.position.set(x, y + 1.0, z - 3.5);
+      scene.add(ovenGlow);
+
+      const table = new THREE.Mesh(new THREE.BoxGeometry(3.2, 0.8, 1.4), new THREE.MeshStandardMaterial({ color: 0x92400e }));
+      table.position.set(x - 2.5, y + 0.4, z + 1);
+      table.castShadow = true;
+      scene.add(table);
+    }
+
+    function spawnApothecaryStation(x, y, z) {
+      const bench = new THREE.Mesh(new THREE.BoxGeometry(3.5, 0.8, 1.4), new THREE.MeshStandardMaterial({ color: 0x1e293b }));
+      bench.position.set(x, y + 0.4, z - 4.5);
+      bench.castShadow = true;
+      scene.add(bench);
+
+      const flask1 = new THREE.PointLight(0x06b6d4, 1.5, 6);
+      flask1.position.set(x - 0.8, y + 1.2, z - 4.5);
+      scene.add(flask1);
+
+      const flask2 = new THREE.PointLight(0xa855f7, 1.5, 6);
+      flask2.position.set(x + 0.8, y + 1.2, z - 4.5);
+      scene.add(flask2);
+    }
+
+    function spawnAqueductSluiceValve(x, y, z) {
+      const wheel = new THREE.Mesh(new THREE.TorusGeometry(0.7, 0.12, 8, 24), new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.85 }));
+      wheel.position.set(x + 4.5, y + 1.3, z - 3.5);
+      wheel.castShadow = true;
+      scene.add(wheel);
+    }
+
+    // =========================================================================
+    // 7. INTERACTIVE ACTORS & FLOATING LABELS
+    // =========================================================================
+    function makeBillboardText(text, color = '#88c0d0') {
+      const c = document.createElement('canvas');
+      c.width = 256; c.height = 64;
+      const ctx = c.getContext('2d');
+      ctx.fillStyle = 'rgba(13, 17, 23, 0.92)';
+      ctx.fillRect(8, 8, 240, 48);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 3;
+      ctx.strokeRect(8, 8, 240, 48);
+      ctx.fillStyle = color;
+      ctx.font = 'bold 20px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(text, 128, 40);
+
+      const tex = new THREE.CanvasTexture(c);
+      const spriteMat = new THREE.SpriteMaterial({ map: tex, depthTest: false });
+      const sprite = new THREE.Sprite(spriteMat);
+      sprite.scale.set(3.0, 0.75, 1);
       return sprite;
     }
 
-    function buildPavedCorridor(nodeA, nodeB) {
-      const pA = nodeA.center_location;
-      const pB = nodeB.center_location;
-      const dx = pB.x - pA.x;
-      const dz = pB.y - pA.y;
-      const dist = Math.hypot(dx, dz);
-      if (dist < 10) return;
+    function spawnInteractiveActors(manifest) {
+      (manifest.actors || []).forEach(actor => {
+        const group = new THREE.Group();
+        const isWatchman = actor.actor_id.includes('watchman');
+        const isElspeth = actor.actor_id.includes('elspeth');
 
-      const corridorWidth = 380;
-      const isSubterranean = nodeA.node_id.includes("AQUEDUCT") || nodeB.node_id.includes("AQUEDUCT") || nodeA.node_id.includes("VAULT") || nodeB.node_id.includes("VAULT");
-      const pathColor = isSubterranean ? 0x092b3a : 0x1f2735;
-      const curbColor = isSubterranean ? 0x00f2fe : 0x4f647f;
+        const cloakColor = isWatchman ? 0xef4444 : (isElspeth ? 0x10b981 : 0xf59e0b);
+        const npcMat = new THREE.MeshStandardMaterial({ color: cloakColor, roughness: 0.4 });
+        const npcBody = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.42, 1.45, 16), npcMat);
+        npcBody.position.y = 0.725;
+        npcBody.castShadow = true;
+        group.add(npcBody);
 
-      const pathGeo = new THREE.BoxGeometry(corridorWidth, 14, dist);
-      const pathMat = new THREE.MeshLambertMaterial({ color: pathColor });
-      const pathMesh = new THREE.Mesh(pathGeo, pathMat);
+        const npcHead = new THREE.Mesh(new THREE.SphereGeometry(0.28, 16, 16), skinMat);
+        npcHead.position.y = 1.6;
+        npcHead.castShadow = true;
+        group.add(npcHead);
 
-      const midX = (pA.x + pB.x) / 2;
-      const midY = (pA.z + pB.z) / 2;
-      const midZ = (pA.y + pB.y) / 2;
-      pathMesh.position.set(midX, midY, midZ);
+        const ring = new THREE.Mesh(
+          new THREE.RingGeometry(0.9, 1.1, 24),
+          new THREE.MeshBasicMaterial({ color: cloakColor, side: THREE.DoubleSide })
+        );
+        ring.rotation.x = -Math.PI / 2;
+        ring.position.y = 0.05;
+        group.add(ring);
 
-      const angle = Math.atan2(dx, dz);
-      pathMesh.rotation.y = angle;
-      pathMesh.receiveShadow = true;
-      corridorGroup.add(pathMesh);
+        const tag = makeBillboardText(actor.name, isWatchman ? '#ef4444' : '#38bdf8');
+        tag.position.y = 2.4;
+        group.add(tag);
 
-      // Curbs & Railing along the edges
-      const curbGeo = new THREE.BoxGeometry(20, 45, dist);
-      const curbMat = new THREE.MeshLambertMaterial({ color: curbColor });
-      const leftCurb = new THREE.Mesh(curbGeo, curbMat);
-      leftCurb.position.set(-corridorWidth / 2, 20, 0);
-      pathMesh.add(leftCurb);
-
-      const rightCurb = new THREE.Mesh(curbGeo, curbMat);
-      rightCurb.position.set(corridorWidth / 2, 20, 0);
-      pathMesh.add(rightCurb);
-    }
-
-    function reconcileRooms(nodes) {
-      activeRooms = nodes;
-      for (const [nodeId, nodeData] of Object.entries(nodes)) {
-        if (!renderedRoomIds.has(nodeId)) {
-          buildRoomFloorplate(nodeId, nodeData);
-          renderedRoomIds.add(nodeId);
-        }
-      }
-
-      // Reconcile and draw connecting paved corridors between linked rooms
-      for (const [nodeId, nodeData] of Object.entries(nodes)) {
-        (nodeData.connected_node_ids || []).forEach(targetId => {
-          if (nodes[targetId]) {
-            const edgeKey = [nodeId, targetId].sort().join("<->");
-            if (!renderedCorridors.has(edgeKey)) {
-              buildPavedCorridor(nodeData, nodes[targetId]);
-              renderedCorridors.add(edgeKey);
-            }
-          }
-        });
-      }
-    }
-
-    function reconcileProps(propsByNode) {
-      const propMatWood = new THREE.MeshLambertMaterial({ color: 0x5a3d28 });
-      const propMatStone = new THREE.MeshLambertMaterial({ color: 0x48515f });
-
-      for (const [nodeId, propList] of Object.entries(propsByNode)) {
-        propList.forEach(prop => {
-          if (!renderedPropIds.has(prop.prop_id)) {
-            const pos = prop.relative_position;
-            const pType = prop.primitive_type;
-
-            if (pType === "OBELISK") {
-              const obelisk = new THREE.Mesh(new THREE.CylinderGeometry(20, 45, 340, 4), propMatStone);
-              obelisk.position.set(pos.x, pos.z, pos.y);
-              obelisk.rotation.y = Math.PI / 4;
-              dynamicPropsGroup.add(obelisk);
-            } else if (pType === "MARKET_STALL") {
-              const stall = new THREE.Group();
-              const table = new THREE.Mesh(new THREE.BoxGeometry(220, 80, 100), propMatWood);
-              table.position.y = 40; stall.add(table);
-              const awning = new THREE.Mesh(new THREE.BoxGeometry(240, 12, 130), new THREE.MeshLambertMaterial({ color: prop.material_color_hex || 0xb22222 }));
-              awning.position.set(0, 185, 0); awning.rotation.x = 0.15; stall.add(awning);
-              stall.position.set(pos.x, pos.z, pos.y);
-              stall.rotation.y = prop.rotation_y || 0;
-              dynamicPropsGroup.add(stall);
-            } else if (pType === "BAKERY_OVEN") {
-              const oven = new THREE.Group();
-              const base = new THREE.Mesh(new THREE.BoxGeometry(280, 140, 240), propMatStone); base.position.y = 70; oven.add(base);
-              const fire = new THREE.Mesh(new THREE.BoxGeometry(110, 40, 60), new THREE.MeshBasicMaterial({ color: 0xff3b00 })); fire.position.set(0, 50, 95); oven.add(fire);
-              oven.position.set(pos.x, pos.z, pos.y);
-              dynamicPropsGroup.add(oven);
-            } else if (pType === "APOTHECARY_SHELF") {
-              const shelf = new THREE.Mesh(new THREE.BoxGeometry(260, 260, 35), propMatWood);
-              shelf.position.set(pos.x, pos.z + 130, pos.y);
-              dynamicPropsGroup.add(shelf);
-            } else if (pType === "SLUICE_MECHANISM") {
-              const gate = new THREE.Mesh(new THREE.BoxGeometry(160, 280, 40), propMatStone);
-              gate.position.set(pos.x, pos.z + 140, pos.y);
-              dynamicPropsGroup.add(gate);
-            }
-            renderedPropIds.add(prop.prop_id);
-          }
-        });
-      }
-    }
-
-    function reconcileNPCs(npcs) {
-      for (const [npcId, npcData] of Object.entries(npcs)) {
-        if (!renderedNpcMap.has(npcId)) {
-          const g = new THREE.Group();
-          const col = parseInt((npcData.color_hex || "#f5af19").replace('#', '0x'));
-          const body = new THREE.Mesh(
-            new THREE.CylinderGeometry(55, 55, 150, 16),
-            new THREE.MeshLambertMaterial({ color: col, emissive: col, emissiveIntensity: 0.25 })
-          );
-          body.position.y = 75;
-          body.castShadow = true;
-          g.add(body);
-          g.position.set(npcData.position.x, npcData.position.z, npcData.position.y);
-          npcActorGroup.add(g);
-
-          // Nameplate billboard attached DIRECTLY to g at local offset (0, 240, 0)
-          const canvas = document.createElement('canvas');
-          canvas.width = 512; canvas.height = 128;
-          const ctx = canvas.getContext('2d');
-          ctx.fillStyle = "rgba(10, 14, 22, 0.78)";
-          ctx.strokeStyle = "#f5af19"; ctx.lineWidth = 4;
-          ctx.roundRect(10, 10, 492, 108, 16);
-          ctx.fill(); ctx.stroke();
-          ctx.font = "bold 42px sans-serif";
-          ctx.fillStyle = "#f5af19"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-          ctx.fillText(npcData.name, 256, 64);
-
-          const texture = new THREE.CanvasTexture(canvas);
-          const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture, transparent: true }));
-          sprite.position.set(0, 240, 0);
-          sprite.scale.set(580, 145, 1);
-          g.add(sprite); // Direct child of g ensures 1:1 movement
-
-          const waypoints = (npcData.patrol_waypoints && npcData.patrol_waypoints.length > 0)
-            ? npcData.patrol_waypoints.map(w => ({ x: w.x, y: w.z, z: w.y }))
-            : [{ x: npcData.position.x, y: npcData.position.z, z: npcData.position.y }];
-
-          const actorRec = {
-            id: npcId, name: npcData.name, role: npcData.role, group: g, body: body, sprite: sprite,
-            pos: npcData.position, dialogue: npcData.default_dialogue,
-            waypoints: waypoints,
-            currentWpIndex: 0,
-            dwellTimer: 2.0 + Math.random() * 4.0,
-            animPhase: Math.random() * Math.PI * 2
-          };
-          renderedNpcMap.set(npcId, actorRec);
-          activeNPCActors.push(actorRec);
-        } else {
-          const actorRec = renderedNpcMap.get(npcId);
-          actorRec.dialogue = npcData.default_dialogue;
-        }
-      }
-    }
-
-    function applyCompleteRuntimeManifest(manifest) {
-      if (!manifest) return;
-      activeManifest = manifest;
-
-      if (manifest.ui) {
-        document.getElementById('ui-title').innerText = manifest.ui.hud_title || "AETHELGARD CLIENT";
-      }
-      if (manifest.mechanics) runtimeMechanics = manifest.mechanics;
-
-      if (manifest.lighting) {
-        hemiLight.color.set(manifest.lighting.ambient_sky_hex);
-        hemiLight.groundColor.set(manifest.lighting.ambient_ground_hex);
-        sunLight.color.set(manifest.lighting.sun_color_hex);
-        sunLight.intensity = manifest.lighting.sun_intensity;
-      }
-
-      renderInventoryUI();
-
-      if (manifest.spatial_layout && manifest.spatial_layout.nodes) {
-        reconcileRooms(manifest.spatial_layout.nodes);
-      }
-      if (manifest.props) {
-        reconcileProps(manifest.props);
-      }
-      if (manifest.npcs) {
-        reconcileNPCs(manifest.npcs);
-      }
-
-      if (manifest.active_quests && manifest.active_quests.length > 0) {
-        activeQuests = manifest.active_quests;
-        renderQuestHUD();
-      }
-    }
-
-    function buildRoomFloorplate(nodeId, nodeData) {
-      const min = nodeData.bounds_min;
-      const max = nodeData.bounds_max;
-      const width = Math.abs(max.x - min.x);
-      const depth = Math.abs(max.y - min.y);
-      const center = nodeData.center_location;
-      const isCatacomb = nodeId.includes("AQUEDUCT") || nodeId.includes("VAULT") || nodeId.includes("UNDERCROFT");
-      const floorY = center.z;
-
-      let floorColor = isCatacomb ? 0x072535 : (nodeId.includes("BAKERY") ? 0x2b1e16 : (nodeId.includes("APOTHECARY") ? 0x13271c : 0x1b2333));
-      let curbColor = isCatacomb ? 0x00a8cc : (nodeId.includes("BAKERY") ? 0x884926 : (nodeId.includes("APOTHECARY") ? 0x2d6e4b : 0x334466));
-
-      const floorMesh = new THREE.Mesh(new THREE.BoxGeometry(width, 16, depth), new THREE.MeshLambertMaterial({ color: floorColor }));
-      floorMesh.position.set(center.x, floorY, center.y);
-      floorMesh.receiveShadow = true;
-      architecturalGroup.add(floorMesh);
-
-      const curbMat = new THREE.MeshLambertMaterial({ color: curbColor });
-      const nsGeo = new THREE.BoxGeometry(width, 70, 24);
-      const nCurb = new THREE.Mesh(nsGeo, curbMat); nCurb.position.set(center.x, floorY + 35, center.y - (depth / 2)); architecturalGroup.add(nCurb);
-      const sCurb = new THREE.Mesh(nsGeo, curbMat); sCurb.position.set(center.x, floorY + 35, center.y + (depth / 2)); architecturalGroup.add(sCurb);
-      const ewGeo = new THREE.BoxGeometry(24, 70, depth);
-      const wCurb = new THREE.Mesh(ewGeo, curbMat); wCurb.position.set(center.x - (width / 2), floorY + 35, center.y); architecturalGroup.add(wCurb);
-      const eCurb = new THREE.Mesh(ewGeo, curbMat); eCurb.position.set(center.x + (width / 2), floorY + 35, center.y); architecturalGroup.add(eCurb);
-
-      makeBillboardText(nodeData.zone_name, center.x, floorY + 420, center.y, "#4facfe");
-
-      if (nodeData.smart_objects) {
-        nodeData.smart_objects.forEach(so => {
-          const soPos = { x: so.relative_position.x, y: floorY + 60, z: so.relative_position.y };
-          const soColor = isCatacomb ? 0x00f2fe : (nodeId.includes("BAKERY") ? 0xff7b25 : 0xff007f);
-
-          const soMesh = new THREE.Mesh(new THREE.BoxGeometry(90, 110, 90), new THREE.MeshLambertMaterial({ color: soColor, emissive: soColor, emissiveIntensity: 0.35 }));
-          soMesh.position.set(soPos.x, soPos.y, soPos.z);
-          soMesh.castShadow = true;
-          architecturalGroup.add(soMesh);
-
-          const ringGeo = new THREE.RingGeometry(400, 450, 32);
-          ringGeo.rotateX(-Math.PI / 2);
-          const ringMesh = new THREE.Mesh(ringGeo, new THREE.MeshBasicMaterial({ color: soColor, side: THREE.DoubleSide, transparent: true, opacity: 0.35 }));
-          ringMesh.position.set(soPos.x, floorY + 10, soPos.y);
-          architecturalGroup.add(ringMesh);
-          smartObjectRings.push(ringMesh);
-
-          const tagShort = so.smart_object_tag.split('.').pop();
-          makeBillboardText(`[E] ${tagShort}`, soPos.x, floorY + 250, soPos.z, "#ffffff");
-
-          activeSmartObjects.push({ tag: so.smart_object_tag, anchor_id: so.anchor_id, mesh: soMesh, pos: soPos });
-        });
-      }
-    }
-
-    // =========================================================================
-    // 5. QUEST STATE MACHINE & PROGRESSION ENGINE
-    // =========================================================================
-    function renderQuestHUD() {
-      if (!activeQuests || activeQuests.length === 0) return;
-      const c = document.getElementById('quest-content');
-
-      // Find first uncompleted quest
-      let activeQ = activeQuests.find(q => !q.is_completed) || activeQuests[activeQuests.length - 1];
-
-      let html = `<div class="quest-title">${activeQ.title}</div>`;
-      html += `<div class="quest-desc">${activeQ.synopsis}</div>`;
-      (activeQ.objectives || []).forEach(obj => {
-        html += `<div class="obj-item ${obj.status}">${obj.description}</div>`;
+        group.position.set(...actor.position);
+        scene.add(group);
+        actorRecords.push({ group, actor });
       });
-      c.innerHTML = html;
     }
 
-    function checkQuestAdvancement(targetId, targetTag) {
-      if (!activeQuests || activeQuests.length === 0) return;
-      // Always target the active, uncompleted quest in the campaign
-      const q = activeQuests.find(quest => !quest.is_completed);
-      if (!q) return;
+    // =========================================================================
+    // 8. INPUT, CROUCH & LOCOMOTION
+    // =========================================================================
+    const keys = {};
+    let isCrouching = false;
 
-      let advanced = false;
+    window.addEventListener('keydown', e => {
+      keys[e.key.toLowerCase()] = true;
+      if (e.key === '1') consumeItem('bread');
+      if (e.key === '2') consumeItem('salve');
+      if (e.key === '3') consumeItem('permit');
+      if (e.key === 'e' || e.key === 'E') triggerInteraction();
+      if (e.key === 'f' || e.key === 'F') triggerCrafting();
+      if (e.key === 'c' || e.key === 'C') {
+        isCrouching = !isCrouching;
+        document.getElementById('crouch-indicator').innerText = isCrouching ? "CROUCH" : "STAND";
+        document.getElementById('crouch-indicator').style.color = isCrouching ? "#a3be8c" : "#64748b";
+        audio.playFootstep();
+      }
+    });
+    window.addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
 
-      for (let i = 0; i < q.objectives.length; i++) {
-        const obj = q.objectives[i];
-        if (obj.status === "ACTIVE") {
-          const matchSO = obj.target_smart_object && (targetId === obj.target_smart_object || targetTag.includes(obj.target_smart_object));
+    let playerPos = new THREE.Vector3(0, 0, 0);
+    let playerHeading = 0;
+    let speedBuff = 1.0;
+    let stepTimer = 0;
+    let walkCycle = 0;
+    let currentRoomId = "";
 
-          // Match NPC directly or via their assigned workstation
-          const matchNPC = obj.target_npc_id && (
-            targetId === obj.target_npc_id ||
-            (obj.target_npc_id === "NPC_GARRETT" && (targetId === "SO_GARRETT" || targetTag.includes("Apothecary"))) ||
-            (obj.target_npc_id === "NPC_ALDOUS" && (targetId === "SO_ALDOUS" || targetTag.includes("BreadOven"))) ||
-            (obj.target_npc_id === "NPC_KAELEN" && (targetId === "SO_KAELEN" || targetId.includes("SMUGGLER")))
-          );
+    function updatePlayer(delta) {
+      let inputX = 0, inputZ = 0;
+      if (keys['w'] || keys['arrowup']) inputZ -= 1;
+      if (keys['s'] || keys['arrowdown']) inputZ += 1;
+      if (keys['a'] || keys['arrowleft']) inputX -= 1;
+      if (keys['d'] || keys['arrowright']) inputX += 1;
 
-          if (matchSO || matchNPC) {
-            obj.status = "COMPLETED";
-            advanced = true;
+      const isMoving = inputX !== 0 || inputZ !== 0;
+      if (isMoving && !activeCrafting) {
+        const moveVec = new THREE.Vector3(inputX, 0, inputZ).normalize();
+        const crouchMod = isCrouching ? 0.55 : 1.0;
+        const currentSpeed = 9.5 * speedBuff * crouchMod * (keys['shift'] && !isCrouching ? 1.4 : 1.0);
 
-            // Activate subsequent objective
-            if (i + 1 < q.objectives.length) {
-              q.objectives[i + 1].status = "ACTIVE";
-            }
+        const nextX = playerPos.x + moveVec.x * currentSpeed * delta;
+        const nextZ = playerPos.z + moveVec.z * currentSpeed * delta;
+
+        // Physical Gate Collision Check
+        let blockedByGate = false;
+        for (const gate of gateRecords) {
+          if (gate.isLocked && Math.abs(nextZ - gate.pos.z) < 1.0 && Math.abs(nextX - gate.pos.x) < 2.0) {
+            blockedByGate = true;
             break;
           }
         }
-      }
 
-      if (advanced) {
-        renderQuestHUD();
-
-        const allDone = q.objectives.every(o => o.status === "COMPLETED");
-        if (allDone && !q.is_completed) {
-          q.is_completed = true;
-          SoundEngine.playQuestCompleteFanfare();
-
-          if (q.reward_item_id) {
-            playerInventory[q.reward_item_id] = (playerInventory[q.reward_item_id] || 0) + 1;
-            renderInventoryUI();
-          }
-          if (q.reward_stamina) {
-            playerStamina = Math.min(runtimeMechanics.stamina_max || 100, playerStamina + q.reward_stamina);
-            document.getElementById('ui-stamina').innerText = `${playerStamina.toFixed(0)} / ${(runtimeMechanics.stamina_max || 100).toFixed(0)}`;
-          }
-
-          const toast = document.getElementById('interaction-toast');
-          const debriefMsg = q.completion_debrief || "The district political tension shifts under your actions.";
-          toast.innerHTML = `<b style="color: #ffd700; font-size: 15px;">★ CHAPTER CONCLUDED: ${q.title} ★</b><br><span style="color: #fff; font-size: 12px; font-style: italic;">"${debriefMsg}"</span><br><small style="color: #00f2fe;">Awarded ${q.reward_item_id || 'Silver'} (+${(q.reward_stamina || 35).toFixed(0)} Stamina)</small>`;
-          toast.style.display = 'block';
-
-          setTimeout(() => {
-            toast.style.display = 'none';
-            renderQuestHUD();
-
-            const nextQ = activeQuests.find(quest => !quest.is_completed);
-            if (nextQ) {
-              const nextToast = document.getElementById('interaction-toast');
-              nextToast.innerHTML = `<span style="color: #00f2fe;">NEW CHAPTER UNLOCKED:</span> <b>${nextQ.title}</b>`;
-              nextToast.style.display = 'block';
-              setTimeout(() => { nextToast.style.display = 'none'; }, 2800);
-            }
-          }, 4500);
+        if (!blockedByGate) {
+          playerPos.x = nextX;
+          playerPos.z = nextZ;
         }
-      }
-    }
 
-    // =========================================================================
-    // 6. DYNAMIC PLAYER-CENTRIC RADAR MINIMAP
-    // =========================================================================
-    const mapCanvas = document.getElementById("minimap");
-    const mapCtx = mapCanvas.getContext("2d");
+        playerHeading = Math.atan2(-moveVec.x, -moveVec.z);
+        playerGroup.rotation.y = playerHeading;
 
-    function renderMinimap() {
-      mapCtx.fillStyle = "#080b11";
-      mapCtx.fillRect(0, 0, mapCanvas.width, mapCanvas.height);
+        walkCycle += delta * (isCrouching ? 8 : (keys['shift'] ? 18 : 12));
+        legL.position.z = Math.sin(walkCycle) * (isCrouching ? 0.14 : 0.28);
+        legR.position.z = -Math.sin(walkCycle) * (isCrouching ? 0.14 : 0.28);
+        armL.position.z = -Math.sin(walkCycle) * (isCrouching ? 0.14 : 0.28);
+        armR.position.z = Math.sin(walkCycle) * (isCrouching ? 0.14 : 0.28);
+        torso.position.y = (isCrouching ? 0.55 : 0.95) + Math.abs(Math.sin(walkCycle * 2)) * 0.04;
 
-      const cx = mapCanvas.width / 2;
-      const cy = mapCanvas.height / 2;
-      const zoom = 0.028; // Player-centric radar scale
-
-      const px = playerGroup.position.x;
-      const pz = playerGroup.position.z;
-
-      // 1. Draw connecting paved thoroughfares
-      mapCtx.strokeStyle = "#25344d";
-      mapCtx.lineWidth = 6;
-      for (const [nodeId, nodeData] of Object.entries(activeRooms)) {
-        (nodeData.connected_node_ids || []).forEach(targetId => {
-          const target = activeRooms[targetId];
-          if (target) {
-            const x1 = ((nodeData.center_location.x - px) * zoom) + cx;
-            const y1 = ((nodeData.center_location.y - pz) * zoom) + cy;
-            const x2 = ((target.center_location.x - px) * zoom) + cx;
-            const y2 = ((target.center_location.y - pz) * zoom) + cy;
-            mapCtx.beginPath();
-            mapCtx.moveTo(x1, y1);
-            mapCtx.lineTo(x2, y2);
-            mapCtx.stroke();
-          }
-        });
-      }
-
-      // 2. Draw room bounds
-      for (const [nodeId, node] of Object.entries(activeRooms)) {
-        const min = node.bounds_min;
-        const max = node.bounds_max;
-        const rx = ((min.x - px) * zoom) + cx;
-        const ry = ((min.y - pz) * zoom) + cy;
-        const rw = Math.abs(max.x - min.x) * zoom;
-        const rh = Math.abs(max.y - min.y) * zoom;
-
-        const isSub = nodeId.includes("AQUEDUCT") || nodeId.includes("VAULT");
-        mapCtx.fillStyle = isSub ? "rgba(0, 168, 204, 0.35)" : "rgba(35, 44, 61, 0.45)";
-        mapCtx.strokeStyle = isSub ? "#00f2fe" : "#3b485e";
-        mapCtx.lineWidth = 1;
-        mapCtx.fillRect(rx, ry, rw, rh);
-        mapCtx.strokeRect(rx, ry, rw, rh);
-      }
-
-      // 3. Draw Smart Objects (Diamonds)
-      activeSmartObjects.forEach(so => {
-        const sx = ((so.pos.x - px) * zoom) + cx;
-        const sy = ((so.pos.z - pz) * zoom) + cy;
-        mapCtx.fillStyle = "#00e676";
-        mapCtx.beginPath();
-        mapCtx.moveTo(sx, sy - 3);
-        mapCtx.lineTo(sx + 3, sy);
-        mapCtx.lineTo(sx, sy + 3);
-        mapCtx.lineTo(sx - 3, sy);
-        mapCtx.closePath();
-        mapCtx.fill();
-      });
-
-      // 4. Draw NPCs
-      activeNPCActors.forEach(actor => {
-        const nx = ((actor.group.position.x - px) * zoom) + cx;
-        const ny = ((actor.group.position.z - pz) * zoom) + cy;
-        mapCtx.fillStyle = "#f5af19";
-        mapCtx.beginPath();
-        mapCtx.arc(nx, ny, 3.5, 0, Math.PI * 2);
-        mapCtx.fill();
-      });
-
-      // 5. Draw Player & Orientation Cone
-      mapCtx.fillStyle = "#00f2fe";
-      mapCtx.beginPath();
-      mapCtx.arc(cx, cy, 4, 0, Math.PI * 2);
-      mapCtx.fill();
-
-      const yaw = playerGroup.rotation.y;
-      mapCtx.strokeStyle = "rgba(0, 242, 254, 0.7)";
-      mapCtx.lineWidth = 1.5;
-      mapCtx.beginPath();
-      mapCtx.moveTo(cx, cy);
-      mapCtx.lineTo(cx - (Math.sin(yaw) * 16), cy - (Math.cos(yaw) * 16));
-      mapCtx.stroke();
-    }
-
-    // =========================================================================
-    // 7. WEBSOCKET IPC & STATE EVENT STREAM
-    // =========================================================================
-    let socket = null;
-    function connectWS() {
-      let wsUrl = (window.location.host.includes('-3000.app.github.dev'))
-        ? `wss://${window.location.host.replace('-3000', '-8765')}`
-        : ((window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? 'ws://localhost:8765' : `wss://${window.location.host}`);
-
-      socket = new WebSocket(wsUrl);
-
-      socket.onopen = () => {
-        document.getElementById('ui-status').innerText = "Connected (8765)";
-        document.getElementById('ui-status').style.color = "#00e676";
-        socket.send(JSON.stringify({
-          type: "REQUEST_INITIAL_STATE",
-          district_id: "District_MarketSquare",
-          player_stress: 0.35,
-          player_coords: [playerGroup.position.x, playerGroup.position.z, playerGroup.position.y]
-        }));
-      };
-
-      socket.onclose = () => {
-        document.getElementById('ui-status').innerText = "Disconnected (Retrying...)";
-        document.getElementById('ui-status').style.color = "#ff5252";
-        setTimeout(connectWS, 2500);
-      };
-
-      if (data.quest_completed) {
-        SoundEngine.playQuestCompleteFanfare();
-        const toast = document.getElementById('interaction-toast');
-        const debrief = data.completion_debrief || "The district political tension shifts under your actions.";
-        toast.innerHTML = `<b style="color: #ffd700; font-size: 14px;">★ CHAPTER CONCLUDED ★</b><br><span style="color: #fff; font-size: 12px; font-style: italic;">"${debrief}"</span>`;
-        toast.style.display = 'block';
-        setTimeout(() => { toast.style.display = 'none'; }, 4500);
-      }
-    }
-
-    // Baseline fetch over HTTP, then open WebSocket
-    fetch('./game_runtime_manifest.json?t=' + Date.now())
-      .then(res => res.json())
-      .then(manifest => {
-        applyCompleteRuntimeManifest(manifest);
-      })
-      .catch(err => console.warn("HTTP bootstrap skipped:", err))
-      .finally(() => {
-        connectWS();
-      });
-
-    function executeInteraction(target) {
-      if (!target) return;
-      initAudioContext();
-
-      if (target.type === "SMART_OBJECT") {
-        const so = target.data;
-        SoundEngine.playMechanismRumble(210.0);
-
-        const toast = document.getElementById('interaction-toast');
-        toast.innerText = `ACTIVATED: ${so.anchor_id}`;
-        toast.style.display = 'block';
-        setTimeout(() => { toast.style.display = 'none'; }, 2000);
-
-        // Optimistically advance quest objective on client immediately
-        checkQuestAdvancement(so.anchor_id, so.tag);
-
-        if (socket && socket.readyState === WebSocket.OPEN) {
-          socket.send(JSON.stringify({
-            type: "SMART_OBJECT_INTERACT",
-            smart_object_id: so.anchor_id,
-            smart_object_tag: so.tag,
-            district_id: "District_MarketSquare",
-            player_coords: [playerGroup.position.x, playerGroup.position.z, playerGroup.position.y]
-          }));
+        stepTimer += delta;
+        if (stepTimer > (keys['shift'] ? 0.20 : 0.30)) {
+          audio.playFootstep();
+          spawnFootstepParticle(playerPos.x, playerPos.y, playerPos.z);
+          stepTimer = 0;
         }
-      } else if (target.type === "NPC") {
-        const npc = target.data;
-        SoundEngine.playClick();
-
-        document.getElementById('dialogue-speaker').innerText = npc.name.toUpperCase();
-        document.getElementById('dialogue-text').innerText = `"${npc.dialogue}"`;
-        document.getElementById('dialogue-action').innerText = `CONVERSATION: ${npc.role}`;
-        document.getElementById('dialogue-box').style.display = 'block';
-
-        speakNPCDialogue(npc.dialogue, npc.id);
-
-        // Optimistically advance quest objective on client immediately
-        checkQuestAdvancement(npc.id, "");
-
-        if (socket && socket.readyState === WebSocket.OPEN) {
-          socket.send(JSON.stringify({
-            type: "NPC_INTERACT",
-            npc_id: npc.id,
-            district_id: "District_MarketSquare",
-            player_coords: [playerGroup.position.x, playerGroup.position.z, playerGroup.position.y]
-          }));
-        }
-      }
-    }
-
-    function recenterCamera() {
-      SoundEngine.playClick();
-      controls.target.set(playerGroup.position.x, playerGroup.position.y + 75, playerGroup.position.z);
-      camera.position.set(playerGroup.position.x, playerGroup.position.y + 2200, playerGroup.position.z + 2400);
-      controls.update();
-    }
-
-    // =========================================================================
-    // 8. LOCOMOTION, PROXIMITY EVALUATION & ANIMATION LOOP
-    // =========================================================================
-    window.addEventListener('keydown', (e) => {
-      const k = e.key.toLowerCase();
-      if (k === 'w' || k === 'arrowup') keys.w = true;
-      if (k === 'a' || k === 'arrowleft') keys.a = true;
-      if (k === 's' || k === 'arrowdown') keys.s = true;
-      if (k === 'd' || k === 'arrowright') keys.d = true;
-      if (k === ' ') recenterCamera();
-      if (k === 'e' && nearestInteractable) {
-        executeInteraction(nearestInteractable);
-      }
-    });
-
-    window.addEventListener('keyup', (e) => {
-      const k = e.key.toLowerCase();
-      if (k === 'w' || k === 'arrowup') keys.w = false;
-      if (k === 'a' || k === 'arrowleft') keys.a = false;
-      if (k === 's' || k === 'arrowdown') keys.s = false;
-      if (k === 'd' || k === 'arrowright') keys.d = false;
-    });
-
-    function updatePlayer(delta, now) {
-      let currentBaseSpeed = (runtimeMechanics.player_base_speed || 1400.0);
-      if (activeBuffs.speedTimer > 0) {
-        activeBuffs.speedTimer -= delta;
-        currentBaseSpeed *= (1.0 + activeBuffs.speedBoost);
-        document.getElementById('ui-buff').innerText = `${activeBuffs.buffLabel} (${activeBuffs.speedTimer.toFixed(1)}s)`;
-        document.getElementById('ui-buff').style.color = "#00e676";
-
-        if (activeBuffs.speedTimer <= 0) {
-          activeBuffs.speedBoost = 0.0;
-          activeBuffs.buffLabel = "None";
-          playerBody.material.emissive.setHex(0x003344);
-          playerBody.material.emissiveIntensity = 0.35;
-          document.getElementById('ui-buff').innerText = "None";
-          document.getElementById('ui-buff').style.color = "#f5af19";
-        }
-      }
-
-      const speed = currentBaseSpeed * delta;
-      let dx = 0, dz = 0;
-      if (keys.w) dz -= speed;
-      if (keys.s) dz += speed;
-      if (keys.a) dx -= speed;
-      if (keys.d) dx += speed;
-
-      const isWalking = (dx !== 0 || dz !== 0);
-
-      if (isWalking) {
-        playerGroup.position.x += dx;
-        playerGroup.position.z += dz;
-
-        const targetRotation = Math.atan2(-dx, -dz);
-        let diff = targetRotation - playerGroup.rotation.y;
-        while (diff < -Math.PI) diff += Math.PI * 2;
-        while (diff > Math.PI) diff -= Math.PI * 2;
-        playerGroup.rotation.y += diff * 0.25;
-
-        camera.position.x += dx;
-        camera.position.z += dz;
-        controls.target.x += dx;
-        controls.target.z += dz;
-
-        const distMoved = Math.hypot(dx, dz);
-        footstepDistanceAccumulator += distMoved;
-        if (footstepDistanceAccumulator > 380.0) {
-          SoundEngine.playFootstep();
-          footstepDistanceAccumulator = 0.0;
-        }
-        playerBody.position.y = 75 + Math.abs(Math.sin(now * 0.012)) * 12;
       } else {
-        playerBody.position.y = 75 + Math.sin(now * 0.003) * 3;
+        legL.position.z = 0; legR.position.z = 0;
+        armL.position.z = 0; armR.position.z = 0;
+        torso.position.y = isCrouching ? 0.55 : 0.95;
       }
 
-      let currentRoomName = "Connecting Street Thoroughfare";
-      let targetElevation = 0;
+      head.position.y = isCrouching ? 1.15 : 1.62;
+      hood.position.y = isCrouching ? 1.25 : 1.72;
+      lantern.intensity = isCrouching ? 0.35 : 1.4;
 
-      for (const [nodeId, node] of Object.entries(activeRooms)) {
-        const min = node.bounds_min;
-        const max = node.bounds_max;
-        if (playerGroup.position.x >= min.x && playerGroup.position.x <= max.x &&
-          playerGroup.position.z >= min.y && playerGroup.position.z <= max.y) {
-          currentRoomName = node.zone_name;
-          targetElevation = node.center_location.z;
+      let targetFloorY = 0.0;
+      for (const { box, room } of roomRecords) {
+        if (
+          Math.abs(playerPos.x - room.position[0]) <= room.dimensions[0] / 2 + 0.5 &&
+          Math.abs(playerPos.z - room.position[2]) <= room.dimensions[2] / 2 + 0.5
+        ) {
+          targetFloorY = room.position[1];
           break;
         }
       }
+      playerPos.y += (targetFloorY - playerPos.y) * 0.12;
+      playerGroup.position.copy(playerPos);
 
-      playerGroup.position.y += (targetElevation - playerGroup.position.y) * 0.15;
-      controls.target.y = playerGroup.position.y + 75;
-      document.getElementById('ui-room').innerText = currentRoomName;
+      sampleSceneLighting();
 
-      // Unified proximity check: selects the absolute closest interactable (NPC or Smart Object)
-      nearestInteractable = null;
-      let minDistance = runtimeMechanics.interaction_radius || 520.0;
-      let promptText = "None";
+      const targetCamPos = new THREE.Vector3(playerPos.x, playerPos.y + 16, playerPos.z + 14);
+      camera.position.lerp(targetCamPos, 0.055);
+      camera.lookAt(playerPos.x, playerPos.y + 0.8, playerPos.z);
 
-      activeSmartObjects.forEach(so => {
-        const d = Math.hypot(playerGroup.position.x - so.pos.x, playerGroup.position.z - so.pos.z);
-        if (d < minDistance) {
-          minDistance = d;
-          nearestInteractable = { type: "SMART_OBJECT", data: so };
-          promptText = `[E] Operate ${so.anchor_id}`;
-        }
-      });
-
-      // NPC interaction check (weighted with a 90-unit priority bonus for character conversation)
-      activeNPCActors.forEach(actor => {
-        const d = Math.hypot(playerGroup.position.x - actor.group.position.x, playerGroup.position.z - actor.group.position.z) - 90.0;
-        if (d < minDistance) {
-          minDistance = d;
-          nearestInteractable = { type: "NPC", data: actor };
-          promptText = `[E] Talk to ${actor.name}`;
-        }
-      });
-
-      document.getElementById('ui-prompt').innerText = promptText;
+      checkRoomTransition();
+      checkProximityPrompts();
+      updateCraftingProgress(delta);
+      updateGates(delta);
     }
 
-    function updateNPCNavigationAndSchedules(delta, now) {
-      const npcWalkSpeed = 380.0; // units per second
+    function sampleSceneLighting() {
+      const torches = [
+        [-11.2, -11.2], [11.2, 11.2], [24.0, -3.5], [-24.0, -4.5], [26.0, -25.0]
+      ];
+      let minTorchDist = 999.0;
+      for (const [tx, tz] of torches) {
+        const d = Math.sqrt((playerPos.x - tx) ** 2 + (playerPos.z - tz) ** 2);
+        if (d < minTorchDist) minTorchDist = d;
+      }
 
-      activeNPCActors.forEach(actor => {
-        // Subtle vertical idle breathing
-        const bob = Math.sin((now * 0.003) + actor.animPhase) * 4;
-        actor.body.position.y = 75 + bob;
-        if (actor.sprite) {
-          actor.sprite.position.y = actor.group.position.y + 240 + bob;
+      let exposure = 0.1;
+      if (minTorchDist < 12.0) {
+        exposure = 0.1 + Math.pow(1.0 - (minTorchDist / 12.0), 2) * 0.9;
+      }
+      if (isCrouching) exposure *= 0.65;
+
+      const fill = document.getElementById('light-meter-fill');
+      if (fill) fill.style.width = (Math.min(exposure, 1.0) * 100) + '%';
+    }
+
+    function checkRoomTransition() {
+      for (const { box, room } of roomRecords) {
+        if (box.containsPoint(playerPos) && room.room_id !== currentRoomId) {
+          currentRoomId = room.room_id;
+          const banner = document.getElementById('zone-banner');
+          banner.innerText = room.name.toUpperCase();
+          banner.style.opacity = '1';
+          setTimeout(() => { banner.style.opacity = '0'; }, 2400);
+          break;
         }
+      }
+    }
 
-        // If player is talking to this NPC, turn to face player and pause walking
-        const distToPlayer = Math.hypot(playerGroup.position.x - actor.group.position.x, playerGroup.position.z - actor.group.position.z);
-        if (distToPlayer < 450.0 && nearestInteractable && nearestInteractable.data === actor) {
-          const targetYaw = Math.atan2(playerGroup.position.x - actor.group.position.x, playerGroup.position.z - actor.group.position.z);
-          actor.group.rotation.y += (targetYaw - actor.group.rotation.y) * 0.15;
+    // =========================================================================
+    // 9. INVENTORY, GATES & WORKSTATIONS
+    // =========================================================================
+    const inventory = { bread: 3, salve: 1, permit: 1, flour: 2, undercroft_key: 1 };
+
+    function consumeItem(type) {
+      if (inventory[type] <= 0) return;
+      inventory[type]--;
+      document.getElementById(`count-${type}`).innerText = inventory[type];
+      audio.playBuffChime();
+
+      if (type === 'salve') {
+        speedBuff = 1.45;
+        torso.material.emissive.setHex(0xd08770);
+        setTimeout(() => {
+          speedBuff = 1.0;
+          torso.material.emissive.setHex(0x000000);
+        }, 8000);
+      } else if (type === 'bread') {
+        audio.playFanfare();
+        document.getElementById('quest-obj').innerText = "Stamina fully restored by Hearth Bread.";
+      }
+    }
+
+    let activeWorkstation = null;
+    let activeGate = null;
+    let currentActor = null;
+
+    function checkProximityPrompts() {
+      const promptE = document.getElementById('interaction-prompt');
+      const promptF = document.getElementById('crafting-prompt');
+      const promptGate = document.getElementById('gate-prompt');
+      currentActor = null;
+      activeWorkstation = null;
+      activeGate = null;
+
+      // 1. Closest NPC Proximity Sorting
+      let minActorDist = 3.4;
+      for (const { group, actor } of actorRecords) {
+        const d = group.position.distanceTo(playerPos);
+        if (d < minActorDist) {
+          minActorDist = d;
+          currentActor = actor;
+        }
+      }
+
+      if (currentActor) {
+        promptE.style.display = 'block';
+        promptE.innerText = currentActor.actor_id.includes('watchman')
+          ? `[E] Bribe ${currentActor.name}`
+          : `[E] Speak with ${currentActor.name}`;
+      } else {
+        promptE.style.display = 'none';
+        document.getElementById('dialogue-box').style.display = 'none';
+      }
+
+      // 2. Physical Portcullis Proximity
+      for (const gate of gateRecords) {
+        if (gate.pos.distanceTo(playerPos) < 3.2 && gate.isLocked) {
+          activeGate = gate;
+          promptGate.style.display = 'block';
+          promptGate.innerText = inventory.undercroft_key > 0
+            ? "[E] Unlock Portcullis (Undercroft Key)"
+            : "[E] Bribe with Forged Permit";
+          break;
+        }
+      }
+      if (!activeGate) promptGate.style.display = 'none';
+
+      // 3. Workstation Proximity
+      for (const ws of workstationRecords) {
+        if (ws.pos.distanceTo(playerPos) < 3.4) {
+          activeWorkstation = ws;
+          promptF.style.display = 'block';
+          promptF.innerText = ws.recipeId === 'bake_bread'
+            ? `[F] Bake Hearth Bread (1 Flour)`
+            : `[F] Brew Sunfire Salve`;
+          break;
+        }
+      }
+      if (!activeWorkstation) promptF.style.display = 'none';
+    }
+
+    function triggerInteraction() {
+      // Prioritize Gate Unlock if standing near a portcullis
+      if (activeGate) {
+        if (inventory.undercroft_key > 0 || inventory.permit > 0) {
+          activeGate.isLocked = false;
+          activeGate.targetY = activeGate.baseY + 3.8; // Slide gate upward
+          audio.playPortcullisGrind();
+          audio.playFanfare();
+          document.getElementById('quest-obj').innerText = "Portcullis raised! Undercroft passage breached.";
           return;
-        }
-
-        // Autonomous Waypoint Traversal
-        if (!actor.waypoints || actor.waypoints.length === 0) return;
-
-        if (actor.dwellTimer > 0) {
-          actor.dwellTimer -= delta;
-          return;
-        }
-
-        const targetWp = actor.waypoints[actor.currentWpIndex];
-        const dx = targetWp.x - actor.group.position.x;
-        const dz = targetWp.z - actor.group.position.z;
-        const distToWp = Math.hypot(dx, dz);
-
-        if (distToWp > 50.0) {
-          // Walk toward waypoint
-          const moveStep = Math.min(distToWp, npcWalkSpeed * delta);
-          actor.group.position.x += (dx / distToWp) * moveStep;
-          actor.group.position.z += (dz / distToWp) * moveStep;
-
-          // Steer facing direction
-          const targetHeading = Math.atan2(dx, dz);
-          actor.group.rotation.y += (targetHeading - actor.group.rotation.y) * 0.18;
-
-          // Walking step bob
-          actor.body.position.y = 75 + Math.abs(Math.sin(now * 0.010 + actor.animPhase)) * 8;
         } else {
-          // Arrived at destination: dwell for 6 to 14 seconds
-          actor.dwellTimer = 6.0 + Math.random() * 8.0;
-          actor.currentWpIndex = (actor.currentWpIndex + 1) % actor.waypoints.length;
+          alert("Gate is sealed! Requires Undercroft Key or Forged Permit.");
+          return;
         }
-      });
+      }
+
+      // NPC Dialogue
+      if (!currentActor) return;
+      const box = document.getElementById('dialogue-box');
+      box.style.display = 'block';
+      document.getElementById('dialogue-speaker').innerText = currentActor.name;
+
+      let speechText = "";
+      if (currentActor.actor_id.includes('elspeth')) {
+        speechText = "Blessings of the Hearth. Take this flour and bake when the bells sound.";
+      } else if (currentActor.actor_id.includes('garrett')) {
+        speechText = "The curatives are pure, but the Clerisy takes half in tithes.";
+      } else if (currentActor.actor_id.includes('watchman')) {
+        speechText = "Curfew holds throughout the Cathedral ward. Present your transit permit or turn back.";
+      }
+
+      document.getElementById('dialogue-text').innerText = speechText;
+      speakNPC(speechText, 0.9, 1.0);
     }
 
+    function updateGates(delta) {
+      for (const gate of gateRecords) {
+        if (Math.abs(gate.group.position.y - gate.targetY) > 0.05) {
+          gate.group.position.y += (gate.targetY - gate.group.position.y) * 0.08;
+        }
+      }
+    }
+
+    function triggerCrafting() {
+      if (!activeWorkstation || activeCrafting) return;
+
+      if (activeWorkstation.recipeId === 'bake_bread') {
+        if (inventory.flour < 1) {
+          alert("Insufficient ingredients! Need 1 Flour to bake.");
+          return;
+        }
+        activeCrafting = {
+          recipeId: 'bake_bread',
+          startTime: performance.now(),
+          duration: 1800,
+          workstationPos: activeWorkstation.pos
+        };
+        audio.playCraftingSizzle();
+      } else if (activeWorkstation.recipeId === 'brew_salve') {
+        activeCrafting = {
+          recipeId: 'brew_salve',
+          startTime: performance.now(),
+          duration: 1800,
+          workstationPos: activeWorkstation.pos
+        };
+        audio.playCraftingSizzle();
+      }
+    }
+
+    function updateCraftingProgress(delta) {
+      if (!activeCrafting) {
+        craftingProgressRing.visible = false;
+        return;
+      }
+
+      const elapsed = performance.now() - activeCrafting.startTime;
+      const progress = Math.min(elapsed / activeCrafting.duration, 1.0);
+
+      craftingProgressRing.visible = true;
+      craftingProgressRing.position.set(
+        activeCrafting.workstationPos.x,
+        activeCrafting.workstationPos.y + 0.05,
+        activeCrafting.workstationPos.z
+      );
+
+      craftingProgressRing.geometry.dispose();
+      craftingProgressRing.geometry = new THREE.RingGeometry(1.0, 1.25, 32, 1, 0, progress * Math.PI * 2);
+
+      if (progress >= 1.0) {
+        if (activeCrafting.recipeId === 'bake_bread') {
+          inventory.flour -= 1;
+          inventory.bread += 1;
+          document.getElementById('count-flour').innerText = inventory.flour;
+          document.getElementById('count-bread').innerText = inventory.bread;
+          document.getElementById('quest-obj').innerText = "Loaf baked! Hearth bread added to backpack.";
+        } else if (activeCrafting.recipeId === 'brew_salve') {
+          inventory.salve += 1;
+          document.getElementById('count-salve').innerText = inventory.salve;
+          document.getElementById('quest-obj').innerText = "Curative brewed! Sunfire salve added to backpack.";
+        }
+        audio.playFanfare();
+        activeCrafting = null;
+        craftingProgressRing.visible = false;
+      }
+    }
+
+    // =========================================================================
+    // 10. WEBSOCKET IPC & RADAR MINIMAP
+    // =========================================================================
+    const wsProto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsHost = window.location.hostname.replace('-3000', '-8765');
+    const wsUrl = window.location.hostname.includes('github.dev')
+      ? `${wsProto}//${wsHost}`
+      : 'ws://localhost:8765';
+
+    let ws = null;
+    let telemetryTimer = 0;
+    function connectIPC() {
+      try {
+        ws = new WebSocket(wsUrl);
+        ws.onopen = () => console.log("[IPC] Connected to server state.");
+        ws.onmessage = evt => {
+          try {
+            const msg = JSON.parse(evt.data);
+            if (msg.type === "WORLD_STATE_INIT") updateTicker(msg.market_quotes);
+            if (msg.type === "STEALTH_STATUS") updateStealthHUD(msg);
+          } catch (e) { }
+        };
+        ws.onclose = () => setTimeout(connectIPC, 3000);
+      } catch (e) { }
+    }
+    connectIPC();
+
+    function updateTicker(quotes) {
+      if (!quotes) return;
+      if (quotes.HEARTH_BREAD) document.getElementById('tick-bread').innerText = quotes.HEARTH_BREAD.current_bid.toFixed(2) + 's';
+      if (quotes.SUNFIRE_SALVE) document.getElementById('tick-salve').innerText = quotes.SUNFIRE_SALVE.current_bid.toFixed(2) + 's';
+      if (quotes.FORGED_PERMIT) document.getElementById('tick-permit').innerText = quotes.FORGED_PERMIT.current_bid.toFixed(2) + 's';
+      if (quotes.AQUEDUCT_SILVER) document.getElementById('tick-silver').innerText = quotes.AQUEDUCT_SILVER.current_bid.toFixed(2) + 's';
+    }
+
+    function updateStealthHUD(status) {
+      const hud = document.getElementById('stealth-hud');
+      const fill = document.getElementById('stealth-meter-fill');
+      if (status.in_curfew_sight && status.alerts.length > 0) {
+        hud.style.display = 'flex';
+        fill.style.width = (status.alerts[0].alert_level * 100) + '%';
+      } else {
+        hud.style.display = 'none';
+      }
+    }
+
+    const radarCanvas = document.getElementById('radar-canvas');
+    const rCtx = radarCanvas.getContext('2d');
+
+    function renderRadar() {
+      rCtx.clearRect(0, 0, 180, 180);
+      rCtx.save();
+      rCtx.translate(90, 90);
+
+      const scale = 1.8;
+
+      // Thoroughfares
+      rCtx.strokeStyle = '#3b4252';
+      rCtx.lineWidth = 4;
+      roomRecords.forEach(({ room }) => {
+        (room.corridor_sockets || []).forEach(sock => {
+          const sx = (sock.position[0] - playerPos.x) * scale;
+          const sz = (sock.position[2] - playerPos.z) * scale;
+          const rx = (room.position[0] - playerPos.x) * scale;
+          const rz = (room.position[2] - playerPos.z) * scale;
+          rCtx.beginPath();
+          rCtx.moveTo(rx, rz);
+          rCtx.lineTo(sx, sz);
+          rCtx.stroke();
+        });
+      });
+
+      // Rooms
+      rCtx.strokeStyle = '#5e81ac';
+      rCtx.lineWidth = 1.5;
+      roomRecords.forEach(({ room }) => {
+        const rx = (room.position[0] - playerPos.x) * scale;
+        const rz = (room.position[2] - playerPos.z) * scale;
+        const rw = room.dimensions[0] * scale;
+        const rd = room.dimensions[2] * scale;
+
+        if (room.room_id === currentRoomId) {
+          rCtx.fillStyle = 'rgba(94, 129, 172, 0.15)';
+          rCtx.fillRect(rx - rw / 2, rz - rd / 2, rw, rd);
+          rCtx.strokeStyle = '#88c0d0';
+        } else {
+          rCtx.strokeStyle = '#4c566a';
+        }
+        rCtx.strokeRect(rx - rw / 2, rz - rd / 2, rw, rd);
+      });
+
+      // Physical Gates on Minimap (Red / Cyan bars)
+      gateRecords.forEach(gate => {
+        const gx = (gate.pos.x - playerPos.x) * scale;
+        const gz = (gate.pos.z - playerPos.z) * scale;
+        rCtx.strokeStyle = gate.isLocked ? '#bf616a' : '#88c0d0';
+        rCtx.lineWidth = 3;
+        rCtx.beginPath();
+        rCtx.moveTo(gx - 6, gz);
+        rCtx.lineTo(gx + 6, gz);
+        rCtx.stroke();
+      });
+
+      // Workstations
+      workstationRecords.forEach(ws => {
+        const wx = (ws.pos.x - playerPos.x) * scale;
+        const wz = (ws.pos.z - playerPos.z) * scale;
+        rCtx.fillStyle = '#a3be8c';
+        rCtx.fillRect(wx - 2.5, wz - 2.5, 5, 5);
+      });
+
+      // NPCs
+      actorRecords.forEach(({ group, actor }) => {
+        const ax = (group.position.x - playerPos.x) * scale;
+        const az = (group.position.z - playerPos.z) * scale;
+        rCtx.fillStyle = actor.actor_id.includes('watchman') ? '#ef4444' : '#f59e0b';
+        rCtx.beginPath();
+        rCtx.arc(ax, az, 3.5, 0, Math.PI * 2);
+        rCtx.fill();
+      });
+
+      // Player Heading Chevron
+      rCtx.save();
+      rCtx.rotate(-playerHeading);
+      rCtx.fillStyle = '#88c0d0';
+      rCtx.beginPath();
+      rCtx.moveTo(0, -8);
+      rCtx.lineTo(-5, 5);
+      rCtx.lineTo(0, 2);
+      rCtx.lineTo(5, 5);
+      rCtx.closePath();
+      rCtx.fill();
+      rCtx.restore();
+
+      rCtx.restore();
+    }
+
+    // =========================================================================
+    // 11. UNINTERRUPTIBLE ANIMATION LOOP
+    // =========================================================================
     let lastTime = performance.now();
-    function animate() {
+    function animate(now) {
       requestAnimationFrame(animate);
-      const now = performance.now();
-      const delta = (now - lastTime) / 1000.0;
+      const delta = Math.min((now - lastTime) / 1000, 0.1);
       lastTime = now;
 
-      updatePlayer(delta, now);
-      updateNPCNavigationAndSchedules(delta, now);
+      updatePlayer(delta);
+      renderRadar();
 
-      const pulse = 0.25 + 0.15 * Math.sin(now * 0.005);
-      smartObjectRings.forEach(r => { r.material.opacity = pulse; });
+      for (let i = stepParticles.length - 1; i >= 0; i--) {
+        const p = stepParticles[i];
+        p.life -= delta * 1.8;
+        p.mesh.scale.multiplyScalar(1.02);
+        p.mesh.material.opacity = p.life * 0.5;
+        if (p.life <= 0) {
+          scene.remove(p.mesh);
+          p.mesh.geometry.dispose();
+          p.mesh.material.dispose();
+          stepParticles.splice(i, 1);
+        }
+      }
 
-      controls.update();
+      if (waterMesh) {
+        waterMesh.material.opacity = 0.8 + Math.sin(now * 0.003) * 0.08;
+      }
+
+      try {
+        telemetryTimer += delta;
+        if (telemetryTimer > 0.12 && ws && ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify({ type: "PLAYER_TELEMETRY", position: [playerPos.x, playerPos.y, playerPos.z] }));
+          telemetryTimer = 0;
+        }
+      } catch (err) { }
+
       renderer.render(scene, camera);
-      renderMinimap();
     }
-    animate();
+    requestAnimationFrame(animate);
 
     window.addEventListener('resize', () => {
       camera.aspect = window.innerWidth / window.innerHeight;
