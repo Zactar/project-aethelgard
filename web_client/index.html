@@ -273,18 +273,18 @@
       { col: 6, row: 4, active: true }
     ];
 
-    // Hazard Lanes
+    // Hazard Lanes (3 entities per lane minimum, staggered spacing)
     let lanes = [
       { row: 1, type: 'goal', items: [2, 5, 8, 11, 14].map(c => ({ col: c, filled: false })) },
-      { row: 2, type: 'river', speed: -2.2, width: 90, color: '#4c566a', items: [0, 240, 480] },
-      { row: 3, type: 'river', speed: 1.8, width: 70, color: '#4c566a', items: [60, 300, 540] },
-      { row: 4, type: 'river', speed: -2.8, width: 110, color: '#4c566a', items: [100, 380] },
-      { row: 5, type: 'river', speed: 1.5, width: 80, color: '#4c566a', items: [40, 260, 480] },
+      { row: 2, type: 'river', speed: -2.0, width: 90, color: '#4c566a', items: [40, 260, 480] },
+      { row: 3, type: 'river', speed: 1.8, width: 80, color: '#4c566a', items: [20, 240, 460] },
+      { row: 4, type: 'river', speed: -2.4, width: 100, color: '#4c566a', items: [60, 280, 500] },
+      { row: 5, type: 'river', speed: 1.6, width: 85, color: '#4c566a', items: [10, 230, 450] },
       { row: 6, type: 'safe', color: '#3b4252' }, // Median
-      { row: 7, type: 'road', speed: -3.0, width: 50, color: '#bf616a', items: [50, 250, 450] },
-      { row: 8, type: 'road', speed: 2.0, width: 65, color: '#d08770', items: [0, 300] },
-      { row: 9, type: 'road', speed: -1.8, width: 45, color: '#ebcb8b', items: [80, 280, 480] },
-      { row: 10, type: 'road', speed: 2.5, width: 80, color: '#bf616a', items: [120, 380] },
+      { row: 7, type: 'road', speed: -2.8, width: 50, color: '#bf616a', items: [60, 280, 500] },
+      { row: 8, type: 'road', speed: 2.0, width: 65, color: '#d08770', items: [30, 250, 470] },
+      { row: 9, type: 'road', speed: -1.8, width: 45, color: '#ebcb8b', items: [80, 300, 520] },
+      { row: 10, type: 'road', speed: 2.2, width: 75, color: '#bf616a', items: [40, 260, 480] },
       { row: 11, type: 'safe', color: '#2e3440' }
     ];
 
@@ -424,7 +424,7 @@
 
       // River Lanes (Strict Alternating Signs)
       lanes[1].speed = -2.2 * speedMult; // Row 2: Left
-      lanes[1].speed = -2.2 * speedMult; lanes[2].speed = 1.8 * speedMult; lanes[3].speed = -2.6 * speedMult; lanes[4].speed = 1.5 * speedMult; // Row 3: Right
+      lanes[2].speed = 1.8 * speedMult; // Row 3: Right
       lanes[3].speed = -2.6 * speedMult; // Row 4: Left
       lanes[4].speed = 1.5 * speedMult; // Row 5: Right
 
@@ -445,13 +445,18 @@
     function update(delta) {
       if (gameOver || inShop) return;
 
-      // Update Lane Obstacle Positions
+      // Update Lane Obstacle Positions with Spacing-Preserving Torus Wrap
       lanes.forEach(lane => {
         if (lane.speed && lane.items) {
+          const laneSpan = canvas.width + lane.width + 60;
           lane.items = lane.items.map(x => {
             let nextX = x + lane.speed * delta * 60;
-            if (lane.speed > 0 && nextX > canvas.width + 40) nextX = -lane.width;
-            if (lane.speed < 0 && nextX < -lane.width - 40) nextX = canvas.width;
+            // Shift by full lane span rather than hard-resetting to a static coordinate
+            if (lane.speed > 0 && nextX > canvas.width + 40) {
+              nextX -= laneSpan;
+            } else if (lane.speed < 0 && nextX < -lane.width - 40) {
+              nextX += laneSpan;
+            }
             return nextX;
           });
         }
@@ -572,7 +577,8 @@
     let lastTime = performance.now();
     function gameLoop(now) {
       requestAnimationFrame(gameLoop);
-      const delta = (now - lastTime) / 1000;
+      // Clamp delta to a maximum of 50ms (0.05s) to prevent tab-blur warp
+      const delta = Math.min((now - lastTime) / 1000, 0.05);
       lastTime = now;
       update(delta);
       render();
