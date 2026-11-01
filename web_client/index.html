@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>Project Aethelgard - Citadel Web Runtime</title>
+  <title>Project Aethelgard - Living World Simulation</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     * {
@@ -30,6 +30,7 @@
       z-index: 1;
     }
 
+    /* Top Commodity & Clock Ticker */
     #commodity-ticker {
       position: absolute;
       top: 14px;
@@ -65,6 +66,39 @@
       font-weight: bold;
     }
 
+    #clock-display {
+      color: #ebcb8b;
+      font-weight: bold;
+      margin-left: auto;
+    }
+
+    /* Faction & Regime Bar */
+    #faction-hud {
+      position: absolute;
+      top: 58px;
+      left: 16px;
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      background: rgba(15, 20, 28, 0.92);
+      border: 1px solid #4c566a;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 11px;
+      z-index: 10;
+    }
+
+    .faction-badge {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+    }
+
+    .faction-val {
+      font-weight: bold;
+    }
+
+    /* Radar Minimap */
     #radar-container {
       position: absolute;
       top: 14px;
@@ -85,9 +119,30 @@
       display: block;
     }
 
+    #keyring-hud {
+      position: absolute;
+      top: 204px;
+      right: 16px;
+      width: 180px;
+      background: rgba(13, 17, 23, 0.88);
+      border: 1px solid #5e81ac;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 11px;
+      z-index: 10;
+    }
+
+    .key-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #ebcb8b;
+      margin-top: 4px;
+    }
+
     #stealth-hud {
       position: absolute;
-      top: 76px;
+      top: 96px;
       left: 50%;
       transform: translateX(-50%);
       display: none;
@@ -125,7 +180,7 @@
 
     #light-hud {
       position: absolute;
-      top: 112px;
+      top: 132px;
       left: 50%;
       transform: translateX(-50%);
       display: flex;
@@ -228,79 +283,96 @@
       color: #eceff4;
     }
 
-    #keyring-hud {
+    /* Interactive Prompts */
+    #interaction-prompt,
+    #crafting-prompt,
+    #gate-prompt,
+    #proclamation-prompt,
+    #altar-prompt {
       position: absolute;
-      top: 204px;
-      right: 16px;
-      width: 180px;
-      background: rgba(13, 17, 23, 0.88);
-      border: 1px solid #5e81ac;
-      border-radius: 6px;
-      padding: 8px 12px;
-      font-size: 11px;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: none;
+      padding: 10px 24px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: bold;
+      letter-spacing: 0.5px;
       z-index: 10;
-    }
-
-    .key-item {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      color: #ebcb8b;
-      margin-top: 4px;
     }
 
     #interaction-prompt {
-      position: absolute;
       top: 60%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      display: none;
       background: rgba(13, 17, 23, 0.95);
       border: 1px solid #ebcb8b;
       color: #ebcb8b;
-      padding: 10px 24px;
-      border-radius: 20px;
-      font-size: 13px;
-      font-weight: bold;
-      letter-spacing: 0.5px;
-      z-index: 10;
-      box-shadow: 0 4px 20px rgba(235, 203, 139, 0.3);
     }
 
     #crafting-prompt {
-      position: absolute;
       top: 66%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      display: none;
       background: rgba(13, 17, 23, 0.95);
       border: 1px solid #a3be8c;
       color: #a3be8c;
-      padding: 10px 24px;
-      border-radius: 20px;
-      font-size: 13px;
-      font-weight: bold;
-      letter-spacing: 0.5px;
-      z-index: 10;
-      box-shadow: 0 4px 20px rgba(163, 190, 140, 0.3);
     }
 
     #gate-prompt {
-      position: absolute;
       top: 54%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      display: none;
       background: rgba(13, 17, 23, 0.95);
       border: 1px solid #88c0d0;
       color: #88c0d0;
-      padding: 10px 24px;
-      border-radius: 20px;
-      font-size: 13px;
+    }
+
+    #proclamation-prompt {
+      top: 48%;
+      background: rgba(15, 20, 28, 0.95);
+      border: 1px solid #d08770;
+      color: #d08770;
+    }
+
+    #altar-prompt {
+      top: 42%;
+      background: rgba(20, 16, 28, 0.95);
+      border: 1px solid #b48ead;
+      color: #b48ead;
+    }
+
+    /* Proclamation Board Modal */
+    #edict-modal {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: none;
+      width: 440px;
+      background: rgba(15, 20, 28, 0.98);
+      border: 2px solid #d08770;
+      border-radius: 8px;
+      padding: 20px;
+      z-index: 30;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.9);
+    }
+
+    .modal-title {
+      font-size: 16px;
       font-weight: bold;
-      letter-spacing: 0.5px;
-      z-index: 10;
-      box-shadow: 0 4px 20px rgba(136, 192, 208, 0.3);
+      color: #d08770;
+      margin-bottom: 12px;
+    }
+
+    .edict-btn {
+      width: 100%;
+      padding: 10px;
+      margin-top: 8px;
+      background: #2e3440;
+      border: 1px solid #4c566a;
+      color: #eceff4;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
+    .edict-btn:hover {
+      border-color: #88c0d0;
     }
 
     #dialogue-box {
@@ -369,11 +441,24 @@
 <body>
   <div id="commodity-ticker">
     <div class="ticker-title">CITADEL COMMODITIES:</div>
-    <div class="ticker-item"><span>Hearth Bread:</span> <span id="tick-bread" class="ticker-price">5.00s</span></div>
-    <div class="ticker-item"><span>Sunfire Salve:</span> <span id="tick-salve" class="ticker-price">25.00s</span></div>
-    <div class="ticker-item"><span>Forged Permit:</span> <span id="tick-permit" class="ticker-price">65.00s</span></div>
-    <div class="ticker-item"><span>Aqueduct Silver:</span> <span id="tick-silver" class="ticker-price">100.00s</span>
-    </div>
+    <div class="ticker-item"><span>Bread:</span> <span id="tick-bread" class="ticker-price">5.00s</span></div>
+    <div class="ticker-item"><span>Salve:</span> <span id="tick-salve" class="ticker-price">25.00s</span></div>
+    <div class="ticker-item"><span>Permit:</span> <span id="tick-permit" class="ticker-price">65.00s</span></div>
+    <div class="ticker-item"><span>Silver:</span> <span id="tick-silver" class="ticker-price">100.00s</span></div>
+    <div id="clock-display">⏰ HOUR: 14:00 (DAYLIGHT)</div>
+  </div>
+
+  <div id="faction-hud">
+    <div class="faction-badge"><span style="color: #d08770;">REGIME:</span> <span id="regime-name"
+        class="faction-val">CITADEL THEOCRACY</span></div>
+    <div class="faction-badge"><span>Clerisy:</span> <span id="fac-clerisy" class="faction-val"
+        style="color: #ebcb8b;">85%</span></div>
+    <div class="faction-badge"><span>Guilds:</span> <span id="fac-guilds" class="faction-val"
+        style="color: #a3be8c;">40%</span></div>
+    <div class="faction-badge"><span>Commons:</span> <span id="fac-commons" class="faction-val"
+        style="color: #88c0d0;">30%</span></div>
+    <div class="faction-badge"><span>Watch:</span> <span id="fac-watch" class="faction-val"
+        style="color: #bf616a;">65%</span></div>
   </div>
 
   <div id="radar-container">
@@ -405,10 +490,17 @@
   <div id="zone-banner">MARKET CROSS SQUARE</div>
 
   <div id="quest-banner">
-    <div id="quest-act">Act VII: Security Thresholds</div>
-    <div id="quest-title">Keys to the Undercroft</div>
-    <div id="quest-obj">Unlock the Iron Portcullis using your Key or Forged Permit to bypass curfew.</div>
+    <div id="quest-act">Act VIII: Daily Routines</div>
+    <div id="quest-title">The Living World of Aethelgard</div>
+    <div id="quest-obj">Observe NPC daily schedules, inspect the Proclamation Board, or make offerings at the Undercroft
+      Altar.</div>
   </div>
+
+  
+  <div id="granary-hud" style="position: absolute; top: 168px; left: 16px; background: rgba(15, 20, 28, 0.92); border: 1px solid #a3be8c; padding: 6px 14px; border-radius: 6px; font-size: 11px; z-index: 10;">
+    <span style="color: #a3be8c; font-weight: bold;">GRANARY STOCKPILE:</span> <span id="granary-bushels" style="font-weight: bold;">150</span> Bushels
+  </div>
+  <div id="crate-prompt" style="position: absolute; top: 36%; left: 50%; transform: translate(-50%, -50%); display: none; background: rgba(20, 24, 34, 0.95); border: 1px solid #ebcb8b; color: #ebcb8b; padding: 10px 24px; border-radius: 20px; font-size: 13px; font-weight: bold; z-index: 10;">[G] Haul Grain Crate</div>
 
   <div id="backpack-hud">
     <div class="backpack-slot" onclick="consumeItem('bread')">
@@ -420,21 +512,37 @@
     <div class="backpack-slot" onclick="consumeItem('permit')">
       <span class="key-tag">3</span><span class="item-icon">📜</span><span class="item-count" id="count-permit">1</span>
     </div>
-    <div class="backpack-slot" title="Flour (Baking Ingredient)">
+    <div class="backpack-slot" title="Flour">
       <span class="key-tag">4</span><span class="item-icon">🌾</span><span class="item-count" id="count-flour">2</span>
     </div>
   </div>
 
   <div id="interaction-prompt">[E] Speak</div>
   <div id="crafting-prompt">[F] Craft at Workstation</div>
-  <div id="gate-prompt">[E] Unlock Iron Portcullis</div>
+  <div id="gate-prompt">[E] Unlock Portcullis</div>
+  <div id="proclamation-prompt">[E] Inspect Proclamation Board</div>
+  <div id="altar-prompt">[F] Make Offering at Heretical Altar</div>
+
+  <!-- Proclamation Board Edict Modal -->
+  <div id="edict-modal">
+    <div class="modal-title">CITADEL PROCLAMATION & EDICTS</div>
+    <p style="font-size: 12px; color: #d8dee9; line-height: 1.4; margin-bottom: 12px;">
+      Authority: <span id="modal-authority" style="color: #a3be8c; font-weight: bold;">Stable (70%)</span><br>
+      Active Regime: <span id="modal-regime" style="color: #ebcb8b; font-weight: bold;">Citadel Theocracy</span>
+    </p>
+    <button class="edict-btn" id="btn-toggle-curfew" onclick="toggleCurfewEdict()">[EDICT] REPEAL NIGHT CURFEW</button>
+    <button class="edict-btn" onclick="distributeGrainRations()">[EDICT] DECREE EMERGENCY GRAIN RELIEF</button>
+    <button class="edict-btn" style="background: #3b4252; margin-top: 14px;"
+      onclick="closeEdictModal()">[CLOSE]</button>
+  </div>
 
   <div id="dialogue-box">
     <div id="dialogue-speaker">NPC Name</div>
     <div id="dialogue-text">Dialogue message content here...</div>
   </div>
 
-  <div id="camera-controls-hint">WASD: Move | Shift: Sprint | C: Crouch | E: Interact/Unlock | F: Craft</div>
+  <div id="camera-controls-hint">WASD: Move | Shift: Sprint | C: Crouch | E: Interact/Board | F: Craft/Altar | T:
+    Advance Hour</div>
   <div id="canvas-container"></div>
 
   <script>
@@ -490,6 +598,21 @@
         gain.connect(this.ctx.destination);
         osc.start();
         osc.stop(this.ctx.currentTime + 0.6);
+      }
+      playAltarHum() {
+        if (!this.ctx) return;
+        [110.0, 164.81, 220.0].forEach(f => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(f, this.ctx.currentTime);
+          gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 1.4);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + 1.4);
+        });
       }
       playBuffChime() {
         if (!this.ctx) return;
@@ -554,7 +677,7 @@
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     container.appendChild(renderer.domElement);
 
-    const ambientLight = new THREE.AmbientLight('#6272a4', 0.95);
+    const ambientLight = new THREE.AmbientLight('#6272a4', 0.85);
     scene.add(ambientLight);
 
     const sun = new THREE.DirectionalLight('#ffffff', 1.3);
@@ -565,7 +688,7 @@
     scene.add(sun);
 
     // =========================================================================
-    // 3. TEXTURE BUILDERS & MATERIALS
+    // 3. TEXTURES & PROCEDURAL TILES
     // =========================================================================
     function makeTileTexture(baseColor, mortarColor, rows = 4, cols = 4) {
       const c = document.createElement('canvas');
@@ -677,7 +800,7 @@
     }
 
     // =========================================================================
-    // 5. PHYSICAL PORTCULLIS GATES & WORKSTATIONS
+    // 5. PROCLAMATION BOARD, ALTAR, GATES & WORKSTATIONS
     // =========================================================================
     const gateRecords = [];
     const ironGateMat = new THREE.MeshStandardMaterial({ color: 0x2e3440, roughness: 0.3, metalness: 0.85 });
@@ -687,7 +810,6 @@
       const barCount = 7;
       const barSpacing = width / (barCount + 1);
 
-      // Vertical iron bars
       for (let i = 1; i <= barCount; i++) {
         const bar = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, height, 8), ironGateMat);
         bar.position.set(-width / 2 + i * barSpacing, height / 2, 0);
@@ -695,7 +817,6 @@
         group.add(bar);
       }
 
-      // Horizontal crosspieces
       [0.6, height / 2, height - 0.4].forEach(hy => {
         const cross = new THREE.Mesh(new THREE.BoxGeometry(width, 0.12, 0.12), ironGateMat);
         cross.position.set(0, hy, 0);
@@ -707,18 +828,52 @@
       scene.add(group);
 
       gateRecords.push({
-        id,
-        group,
-        baseY: y,
-        targetY: y,
-        pos: new THREE.Vector3(x, y, z),
-        isLocked: true
+        id, group, baseY: y, targetY: y, pos: new THREE.Vector3(x, y, z), isLocked: true
       });
     }
 
-    // Spawn Portcullis Gates at Strategic Chokepoints
     spawnPhysicalPortcullis("gate_undercroft", 0.0, 0.0, -15.0);
     spawnPhysicalPortcullis("gate_garrison", 0.0, 0.0, -38.0);
+
+    // Civic Proclamation Board in Market Square
+    const proclamationGroup = new THREE.Group();
+    const woodMat = new THREE.MeshStandardMaterial({ color: 0x5c3a21, roughness: 0.8 });
+    const postL = new THREE.Mesh(new THREE.BoxGeometry(0.2, 2.8, 0.2), woodMat);
+    postL.position.set(-1.2, 1.4, 0);
+    proclamationGroup.add(postL);
+    const postR = new THREE.Mesh(new THREE.BoxGeometry(0.2, 2.8, 0.2), woodMat);
+    postR.position.set(1.2, 1.4, 0);
+    proclamationGroup.add(postR);
+    const board = new THREE.Mesh(new THREE.BoxGeometry(2.4, 1.6, 0.15), woodMat);
+    board.position.set(0, 1.8, 0);
+    proclamationGroup.add(board);
+    const paper = new THREE.Mesh(new THREE.BoxGeometry(2.1, 1.3, 0.02), new THREE.MeshStandardMaterial({ color: 0xeedbb2 }));
+    paper.position.set(0, 1.8, 0.09);
+    proclamationGroup.add(paper);
+    proclamationGroup.position.set(-4.0, 0.0, -2.5);
+    scene.add(proclamationGroup);
+
+    // Underground Heretical Altar in Subterranean Undercroft
+    const altarGroup = new THREE.Group();
+    const altarStoneMat = new THREE.MeshStandardMaterial({ color: 0x1e1b2e, roughness: 0.6 });
+    const altarBase = new THREE.Mesh(new THREE.BoxGeometry(2.8, 0.9, 1.8), altarStoneMat);
+    altarBase.position.y = 0.45;
+    altarBase.castShadow = true;
+    altarGroup.add(altarBase);
+
+    const altarSigil = new THREE.Mesh(
+      new THREE.RingGeometry(0.5, 0.65, 16),
+      new THREE.MeshBasicMaterial({ color: 0xb48ead, side: THREE.DoubleSide })
+    );
+    altarSigil.rotation.x = -Math.PI / 2;
+    altarSigil.position.y = 0.91;
+    altarGroup.add(altarSigil);
+
+    const altarLight = new THREE.PointLight(0xb48ead, 1.8, 8);
+    altarLight.position.set(0, 1.4, 0);
+    altarGroup.add(altarLight);
+    altarGroup.position.set(22.0, -4.5, -28.0);
+    scene.add(altarGroup);
 
     const workstationRecords = [];
     const craftingProgressRing = new THREE.Mesh(
@@ -731,6 +886,88 @@
 
     let activeCrafting = null;
 
+    
+    // =========================================================================
+    // 5B. GRANARY SILO, SUPPLY WAGONS & PHYSICAL CRATES (v0.30.0 Autonomous Patch)
+    // =========================================================================
+    const granarySiloGroup = new THREE.Group();
+    const siloBody = new THREE.Mesh(new THREE.CylinderGeometry(2.2, 2.2, 4.5, 20), new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: 0.8 }));
+    siloBody.position.y = 2.25; siloBody.castShadow = true; granarySiloGroup.add(siloBody);
+    const siloRoof = new THREE.Mesh(new THREE.ConeGeometry(2.6, 1.8, 20), new THREE.MeshStandardMaterial({ color: 0x991b1b }));
+    siloRoof.position.y = 5.4; granarySiloGroup.add(siloRoof);
+    granarySiloGroup.position.set(-16.0, 0.0, 6.0);
+    scene.add(granarySiloGroup);
+
+    // Supply Wagon with Sacks
+    const wagonGroup = new THREE.Group();
+    const wagonBed = new THREE.Mesh(new THREE.BoxGeometry(3.6, 0.4, 1.8), new THREE.MeshStandardMaterial({ color: 0x5c3a21 }));
+    wagonBed.position.y = 0.8; wagonBed.castShadow = true; wagonGroup.add(wagonBed);
+    [-1.2, 1.2].forEach(wx => {
+      [-1.0, 1.0].forEach(wz => {
+        const wheel = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.15, 16), new THREE.MeshStandardMaterial({ color: 0x2e3440, metalness: 0.8 }));
+        wheel.rotation.z = Math.PI / 2;
+        wheel.position.set(wx, 0.5, wz);
+        wagonGroup.add(wheel);
+      });
+    });
+    wagonGroup.position.set(8.0, 0.0, -2.0);
+    scene.add(wagonGroup);
+
+    // Physical Haulable Grain Crate
+    const haulableCrates = [
+      { id: "crate_01", pos: new THREE.Vector3(7.0, 0.4, -2.5), mesh: null, isCarried: false }
+    ];
+    const crateBoxMat = new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.6 });
+    const crateMesh = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.8, 0.8), crateBoxMat);
+    crateMesh.position.copy(haulableCrates[0].pos);
+    crateMesh.castShadow = true;
+    scene.add(crateMesh);
+    haulableCrates[0].mesh = crateMesh;
+
+    let isCarryingCrate = false;
+    let carriedCrate = null;
+    let granaryBushels = 150;
+
+    window.addEventListener('keydown', e => {
+      if (e.key === 'g' || e.key === 'G') {
+        triggerCrateHaul();
+      }
+    });
+
+    function triggerCrateHaul() {
+      if (isCarryingCrate) {
+        // Check if near Granary Silo to deposit
+        if (playerPos.distanceTo(granarySiloGroup.position) < 4.0) {
+          granaryBushels += 10;
+          document.getElementById('granary-bushels').innerText = granaryBushels;
+          audio.playFanfare();
+          document.getElementById('quest-obj').innerText = "Grain crate deposited into the Citadel Granary! (+10 Bushels)";
+        } else {
+          // Drop on ground
+          carriedCrate.mesh.position.set(playerPos.x, playerPos.y + 0.4, playerPos.z);
+          scene.add(carriedCrate.mesh);
+          audio.playFootstep();
+        }
+        carriedCrate.isCarried = false;
+        playerGroup.remove(carriedCrate.mesh);
+        isCarryingCrate = false;
+        carriedCrate = null;
+      } else {
+        // Pick up nearby crate
+        for (const c of haulableCrates) {
+          if (!c.isCarried && playerPos.distanceTo(c.mesh.position) < 2.5) {
+            c.isCarried = true;
+            isCarryingCrate = true;
+            carriedCrate = c;
+            c.mesh.position.set(0, 1.2, -0.6);
+            playerGroup.add(c.mesh);
+            audio.playBuffChime();
+            break;
+          }
+        }
+      }
+    }
+
     function registerWorkstation(id, type, name, recipeId, pos) {
       workstationRecords.push({ id, type, name, recipeId, pos: new THREE.Vector3(...pos) });
     }
@@ -739,7 +976,7 @@
     registerWorkstation("alembic_curatives_01", "APOTHECARY_ALEMBIC", "Apothecary Alembic", "brew_salve", [-24.0, 0.8, -4.5]);
 
     // =========================================================================
-    // 6. SPATIAL GEOMETRY & MANIFEST INGESTION
+    // 6. SPATIAL TOPOLOGY & MANIFEST INGESTION
     // =========================================================================
     let roomRecords = [];
     let actorRecords = [];
@@ -750,7 +987,7 @@
       .then(manifest => {
         buildCitadelGeometry(manifest);
         buildThoroughfares(manifest);
-        spawnInteractiveActors(manifest);
+        spawnLivingActors(manifest);
       });
 
     function buildCitadelGeometry(manifest) {
@@ -954,7 +1191,7 @@
     }
 
     // =========================================================================
-    // 7. INTERACTIVE ACTORS & FLOATING LABELS
+    // 7. STATETREE LIVING CITIZENS & AUTONOMOUS SCHEDULE PATHING
     // =========================================================================
     function makeBillboardText(text, color = '#88c0d0') {
       const c = document.createElement('canvas');
@@ -977,7 +1214,7 @@
       return sprite;
     }
 
-    function spawnInteractiveActors(manifest) {
+    function spawnLivingActors(manifest) {
       (manifest.actors || []).forEach(actor => {
         const group = new THREE.Group();
         const isWatchman = actor.actor_id.includes('watchman');
@@ -995,6 +1232,14 @@
         npcHead.castShadow = true;
         group.add(npcHead);
 
+        // Limbs for autonomous pathing animation
+        const npcLegL = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.55, 0.2), armorMat);
+        npcLegL.position.set(-0.18, 0.28, 0);
+        group.add(npcLegL);
+        const npcLegR = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.55, 0.2), armorMat);
+        npcLegR.position.set(0.18, 0.28, 0);
+        group.add(npcLegR);
+
         const ring = new THREE.Mesh(
           new THREE.RingGeometry(0.9, 1.1, 24),
           new THREE.MeshBasicMaterial({ color: cloakColor, side: THREE.DoubleSide })
@@ -1009,12 +1254,94 @@
 
         group.position.set(...actor.position);
         scene.add(group);
-        actorRecords.push({ group, actor });
+
+        // Schedule waypoints definition
+        let waypoints = [];
+        if (isElspeth) {
+          waypoints = [
+            { pos: new THREE.Vector3(24.0, 0.0, 2.0), label: "Baking Bread", minHour: 6, maxHour: 17 },
+            { pos: new THREE.Vector3(2.0, 0.0, 2.0), label: "Dwelling at Well", minHour: 17, maxHour: 20 },
+            { pos: new THREE.Vector3(24.0, 0.0, -2.0), label: "Barricaded for Night", minHour: 20, maxHour: 6 }
+          ];
+        } else if (isWatchman) {
+          waypoints = [
+            { pos: new THREE.Vector3(0.0, 0.0, -12.0), label: "Guarding Portcullis", minHour: 8, maxHour: 19 },
+            { pos: new THREE.Vector3(0.0, 0.0, -32.0), label: "Patrolling Garrison", minHour: 19, maxHour: 8 }
+          ];
+        } else {
+          waypoints = [
+            { pos: new THREE.Vector3(-24.0, 0.0, 2.0), label: "Distilling Salves", minHour: 8, maxHour: 18 },
+            { pos: new THREE.Vector3(-2.0, 0.0, -2.0), label: "Street Shrine Prayer", minHour: 18, maxHour: 21 }
+          ];
+        }
+
+        actorRecords.push({
+          group, actor, tag, legL: npcLegL, legR: npcLegR,
+          waypoints, currentWaypointIndex: 0, walkCycle: 0
+        });
       });
     }
 
     // =========================================================================
-    // 8. INPUT, CROUCH & LOCOMOTION
+    // 8. SIMULATION CLOCK, REGIMES & EDICTS
+    // =========================================================================
+    let simulatedHour = 14.0;
+    let curfewActive = true;
+    let citadelLegitimacy = 0.70;
+    let faithFervor = 0.75;
+    let heresyStrength = 0.25;
+
+    function advanceClock(deltaHours) {
+      simulatedHour = (simulatedHour + deltaHours) % 24;
+      const hourInt = Math.floor(simulatedHour);
+      const isNight = hourInt >= 20 || hourInt < 6;
+
+      document.getElementById('clock-display').innerText =
+        `⏰ HOUR: ${hourInt.toString().padStart(2, '0')}:00 (${isNight ? 'NIGHT CURFEW' : 'DAYLIGHT'})`;
+
+      // Daylight sky shift
+      if (isNight) {
+        sun.intensity = 0.15;
+        ambientLight.intensity = 0.35;
+        scene.background.set('#040609');
+      } else {
+        sun.intensity = 1.3;
+        ambientLight.intensity = 0.95;
+        scene.background.set('#070a0e');
+      }
+    }
+
+    function toggleCurfewEdict() {
+      curfewActive = !curfewActive;
+      const btn = document.getElementById('btn-toggle-curfew');
+      btn.innerText = curfewActive ? "[EDICT] REPEAL NIGHT CURFEW" : "[EDICT] DECREE NIGHT CURFEW";
+      document.getElementById('fac-guilds').innerText = curfewActive ? "40%" : "75%";
+      document.getElementById('fac-commons').innerText = curfewActive ? "30%" : "65%";
+      document.getElementById('quest-obj').innerText = curfewActive
+        ? "Night Curfew re-enacted. Guard scrutiny heightened."
+        : "Curfew abolished by proclamation! Free trade permitted through the night.";
+      audio.playFanfare();
+      closeEdictModal();
+    }
+
+    function distributeGrainRations() {
+      citadelLegitimacy = Math.min(1.0, citadelLegitimacy + 0.15);
+      document.getElementById('fac-commons').innerText = "85%";
+      document.getElementById('quest-obj').innerText = "Emergency grain distributed! Laborers celebrate in the streets.";
+      audio.playFanfare();
+      closeEdictModal();
+    }
+
+    function openEdictModal() {
+      document.getElementById('edict-modal').style.display = 'block';
+      document.getElementById('modal-authority').innerText = `${Math.round(citadelLegitimacy * 100)}%`;
+    }
+    function closeEdictModal() {
+      document.getElementById('edict-modal').style.display = 'none';
+    }
+
+    // =========================================================================
+    // 9. INPUT, CROUCH & LOCOMOTION
     // =========================================================================
     const keys = {};
     let isCrouching = false;
@@ -1025,7 +1352,8 @@
       if (e.key === '2') consumeItem('salve');
       if (e.key === '3') consumeItem('permit');
       if (e.key === 'e' || e.key === 'E') triggerInteraction();
-      if (e.key === 'f' || e.key === 'F') triggerCrafting();
+      if (e.key === 'f' || e.key === 'F') triggerCraftingOrAltar();
+      if (e.key === 't' || e.key === 'T') advanceClock(2.0); // Fast forward time
       if (e.key === 'c' || e.key === 'C') {
         isCrouching = !isCrouching;
         document.getElementById('crouch-indicator').innerText = isCrouching ? "CROUCH" : "STAND";
@@ -1058,7 +1386,6 @@
         const nextX = playerPos.x + moveVec.x * currentSpeed * delta;
         const nextZ = playerPos.z + moveVec.z * currentSpeed * delta;
 
-        // Physical Gate Collision Check
         let blockedByGate = false;
         for (const gate of gateRecords) {
           if (gate.isLocked && Math.abs(nextZ - gate.pos.z) < 1.0 && Math.abs(nextX - gate.pos.x) < 2.0) {
@@ -1121,6 +1448,43 @@
       checkProximityPrompts();
       updateCraftingProgress(delta);
       updateGates(delta);
+      updateAutonomousNPCRoutines(delta);
+    }
+
+    // =========================================================================
+    // 10. AUTONOMOUS NPC WAYPOINT PATHING & SCHEDULE DISPATCH
+    // =========================================================================
+    function updateAutonomousNPCRoutines(delta) {
+      const currentH = Math.floor(simulatedHour);
+
+      actorRecords.forEach(record => {
+        // Find matching schedule waypoint for current hour
+        let targetWP = record.waypoints[0];
+        for (const wp of record.waypoints) {
+          if (wp.minHour <= wp.maxHour) {
+            if (currentH >= wp.minHour && currentH < wp.maxHour) { targetWP = wp; break; }
+          } else {
+            if (currentH >= wp.minHour || currentH < wp.maxHour) { targetWP = wp; break; }
+          }
+        }
+
+        // Steer NPC group toward target waypoint
+        const dist = record.group.position.distanceTo(targetWP.pos);
+        if (dist > 0.4) {
+          const dir = new THREE.Vector3().subVectors(targetWP.pos, record.group.position).normalize();
+          record.group.position.x += dir.x * 2.8 * delta;
+          record.group.position.z += dir.z * 2.8 * delta;
+          record.group.rotation.y = Math.atan2(-dir.x, -dir.z);
+
+          // Animate NPC limbs while moving
+          record.walkCycle += delta * 10;
+          record.legL.position.z = Math.sin(record.walkCycle) * 0.22;
+          record.legR.position.z = -Math.sin(record.walkCycle) * 0.22;
+        } else {
+          record.legL.position.z = 0;
+          record.legR.position.z = 0;
+        }
+      });
     }
 
     function sampleSceneLighting() {
@@ -1157,7 +1521,7 @@
     }
 
     // =========================================================================
-    // 9. INVENTORY, GATES & WORKSTATIONS
+    // 11. INVENTORY, GATES, PROCLAMATION & ALTAR INTERACTIVITY
     // =========================================================================
     const inventory = { bread: 3, salve: 1, permit: 1, flour: 2, undercroft_key: 1 };
 
@@ -1182,17 +1546,60 @@
 
     let activeWorkstation = null;
     let activeGate = null;
+    let activeProclamation = false;
+    let activeAltar = false;
     let currentActor = null;
 
     function checkProximityPrompts() {
+      // 0. Granary Crate Proximity Check
+      const promptCrate = document.getElementById('crate-prompt');
+      if (isCarryingCrate) {
+        promptCrate.style.display = 'block';
+        promptCrate.innerText = playerPos.distanceTo(granarySiloGroup.position) < 4.0
+          ? "[G] Deposit Grain into Granary Silo"
+          : "[G] Drop Grain Crate";
+      } else {
+        let nearCrate = false;
+        for (const c of haulableCrates) {
+          if (!c.isCarried && playerPos.distanceTo(c.mesh.position) < 2.5) {
+            promptCrate.style.display = 'block';
+            promptCrate.innerText = "[G] Pick Up Grain Crate";
+            nearCrate = true;
+            break;
+          }
+        }
+        if (!nearCrate) promptCrate.style.display = 'none';
+      }
+
       const promptE = document.getElementById('interaction-prompt');
       const promptF = document.getElementById('crafting-prompt');
       const promptGate = document.getElementById('gate-prompt');
+      const promptProc = document.getElementById('proclamation-prompt');
+      const promptAltar = document.getElementById('altar-prompt');
+
       currentActor = null;
       activeWorkstation = null;
       activeGate = null;
+      activeProclamation = false;
+      activeAltar = false;
 
-      // 1. Closest NPC Proximity Sorting
+      // 1. Proclamation Board Proximity
+      if (proclamationGroup.position.distanceTo(playerPos) < 3.2) {
+        activeProclamation = true;
+        promptProc.style.display = 'block';
+      } else {
+        promptProc.style.display = 'none';
+      }
+
+      // 2. Heretical Altar Proximity
+      if (altarGroup.position.distanceTo(playerPos) < 3.4) {
+        activeAltar = true;
+        promptAltar.style.display = 'block';
+      } else {
+        promptAltar.style.display = 'none';
+      }
+
+      // 3. Closest NPC Proximity
       let minActorDist = 3.4;
       for (const { group, actor } of actorRecords) {
         const d = group.position.distanceTo(playerPos);
@@ -1202,17 +1609,15 @@
         }
       }
 
-      if (currentActor) {
+      if (currentActor && !activeProclamation) {
         promptE.style.display = 'block';
-        promptE.innerText = currentActor.actor_id.includes('watchman')
-          ? `[E] Bribe ${currentActor.name}`
-          : `[E] Speak with ${currentActor.name}`;
-      } else {
+        promptE.innerText = `[E] Speak with ${currentActor.name}`;
+      } else if (!activeProclamation) {
         promptE.style.display = 'none';
         document.getElementById('dialogue-box').style.display = 'none';
       }
 
-      // 2. Physical Portcullis Proximity
+      // 4. Portcullis Gates
       for (const gate of gateRecords) {
         if (gate.pos.distanceTo(playerPos) < 3.2 && gate.isLocked) {
           activeGate = gate;
@@ -1225,7 +1630,7 @@
       }
       if (!activeGate) promptGate.style.display = 'none';
 
-      // 3. Workstation Proximity
+      // 5. Workstations
       for (const ws of workstationRecords) {
         if (ws.pos.distanceTo(playerPos) < 3.4) {
           activeWorkstation = ws;
@@ -1236,42 +1641,87 @@
           break;
         }
       }
-      if (!activeWorkstation) promptF.style.display = 'none';
+      if (!activeWorkstation && !activeAltar) promptF.style.display = 'none';
     }
 
     function triggerInteraction() {
-      // Prioritize Gate Unlock if standing near a portcullis
+      // 1. Proclamation Board modal
+      if (activeProclamation) {
+        openEdictModal();
+        return;
+      }
+
+      // 2. Gate unlock
       if (activeGate) {
         if (inventory.undercroft_key > 0 || inventory.permit > 0) {
           activeGate.isLocked = false;
-          activeGate.targetY = activeGate.baseY + 3.8; // Slide gate upward
+          activeGate.targetY = activeGate.baseY + 3.8;
           audio.playPortcullisGrind();
           audio.playFanfare();
           document.getElementById('quest-obj').innerText = "Portcullis raised! Undercroft passage breached.";
           return;
-        } else {
-          alert("Gate is sealed! Requires Undercroft Key or Forged Permit.");
-          return;
         }
       }
 
-      // NPC Dialogue
+      // 3. NPC dialogue
       if (!currentActor) return;
       const box = document.getElementById('dialogue-box');
       box.style.display = 'block';
       document.getElementById('dialogue-speaker').innerText = currentActor.name;
 
+      const currentH = Math.floor(simulatedHour);
       let speechText = "";
       if (currentActor.actor_id.includes('elspeth')) {
-        speechText = "Blessings of the Hearth. Take this flour and bake when the bells sound.";
+        speechText = currentH > 18
+          ? "The curfew approaches. I've finished the grain tithes for today."
+          : "The oven is blazing. Bake what grain you have, runner.";
       } else if (currentActor.actor_id.includes('garrett')) {
-        speechText = "The curatives are pure, but the Clerisy takes half in tithes.";
+        speechText = currentH > 17
+          ? "I am lighting votives for the evening prayers. Leave me be."
+          : "The curatives are pure, but the Clerisy takes half in tithes.";
       } else if (currentActor.actor_id.includes('watchman')) {
-        speechText = "Curfew holds throughout the Cathedral ward. Present your transit permit or turn back.";
+        speechText = curfewActive
+          ? "Curfew holds throughout the ward. Keep moving or face arrest."
+          : "Curfew was lifted by the board. Trade moves freely tonight.";
       }
 
       document.getElementById('dialogue-text').innerText = speechText;
       speakNPC(speechText, 0.9, 1.0);
+    }
+
+    function triggerCraftingOrAltar() {
+      if (activeAltar) {
+        // Altar offering
+        if (inventory.bread > 0) {
+          inventory.bread -= 1;
+          document.getElementById('count-bread').innerText = inventory.bread;
+          heresyStrength = Math.min(1.0, heresyStrength + 0.15);
+          faithFervor = Math.max(0.0, faithFervor - 0.10);
+          audio.playAltarHum();
+          document.getElementById('quest-obj').innerText =
+            "Bread sacrificed to the Whispering Icon. Heretical influence grows in the Undercroft.";
+        } else {
+          alert("Altar requires bread offering to invoke the rite.");
+        }
+        return;
+      }
+
+      if (activeWorkstation && !activeCrafting) {
+        if (activeWorkstation.recipeId === 'bake_bread') {
+          if (inventory.flour < 1) { alert("Need 1 Flour to bake."); return; }
+          activeCrafting = {
+            recipeId: 'bake_bread', startTime: performance.now(), duration: 1800,
+            workstationPos: activeWorkstation.pos
+          };
+          audio.playCraftingSizzle();
+        } else if (activeWorkstation.recipeId === 'brew_salve') {
+          activeCrafting = {
+            recipeId: 'brew_salve', startTime: performance.now(), duration: 1800,
+            workstationPos: activeWorkstation.pos
+          };
+          audio.playCraftingSizzle();
+        }
+      }
     }
 
     function updateGates(delta) {
@@ -1279,32 +1729,6 @@
         if (Math.abs(gate.group.position.y - gate.targetY) > 0.05) {
           gate.group.position.y += (gate.targetY - gate.group.position.y) * 0.08;
         }
-      }
-    }
-
-    function triggerCrafting() {
-      if (!activeWorkstation || activeCrafting) return;
-
-      if (activeWorkstation.recipeId === 'bake_bread') {
-        if (inventory.flour < 1) {
-          alert("Insufficient ingredients! Need 1 Flour to bake.");
-          return;
-        }
-        activeCrafting = {
-          recipeId: 'bake_bread',
-          startTime: performance.now(),
-          duration: 1800,
-          workstationPos: activeWorkstation.pos
-        };
-        audio.playCraftingSizzle();
-      } else if (activeWorkstation.recipeId === 'brew_salve') {
-        activeCrafting = {
-          recipeId: 'brew_salve',
-          startTime: performance.now(),
-          duration: 1800,
-          workstationPos: activeWorkstation.pos
-        };
-        audio.playCraftingSizzle();
       }
     }
 
@@ -1346,7 +1770,7 @@
     }
 
     // =========================================================================
-    // 10. WEBSOCKET IPC & RADAR MINIMAP
+    // 12. WEBSOCKET IPC & RADAR MINIMAP
     // =========================================================================
     const wsProto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const wsHost = window.location.hostname.replace('-3000', '-8765');
@@ -1364,7 +1788,7 @@
           try {
             const msg = JSON.parse(evt.data);
             if (msg.type === "WORLD_STATE_INIT") updateTicker(msg.market_quotes);
-            if (msg.type === "STEALTH_STATUS") updateStealthHUD(msg);
+            if (msg.type === "STEALTH_STATUS" && curfewActive) updateStealthHUD(msg);
           } catch (e) { }
         };
         ws.onclose = () => setTimeout(connectIPC, 3000);
@@ -1401,7 +1825,6 @@
 
       const scale = 1.8;
 
-      // Thoroughfares
       rCtx.strokeStyle = '#3b4252';
       rCtx.lineWidth = 4;
       roomRecords.forEach(({ room }) => {
@@ -1417,7 +1840,6 @@
         });
       });
 
-      // Rooms
       rCtx.strokeStyle = '#5e81ac';
       rCtx.lineWidth = 1.5;
       roomRecords.forEach(({ room }) => {
@@ -1436,7 +1858,7 @@
         rCtx.strokeRect(rx - rw / 2, rz - rd / 2, rw, rd);
       });
 
-      // Physical Gates on Minimap (Red / Cyan bars)
+      // Gates
       gateRecords.forEach(gate => {
         const gx = (gate.pos.x - playerPos.x) * scale;
         const gz = (gate.pos.z - playerPos.z) * scale;
@@ -1448,21 +1870,31 @@
         rCtx.stroke();
       });
 
-      // Workstations
-      workstationRecords.forEach(ws => {
-        const wx = (ws.pos.x - playerPos.x) * scale;
-        const wz = (ws.pos.z - playerPos.z) * scale;
-        rCtx.fillStyle = '#a3be8c';
-        rCtx.fillRect(wx - 2.5, wz - 2.5, 5, 5);
-      });
+      // Proclamation Board (Orange square)
+      const px = (proclamationGroup.position.x - playerPos.x) * scale;
+      const pz = (proclamationGroup.position.z - playerPos.z) * scale;
+      rCtx.fillStyle = '#d08770';
+      rCtx.fillRect(px - 3, pz - 3, 6, 6);
 
-      // NPCs
+      // Undercroft Altar (Purple diamond)
+      const ax = (altarGroup.position.x - playerPos.x) * scale;
+      const az = (altarGroup.position.z - playerPos.z) * scale;
+      rCtx.fillStyle = '#b48ead';
+      rCtx.beginPath();
+      rCtx.moveTo(ax, az - 4);
+      rCtx.lineTo(ax + 4, az);
+      rCtx.lineTo(ax, az + 4);
+      rCtx.lineTo(ax - 4, az);
+      rCtx.closePath();
+      rCtx.fill();
+
+      // Living NPCs
       actorRecords.forEach(({ group, actor }) => {
-        const ax = (group.position.x - playerPos.x) * scale;
-        const az = (group.position.z - playerPos.z) * scale;
+        const nx = (group.position.x - playerPos.x) * scale;
+        const nz = (group.position.z - playerPos.z) * scale;
         rCtx.fillStyle = actor.actor_id.includes('watchman') ? '#ef4444' : '#f59e0b';
         rCtx.beginPath();
-        rCtx.arc(ax, az, 3.5, 0, Math.PI * 2);
+        rCtx.arc(nx, nz, 3.5, 0, Math.PI * 2);
         rCtx.fill();
       });
 
@@ -1483,13 +1915,16 @@
     }
 
     // =========================================================================
-    // 11. UNINTERRUPTIBLE ANIMATION LOOP
+    // 13. MAIN ANIMATION LOOP
     // =========================================================================
     let lastTime = performance.now();
     function animate(now) {
       requestAnimationFrame(animate);
       const delta = Math.min((now - lastTime) / 1000, 0.1);
       lastTime = now;
+
+      // Advance clock slightly in real time (1 hour every 45 seconds)
+      advanceClock((delta / 45.0));
 
       updatePlayer(delta);
       renderRadar();
