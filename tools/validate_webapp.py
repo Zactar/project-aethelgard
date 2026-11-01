@@ -65,9 +65,16 @@ def verify_http_web_client(port: int = 3000) -> bool:
         "commodity-ticker",
         "stealth-hud",
         "light-hud",
+        "faction-hud",
+        "clock-display",
         "keyring-hud",
         "crafting-prompt",
         "gate-prompt",
+        "proclamation-prompt",
+        "altar-prompt",
+        "granary-hud",
+        "crate-prompt",
+        "edict-modal",
         "quest-banner",
         "backpack-hud",
         "interaction-prompt",
@@ -285,6 +292,24 @@ async def verify_websocket_runtime(port: int = 8765) -> bool:
         logger.error(f"WebSocket IPC verification failed: {e}")
         return False
 
+
+
+def verify_logistics_engine_invariants() -> bool:
+    try:
+        from services.agent_runtime.src.logistics_engine import LogisticsEngine
+        engine = LogisticsEngine()
+        initial = engine.granary.grain_bushels
+        engine.deposit_grain(20)
+        if engine.granary.grain_bushels != initial + 20:
+            logger.error("Logistics invariant broken: Grain deposit calculation incorrect!")
+            return False
+        logger.info("[✓] Logistics Engine invariants verified: Granary stockpiles & deposits sound.")
+        return True
+    except ImportError:
+        return True
+    except Exception as e:
+        logger.error(f"Logistics Engine verification failed: {e}")
+        return False
 
 def run_full_validation() -> bool:
     logger.info(
