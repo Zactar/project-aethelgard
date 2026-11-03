@@ -242,7 +242,7 @@
 
     <button
       style="padding: 8px 24px; background: #3b4252; border: 1px solid #88c0d0; color: #eceff4; font-weight: bold; cursor: pointer; border-radius: 4px;"
-      onclick="toggleSanctuaryModal()">CLOSE SANCTUARY [S]</button>
+      onclick="toggleSanctuaryModal()">CLOSE SANCTUARY [U]</button>
   </div>
 
   <div id="pond-shop-modal">
@@ -272,6 +272,8 @@
   </div>
 
   <canvas id="viewport-canvas" width="640" height="480"></canvas>
+
+  <div id="camera-controls-hint">WASD / Arrows: Hop | [U]: Sanctuary Upgrades | [Space]: Restart</div>
 
   <div id="relic-bar">
     <span class="hud-label">ACTIVE RELICS:</span>
@@ -396,6 +398,10 @@
     window.addEventListener('keydown', e => {
       if (inShop) {
         if (e.key === 'Enter' || e.key === 'Escape') closeShop();
+        return;
+      }
+      if (e.key === 'u' || e.key === 'U') {
+        if (!inShop) toggleSanctuaryModal();
         return;
       }
       if (gameOver) {
