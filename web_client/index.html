@@ -58,6 +58,20 @@
       font-size: 11px;
       color: #a8a29e;
     }
+
+    #game-over-banner {
+      position: absolute;
+      font-size: 20px;
+      font-weight: bold;
+      color: #ef4444;
+      display: none;
+      background: rgba(28, 25, 23, 0.96);
+      padding: 16px 28px;
+      border: 2px solid #ef4444;
+      border-radius: 8px;
+      text-align: center;
+      z-index: 20;
+    }
   </style>
 </head>
 
@@ -65,12 +79,17 @@
   <div id="game-header">
     <div>SECTOR: <span id="hud-sector" class="hud-val">UPPER LOAM</span></div>
     <div>HULL: <span id="hud-hull" style="color: #ef4444; font-weight: bold;">❤❤❤</span></div>
-    <div>MINERALS: <span id="hud-minerals" class="hud-val">0</span> 💎</div>
+    <div>ENEMIES: <span id="hud-enemies" class="hud-val">2</span> 👾</div>
     <div>DEPTH: <span id="hud-depth" class="hud-val">0m</span></div>
   </div>
 
+  <div id="game-over-banner">
+    <div>HULL BREACHED - RESPONDING AT SURFACE</div>
+    <div style="font-size: 12px; color: #d6d3d1; margin-top: 6px;">PRESS [SPACE] TO RE-ENTER SHAFT</div>
+  </div>
+
   <canvas id="viewport-canvas" width="640" height="480"></canvas>
-  <div id="camera-controls-hint">WASD / Arrows: Move & Dig | [F] / [J]: Harpoon Cable | [M]: Sector Map</div>
+  <div id="camera-controls-hint">WASD / Arrows: Move & Dig | [F] / [J]: Harpoon & Pump | [Space]: Respawn</div>
 
   <script>
     const canvas = document.getElementById('viewport-canvas');
@@ -80,27 +99,29 @@
     const cols = 20; // 640px
     const rows = 15; // 480px
 
-    // Tile Types: 0 = Tunnel (Open Air), 1 = Dirt, 2 = Dense Granite, 3 = Boulder
+    let hull = 3;
+    let gameOver = false;
+
+    // Grid: 0 = Tunnel (Open), 1 = Dirt, 2 = Granite, 3 = Boulder
     const grid = [];
     for (let r = 0; r < rows; r++) {
       const row = [];
       for (let c = 0; c < cols; c++) {
-        if (r === 0) {
-          row.push(0); // Surface opening
-        } else if (r === rows - 1 || c === 0 || c === cols - 1) {
-          row.push(2); // Bedrock boundaries
-        } else {
-          row.push(1); // Destructible dirt
-        }
+        if (r === 0) row.push(0);
+        else if (r === rows - 1 || c === 0 || c === cols - 1) row.push(2);
+        else row.push(1);
       }
       grid.push(row);
     }
+
+    // Carve initial starting tunnel around surface
+    for (let r = 0; r <= 3; r++) grid[r][10] = 0;
 
     // Kinetic Boulders
     const boulders = [
       { col: 5, row: 3, state: 'resting', timer: 0 },
       { col: 14, row: 4, state: 'resting', timer: 0 },
-      { col: 8, row: 8, state: 'resting', timer: 0 }
+      { col: 8, row: 9, state: 'resting', timer: 0 }
     ];
     boulders.forEach(b => { grid[b.row][b.col] = 3; });
 
@@ -112,85 +133,162 @@
       height: 24,
       facing: 'down',
       color: '#38bdf8',
-      harpoon: null
+      tether: null // Active harpoon tether
     };
+
+    // Subterranean Fauna
+    const enemies = [
+      {
+        id: 'pooka_1', type: 'pooka', col: 4, row: 6,
+        color: '#f97316', eyeColor: '#fef08a',
+        inflateStage: 0, inflateTimer: 0, isGhost: false,
+        moveTimer: 0, facing: 'right'
+      },
+      {
+        id: 'fygar_1', type: 'fygar', col: 15, row: 8,
+        color: '#22c55e', eyeColor: '#fef08a',
+        inflateStage: 0, inflateTimer: 0, isGhost: false,
+        moveTimer: 0, facing: 'left', fireTimer: 3.0, isBreathingFire: false
+      }
+    ];
+
+    // Carve living pockets for initial enemies
+    grid[6][3] = 0; grid[6][4] = 0; grid[6][5] = 0;
+    grid[8][14] = 0; grid[8][15] = 0; grid[8][16] = 0;
 
     const keys = {};
     window.addEventListener('keydown', e => {
       const k = e.key.toLowerCase();
       keys[k] = true;
+      if (gameOver) {
+        if (e.code === 'Space') respawnPlayer();
+        return;
+      }
       if (k === 'arrowup' || k === 'w') movePlayer(0, -1, 'up');
       if (k === 'arrowdown' || k === 's') movePlayer(0, 1, 'down');
       if (k === 'arrowleft' || k === 'a') movePlayer(-1, 0, 'left');
       if (k === 'arrowright' || k === 'd') movePlayer(1, 0, 'right');
-      if (k === 'f' || k === 'j') fireHarpoon();
+      if (k === 'f' || k === 'j') handleHarpoonAction();
     });
     window.addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
 
     function movePlayer(dc, dr, dir) {
+      player.facing = dir;
+      // If actively tethered, moving detaches the cable
+      if (player.tether) player.tether = null;
+
       const nc = player.col + dc;
       const nr = player.row + dr;
-      player.facing = dir;
 
       if (nc < 0 || nc >= cols || nr < 0 || nr >= rows) return;
-
-      const targetTile = grid[nr][nc];
-      // Dense granite blocks movement without the Jack-Drill
-      if (targetTile === 2) return;
-      // Boulders block movement directly
-      if (targetTile === 3) return;
+      if (grid[nr][nc] === 2 || grid[nr][nc] === 3) return;
 
       player.col = nc;
       player.row = nr;
 
-      // Carve through dirt
-      if (targetTile === 1) {
-        grid[nr][nc] = 0;
-      }
-
+      if (grid[nr][nc] === 1) grid[nr][nc] = 0;
       document.getElementById('hud-depth').innerText = `${nr * 10}m`;
     }
 
-    function fireHarpoon() {
-      if (player.harpoon) return;
+    function handleHarpoonAction() {
+      // If already tethered to an enemy, pump air into it
+      if (player.tether && player.tether.target) {
+        const target = player.tether.target;
+        target.inflateStage++;
+        target.inflateTimer = 1.6; // Keep immobilized
+
+        if (target.inflateStage >= 4) {
+          // Pop enemy
+          const idx = enemies.indexOf(target);
+          if (idx !== -1) enemies.splice(idx, 1);
+          player.tether = null;
+          document.getElementById('hud-enemies').innerText = enemies.length;
+        }
+        return;
+      }
+
+      // Otherwise, fire new harpoon cable
       let dx = 0, dy = 0;
       if (player.facing === 'left') dx = -1;
       if (player.facing === 'right') dx = 1;
       if (player.facing === 'up') dy = -1;
       if (player.facing === 'down') dy = 1;
 
-      player.harpoon = {
-        x: player.col * tileSize + 16,
-        y: player.row * tileSize + 16,
-        dx, dy, length: 0, maxLength: tileSize * 3
+      player.tether = {
+        originC: player.col,
+        originR: player.row,
+        dx, dy,
+        reach: 1,
+        maxReach: 4,
+        target: null
       };
+
+      // Check immediate raycast for enemies in facing path
+      for (let step = 1; step <= player.tether.maxReach; step++) {
+        const tc = player.col + dx * step;
+        const tr = player.row + dy * step;
+
+        if (tc < 0 || tc >= cols || tr < 0 || tr >= rows) break;
+        if (grid[tr][tc] !== 0) break; // Harpoon stops on dirt/rock
+
+        const hit = enemies.find(e => Math.abs(e.col - tc) < 0.7 && Math.abs(e.row - tr) < 0.7);
+        if (hit) {
+          player.tether.reach = step;
+          player.tether.target = hit;
+          hit.inflateStage = Math.max(1, hit.inflateStage);
+          hit.inflateTimer = 1.6;
+          break;
+        }
+        player.tether.reach = step;
+      }
+    }
+
+    function takeDamage() {
+      hull--;
+      document.getElementById('hud-hull').innerText = '❤'.repeat(Math.max(0, hull));
+      player.tether = null;
+      if (hull <= 0) {
+        gameOver = true;
+        document.getElementById('game-over-banner').style.display = 'block';
+      } else {
+        player.col = 10;
+        player.row = 0;
+      }
+    }
+
+    function respawnPlayer() {
+      hull = 3;
+      gameOver = false;
+      player.col = 10;
+      player.row = 0;
+      document.getElementById('hud-hull').innerText = '❤❤❤';
+      document.getElementById('game-over-banner').style.display = 'none';
     }
 
     function updateBoulders(delta) {
       boulders.forEach(b => {
         const belowR = b.row + 1;
         if (belowR < rows && grid[belowR][b.col] === 0) {
-          // Dirt beneath has been carved out!
           if (b.state === 'resting') {
             b.state = 'rumbling';
             b.timer = 0.8;
           } else if (b.state === 'rumbling') {
             b.timer -= delta;
-            if (b.timer <= 0) {
-              b.state = 'falling';
-            }
+            if (b.timer <= 0) b.state = 'falling';
           } else if (b.state === 'falling') {
             grid[b.row][b.col] = 0;
             b.row = belowR;
             grid[b.row][b.col] = 3;
 
-            // Check if boulder crushed the player
-            if (b.row === player.row && b.col === player.col) {
-              player.col = 10;
-              player.row = 0;
-            }
+            if (b.row === player.row && b.col === player.col) takeDamage();
 
-            // Stop when hitting non-air cell
+            enemies.forEach((e, idx) => {
+              if (Math.round(e.col) === b.col && Math.round(e.row) === b.row) {
+                enemies.splice(idx, 1);
+                document.getElementById('hud-enemies').innerText = enemies.length;
+              }
+            });
+
             if (b.row + 1 >= rows || grid[b.row + 1][b.col] !== 0) {
               b.state = 'resting';
             }
@@ -199,21 +297,62 @@
       });
     }
 
-    function update(delta) {
-      updateBoulders(delta);
-
-      if (player.harpoon) {
-        player.harpoon.length += delta * 240;
-        if (player.harpoon.length >= player.harpoon.maxLength) {
-          player.harpoon = null;
+    function updateEnemies(delta) {
+      enemies.forEach(e => {
+        // Handle deflation over time if not tethered
+        if (e.inflateStage > 0) {
+          e.inflateTimer -= delta;
+          if (e.inflateTimer <= 0) {
+            e.inflateStage--;
+            e.inflateTimer = 1.0;
+            if (player.tether && player.tether.target === e && e.inflateStage === 0) {
+              player.tether = null;
+            }
+          }
+          return; // Frozen while inflated
         }
-      }
+
+        e.moveTimer += delta;
+        if (e.moveTimer > 0.45) {
+          e.moveTimer = 0;
+
+          // Simple tunnel pathing towards player
+          const dc = Math.sign(player.col - e.col);
+          const dr = Math.sign(player.row - e.row);
+
+          // If in an open tunnel, move in open corridors
+          let moved = false;
+          const targetC = Math.round(e.col + dc);
+          const targetR = Math.round(e.row + dr);
+
+          if (grid[Math.round(e.row)][targetC] === 0) {
+            e.col = targetC;
+            e.facing = dc > 0 ? 'right' : 'left';
+            moved = true;
+          } else if (grid[targetR][Math.round(e.col)] === 0) {
+            e.row = targetR;
+            e.facing = dr > 0 ? 'down' : 'up';
+            moved = true;
+          }
+
+          // Check contact damage with player
+          if (Math.round(e.col) === player.col && Math.round(e.row) === player.row) {
+            takeDamage();
+          }
+        }
+      });
+    }
+
+    function update(delta) {
+      if (gameOver) return;
+      updateBoulders(delta);
+      updateEnemies(delta);
     }
 
     function render() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Render Subterranean Grid
+      // Render Destructible Grid
       for (let r = 0; r < rows; r++) {
         for (let c = 0; c < cols; c++) {
           const tile = grid[r][c];
@@ -221,19 +360,16 @@
           const y = r * tileSize;
 
           if (tile === 1) {
-            // Destructible Dirt
             ctx.fillStyle = '#78350f';
             ctx.fillRect(x, y, tileSize, tileSize);
             ctx.fillStyle = '#92400e';
             ctx.fillRect(x + 2, y + 2, tileSize - 4, tileSize - 4);
           } else if (tile === 2) {
-            // Dense Granite (Bedrock)
             ctx.fillStyle = '#44403c';
             ctx.fillRect(x, y, tileSize, tileSize);
             ctx.fillStyle = '#292524';
             ctx.fillRect(x + 3, y + 3, tileSize - 6, tileSize - 6);
           } else if (tile === 3) {
-            // Kinetic Boulder
             ctx.fillStyle = '#a8a29e';
             ctx.beginPath();
             ctx.arc(x + 16, y + 16, 14, 0, Math.PI * 2);
@@ -243,23 +379,56 @@
             ctx.arc(x + 14, y + 14, 9, 0, Math.PI * 2);
             ctx.fill();
           } else {
-            // Open Tunnel
             ctx.fillStyle = '#1c1917';
             ctx.fillRect(x, y, tileSize, tileSize);
           }
         }
       }
 
-      // Render Harpoon Cable
-      if (player.harpoon) {
-        const h = player.harpoon;
+      // Render Pneumatic Tether Cable
+      if (player.tether) {
+        const t = player.tether;
+        const startX = player.col * tileSize + 16;
+        const startY = player.row * tileSize + 16;
+        const endX = (player.col + t.dx * t.reach) * tileSize + 16;
+        const endY = (player.row + t.dy * t.reach) * tileSize + 16;
+
         ctx.strokeStyle = '#fbbf24';
         ctx.lineWidth = 3;
         ctx.beginPath();
-        ctx.moveTo(player.col * tileSize + 16, player.row * tileSize + 16);
-        ctx.lineTo(h.x + h.dx * h.length, h.y + h.dy * h.length);
+        ctx.moveTo(startX, startY);
+        ctx.lineTo(endX, endY);
         ctx.stroke();
+
+        // Harpoon Tip
+        ctx.fillStyle = '#ef4444';
+        ctx.fillRect(endX - 3, endY - 3, 6, 6);
       }
+
+      // Render Subterranean Fauna
+      enemies.forEach(e => {
+        const ex = e.col * tileSize + 16;
+        const ey = e.row * tileSize + 16;
+        const radius = 10 + e.inflateStage * 4; // Expands on pump!
+
+        ctx.fillStyle = e.color;
+        ctx.beginPath();
+        ctx.arc(ex, ey, radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Eyes
+        ctx.fillStyle = e.eyeColor;
+        ctx.beginPath();
+        ctx.arc(ex - (e.facing === 'left' ? 4 : -2), ey - 3, 3, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Goggles for Pooka
+        if (e.type === 'pooka') {
+          ctx.strokeStyle = '#fef08a';
+          ctx.lineWidth = 2;
+          ctx.strokeRect(ex - 6, ey - 5, 12, 5);
+        }
+      });
 
       // Render Player Excavator
       const px = player.col * tileSize + 4;
