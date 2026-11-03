@@ -197,6 +197,54 @@
     <div style="font-size: 14px; color: #88c0d0;">PRESS [SPACE] TO RETURN TO SANCTUARY</div>
   </div>
 
+  <!-- Sanctuary Hub Trigger & Modal -->
+  <div id="sanctuary-modal"
+    style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: none; width: 520px; background: rgba(14, 20, 30, 0.98); border: 2px solid #ebcb8b; border-radius: 8px; padding: 24px; z-index: 35; box-shadow: 0 12px 48px rgba(0,0,0,0.95); text-align: center;">
+    <div style="font-size: 18px; font-weight: bold; color: #ebcb8b; margin-bottom: 4px;">THE GREAT LILYPAD SANCTUARY
+    </div>
+    <div style="font-size: 12px; color: #81a1c1; margin-bottom: 16px;">Spend Amber Resin to permanently strengthen your
+      lineage across runs:</div>
+
+    <div style="display: flex; gap: 12px; margin-bottom: 20px;">
+      <div
+        style="flex: 1; background: #1a2230; border: 1px solid #4c566a; border-radius: 6px; padding: 12px; display: flex; flex-direction: column; justify-content: space-between;">
+        <div style="font-size: 22px;">🛡️</div>
+        <div style="font-weight: bold; font-size: 13px; margin: 4px 0;">Thick Hide</div>
+        <div style="font-size: 10px; color: #81a1c1;">+1 Starting Heart per rank</div>
+        <div style="font-size: 11px; color: #ebcb8b; margin: 8px 0;" id="rank-thick-hide">Rank: 0/3 (50 🔶)</div>
+        <button
+          style="padding: 6px 12px; background: #2e3440; border: 1px solid #ebcb8b; color: #ebcb8b; font-weight: bold; cursor: pointer; border-radius: 4px;"
+          onclick="buySanctuaryPerk('thick_hide', 50, 3)">UPGRADE</button>
+      </div>
+
+      <div
+        style="flex: 1; background: #1a2230; border: 1px solid #4c566a; border-radius: 6px; padding: 12px; display: flex; flex-direction: column; justify-content: space-between;">
+        <div style="font-size: 22px;">🪰</div>
+        <div style="font-weight: bold; font-size: 13px; margin: 4px 0;">Nest Egg</div>
+        <div style="font-size: 10px; color: #81a1c1;">+10 Starting Flies per rank</div>
+        <div style="font-size: 11px; color: #ebcb8b; margin: 8px 0;" id="rank-nest-egg">Rank: 0/3 (40 🔶)</div>
+        <button
+          style="padding: 6px 12px; background: #2e3440; border: 1px solid #ebcb8b; color: #ebcb8b; font-weight: bold; cursor: pointer; border-radius: 4px;"
+          onclick="buySanctuaryPerk('nest_egg', 40, 3)">UPGRADE</button>
+      </div>
+
+      <div
+        style="flex: 1; background: #1a2230; border: 1px solid #4c566a; border-radius: 6px; padding: 12px; display: flex; flex-direction: column; justify-content: space-between;">
+        <div style="font-size: 22px;">⚗️</div>
+        <div style="font-weight: bold; font-size: 13px; margin: 4px 0;">Crucible</div>
+        <div style="font-size: 10px; color: #81a1c1;">+25% Amber Yield on death</div>
+        <div style="font-size: 11px; color: #ebcb8b; margin: 8px 0;" id="rank-crucible">Rank: 0/2 (60 🔶)</div>
+        <button
+          style="padding: 6px 12px; background: #2e3440; border: 1px solid #ebcb8b; color: #ebcb8b; font-weight: bold; cursor: pointer; border-radius: 4px;"
+          onclick="buySanctuaryPerk('crucible', 60, 2)">UPGRADE</button>
+      </div>
+    </div>
+
+    <button
+      style="padding: 8px 24px; background: #3b4252; border: 1px solid #88c0d0; color: #eceff4; font-weight: bold; cursor: pointer; border-radius: 4px;"
+      onclick="toggleSanctuaryModal()">CLOSE SANCTUARY [S]</button>
+  </div>
+
   <div id="pond-shop-modal">
     <div class="shop-title">THE POND PEDDLER</div>
     <div class="shop-subtitle">Stage Cleared! Spend your flies on relics before the next crossing:</div>
@@ -288,6 +336,59 @@
       { row: 11, type: 'safe', color: '#2e3440' }
     ];
 
+    // Sanctuary Meta-Perks Loaded from LocalStorage
+    const sanctuaryPerks = {
+      thick_hide: parseInt(localStorage.getItem('perk_thick_hide') || '0', 10),
+      nest_egg: parseInt(localStorage.getItem('perk_nest_egg') || '0', 10),
+      crucible: parseInt(localStorage.getItem('perk_crucible') || '0', 10)
+    };
+
+    function applySanctuaryPerks() {
+      maxHearts = 3 + sanctuaryPerks.thick_hide;
+      hearts = maxHearts;
+      flies = sanctuaryPerks.nest_egg * 10;
+      updateHeartsDisplay();
+      document.getElementById('hud-flies').innerText = flies;
+      updateSanctuaryUI();
+    }
+
+    function updateSanctuaryUI() {
+      document.getElementById('rank-thick-hide').innerText = `Rank: ${sanctuaryPerks.thick_hide}/3 (50 🔶)`;
+      document.getElementById('rank-nest-egg').innerText = `Rank: ${sanctuaryPerks.nest_egg}/3 (40 🔶)`;
+      document.getElementById('rank-crucible').innerText = `Rank: ${sanctuaryPerks.crucible}/2 (60 🔶)`;
+      document.getElementById('hud-amber').innerText = amberResin;
+    }
+
+    function toggleSanctuaryModal() {
+      const modal = document.getElementById('sanctuary-modal');
+      const isVisible = modal.style.display === 'block';
+      modal.style.display = isVisible ? 'none' : 'block';
+      if (!isVisible) updateSanctuaryUI();
+    }
+
+    function buySanctuaryPerk(perkKey, cost, maxRank) {
+      if (amberResin < cost) {
+        alert("Not enough Amber Resin!");
+        return;
+      }
+      if (sanctuaryPerks[perkKey] >= maxRank) {
+        alert("Perk already at maximum rank!");
+        return;
+      }
+
+      amberResin -= cost;
+      sanctuaryPerks[perkKey]++;
+      localStorage.setItem('croak_amber', amberResin.toString());
+      localStorage.setItem(`perk_${perkKey}`, sanctuaryPerks[perkKey].toString());
+      applySanctuaryPerks();
+    }
+
+    window.addEventListener('keydown', e => {
+      if (e.key === 's' || e.key === 'S') {
+        if (!inShop) toggleSanctuaryModal();
+      }
+    });
+
     function updateHeartsDisplay() {
       document.getElementById('hud-hearts').innerText = '❤'.repeat(Math.max(0, hearts));
     }
@@ -343,6 +444,17 @@
         return;
       }
 
+      if (hearts <= 0) {
+        gameOver = true;
+        const yieldMult = 1.0 + sanctuaryPerks.crucible * 0.25;
+        const earnedAmber = Math.floor(((score / 50) + flies) * yieldMult);
+        amberResin += earnedAmber;
+        localStorage.setItem('croak_amber', amberResin.toString());
+        document.getElementById('hud-amber').innerText = amberResin;
+        document.getElementById('death-stats').innerText = `Gained +${earnedAmber} Amber Resin for the Sanctuary! Press [S] to enter Sanctuary.`;
+        document.getElementById('game-over-banner').style.display = 'block';
+      }
+
       hearts--;
       updateHeartsDisplay();
       player.col = 8;
@@ -361,15 +473,12 @@
     }
 
     function restartRun() {
-      hearts = maxHearts;
+      applySanctuaryPerks();
       stage = 1;
       score = 0;
-      flies = 0;
       gameOver = false;
       document.getElementById('hud-stage').innerText = `1-${stage}`;
-      document.getElementById('hud-flies').innerText = flies;
       document.getElementById('hud-score').innerText = score;
-      updateHeartsDisplay();
       document.getElementById('game-over-banner').style.display = 'none';
       lanes[0].items.forEach(g => g.filled = false);
       resetLanesForStage();
