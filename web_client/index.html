@@ -9,6 +9,7 @@
   <style>
     * {
       box-sizing: border-box;
+      user-select: none;
     }
 
     body {
@@ -19,4 +20,255 @@
       justify-content: center;
       align-items: center;
       height: 100vh;
-      font-family: 'Courier
+      font-family: 'Courier New', Courier, monospace;
+      color: #e2f1ff;
+    }
+
+    #game-container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: radial-gradient(circle at center, #131d2e 0%, #060911 100%);
+    }
+
+    canvas {
+      display: block;
+      box-shadow: 0 0 30px rgba(0, 195, 255, 0.15);
+      border: 1px solid rgba(135, 206, 250, 0.2);
+      cursor: crosshair;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="game-container">
+    <canvas id="glissadeCanvas" width="960" height="720"></canvas>
+  </div>
+
+  <script>
+    // --- CANVAS & CONTEXT SETUP ---
+    const canvas = document.getElementById('glissadeCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // --- GAME CONSTANTS & SPECIFICATIONS ---
+    const V_TERMINAL = 780; // px/sec
+    const BASE_XP = 45;
+    const DELTA_NEAR = 24; // near-miss threshold margin (px)
+    const R_PLAYER = 12;
+    const H_PLAYER = 28;
+
+    // Obstacle types and their hulls
+    const OBSTACLE_TYPES = {
+      PINE: { type: 'pine', shape: 'circle', r: 16, color: '#184728', h: 42 },
+      BOULDER: { type: 'boulder', shape: 'circle', r: 22, color: '#4a5568', h: 32 },
+      LIFT_TOWER: { type: 'lift_tower', shape: 'aabb', w: 24, h: 48, r: 24, color: '#b83232' }
+    };
+
+    // --- GAME STATE ---
+    let t_last = performance.now();
+    let worldDistY = 0;
+    let cameraY = 0;
+    let isGameOver = false;
+
+    // Kinematic & Progression Player State
+    const player = {
+      x: canvas.width / 2,
+      y: 220,
+      vx: 0,
+      vy: 180,
+      baseMuX: 3.8,
+      baseMuY: 0.85,
+      angle: 0,
+      carveInput: 0,
+      tuckInput: 0,
+      wipeoutTimer: 0,
+      isWipedOut: false,
+
+      // Stats & Progression
+      level: 1,
+      xp: 0,
+      unspent_stat_points: 0,
+      stats: {
+        agility: 0,  // Carving / Agility
+        moxie: 0,    // Moxie / Stamina
+        balance: 0,  // Balance / Recovery
+        luck: 0      // Luck / Drafting
+      },
+
+      // Recomputed dynamic tensors
+      cFricX: 3.8,
+      cFricY: 0.85
+    };
+
+    function getXpNext(lvl) {
+      return Math.floor(100 * Math.pow(lvl, 1.5));
+    }
+
+    function updateKinematicTensors() {
+      // Dynamic carving friction tensor: C_fric = diag(mu_x * (1 - 0.03 * Agility), mu_y * (1 - 0.01 * Moxie))
+      player.cFricX = player.baseMuX * Math.max(0.2, (1 - 0.03 * player.stats.agility));
+      player.cFricY = player.baseMuY * Math.max(0.3, (1 - 0.01 * player.stats.moxie));
+    }
+    updateKinematicTensors();
+
+    function allocateStat(statKey) {
+      if (player.unspent_stat_points > 0 && player.stats[statKey] !== undefined) {
+        player.stats[statKey]++;
+        player.unspent_stat_points--;
+        updateKinematicTensors();
+        createFloatingText(player.x, player.y - 40, `+1 ${statKey.toUpperCase()}!`, '#38ef7d');
+        spawnBurstParticles(player.x, player.y, '#38ef7d', 16);
+        return true;
+      }
+      return false;
+    }
+
+    function addXP(amount) {
+      player.xp += amount;
+      while (player.xp >= getXpNext(player.level)) {
+        player.xp -= getXpNext(player.level);
+        player.level += 1;
+        player.unspent_stat_points += 1;
+        createFloatingText(player.x, player.y - 60, "LEVEL UP! (+1 Point)", "#ffd700", 2.2);
+        spawnBurstParticles(player.x, player.y, '#ffd700', 35);
+      }
+    }
+
+    // --- WORLD & OBSTACLES ---
+    const obstacles = [];
+    const particles = [];
+    const skiTracks = [];
+    const floatingTexts = [];
+
+    function seedInitialTerrain() {
+      obstacles.length = 0;
+      for (let y = 400; y < 5000; y += 75) {
+        spawnRowObstacles(y);
+      }
+    }
+
+    function spawnRowObstacles(yPos) {
+      const count = 1 + Math.floor(Math.random() * 2.5);
+      for (let i = 0; i < count; i++) {
+        const xPos = 40 + Math.random() * (canvas.width - 80);
+        const roll = Math.random();
+        let archetype = OBSTACLE_TYPES.PINE;
+        if (roll < 0.45) {
+          archetype = OBSTACLE_TYPES.PINE;
+        } else if (roll < 0.8) {
+          archetype = OBSTACLE_TYPES.BOULDER;
+        } else {
+          archetype = OBSTACLE_TYPES.LIFT_TOWER;
+        }
+
+        obstacles.push({
+          x: xPos,
+          y: yPos,
+          type: archetype.type,
+          shape: archetype.shape,
+          r: archetype.r,
+          w: archetype.w || archetype.r * 2,
+          h: archetype.h || archetype.r * 2,
+          color: archetype.color,
+          near_miss_awarded: false
+        });
+      }
+    }
+
+    // --- VISUAL FX ---
+    function createFloatingText(x, y, text, color = '#ffffff', duration = 1.2) {
+      floatingTexts.push({
+        x: x,
+        y: y,
+        text: text,
+        color: color,
+        life: duration,
+        maxLife: duration,
+        vy: -45
+      });
+    }
+
+    function spawnBurstParticles(x, y, color, count = 12) {
+      for (let i = 0; i < count; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const spd = 40 + Math.random() * 140;
+        particles.push({
+          x: x,
+          y: y,
+          vx: Math.cos(angle) * spd,
+          vy: Math.sin(angle) * spd,
+          size: 2 + Math.random() * 3,
+          color: color,
+          alpha: 1.0,
+          decay: 1.5 + Math.random() * 1.5
+        });
+      }
+    }
+
+    function spawnSnowSpray(originX, originY, normalX, normalY, count = 10, speed = 120) {
+      for (let i = 0; i < count; i++) {
+        const jitter = (Math.random() - 0.5) * 0.7;
+        const nx = normalX * Math.cos(jitter) - normalY * Math.sin(jitter);
+        const ny = normalX * Math.sin(jitter) + normalY * Math.cos(jitter);
+        const mag = speed * (0.6 + Math.random() * 0.8);
+        particles.push({
+          x: originX,
+          y: originY,
+          vx: nx * mag,
+          vy: ny * mag,
+          size: 2 + Math.random() * 2.5,
+          color: '#e0f4ff',
+          alpha: 0.9,
+          decay: 2.2
+        });
+      }
+    }
+
+    // --- INPUT HANDLING ---
+    const keys = {};
+    window.addEventListener('keydown', (e) => {
+      keys[e.key.toLowerCase()] = true;
+      if (e.key === '1') allocateStat('agility');
+      if (e.key === '2') allocateStat('moxie');
+      if (e.key === '3') allocateStat('balance');
+      if (e.key === '4') allocateStat('luck');
+      if (e.key.toLowerCase() === 'r' && player.isWipedOut) {
+        resetGame();
+      }
+    });
+
+    window.addEventListener('keyup', (e) => {
+      keys[e.key.toLowerCase()] = false;
+    });
+
+    // Mouse interaction for HUD Buttons
+    const hudButtons = [
+      { id: 'agility', label: '[1] AGIL', key: '1' },
+      { id: 'moxie',   label: '[2] MOX',  key: '2' },
+      { id: 'balance', label: '[3] BAL',  key: '3' },
+      { id: 'luck',    label: '[4] LUCK', key: '4' }
+    ];
+
+    canvas.addEventListener('mousedown', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
+      const my = (e.clientY - rect.top) * (canvas.height / rect.height);
+
+      for (let btn of hudButtons) {
+        if (btn.bounds &&
+            mx >= btn.bounds.x && mx <= btn.bounds.x + btn.bounds.w &&
+            my >= btn.bounds.y && my <= btn.bounds.y + btn.bounds.h) {
+          allocateStat(btn.id);
+          break;
+        }
+      }
+    });
+
+    function resetGame() {
+      player.x = canvas.width / 2;
+      player.y = 220;
+      player.vx = 0;
+      player.vy = 180
