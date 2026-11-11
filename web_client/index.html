@@ -1206,6 +1206,270 @@
   }
 })();
   })();
+
+  // --- [RFC Applied: RFC-20261111-C4CCE7] Near-miss hazard detection and XP-driven level-up stat allocation bar. ---
+  (function() {
+(() => {
+  // Ensure game state namespace exists
+  const GS = (window.__GAME_STATE__ = window.__GAME_STATE__ || {});
+
+  // 1. STATE INITIALIZATION & DEFAULTS
+  GS.physics = GS.physics || {
+    mass: 75.0,
+    gravity: { x: 0, y: 980.0 }, // Downhill acceleration vector
+    dragCoeff: 0.25,
+    carveFriction: 0.85,
+    timeScale: 1.0,
+    autoPauseOnLevelUp: true
+  };
+
+  GS.player = GS.player || {
+    P: { x: 400, y: 150 },
+    V: { x: 0, y: 120 },
+    R_skier: 12,
+    mass: 75.0,
+    heading: 0, // radians
+    isCarving: false,
+    carveDir: 0
+  };
+
+  GS.progression = GS.progression || {
+    level: 1,
+    xpCurrent: 0,
+    statPoints: 0,
+    stats: {
+      agility: 1,  // Carve rate & lateral responsiveness
+      balance: 1,  // Wipeout stability / recovery rate
+      moxie: 1,    // XP multiplier & trick score scaling
+      stamina: 1,  // Boost capacity & sustained tuck
+      luck: 1      // Rare terrain / bonus trigger frequency
+    },
+    derived: {
+      kappa_t: 1.0,      // Carve friction tensor scale
+      tau_rec: 60,       // Recovery frames
+      moxieMult: 1.0,    // XP multiplier
+      maxStamina: 100,
+      luckChance: 0.05
+    }
+  };
+
+  GS.hazards = GS.hazards || [];
+  GS.events = GS.events || new EventTarget();
+
+  // Active floating combat / XP notifications
+  GS.floatingTexts = GS.floatingTexts || [];
+
+  const DELTA_MISS = 36.0;
+  const BASE_XP_NEAR_MISS = 45.0;
+
+  // 2. FORMULAS & DERIVED ATTRIBUTE RECALCULATION
+  function getXPThreshold(level) {
+    return Math.floor(100 * Math.pow(1.35, level - 1));
+  }
+
+  function recomputeDerivedStats() {
+    const s = GS.progression.stats;
+    const d = GS.progression.derived;
+    d.kappa_t = 0.8 + s.agility * 0.12;
+    d.tau_rec = Math.max(15, Math.floor(60 * Math.pow(0.92, s.balance - 1)));
+    d.moxieMult = 1.0 + (s.moxie - 1) * 0.22;
+    d.maxStamina = 100 + (s.stamina - 1) * 20;
+    d.luckChance = Math.min(0.5, 0.05 + (s.luck - 1) * 0.035);
+  }
+  recomputeDerivedStats();
+
+  // 3. KINEMATICS PIPELINE (Semi-Implicit Euler)
+  GS.integrateKinematics = function (dtSafe) {
+    const pl = GS.player;
+    const phys = GS.physics;
+    const dt = dtSafe * phys.timeScale;
+    if (dt <= 0) return;
+
+    // Forces calculation: Gravity along slope, Aerodynamic Drag, Carve Lateral Force
+    const speed = Math.hypot(pl.V.x, pl.V.y);
+    const F_drag = {
+      x: -phys.dragCoeff * pl.V.x * speed,
+      y: -phys.dragCoeff * pl.V.y * speed
+    };
+
+    let F_carve = { x: 0, y: 0 };
+    if (pl.isCarving && pl.carveDir !== 0) {
+      const lateralNorm = { x: -pl.V.y / (speed || 1), y: pl.V.x / (speed || 1) };
+      const carveMagnitude = pl.mass * 850.0 * GS.progression.derived.kappa_t * pl.carveDir;
+      F_carve.x = lateralNorm.x * carveMagnitude;
+      F_carve.y = lateralNorm.y * carveMagnitude;
+    }
+
+    const totalF = {
+      x: phys.gravity.x + F_drag.x + F_carve.x,
+      y: phys.gravity.y + F_drag.y + F_carve.y
+    };
+
+    // V_t = V_{t-1} + (F / m) * dt
+    pl.V.x += (totalF.x / pl.mass) * dt;
+    pl.V.y += (totalF.y / pl.mass) * dt;
+
+    // P_t = P_{t-1} + V_t * dt
+    pl.P.x += pl.V.x * dt;
+    pl.P.y += pl.V.y * dt;
+  };
+
+  // 4. COLLISION HULLS & NEAR-MISS PROXIMITY GEOMETRY
+  GS.evaluateHazards = function () {
+    const pl = GS.player;
+    const px = pl.P.x, py = pl.P.y;
+    const rSkier = pl.R_skier;
+
+    for (let i = 0; i < GS.hazards.length; i++) {
+      const h = GS.hazards[i];
+      // Transient tracking state bootstrap
+      if (!h._prox) {
+        h._prox = {
+          inside_zone: false,
+          triggered: false,
+          entered_solid: false,
+          d_min: Infinity
+        };
+      }
+      const prox = h._prox;
+      const rSolid = h.r_solid || 20;
+      const rMiss = rSolid + (h.delta_miss || DELTA_MISS);
+
+      // Vector separation D = P - C
+      const dx = px - h.x;
+      const dy = py - h.y;
+      const dist = Math.hypot(dx, dy);
+
+      const solidThreshold = rSolid + rSkier;
+      const missThreshold = rMiss + rSkier;
+
+      // Solid collision flag
+      if (dist <= solidThreshold) {
+        prox.entered_solid = true;
+      }
+
+      const wasInside = prox.inside_zone;
+      const isNowInside = dist > solidThreshold && dist <= missThreshold;
+
+      if (isNowInside) {
+        prox.inside_zone = true;
+        if (dist < prox.d_min) prox.d_min = dist;
+      } else {
+        prox.inside_zone = false;
+      }
+
+      // Check if moving away: dot(V, D) > 0
+      const dotV_D = pl.V.x * dx + pl.V.y * dy;
+
+      // Trigger condition: was inside in t-1, moving away or exited boundary, not yet triggered or crashed
+      if (wasInside && dotV_D > 0 && !prox.triggered && !prox.entered_solid) {
+        prox.triggered = true;
+
+        // Clamped minimum penetration calculation
+        const clampedDMin = Math.max(prox.d_min, solidThreshold);
+        const proximityProportion = 1.0 - Math.min(1.0, (clampedDMin - solidThreshold) / (rMiss - rSolid));
+        const xpGain = Math.round(
+          BASE_XP_NEAR_MISS * (1.0 + proximityProportion) * GS.progression.derived.moxieMult
+        );
+
+        GS.awardXP(xpGain, { x: px, y: py - 20 }, "NEAR MISS!");
+        GS.events.dispatchEvent(new CustomEvent("NEAR_MISS", {
+          detail: { hazard: h, xp: xpGain, d_min: prox.d_min }
+        }));
+      }
+
+      // Reset cycle if player completely clears hazard downstream
+      if (dist > missThreshold * 1.5 && prox.triggered) {
+        prox.inside_zone = false;
+        prox.triggered = false;
+        prox.entered_solid = false;
+        prox.d_min = Infinity;
+      }
+    }
+  };
+
+  // 5. XP PROGRESSION & LEVEL-UP
+  GS.awardXP = function (amount, worldPos, label) {
+    const prog = GS.progression;
+    prog.xpCurrent += amount;
+
+    if (worldPos) {
+      GS.floatingTexts.push({
+        text: `+${amount} XP ${label ? `(${label})` : ""}`,
+        x: worldPos.x,
+        y: worldPos.y,
+        life: 1.0,
+        color: "#fbbf24"
+      });
+    }
+
+    let threshold = getXPThreshold(prog.level);
+    while (prog.xpCurrent >= threshold) {
+      prog.xpCurrent -= threshold;
+      prog.level += 1;
+      prog.statPoints += 1;
+      threshold = getXPThreshold(prog.level);
+
+      if (GS.physics.autoPauseOnLevelUp) {
+        GS.physics.timeScale = 0.05; // Cinematic slow-mo for stat allocation
+      }
+
+      GS.floatingTexts.push({
+        text: `LEVEL UP! Lv.${prog.level}`,
+        x: GS.player.P.x,
+        y: GS.player.P.y - 45,
+        life: 2.0,
+        color: "#38bdf8"
+      });
+
+      GS.events.dispatchEvent(new CustomEvent("LEVEL_UP", {
+        detail: { level: prog.level, statPoints: prog.statPoints }
+      }));
+    }
+  };
+
+  // 6. STAT ALLOCATION & HUD INTERACTION
+  const STAT_CONFIG = [
+    { key: "agility", label: "AGI", title: "Agility (Carve)" },
+    { key: "balance", label: "BAL", title: "Balance (Recovery)" },
+    { key: "moxie",   label: "MOX", title: "Moxie (XP & Score)" },
+    { key: "stamina", label: "STM", title: "Stamina (Boost Pool)" },
+    { key: "luck",    label: "LCK", title: "Luck (Gate Spawns)" }
+  ];
+
+  let clickRegions = [];
+
+  GS.renderStatAllocationHUD = function (ctx, canvasWidth, canvasHeight) {
+    const prog = GS.progression;
+    clickRegions = [];
+
+    // Render Floating Text System
+    for (let i = GS.floatingTexts.length - 1; i >= 0; i--) {
+      const ft = GS.floatingTexts[i];
+      ctx.save();
+      ctx.font = "bold 13px 'Segoe UI', sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillStyle = ft.color;
+      ctx.globalAlpha = Math.min(1.0, ft.life);
+      ctx.fillText(ft.text, ft.x, ft.y);
+      ctx.restore();
+      ft.y -= 0.6;
+      ft.life -= 0.016;
+      if (ft.life <= 0) GS.floatingTexts.splice(i, 1);
+    }
+
+    // Top XP Progress Bar
+    const xpThreshold = getXPThreshold(prog.level);
+    const xpRatio = Math.min(1.0, Math.max(0.0, prog.xpCurrent / xpThreshold));
+    const barW = Math.min(420, canvasWidth - 40);
+    const barH = 10;
+    const barX = (canvasWidth - barW) / 2;
+    const barY = 16;
+
+    ctx.save();
+    ctx.fillStyle = "rgba(15, 23, 42, 0.75)";
+    ctx.fillRect(barX
+  })();
 </script>
 </body>
 
