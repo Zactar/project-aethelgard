@@ -755,6 +755,297 @@
     root.id = 'class-selection-screen';
     root.className = 'cs
   })();
+
+  // --- [RFC Applied: RFC-20261111-384543] Slalom gate generator with combo multiplier tracking. ---
+  (function() {
+(() => {
+  if (!window.__GAME_STATE__) {
+    window.__GAME_STATE__ = {};
+  }
+  const GS = window.__GAME_STATE__;
+
+  // --- Constants & Config ---
+  const PALETTE = {
+    RED: '#E70000',
+    RED_SHADOW: '#8A0000',
+    BLUE: '#0045E7',
+    BLUE_SHADOW: '#002682',
+    POLE: '#FFFFFF',
+    POLE_BASE: '#222222',
+    TEXT_FILL: '#FFFF00',
+    TEXT_STROKE: '#000000'
+  };
+
+  const COMBO_STATES = {
+    INACTIVE: 'COMBO_INACTIVE',
+    ACTIVE: 'COMBO_ACTIVE',
+    DECAYING: 'COMBO_DECAYING'
+  };
+
+  // --- State Initialization ---
+  if (!GS.slalom) {
+    GS.slalom = {
+      gates: [],
+      floatingTexts: [],
+      lastGateY: 0,
+      nextPolarity: -1, // -1: Left (Red), 1: Right (Blue)
+      comboState: COMBO_STATES.INACTIVE,
+      comboCount: 0,
+      multiplier: 1.0,
+      comboTimer: 0,
+      maxComboDuration: 3.0,
+      totalXpEarned: 0
+    };
+  }
+
+  const S = GS.slalom;
+
+  // --- Kinematics & Solvability Envelope Generator ---
+  function getGateWidth(distance) {
+    return Math.max(70, Math.min(110, 110 - (distance / 5000) * 10));
+  }
+
+  function generateGatesAhead(currentY, targetDistance, bounds) {
+    const minTrackX = (bounds && bounds.minX) !== undefined ? bounds.minX : -400;
+    const maxTrackX = (bounds && bounds.maxX) !== undefined ? bounds.maxX : 400;
+
+    const VyNominal = (GS.player && GS.player.vyNominal) || 350;
+    const currentVy = (GS.player && GS.player.vy) || VyNominal;
+    const VxMax = (GS.player && GS.player.vxMax) || 300;
+    const eta = 0.75; // Kinematic solvability safety factor
+
+    if (S.gates.length === 0) {
+      S.lastGateY = currentY + 300;
+      S.gates.push({
+        id: 0,
+        x: 0,
+        y: S.lastGateY,
+        width: getGateWidth(S.lastGateY),
+        polarity: S.nextPolarity,
+        cleared: false,
+        missed: false
+      });
+      S.nextPolarity *= -1;
+    }
+
+    let lastGate = S.gates[S.gates.length - 1];
+
+    while (lastGate.y < currentY + targetDistance) {
+      // Bounded vertical descent spacing: dy = clamp(Vy * dt_turn, 240, 480)
+      const dtTurn = 0.6 + Math.random() * 0.6; // [0.6s, 1.2s]
+      const dy = Math.max(240, Math.min(480, currentVy * dtTurn));
+      const nextY = lastGate.y + dy;
+
+      // Lateral step governed by max lateral arc: |dx| <= (VxMax / VyNominal) * dy * eta
+      const maxDx = (VxMax / VyNominal) * dy * eta;
+      const targetOffset = S.nextPolarity * (maxDx * (0.55 + Math.random() * 0.45));
+      let nextX = lastGate.x + targetOffset;
+
+      // Soft clamp within bounds, flip polarity if out of bounds
+      const Wg = getGateWidth(nextY);
+      const halfW = Wg / 2 + 30;
+      if (nextX - halfW < minTrackX) {
+        nextX = minTrackX + halfW;
+        S.nextPolarity = 1;
+      } else if (nextX + halfW > maxTrackX) {
+        nextX = maxTrackX - halfW;
+        S.nextPolarity = -1;
+      } else {
+        S.nextPolarity *= -1;
+      }
+
+      const newGate = {
+        id: lastGate.id + 1,
+        x: nextX,
+        y: nextY,
+        width: Wg,
+        polarity: S.nextPolarity * -1,
+        cleared: false,
+        missed: false
+      };
+
+      S.gates.push(newGate);
+      lastGate = newGate;
+    }
+  }
+
+  // --- Hazard Masking & Poisson-Disk Exclusion ---
+  function pointToSegmentDistanceSquared(px, py, x1, y1, x2, y2) {
+    const l2 = (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1);
+    if (l2 === 0) return (px - x1) * (px - x1) + (py - y1) * (py - y1);
+    let t = ((px - x1) * (x2 - x1) + (py - y1) * (y2 - y1)) / l2;
+    t = Math.max(0, Math.min(1, t));
+    const projX = x1 + t * (x2 - x1);
+    const projY = y1 + t * (y2 - y1);
+    return (px - projX) * (px - projX) + (py - projY) * (py - projY);
+  }
+
+  // Returns true if candidate obstacle overlaps with any slalom clearance capsule
+  function isHazardInSlalomCapsule(obsX, obsY) {
+    for (let i = 0; i < S.gates.length - 1; i++) {
+      const g1 = S.gates[i];
+      const g2 = S.gates[i + 1];
+      const minY = Math.min(g1.y, g2.y) - 100;
+      const maxY = Math.max(g1.y, g2.y) + 100;
+      if (obsY < minY || obsY > maxY) continue;
+
+      const avgWidth = (g1.width + g2.width) * 0.5;
+      const capsuleRadius = avgWidth * 0.8;
+      const distSq = pointToSegmentDistanceSquared(obsX, obsY, g1.x, g1.y, g2.x, g2.y);
+      if (distSq <= capsuleRadius * capsuleRadius) {
+        return true;
+      }
+    }
+    return false;
+  }
+  GS.isHazardInSlalomCapsule = isHazardInSlalomCapsule;
+
+  // --- Combo State Machine ---
+  function triggerClear(gate, xCross) {
+    gate.cleared = true;
+    S.comboCount++;
+    S.comboState = COMBO_STATES.ACTIVE;
+
+    // Multiplier formula: M = 1.0 + min(floor(combo_count / 3) * 0.5, 4.0)
+    S.multiplier = 1.0 + Math.min(Math.floor(S.comboCount / 3) * 0.5, 4.0);
+
+    const xpEarned = Math.round(50 * S.multiplier);
+    S.totalXpEarned += xpEarned;
+
+    // Agility / Moxie stat scaling for combo decay resilience
+    const agility = (GS.player && GS.player.agility) || 1.0;
+    const baseDuration = 3.0;
+    S.comboTimer = baseDuration * (0.8 + agility * 0.2);
+
+    S.floatingTexts.push({
+      x: xCross,
+      y: gate.y - 15,
+      text: `+${xpEarned} XP [COMBO x${S.multiplier.toFixed(1)}]`,
+      alpha: 1.0,
+      vy: -55
+    });
+
+    if (typeof GS.onSlalomGateCleared === 'function') {
+      GS.onSlalomGateCleared(gate, xpEarned, S.multiplier);
+    }
+  }
+
+  function triggerMiss(gate) {
+    gate.missed = true;
+    S.comboState = COMBO_STATES.INACTIVE;
+    S.comboCount = 0;
+    S.multiplier = 1.0;
+    S.comboTimer = 0;
+
+    S.floatingTexts.push({
+      x: gate.x,
+      y: gate.y - 15,
+      text: 'MISS! COMBO LOST',
+      alpha: 1.0,
+      vy: -30,
+      color: '#FF2222'
+    });
+
+    if (typeof GS.onSlalomGateMissed === 'function') {
+      GS.onSlalomGateMissed(gate);
+    }
+  }
+
+  // --- Swept-Line Detection & Lifecycle Update ---
+  function update(dt, pPrev, pCurr, bounds) {
+    if (!dt || dt <= 0) return;
+
+    // Maintain procedural path buffer ahead of the skier
+    generateGatesAhead(pCurr.y, 2500, bounds);
+
+    // Continuous Swept-Line Crossing Check
+    for (let i = 0; i < S.gates.length; i++) {
+      const g = S.gates[i];
+      if (g.cleared || g.missed) continue;
+
+      // Swept collision on Y axis
+      if (pPrev.y <= g.y && pCurr.y >= g.y) {
+        const dyTotal = pCurr.y - pPrev.y;
+        const t = dyTotal === 0 ? 0 : (g.y - pPrev.y) / dyTotal;
+        const xCross = pPrev.x + t * (pCurr.x - pPrev.x);
+
+        const xLeft = g.x - g.width / 2;
+        const xRight = g.x + g.width / 2;
+
+        if (xCross >= xLeft && xCross <= xRight) {
+          triggerClear(g, xCross);
+        } else {
+          triggerMiss(g);
+        }
+      } else if (pCurr.y > g.y + 20) {
+        // Skier bypassed gate plane beyond recovery threshold
+        triggerMiss(g);
+      }
+    }
+
+    // Handle Combo Timer & Decay Machine
+    if (S.comboState === COMBO_STATES.ACTIVE) {
+      S.comboTimer -= dt;
+      if (S.comboTimer <= 0) {
+        S.comboTimer = 0;
+        S.comboState = COMBO_STATES.DECAYING;
+      }
+    } else if (S.comboState === COMBO_STATES.DECAYING) {
+      // Drops by 1.0x per second until hitting 1.0x
+      S.multiplier = Math.max(1.0, S.multiplier - 1.0 * dt);
+      if (S.multiplier <= 1.0) {
+        S.multiplier = 1.0;
+        S.comboCount = 0;
+        S.comboState = COMBO_STATES.INACTIVE;
+      }
+    }
+
+    // Update Floating Texts
+    for (let i = S.floatingTexts.length - 1; i >= 0; i--) {
+      const ft = S.floatingTexts[i];
+      ft.y += ft.vy * dt;
+      ft.alpha -= dt * 0.9;
+      if (ft.alpha <= 0) {
+        S.floatingTexts.splice(i, 1);
+      }
+    }
+
+    // Cull old gates behind player
+    while (S.gates.length > 0 && S.gates[0].y < pCurr.y - 800) {
+      S.gates.shift();
+    }
+  }
+
+  // --- Canvas 2D Rendering ---
+  function render(ctx, cameraY, cameraX, totalTime) {
+    if (!ctx) return;
+    const time = totalTime || performance.now() * 0.001;
+
+    ctx.save();
+    ctx.translate(-cameraX, -cameraY);
+
+    // Draw Gates
+    for (let i = 0; i < S.gates.length; i++) {
+      const g = S.gates[i];
+      const isRed = g.polarity < 0;
+      const gateColor = isRed ? PALETTE.RED : PALETTE.BLUE;
+      const shadowColor = isRed ? PALETTE.RED_SHADOW : PALETTE.BLUE_SHADOW;
+      const xLeft = g.x - g.width / 2;
+      const xRight = g.x + g.width / 2;
+
+      // Draw dashed threshold guideline between poles
+      ctx.beginPath();
+      ctx.strokeStyle = g.cleared ? 'rgba(0, 255, 128, 0.4)' : g.missed ? 'rgba(255, 50, 50, 0.3)' : 'rgba(255, 255, 255, 0.25)';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([4, 6]);
+      ctx.moveTo(xLeft, g.y);
+      ctx.lineTo(xRight, g.y);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Draw Left and Right Poles
+      [x
+  })();
 </script>
 </body>
 
