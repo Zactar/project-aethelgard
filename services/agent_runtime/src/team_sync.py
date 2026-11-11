@@ -1,260 +1,179 @@
-#!/usr/bin/env python3
 """
-PROJECT AETHELGARD: DYNAMIC SPRINT CEREMONY & BRAINSTORMING ENGINE
-Synthesizes evolving sprint proposals based on active milestone epics, district biomes, and unrest levels.
+services/agent_runtime/src/team_sync.py
+Project Aethelgard: Standup Ceremony with Contextual Lore Vector Brainstorming
 """
 
-from services.agent_runtime.src.virtual_studio_engine import StudioSharedMemoryBus
-from services.agent_runtime.src.roadmap_engine import StudioRoadmapEngine
-from schemas.studio_contracts import (
-    BrainstormIdea, BugSeverity, IdeaDiscipline, MilestoneStatus,
-    SprintGoal, SprintMeetingMinutes
-)
-from typing import Any, Dict, List, Tuple
-import time
-import random
+from services.agent_runtime.src.chroma_lore_bus import ChromaLoreBus
+from services.agent_runtime.src.studio_retrospective_memory import StudioRetrospectiveMemory
+from schemas.studio_contracts import DisciplineType
+from typing import Optional, Dict, Any, List
+from datetime import datetime
+import logging
+import json
 import sys
 from pathlib import Path
 
-ROOT_DIR = Path(__file__).resolve().parents[3]
-if str(ROOT_DIR) not in sys.path:
-    sys.path.insert(0, str(ROOT_DIR))
+_WORKSPACE_ROOT = Path(__file__).resolve().parents[3]
+if str(_WORKSPACE_ROOT) not in sys.path:
+    sys.path.insert(0, str(_WORKSPACE_ROOT))
 
 
-# Dynamic proposal generators per discipline
-IDEA_BANKS = {
-    IdeaDiscipline.SYSTEMS_DESIGN: [
-        ("Black Market Commodity Arbitrage",
-         "Establish dynamic price fluctuations for smuggled flour and medicinal tinctures."),
-        ("Cathedral Tithe Inspection Protocols",
-         "Enforce 35% grain seizures at city gates with contraband confiscation risk."),
-        ("Emergency Caloric Bread Rationing",
-         "Distribute hardtack ration coupons to de-escalate municipal riot unrest."),
-        ("Guild Loan Sharking & Debt Collateral",
-         "Allow artisans to pledge shop hearths as collateral for black market capital.")
-    ],
-    IdeaDiscipline.LEVEL_ARCHITECTURE: [
-        ("Subterranean Drainage Conduits & Sluice Gates",
-         "Carve canal passages connecting the low docks to hidden distillery vaults."),
-        ("City Watch Garrison & Armory Checkpoints",
-         "Erect fortified iron gates and weapon racks along the Market Cross perimeter."),
-        ("Cathedral Undercroft Ossuary & Catacombs",
-         "Excavate stone crypts beneath the basilica for covert guild rendezvous."),
-        ("Hearthside Taproom & Common Lodgings",
-         "Construct multi-tier wooden common house with peat hearths and ale casks.")
-    ],
-    IdeaDiscipline.NARRATIVE_LORE: [
-        ("Inquisitor Vael's Heresy Inquest",
-         "Deploy cathedral investigators interrogating apothecaries about forbidden herbs."),
-        ("Dockmaster Orlov's Waterway Manifests",
-         "Introduce corrupt dockmaster willing to falsify canal shipping registers."),
-        ("Watch Captain Vane's Curfew Decrees",
-         "Station municipal patrol commanders leveling spears at unauthorized gatherings."),
-        ("Smuggler Kaelen's Undercroft Network",
-         "Establish rogue guild contact offering forged tithe stamps for silver.")
-    ],
-    IdeaDiscipline.GAMEPLAY_MECHANICS: [
-        ("Stealth Damping & Guard Line-of-Sight",
-         "Calibrate player movement noise and shadow concealment inside clandestine zones."),
-        ("Locomotion Dash & Stamina Bursts",
-         "Tune high-velocity sprint bursts and rapid recovery envelopes during combat spikes."),
-        ("Lockpicking & Sluice Crank Interaction Envelopes",
-         "Implement mechanical timing checks for opening secured storage chests."),
-        ("Tonic Buff Degradation Curves",
-         "Add decaying visual aura shaders and tapering speed boosts for consumed elixirs.")
-    ],
-    IdeaDiscipline.AESTHETIC_STYLE: [
-        ("Volumetric Fog & Smoky Hearth Blooms",
-         "Deploy flickering point lanterns and ambient peat smoke shaders across alleys."),
-        ("Riot Barricade Props & Broken Carts",
-         "Dress streets with splintered grain crates, burning barrels, and protest banners."),
-        ("Cathedral Stained Glass Radiance",
-         "Cast dynamic kaleidoscopic light beams onto polished stone sanctuary floors."),
-        ("Subterranean Water Reflection Shaders",
-         "Simulate specular water ripples and dripping sluice conduits in low canals.")
-    ],
-    IdeaDiscipline.QA_COMBAT_BALANCE: [
-        ("Monte Carlo Economic Arbitrage Stress Test",
-         "Simulate 500 barter transactions to detect infinite gold duplication loops."),
-        ("Topological Navmesh Reachability Audit",
-         "Deploy automated pathfinder bots traversing all connected rooms and doors."),
-        ("Smart Object Collision & Facing Yaw Validation",
-         "Ensure all interaction anchors have 360-degree clear approach radius."),
-        ("Consumable Buff Stacking Exploit Audit",
-         "Stress test concurrent elixir ingestion to prevent unbounded velocity multiplication.")
-    ]
-}
+logger = logging.getLogger("Aethelgard.TeamSync")
+logging.basicConfig(level=logging.INFO,
+                    format="[%(asctime)s] [%(levelname)s] [%(name)s]: %(message)s")
 
 
-class StudioCeremonyEngine:
-    """Orchestrates cross-crew retrospectives, brainstorming sessions, and goal commitment."""
+class TeamSyncEngine:
+    """
+    Coordinates virtual studio standups:
+    - Analyzes retrospective memory and clean streaks.
+    - Queries ChromaLoreBus dynamically based on active district tension.
+    - Synthesizes lore-grounded feature proposals for incoming sprints.
+    """
 
-    def __init__(self, memory_bus: StudioSharedMemoryBus):
-        self.memory = memory_bus
-        self.roadmap_engine = StudioRoadmapEngine()
+    def __init__(
+        self,
+        workspace_root: Optional[Path] = None,
+        memory: Optional[StudioRetrospectiveMemory] = None,
+        lore_bus: Optional[ChromaLoreBus] = None
+    ):
+        self.workspace_root = Path(
+            workspace_root) if workspace_root else _WORKSPACE_ROOT
+        self.memory = memory or StudioRetrospectiveMemory(
+            workspace_root=self.workspace_root)
+        self.lore_bus = lore_bus or ChromaLoreBus(
+            workspace_root=self.workspace_root)
+        self.meetings_dir = self.workspace_root / "build" / "staging" / "meetings"
+        self.meetings_dir.mkdir(parents=True, exist_ok=True)
 
-    def run_sprint_retrospective(self, cycle_history: List[Dict[str, Any]]) -> Dict[str, Any]:
-        unresolved_bugs = [b for b in self.memory.bug_ticket_queue]
-        total_p0 = sum(1 for b in unresolved_bugs if b.severity ==
-                       BugSeverity.P0_CRITICAL)
-        total_p1 = sum(1 for b in unresolved_bugs if b.severity ==
-                       BugSeverity.P1_HIGH)
+    def conduct_standup(
+        self,
+        sprint_cycle_tag: str = "W1800",
+        milestone_tag: Optional[str] = None,
+        active_unrest_theme: str = "district commodity scarcity and curfew patrol"
+    ) -> Dict[str, Any]:
+        """
+        Executes an autonomous standup ceremony grounded in retrospective memory,
+        active roadmap versioning, and dynamic canon retrieval.
+        """
+        if not milestone_tag:
+            from services.agent_runtime.src.roadmap_engine import StudioRoadmapEngine
+            milestone_tag = StudioRoadmapEngine(
+                workspace_root=self.workspace_root).load_roadmap().active_version
 
-        return {
-            "completed_sprint_cycles": len(cycle_history),
-            "current_district_unrest": round(self.memory.active_district_unrest, 3),
-            "active_phase": self.memory.active_phase,
-            "commodity_reserves": self.memory.commodity_reserves,
-            "backlog_health": {
-                "total_unresolved_bugs": len(unresolved_bugs),
-                "p0_blockers": total_p0,
-                "p1_exploits": total_p1
-            },
-            "retrospective_consensus": (
-                "STABLE_PRODUCTION" if total_p0 == 0 else "HALT_FOR_HOTFIX"
-            )
+        logger.info(
+            f"Convening sprint standup ceremony [{sprint_cycle_tag}] for {milestone_tag}...")
+
+        competencies = self.memory.load_competencies()
+        recent_incidents = self.memory.load_ledger()[-5:]
+
+        # 1. Query ChromaLoreBus for contextual narrative tension
+        canon_matches = self.lore_bus.query_canon(
+            query_text=active_unrest_theme, n_results=3)
+        lore_context_summary = " ".join([m["text"] for m in canon_matches])
+
+        # 2. Generate discipline briefs combining memory constraints and emergent lore
+        discipline_briefs = {}
+        for discipline in DisciplineType:
+            disc_name = discipline.value
+            comp = competencies.get(disc_name, {})
+            streak = comp.get("clean_streak", 0)
+            regressions = comp.get("regressions_caused", 0)
+            friction_notes = comp.get("active_friction_notes", [])
+
+            # Dynamic proposal grounded in retrieved lore
+            proposal = self._generate_lore_grounded_proposal(
+                discipline, canon_matches)
+
+            discipline_briefs[disc_name] = {
+                "reliability_streak": streak,
+                "lifetime_regressions": regressions,
+                "status": "CAUTION" if friction_notes else "HEALTHY",
+                "active_constraints": friction_notes[-2:] if friction_notes else ["Clear to proceed with planned backlog."],
+                "contextual_proposal": proposal
+            }
+
+        minutes = {
+            "standup_id": f"SYNC-{sprint_cycle_tag}",
+            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "milestone_tag": milestone_tag,
+            "attendees": [d.value for d in DisciplineType],
+            "unrest_focus": active_unrest_theme,
+            "retrieved_canon_nodes": [m.get("id", m.get("passage_id", f"NODE-{idx}")) for idx, m in enumerate(canon_matches)],
+            "discipline_briefs": discipline_briefs,
+            "recent_incidents_reviewed": [
+                f"[{r['severity']}] {r['incident_id']} ({r['discipline']}): {r['summary']}"
+                for r in recent_incidents
+            ],
+            "action_items": [
+                "Prioritize proposals addressing active district unrest.",
+                "Chaos QA and Systems Architect hold strict veto enforcement over WebGL and schema bounds."
+            ]
         }
 
-    def conduct_brainstorming_session(self) -> List[BrainstormIdea]:
-        active_milestone = self.roadmap_engine.get_active_milestone()
-        uncompleted_epics = [
-            e for e in active_milestone.epics if not e.is_completed]
-        proposals: List[BrainstormIdea] = []
+        meeting_file = self.meetings_dir / f"SYNC-{sprint_cycle_tag}.json"
+        with open(meeting_file, "w", encoding="utf-8") as f:
+            json.dump(minutes, f, indent=2)
 
-        # 1. Proactively inject uncompleted milestone epics as top-priority sprint proposals
-        for epic in uncompleted_epics:
-            epic_words = epic.title.lower()
-            if any(k in epic_words for k in ["barricade", "riot", "thoroughfare"]):
-                proposals.append(BrainstormIdea(
-                    idea_id=f"EPIC-GOAL-{epic.epic_id}",
-                    proposing_agent="Level_Architect",
-                    discipline=IdeaDiscipline.LEVEL_ARCHITECTURE,
-                    title="Erect Riot Barricades & Fortified Thoroughfares",
-                    pitch=f"[{active_milestone.version_tag}]: {epic.primary_deliverable}",
-                    technical_feasibility_score=0.99,
-                    systemic_emergence_score=0.99
-                ))
-            elif any(k in epic_words for k in ["sanctum", "infiltrate", "malakor"]):
-                proposals.append(BrainstormIdea(
-                    idea_id=f"EPIC-GOAL-{epic.epic_id}",
-                    proposing_agent="Narrative_Specialist",
-                    discipline=IdeaDiscipline.NARRATIVE_LORE,
-                    title="Infiltrate Arch-Prelate Malakor's Inner Sanctum",
-                    pitch=f"[{active_milestone.version_tag}]: {epic.primary_deliverable}",
-                    technical_feasibility_score=0.99,
-                    systemic_emergence_score=0.99
-                ))
-            elif any(k in epic_words for k in ["market", "contraband", "economy", "trade", "smuggl"]):
-                proposals.append(BrainstormIdea(
-                    idea_id=f"EPIC-GOAL-{epic.epic_id}",
-                    proposing_agent="Systems_Architect",
-                    discipline=IdeaDiscipline.SYSTEMS_DESIGN,
-                    title="Deploy Black Market Contraband Economy",
-                    pitch=f"[{active_milestone.version_tag}]: {epic.primary_deliverable}",
-                    technical_feasibility_score=0.99,
-                    systemic_emergence_score=0.99
-                ))
+        logger.info(f"Standup minutes persisted to {meeting_file}")
+        return minutes
 
-        # 2. Fill remaining proposal roster from discipline banks
-        crew_roster = [
-            ("Systems_Architect", IdeaDiscipline.SYSTEMS_DESIGN),
-            ("Level_Architect", IdeaDiscipline.LEVEL_ARCHITECTURE),
-            ("Narrative_Specialist", IdeaDiscipline.NARRATIVE_LORE),
-            ("Gameplay_Specialist", IdeaDiscipline.GAMEPLAY_MECHANICS),
-            ("Client_Architect", IdeaDiscipline.AESTHETIC_STYLE),
-            ("Chaos_Commander", IdeaDiscipline.QA_COMBAT_BALANCE)
-        ]
+    def _generate_lore_grounded_proposal(self, discipline: DisciplineType, canon_matches: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """Synthesizes role-specific feature objectives derived from canon matches."""
+        lead_canon = canon_matches[0] if canon_matches else {
+            "text": "Citadel guards maintain checkpoints.",
+            "metadata": {"district": "Market Cross Square"}
+        }
+        district = lead_canon.get("metadata", {}).get("district", "Citadel")
 
-        random.seed(int(self.memory.world_time) +
-                    int(self.memory.active_district_unrest * 100))
+        if discipline == DisciplineType.LEVEL:
+            return {
+                "objective": f"Expand {district} with subterranean bypass corridors",
+                "subsystem": "procedural_spatial_generator.py",
+                "design_constraint": "Maintain 0.15m socket clearance on all connection seams"
+            }
+        elif discipline == DisciplineType.GAMEPLAY:
+            return {
+                "objective": f"Implement curfew line-of-sight detection and bribe mechanics in {district}",
+                "subsystem": "server.py",
+                "design_constraint": "Mask interaction queries to InteractionLayer.INTERACTIVE"
+            }
+        elif discipline == DisciplineType.NARRATIVE:
+            return {
+                "objective": f"Author dialogue branching for contraband couriers under the {district} curfew",
+                "subsystem": "schemas/studio_contracts.py",
+                "design_constraint": "Strict low-fantasy vernacular; reject anachronisms"
+            }
+        elif discipline == DisciplineType.CLIENT:
+            return {
+                "objective": f"Add instanced lantern light cones for curfew watchmen in {district}",
+                "subsystem": "web_client/index.html",
+                "design_constraint": "Total additional draw calls <= 15; child to actor hierarchy"
+            }
+        elif discipline == DisciplineType.SYSTEMS:
+            return {
+                "objective": "Expand dynamic commodity price bidding on hearth grain",
+                "subsystem": "services/agent_runtime/src/systemic_economy_generator.py",
+                "design_constraint": "All newly declared state enums must precede models"
+            }
+        else:  # CHAOS_QA
+            return {
+                "objective": "Construct stress test verifying zero player entrapment across newly paved corridors",
+                "subsystem": "tools/manage.py",
+                "design_constraint": "Enforce hard vetoes on WebGL budget and spatial overlap"
+            }
 
-        for agent_name, discipline in crew_roster:
-            bank = IDEA_BANKS[discipline]
-            title, pitch = random.choice(bank)
-            feasibility = round(random.uniform(0.85, 0.94), 2)
-            emergence = round(random.uniform(0.80, 0.92), 2)
-            prop_id = f"IDEA-{discipline.value[:3]}-{int(self.memory.world_time % 1000):03d}"
 
-            proposals.append(BrainstormIdea(
-                idea_id=prop_id,
-                proposing_agent=agent_name,
-                discipline=discipline,
-                title=title,
-                pitch=f"[{active_milestone.version_tag} - {active_milestone.theme}]: {pitch}",
-                technical_feasibility_score=feasibility,
-                systemic_emergence_score=emergence
-            ))
-
-        return proposals
-
-    def compile_sprint_goals(
-        self, retro: Dict[str, Any], ideas: List[BrainstormIdea], target_district: str
-    ) -> Tuple[List[SprintGoal], str]:
-        # Filter top emergent ideas
-        sorted_ideas = sorted(ideas, key=lambda x: (
-            x.technical_feasibility_score + x.systemic_emergence_score), reverse=True)
-        selected = sorted_ideas[:4]
-
-        goals: List[SprintGoal] = []
-        for idx, idea in enumerate(selected, start=1):
-            goals.append(SprintGoal(
-                goal_id=f"GOAL-W{int(self.memory.world_time // 100)}-{idx:02d}",
-                target_district=target_district,
-                primary_objective=idea.title,
-                driving_ideas=[idea.idea_id],
-                assigned_crews=[idea.proposing_agent, "Studio_Director"],
-                success_criteria=f"Verified in {target_district} across engine and web client.",
-                is_completed=False
-            ))
-
-        active_milestone = self.roadmap_engine.get_active_milestone()
-        director_notes = (
-            f"Sprint goals committed for {target_district} under {active_milestone.version_tag} ({active_milestone.theme}). "
-            f"Phase: {self.memory.active_phase} | Unrest: {self.memory.active_district_unrest:.2f}. All crews cleared to build."
-        )
-        return goals, director_notes
-
-    def conduct_full_team_meeting(
-        self, target_district: str, cycle_history: List[Dict[str, Any]]
-    ) -> SprintMeetingMinutes:
-        print("\n" + "=" * 70)
-        print(" [STUDIO ALL-HANDS]: DYNAMIC SPRINT STANDUP & MILESTONE BURNDOWN ")
-        print(
-            f" Phase: {self.memory.active_phase} | District: {target_district} | Time: {self.memory.world_time:.1f}s")
-        print("=" * 70)
-
-        retro = self.run_sprint_retrospective(cycle_history)
-        print(f"1. Retrospective Status : {retro['retrospective_consensus']}")
-        print(f"   Commodity Reserves   : {retro['commodity_reserves']}")
-        print(
-            f"   Unresolved Bugs      : {retro['backlog_health']['total_unresolved_bugs']}")
-
-        print("\n2. Cross-Crew Brainstorming Proposals:")
-        ideas = self.conduct_brainstorming_session()
-        for idea in ideas:
-            print(
-                f"   * [{idea.discipline.value}] {idea.proposing_agent}: '{idea.title}'")
-
-        goals, notes = self.compile_sprint_goals(retro, ideas, target_district)
-        print("\n3. Committed Sprint Goals:")
-        for g in goals:
-            print(f"   > [{g.goal_id}] {g.primary_objective}")
-
-        meeting_minutes = SprintMeetingMinutes(
-            meeting_id=f"SYNC-W{int(self.memory.world_time)}",
-            world_time_marker=self.memory.world_time,
-            retrospective_summary=retro,
-            brainstorm_proposals=ideas,
-            selected_sprint_goals=goals,
-            director_closing_notes=notes
-        )
-
-        out_dir = Path("build/staging/meetings")
-        out_dir.mkdir(parents=True, exist_ok=True)
-        minutes_path = out_dir / f"{meeting_minutes.meeting_id}.json"
-        with open(minutes_path, "w", encoding="utf-8") as f:
-            f.write(meeting_minutes.model_dump_json(indent=2))
-
-        print(
-            f"\n[STUDIO DIRECTOR]: Minutes archived to {minutes_path}\n" + "=" * 70 + "\n")
-        return meeting_minutes
+if __name__ == "__main__":
+    sync = TeamSyncEngine()
+    notes = sync.conduct_standup(
+        "W1900", "v0.5.0", active_unrest_theme="aqueduct smuggling and curfew evasion")
+    print("\n--- DYNAMIC LORE-DRIVEN STANDUP MINUTES ---")
+    print(f"Standup ID: {notes['standup_id']}")
+    print(f"Unrest Focus: {notes['unrest_focus']}")
+    print(f"Canon Nodes Ingested: {notes['retrieved_canon_nodes']}")
+    print("\nDiscipline Objectives:")
+    for disc, data in notes["discipline_briefs"].items():
+        prop = data["contextual_proposal"]
+        print(f" - [{disc}] {prop['objective']}")
+        print(f"     Constraint: {prop['design_constraint']}")

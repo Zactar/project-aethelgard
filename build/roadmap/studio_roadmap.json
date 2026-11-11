@@ -1,145 +1,207 @@
-[
-  {
-    "milestone_id": "M1_UNDERCROFT_EXPANSION",
-    "version_tag": "v0.2.0",
-    "theme": "The Subterranean Smuggling Conduit",
-    "target_phase": "PEACETIME_COMMERCE",
-    "epics": [
-      {
-        "epic_id": "EPIC_M1_01",
-        "title": "Carve Subterranean Undercroft Vaults",
-        "target_biome": "SUBTERRANEAN_UNDERCROFT",
-        "primary_deliverable": "Contiguous spatial nodes connecting aqueducts to clandestine storage",
-        "assigned_crews": [
-          "Level_Architect",
-          "Client_Architect"
-        ],
-        "is_completed": true
-      },
-      {
-        "epic_id": "EPIC_M1_02",
-        "title": "Deploy Black Market Contraband Economy",
-        "target_biome": "SUBTERRANEAN_UNDERCROFT",
-        "primary_deliverable": "Forged seals, illicit grain arbitration, and stealth buff items",
-        "assigned_crews": [
-          "Systems_Architect",
-          "Gameplay_Specialist"
-        ],
-        "is_completed": true
-      }
-    ],
-    "status": "SHIPPED",
-    "release_notes": [
-      "Subterranean aqueduct expansion",
-      "Consumable buff system with active timers"
-    ]
-  },
-  {
-    "milestone_id": "M2_CATHEDRAL_INQUEST",
-    "version_tag": "v0.3.0",
-    "theme": "Martial Law & Theocratic Tithe Seizures",
-    "target_phase": "MUNICIPAL_BREAD_RIOT",
-    "epics": [
-      {
-        "epic_id": "EPIC_M2_01",
-        "title": "Construct City Watch Garrison Checkpoints",
-        "target_biome": "CATHEDRAL_HEIGHTS",
-        "primary_deliverable": "Fortified watch garrison, iron barricades, and armory smart objects",
-        "assigned_crews": [
-          "Level_Architect",
-          "Client_Architect"
-        ],
-        "is_completed": true
-      },
-      {
-        "epic_id": "EPIC_M2_02",
-        "title": "Implement Granary Caloric Rationing Loop",
-        "target_biome": "CATHEDRAL_HEIGHTS",
-        "primary_deliverable": "Hardtack food queues, curfew patrols, and high-tension ambient lighting",
-        "assigned_crews": [
-          "Systems_Architect",
-          "Narrative_Specialist"
-        ],
-        "is_completed": true
-      }
-    ],
-    "status": "SHIPPED",
-    "release_notes": [
-      "Martial curfew mechanics",
-      "Cathedral district fortifications",
-      "Emergency food rationing"
-    ]
-  },
-  {
-    "milestone_id": "M3_BREAD_RIOT_SIEGE",
-    "version_tag": "v0.4.0",
-    "theme": "The Bread Riot & Siege of the High Seat",
-    "target_phase": "MUNICIPAL_BREAD_RIOT",
-    "epics": [
-      {
-        "epic_id": "EPIC_M3_01",
-        "title": "Erect Riot Barricades & Fortified Thoroughfares",
-        "target_biome": "CIVIC_MARKET",
-        "primary_deliverable": "Obstacle barricades, splintered timber carts, and high-unrest crimson lighting",
-        "assigned_crews": [
-          "Level_Architect",
-          "Client_Architect"
-        ],
-        "is_completed": true
-      },
-      {
-        "epic_id": "EPIC_M3_02",
-        "title": "Infiltrate Arch-Prelate Malakor's Inner Sanctum",
-        "target_biome": "CATHEDRAL_HEIGHTS",
-        "primary_deliverable": "Sanctum keycard puzzle, episcopal decree ledger, and high-tier stealth items",
-        "assigned_crews": [
-          "Systems_Architect",
-          "Narrative_Specialist"
-        ],
-        "is_completed": true
-      }
-    ],
-    "status": "SHIPPED",
-    "release_notes": [
-      "Bread riot escalation phase",
-      "Dynamic barrier props",
-      "Sanctum infiltration storyline"
-    ]
-  },
-  {
-    "milestone_id": "M4_GRAND_SLUICE_CONCLAVE",
-    "version_tag": "v0.5.0",
-    "theme": "The Episcopal Conclave & Grand Sluice Network",
-    "target_phase": "POST_RIOT_MARTIAL_RATIONING",
-    "epics": [
-      {
-        "epic_id": "EPIC_M4_01",
-        "title": "Commission Grand Subterranean Sluice Mechanism",
-        "target_biome": "SUBTERRANEAN_UNDERCROFT",
-        "primary_deliverable": "Multi-valve aqueduct drainage network and deep waterway traversal",
-        "assigned_crews": [
-          "Level_Architect",
-          "Gameplay_Specialist"
-        ],
-        "is_completed": false
-      },
-      {
-        "epic_id": "EPIC_M4_02",
-        "title": "Enforce Guild Trade Arbitration & Debt Debt Collateral",
-        "target_biome": "LOW_DOCKS",
-        "primary_deliverable": "Live commodity price bidding and dynamic loan debt liquidation",
-        "assigned_crews": [
-          "Systems_Architect",
-          "Chaos_Commander"
-        ],
-        "is_completed": false
-      }
-    ],
-    "status": "IN_PROGRESS",
-    "release_notes": [
-      "Grand sluice network",
-      "Commodity arbitrage market",
-      "Full narrative conclusion"
-    ]
-  }
-]
+{
+  "active_version": "v0.2.0",
+  "milestones": [
+    {
+      "version": "v0.1.0",
+      "codename": "Foundation Kernel & Input Mapping",
+      "theme": "Initialize 60fps tick loop, viewport canvas, and excavator locomotion.",
+      "status": "IN_PROGRESS",
+      "created_at": "2026-11-11T18:21:57.494500",
+      "completed_at": null,
+      "deliverables": [
+        {
+          "deliverable_id": "DEL-01-SYS",
+          "discipline": "Systems",
+          "title": "Tick Loop & Coordinate State Machine",
+          "target_subsystem": "web_client/index.html",
+          "acceptance_criteria": [
+            "60fps render loop active"
+          ],
+          "status": "PENDING",
+          "verified_artifact": null
+        },
+        {
+          "deliverable_id": "DEL-01-GMP",
+          "discipline": "Gameplay",
+          "title": "Locomotion Inputs & Action Handlers",
+          "target_subsystem": "web_client/index.html",
+          "acceptance_criteria": [
+            "WASD/Arrow input binds"
+          ],
+          "status": "PENDING",
+          "verified_artifact": null
+        },
+        {
+          "deliverable_id": "DEL-01-CLI",
+          "discipline": "Client",
+          "title": "Primary Viewport Canvas & Status HUD",
+          "target_subsystem": "web_client/index.html",
+          "acceptance_criteria": [
+            "HUD status indicators active"
+          ],
+          "status": "PENDING",
+          "verified_artifact": null
+        },
+        {
+          "deliverable_id": "DEL-01-QA",
+          "discipline": "Chaos QA",
+          "title": "Automated Render & Locomotion Invariant Test",
+          "target_subsystem": "tools/validate_webapp.py",
+          "acceptance_criteria": [
+            "Zero script errors"
+          ],
+          "status": "PENDING",
+          "verified_artifact": null
+        }
+      ],
+      "completion_percentage": 0.0
+    },
+    {
+      "version": "v0.2.0",
+      "codename": "Environmental Hazards & Collision Matrix",
+      "theme": "Destructible dirt, bedrock perimeters, and kinetic boulder falling physics.",
+      "status": "IN_PROGRESS",
+      "created_at": "2026-11-11T18:21:57.494530",
+      "completed_at": null,
+      "deliverables": [
+        {
+          "deliverable_id": "DEL-02-LVL",
+          "discipline": "Level",
+          "title": "World Geometry & Arena Boundaries",
+          "target_subsystem": "web_client/index.html",
+          "acceptance_criteria": [
+            "Destructible terrain active"
+          ],
+          "status": "PENDING",
+          "verified_artifact": null
+        },
+        {
+          "deliverable_id": "DEL-02-SYS",
+          "discipline": "Systems",
+          "title": "AABB Spatial Collision & Damage Evaluator",
+          "target_subsystem": "web_client/index.html",
+          "acceptance_criteria": [
+            "Kinetic boulders fall when undermined"
+          ],
+          "status": "PENDING",
+          "verified_artifact": null
+        }
+      ],
+      "completion_percentage": 0.0
+    },
+    {
+      "version": "v0.3.0",
+      "codename": "Hostile Fauna & Pneumatic Combat",
+      "theme": "Subterranean fauna (Pookas, Fygars), directional harpoon tether, and pump inflation combat.",
+      "status": "SHIPPED",
+      "created_at": "2026-11-11T18:21:57.494551",
+      "completed_at": "2026-11-11T18:22:07.287550",
+      "deliverables": [
+        {
+          "deliverable_id": "DEL-03-GMP",
+          "discipline": "Gameplay",
+          "title": "Pneumatic Harpoon Tether & Pump Inflation Mechanics",
+          "target_subsystem": "web_client/index.html",
+          "acceptance_criteria": [
+            "[F]/[J] fires directional harpoon",
+            "Tapping pumps air across 4 stages to pop"
+          ],
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261111-BC5EF5.json"
+        },
+        {
+          "deliverable_id": "DEL-03-SYS",
+          "discipline": "Systems",
+          "title": "Subterranean Fauna AI (Burrower Pooka & Magma Fygar)",
+          "target_subsystem": "web_client/index.html",
+          "acceptance_criteria": [
+            "Pookas patrol and ghost through dirt",
+            "Fygars breathe flame jets"
+          ],
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261111-EBC8D5.json"
+        },
+        {
+          "deliverable_id": "DEL-03-QA",
+          "discipline": "Chaos QA",
+          "title": "Combat Inflation & Immobilization Invariant Test",
+          "target_subsystem": "tools/validate_webapp.py",
+          "acceptance_criteria": [
+            "Inflated enemies are frozen and harmless"
+          ],
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261111-02BDAA.json"
+        }
+      ],
+      "completion_percentage": 100.0
+    },
+    {
+      "version": "v0.4.0",
+      "codename": "Metroidvania Biomes & Traversal Ability Gates",
+      "theme": "Multi-depth biomes (Upper Loam, Dense Granite, Magma Chambers), Jack-Drill, and Jump-Piston double jump.",
+      "status": "PLANNED",
+      "created_at": "2026-11-11T18:21:57.494569",
+      "completed_at": null,
+      "deliverables": [
+        {
+          "deliverable_id": "DEL-04-LVL",
+          "discipline": "Level",
+          "title": "Multi-Strata Biome Grid & Geological Gates",
+          "target_subsystem": "web_client/index.html",
+          "acceptance_criteria": [
+            "Deep Granite and Magma zones with camera scrolling"
+          ],
+          "status": "PENDING",
+          "verified_artifact": null
+        },
+        {
+          "deliverable_id": "DEL-04-SYS",
+          "discipline": "Systems",
+          "title": "Pneumatic Jack-Drill & Jump-Piston Traversal Modules",
+          "target_subsystem": "web_client/index.html",
+          "acceptance_criteria": [
+            "Jack-Drill carves dense granite",
+            "Jump-Piston grants double jump"
+          ],
+          "status": "PENDING",
+          "verified_artifact": null
+        }
+      ],
+      "completion_percentage": 0.0
+    },
+    {
+      "version": "v0.5.0",
+      "codename": "Core Prisms, Sector Map & Extraction Loop",
+      "theme": "Exploration minimap overlay [M], 3 Ancient Core Prisms, and central elevator extraction victory.",
+      "status": "PLANNED",
+      "created_at": "2026-11-11T18:21:57.494587",
+      "completed_at": null,
+      "deliverables": [
+        {
+          "deliverable_id": "DEL-05-CLI",
+          "discipline": "Client",
+          "title": "Subterranean Sector Minimap Overlay",
+          "target_subsystem": "web_client/index.html",
+          "acceptance_criteria": [
+            "[M] toggles explored sector overview"
+          ],
+          "status": "PENDING",
+          "verified_artifact": null
+        },
+        {
+          "deliverable_id": "DEL-05-SYS",
+          "discipline": "Systems",
+          "title": "Ancient Core Prisms & Central Elevator Victory State",
+          "target_subsystem": "web_client/index.html",
+          "acceptance_criteria": [
+            "Collecting all 3 prisms triggers elevator win"
+          ],
+          "status": "PENDING",
+          "verified_artifact": null
+        }
+      ],
+      "completion_percentage": 0.0
+    }
+  ],
+  "last_updated": "2026-11-11T18:22:07.287647"
+}

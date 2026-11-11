@@ -1,156 +1,183 @@
-#!/usr/bin/env python3
 """
-PROJECT AETHELGARD: INTEGRATED AUTONOMOUS FEATURE AUTHOR AGENT
-Connects Vector Lore, Procedural Spatial Tiling, and Leontief Economy to the Review Board.
+services/agent_runtime/src/autonomous_authoring.py
+Project Aethelgard: Autonomous RFC Authoring Agent with Retrospective Memory Grounding
 """
 
+from services.agent_runtime.src.studio_retrospective_memory import StudioRetrospectiveMemory
+from schemas.studio_contracts import DisciplineType, IncidentSeverity
+import uuid
+from datetime import datetime
+from typing import List, Dict, Any, Optional
+import logging
 import json
+import sys
 from pathlib import Path
-import time
-from typing import Any, Dict, List, Optional
 
-from schemas.studio_contracts import (
-    FeatureChangeRequest, GameRuntimeManifest, ItemSpec, RFCChangeType,
-    RFCStatus, SpatialRoomNode, SprintGoal
-)
-from services.agent_runtime.src.change_request_engine import StudioReviewBoardEngine
-from services.agent_runtime.src.chroma_lore_bus import ChromaLoreBus
-from services.agent_runtime.src.procedural_spatial_generator import ProceduralSpatialGenerator
-from services.agent_runtime.src.systemic_economy_generator import SystemicEconomyGenerator
-from services.agent_runtime.src.virtual_studio_engine import StudioSharedMemoryBus
-
-MANIFEST_PATH = Path("web_client/game_runtime_manifest.json")
+_WORKSPACE_ROOT = Path(__file__).resolve().parents[3]
+if str(_WORKSPACE_ROOT) not in sys.path:
+    sys.path.insert(0, str(_WORKSPACE_ROOT))
 
 
-class AutonomousFeatureAuthorAgent:
-    """Algorithmically generates new rooms, items, and mechanics from live simulation state."""
+logger = logging.getLogger("Aethelgard.Authoring")
+logging.basicConfig(level=logging.INFO,
+                    format="[%(asctime)s] [%(levelname)s] [%(name)s]: %(message)s")
 
-    def __init__(self, memory_bus: StudioSharedMemoryBus):
-        self.memory = memory_bus
-        self.review_board = StudioReviewBoardEngine(memory_bus)
-        self.lore_bus = ChromaLoreBus()
-        self.spatial_gen = ProceduralSpatialGenerator(margin_buffer=80.0)
-        self.economy_gen = SystemicEconomyGenerator()
 
-    def load_manifest(self) -> GameRuntimeManifest:
-        if not MANIFEST_PATH.exists():
-            raise FileNotFoundError(f"Missing {MANIFEST_PATH}")
-        return GameRuntimeManifest.model_validate_json(MANIFEST_PATH.read_text(encoding="utf-8"))
+class AutonomousAuthoringAgent:
+    """
+    Synthesizes and stages architectural, topological, gameplay, and narrative RFCs.
+    Queries StudioRetrospectiveMemory before authoring to ground proposals in past
+    post-mortems, preventing cyclical regressions.
+    """
 
-    def author_feature_from_goal(
-        self, goal: SprintGoal, manifest: GameRuntimeManifest
-    ) -> Optional[FeatureChangeRequest]:
-        goal_text = goal.primary_objective.lower()
-        lore_context = self.lore_bus.query_lore_context(goal_text, top_k=1)
-        lore_snippet = lore_context[0] if lore_context else "Episcopal decree."
-        rfc_timestamp = int(time.time() * 1000) % 1000000
+    def __init__(self, workspace_root: Optional[Path] = None, memory: Optional[StudioRetrospectiveMemory] = None):
+        self.workspace_root = Path(
+            workspace_root) if workspace_root else _WORKSPACE_ROOT
+        self.memory = memory or StudioRetrospectiveMemory(
+            workspace_root=self.workspace_root)
+        self.rfcs_staging_dir = self.workspace_root / "build" / "staging" / "rfcs"
+        self.rfcs_staging_dir.mkdir(parents=True, exist_ok=True)
 
-        # 1. Spatial Expansion (Level Architect)
-        if any(k in goal_text for k in ["undercroft", "catacomb", "vault", "garrison", "canal", "tavern", "expand", "gate"]):
-            new_node = self.spatial_gen.generate_next_spatial_node(
-                manifest.spatial_layout.nodes, theme_hint=goal_text)
-            if new_node:
-                # Link bidirectionally
-                anchor_id = new_node.connected_node_ids[0]
-                if anchor_id in manifest.spatial_layout.nodes:
-                    if new_node.node_id not in manifest.spatial_layout.nodes[anchor_id].connected_node_ids:
-                        manifest.spatial_layout.nodes[anchor_id].connected_node_ids.append(
-                            new_node.node_id)
+    def author_rfc(
+        self,
+        discipline: DisciplineType,
+        title: str,
+        summary: str,
+        target_subsystem: str,
+        proposed_changes: Dict[str, Any],
+        milestone_tag: Optional[str] = None,
+        target_deliverable_id: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """
+        Drafts a structured Request for Comments (RFC), embedding negative constraints
+        and executing pre-flight compliance checks. Dynamically resolves active milestone version.
+        """
+        # Resolve active milestone dynamically if not provided
+        if not milestone_tag:
+            from services.agent_runtime.src.roadmap_engine import StudioRoadmapEngine
+            milestone_tag = StudioRoadmapEngine(
+                workspace_root=self.workspace_root).load_roadmap().active_version
 
-                return FeatureChangeRequest(
-                    rfc_id=f"RFC-LVL-{rfc_timestamp}",
-                    title=f"Construct Zone: {new_node.zone_name}",
-                    description=f"Level Architect algorithmic expansion connected to {anchor_id}. Anchored to lore: {lore_snippet[:40]}",
-                    submitted_by="Level_Architect",
-                    change_type=RFCChangeType.NEW_ROOM_NODE,
-                    payload_diff={"node": new_node.model_dump()}
+        disc_val = discipline.value if isinstance(
+            discipline, DisciplineType) else discipline
+        logger.info(
+            f"Authoring RFC under discipline '{disc_val}': '{title}' (Milestone: {milestone_tag})")
+
+        query_context = f"{title} {summary} {target_subsystem} {json.dumps(proposed_changes)}"
+        active_friction_rules = self.memory.query_friction_rules(
+            discipline=disc_val,
+            context_query=query_context,
+            limit=4
+        )
+        adversarial_context = self.memory.generate_adversarial_context(
+            discipline=disc_val,
+            rfc_title=title,
+            proposed_diff=json.dumps(proposed_changes)
+        )
+
+        rfc_id = f"RFC-{datetime.utcnow().strftime('%Y%m%d')}-{uuid.uuid4().hex[:6].upper()}"
+
+        compliance_audit = self._audit_against_historical_rules(
+            discipline=disc_val,
+            proposed_changes=proposed_changes,
+            friction_rules=active_friction_rules
+        )
+
+        # In author_rfc():
+        from services.agent_runtime.src.studio_knowledge_base import StudioKnowledgeBase
+        kb = StudioKnowledgeBase(workspace_root=self.workspace_root)
+        role_curriculum = kb.get_role_training_context(disc_val)
+
+        rfc_payload = {
+            "rfc_id": rfc_id,
+            "title": title,
+            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "milestone_tag": milestone_tag,
+            "target_deliverable_id": target_deliverable_id,
+            "discipline": disc_val,
+            "target_subsystem": target_subsystem,
+            "status": "STAGED_FOR_REVIEW",
+            "summary": summary,
+            "pedagogical_grounding": role_curriculum[:240] + "...",
+            "proposed_changes": proposed_changes,
+            "retrospective_memory": {
+                "injected_friction_rules": active_friction_rules,
+                "adversarial_prompt_context": adversarial_context,
+                "pre_flight_audit": compliance_audit
+            },
+            "validation_verdict": {
+                "passes_preflight": compliance_audit["passed"],
+                "reasons": compliance_audit["reasons"]
+            }
+        }
+
+        staged_file = self.rfcs_staging_dir / f"{rfc_id}.json"
+        with open(staged_file, "w", encoding="utf-8") as f:
+            json.dump(rfc_payload, f, indent=2)
+
+        logger.info(
+            f"Staged RFC '{rfc_id}' written to {staged_file} [Pre-flight Passed: {compliance_audit['passed']}]")
+        return rfc_payload
+
+    def _audit_against_historical_rules(
+        self,
+        discipline: str,
+        proposed_changes: Dict[str, Any],
+        friction_rules: List[str]
+    ) -> Dict[str, Any]:
+        """Static heuristic checks enforcing historical post-mortem rules."""
+        violations = []
+        payload_str = json.dumps(proposed_changes).lower()
+
+        # Rule 1: Level Spatial Inset Padding (INC-20261012-LVL-01)
+        if discipline in (DisciplineType.LEVEL.value, "Level"):
+            if any(k in payload_str for k in ("bounds", "floorplate", "socket", "new_room")):
+                inset_offset = proposed_changes.get("inset_offset")
+                if inset_offset is None and "new_room" in proposed_changes:
+                    inset_offset = proposed_changes["new_room"].get(
+                        "inset_offset")
+                if inset_offset is None:
+                    inset_offset = 0.0
+
+                if inset_offset < 0.15:
+                    violations.append(
+                        f"Violation of INC-20261012-LVL-01: Boundary lacks 0.15m clearance inset (found {inset_offset}m)."
+                    )
+
+        # Rule 2: Client Billboard Hierarchy (INC-20261018-CLI-02)
+        if discipline in (DisciplineType.CLIENT.value, "Client"):
+            if any(k in payload_str for k in ("billboard", "nameplate", "hud")):
+                parent_target = proposed_changes.get(
+                    "parent_hierarchy", "").lower()
+                if "scene" in parent_target and "actor" not in parent_target:
+                    violations.append(
+                        "Violation of INC-20261018-CLI-02: Billboard attached directly to global Scene.")
+
+        # Rule 3: Gameplay Raycast Layer Masking (INC-20261023-GMP-03)
+        if discipline in (DisciplineType.GAMEPLAY.value, "Gameplay"):
+            if "raycast" in payload_str or "interaction" in payload_str:
+                layer_mask = (
+                    proposed_changes.get("layer_mask") or
+                    proposed_changes.get("interaction_layer") or
+                    ""
                 )
+                if "interactionlayer.interactive" not in str(layer_mask).lower():
+                    violations.append(
+                        "Violation of INC-20261023-GMP-03: Interaction query lacks InteractionLayer.INTERACTIVE.")
 
-        # 2. Economy & Consumables (Systems Architect)
-        if any(k in goal_text for k in ["smuggl", "tithe", "economy", "ration", "salve", "bread", "item", "permit", "arbitrage"]):
-            item = self.economy_gen.synthesize_item(
-                reserves=self.memory.commodity_reserves,
-                unrest=manifest.district_unrest,
-                world_time=self.memory.world_time,
-                lore_snippet=lore_snippet
-            )
-            return FeatureChangeRequest(
-                rfc_id=f"RFC-SYS-{rfc_timestamp}",
-                title=f"Synthesize Item: {item.display_name}",
-                description=f"Systems Architect derived item from scarcity. Base value: {item.base_value:.1f} gold.",
-                submitted_by="Systems_Architect",
-                change_type=RFCChangeType.NEW_ITEM,
-                payload_diff={"item": item.model_dump()}
-            )
+        # Rule 4: Systems Topological Schema Declaration (INC-20261027-SYS-04)
+        if discipline in (DisciplineType.SYSTEMS.value, "Systems"):
+            if "schema_patch" in proposed_changes:
+                patch_code = proposed_changes.get("schema_patch", "")
+                if "class " in patch_code and "(str, Enum)" in patch_code and "(BaseModel)" in patch_code:
+                    first_model = patch_code.find("(BaseModel)")
+                    first_enum = patch_code.find("(str, Enum)")
+                    if first_model < first_enum and first_model != -1:
+                        violations.append(
+                            "Violation of INC-20261027-SYS-04: BaseModel declared prior to Enum.")
 
-        # 3. Locomotion & Physics Tuning (Gameplay Specialist)
-        if any(k in goal_text for k in ["stamina", "speed", "locomotion", "physics", "recovery", "combat"]):
-            new_stamina = min(160.0, manifest.mechanics.stamina_max + 10.0)
-            new_recovery = min(
-                24.0, manifest.mechanics.stamina_recovery_rate + 1.5)
-            return FeatureChangeRequest(
-                rfc_id=f"RFC-MEC-{rfc_timestamp}",
-                title="Calibrate Locomotion Envelope & Recovery Envelopes",
-                description=f"Gameplay Specialist tuned stamina ceiling ({new_stamina:.0f}) and recovery rate ({new_recovery:.1f}).",
-                submitted_by="Gameplay_Specialist",
-                change_type=RFCChangeType.ADJUST_MECHANICS,
-                payload_diff={"stamina_max": new_stamina,
-                              "stamina_recovery_rate": new_recovery}
-            )
-
-        return None
-
-    def execute_autonomous_rfc_cycle(self, active_goals: List[SprintGoal]) -> List[FeatureChangeRequest]:
-        manifest = self.load_manifest()
-        processed: List[FeatureChangeRequest] = []
-
-        for goal in active_goals:
-            rfc = self.author_feature_from_goal(goal, manifest)
-            if not rfc:
-                continue
-
-            evaluated = self.review_board.review_request(rfc, manifest)
-            if evaluated.status == RFCStatus.APPROVED:
-                manifest = self.review_board.apply_approved_change(
-                    evaluated, manifest)
-                MANIFEST_PATH.write_text(
-                    manifest.model_dump_json(indent=2), encoding="utf-8")
-
-                out_path = self.review_board.approved_dir / \
-                    f"{evaluated.rfc_id}.json"
-                out_path.write_text(evaluated.model_dump_json(
-                    indent=2), encoding="utf-8")
-                print(
-                    f"  [AUTO-DEPLOYED]: {evaluated.title} ({evaluated.change_type.value})")
-            else:
-                out_path = self.review_board.rejected_dir / \
-                    f"{evaluated.rfc_id}.json"
-                out_path.write_text(evaluated.model_dump_json(
-                    indent=2), encoding="utf-8")
-                print(
-                    f"  [AUTO-REJECTED]: {evaluated.title} - Blocked by review board")
-
-            processed.append(evaluated)
-
-        if any(r.status == RFCStatus.DEPLOYED for r in processed):
-            self.broadcast_hot_reload(manifest.model_dump())
-
-        return processed
-
-    def broadcast_hot_reload(self, manifest_dict: dict):
-        try:
-            import asyncio
-            import websockets
-
-            async def _notify():
-                async with websockets.connect("ws://127.0.0.1:8765") as ws:
-                    await ws.send(json.dumps({
-                        "type": "HOT_RELOAD_TRIGGER",
-                        "manifest": manifest_dict
-                    }))
-
-            asyncio.run(_notify())
-            print(
-                "  [LIVE BROADCAST]: Manifest update pushed to connected browser sessions.")
-        except Exception:
-            pass
+        return {
+            "passed": len(violations) == 0,
+            "violations_detected": len(violations),
+            "reasons": violations if violations else ["All historical friction constraints satisfied."]
+        }

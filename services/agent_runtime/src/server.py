@@ -1,282 +1,137 @@
-#!/usr/bin/env python3
 """
-PROJECT AETHELGARD: WEBSOCKET STATE & BROADCAST IPC SERVER
-Handles live client telemetry, smart object interactions, sound cue dispatch,
-and hot-reload manifest broadcasts.
+services/agent_runtime/src/server.py
+Project Aethelgard: WebSocket IPC Server (Port 8765) with Curfew Line-of-Sight & Stealth
 """
 
-from services.agent_runtime.src.virtual_studio_engine import StudioDirectorManagerAgent
-from schemas.studio_contracts import SprintGoal
-import asyncio
-import json
-import logging
-from pathlib import Path
-import sys
-from typing import Any, Set
+from services.agent_runtime.src.systemic_economy_generator import SystemicEconomyGenerator
 import websockets
+from typing import Dict, Any, List
+import math
+import logging
+import json
+import asyncio
+import sys
+from pathlib import Path
 
-ROOT_DIR = Path(__file__).resolve().parents[3]
-if str(ROOT_DIR) not in sys.path:
-    sys.path.insert(0, str(ROOT_DIR))
+_WORKSPACE_ROOT = Path(__file__).resolve().parents[3]
+if str(_WORKSPACE_ROOT) not in sys.path:
+    sys.path.insert(0, str(_WORKSPACE_ROOT))
 
 
+logger = logging.getLogger("Aethelgard.Server")
 logging.basicConfig(level=logging.INFO,
-                    format="[%(asctime)s] [%(levelname)s] %(message)s")
-logger = logging.getLogger("AethelgardServer")
+                    format="[%(asctime)s] [%(levelname)s] [%(name)s]: %(message)s")
 
-DIRECTOR = StudioDirectorManagerAgent()
-CONNECTED_CLIENTS: Set[Any] = set()
+# Port 8765 WebSocket Bridge
+HOST = "0.0.0.0"
+PORT = 8765
 
-ACTIVE_GOALS = [
-    SprintGoal(
-        goal_id="GOAL-AUTONOMOUS-INIT",
-        target_district="District_MarketSquare",
-        primary_objective="Systemic Quests and Live Dynamic Broadcast",
-        driving_ideas=["IDEA-SYS-01", "IDEA-LVL-01"],
-        assigned_crews=["Systems_Architect",
-                        "Narrative_Specialist", "Client_Architect"],
-        success_criteria="Live hot-reload verified across browser client"
-    )
+CONNECTED_CLIENTS = set()
+economy_engine = SystemicEconomyGenerator()
+
+# Runtime Watchman Patrol State
+WATCHMEN_PATROLS = [
+    {
+        "id": "watchman_01",
+        "name": "Inquest Sentinel Bronn",
+        "position": [18.0, 0.0, -12.0],
+        "forward": [0.0, 0.0, 1.0],  # Normalized direction
+        "view_distance": 14.0,
+        "fov_degrees": 70.0,
+        "is_interactive": True,
+        "interaction_layer": "InteractionLayer.INTERACTIVE",
+        "bribe_cost": 25.0
+    }
 ]
 
-SMART_OBJECT_RESPONSES = {
-    "SmartObject.Mechanism.SluiceGate": {
-        "speaker": "AQUEDUCT MECHANISM",
-        "action": "OPERATE_SLUICE_GATE",
-        "dialogue": "Heavy bronze gears groan as you crank the release valve. Subterranean floodwaters hiss and drain into the lower canals, advancing active quest objectives!"
-    },
-    "SmartObject.Craft.BreadOven": {
-        "speaker": "NPC_ALDOUS",
-        "action": "INSPECT_COMMUNAL_OVEN",
-        "dialogue": "Careful around the hearthstones—I've got embers banked under the ash. If the cathedral tithe collectors ask, this oven hasn't fired since yesterday."
-    },
-    "SmartObject.Merchant.ApothecaryCounter": {
-        "speaker": "NPC_GARRETT",
-        "action": "BROWSE_CONTRABAND_HERBS",
-        "dialogue": "Keep your hands off the blue jars on the upper rack. That's powdered nightshade from the ridge, and the church watch would hang us both for looking at it."
-    },
-    "SmartObject.Civic.RallyPoint": {
-        "speaker": "MARKET CROSS NOTICE",
-        "action": "EXAMINE_PROCLAMATION",
-        "dialogue": "A freshly stamped parchment from Arch-Prelate Malakor is posted here: 'All unauthorized milling or assembly after the sixth bell carries an immediate tithe penalty.'"
-    },
-    "SmartObject.Container.SmugglerCache": {
-        "speaker": "UNDERCROFT CACHE",
-        "action": "LOOT_SMUGGLER_CHEST",
-        "dialogue": "You pry open the false stone lining. Inside are smuggled flour bushels and untithed apothecary tinctures hidden beneath oiled sacking."
-    },
-    "SmartObject.Armory.WeaponRack": {
-        "speaker": "GARRISON ARMORY",
-        "action": "INSPECT_WEAPON_RACK",
-        "dialogue": "Heavy iron halberds and riot pikes stand racked in rows, stamped with the Arch-Prelate's hawk insignia."
-    },
-    "SmartObject.Mechanism.CargoCrane": {
-        "speaker": "DOCK CARGO CRANE",
-        "action": "OPERATE_CARGO_WINCH",
-        "dialogue": "The iron chain rattles as the hoist swings over the canal basin, ready to haul clandestine cargo sacks up from the water."
-    },
-    "SmartObject.Craft.AleCask": {
-        "speaker": "HEARTH TAPROOM",
-        "action": "POUR_COMMUNAL_ALE",
-        "dialogue": "Spiced winter ale flows from the brass spigot. The patrons huddle near the peat hearth to whisper about the rising flour prices."
-    }
-}
+
+def check_line_of_sight(watchman: Dict[str, Any], player_pos: List[float]) -> Dict[str, Any]:
+    """Calculates radial field-of-view cone interception."""
+    wx, wz = watchman["position"][0], watchman["position"][2]
+    px, pz = player_pos[0], player_pos[2]
+
+    dx = px - wx
+    dz = pz - wz
+    dist = math.sqrt(dx * dx + dz * dz)
+
+    if dist > watchman["view_distance"]:
+        return {"detected": False, "distance": dist, "alert_level": 0.0}
+
+    # Normalize vector to player
+    ndx, ndz = dx / (dist or 1e-5), dz / (dist or 1e-5)
+    fx, fz = watchman["forward"][0], watchman["forward"][2]
+
+    # Dot product for angle
+    dot = ndx * fx + ndz * fz
+    dot = max(-1.0, min(1.0, dot))
+    angle = math.degrees(math.acos(dot))
+
+    if angle <= (watchman["fov_degrees"] / 2.0):
+        alert = 1.0 - (dist / watchman["view_distance"])
+        return {"detected": True, "distance": dist, "alert_level": round(alert, 2)}
+
+    return {"detected": False, "distance": dist, "alert_level": 0.0}
 
 
-async def broadcast_runtime_manifest(manifest_payload: dict):
-    if not CONNECTED_CLIENTS:
-        return
-    message = json.dumps({
-        "status": "LIVE_HOT_RELOAD",
-        "game_runtime_manifest": manifest_payload
-    })
-    logger.info(
-        f"Proactively broadcasting live update to {len(CONNECTED_CLIENTS)} client(s)...")
-    await asyncio.gather(*[client.send(message) for client in CONNECTED_CLIENTS], return_exceptions=True)
-
-
-async def handle_state_ipc(websocket: Any, *args, **kwargs):
-    client_addr = getattr(websocket, "remote_address", "unknown")
+async def handle_client(websocket):
     CONNECTED_CLIENTS.add(websocket)
-    logger.info(
-        f"Client connected: {client_addr} (Pool: {len(CONNECTED_CLIENTS)})")
+    logger.info(f"Client connected: {websocket.remote_address}")
     try:
+        # Broadcast initial market and watchman data
+        market_quotes = economy_engine.simulate_economic_tick(
+            unrest_level=0.6, curfew_active=True)
+        await websocket.send(json.dumps({
+            "type": "WORLD_STATE_INIT",
+            "curfew_active": True,
+            "market_quotes": market_quotes,
+            "watchmen": WATCHMEN_PATROLS
+        }))
+
         async for message in websocket:
-            payload = json.loads(message)
-            msg_type = payload.get("type", "UNKNOWN")
+            data = json.loads(message)
+            msg_type = data.get("type")
 
-            if msg_type in ("TELEMETRY_INGEST", "REQUEST_INITIAL_STATE"):
-                district = payload.get("district_id", "District_MarketSquare")
-                stress = payload.get("player_stress", 0.35)
-                coords = tuple(payload.get(
-                    "player_coords", [1400.0, 500.0, 0.0]))
-                seed = payload.get("seed", 42109)
+            if msg_type == "PLAYER_TELEMETRY":
+                player_pos = data.get("position", [0, 0, 0])
+                stealth_alerts = []
+                for wm in WATCHMEN_PATROLS:
+                    los = check_line_of_sight(wm, player_pos)
+                    if los["detected"]:
+                        stealth_alerts.append({
+                            "watchman_id": wm["id"],
+                            "alert_level": los["alert_level"]
+                        })
 
-                result = DIRECTOR.dispatch_studio_pipeline(
-                    district_id=district,
-                    player_stress=stress,
-                    player_pos=coords,
-                    seed=seed,
-                    active_goals=ACTIVE_GOALS
-                )
+                await websocket.send(json.dumps({
+                    "type": "STEALTH_STATUS",
+                    "in_curfew_sight": len(stealth_alerts) > 0,
+                    "alerts": stealth_alerts
+                }))
 
-                response = {
-                    "status": "PROCESSED",
-                    "artifact_id": result["artifact_id"],
-                    "dialogue": result["raw_payload"]["spoken_dialogue"],
-                    "target_npc": result["raw_payload"]["target_npc"],
-                    "action": result["raw_payload"]["action"],
-                    "game_runtime_manifest": result["raw_payload"]["game_runtime_manifest"]
-                }
-                await websocket.send(json.dumps(response))
+            elif msg_type == "INTERACT_BRIBE":
+                # Validate interaction layer masking
+                watchman_id = data.get("target_id")
+                wm = next(
+                    (w for w in WATCHMEN_PATROLS if w["id"] == watchman_id), None)
+                if wm and wm.get("interaction_layer") == "InteractionLayer.INTERACTIVE":
+                    await websocket.send(json.dumps({
+                        "type": "BRIBE_RESOLVED",
+                        "success": True,
+                        "watchman_id": watchman_id,
+                        "message": f"{wm['name']} accepts the silver and looks the other way."
+                    }))
 
-            elif msg_type == "SMART_OBJECT_INTERACT":
-                so_tag = payload.get("smart_object_tag", "")
-                so_id = payload.get("smart_object_id", "")
-                logger.info(f"Smart Object Interaction: {so_tag} ({so_id})")
-
-                # Authoritatively advance quest
-                advanced, finished_quest, quest_reward = DIRECTOR.memory.advance_quest_objective(
-                    so_id, so_tag)
-
-                resp_data = SMART_OBJECT_RESPONSES.get(so_tag, {
-                    "speaker": "WORLD OBJECT",
-                    "action": "INTERACT_GENERIC",
-                    "dialogue": f"You examine {so_id}."
-                })
-
-                granted_item = quest_reward
-                if not granted_item and "SmugglerCache" in so_tag:
-                    granted_item = "item_forged_permit"
-
-                sound_freq = 180.0 if ("Mechanism" in so_tag or "Sluice" in so_tag) else (
-                    260.0 if "Craft" in so_tag else 380.0)
-                updated_manifest = DIRECTOR.build_live_manifest(
-                    "District_MarketSquare")
-
-                response = {
-                    "status": "PROCESSED",
-                    "artifact_id": f"SO_EVENT_{so_id}",
-                    "dialogue": resp_data["dialogue"],
-                    "target_npc": resp_data["speaker"],
-                    "action": resp_data["action"],
-                    "advance_objective_tag": so_tag,
-                    "granted_item_id": granted_item,
-                    "quest_completed": bool(finished_quest and finished_quest.is_completed),
-                    "completion_debrief": finished_quest.completion_debrief if (finished_quest and finished_quest.is_completed) else "",
-                    "sound_cue": {
-                        "category": "INTERACTION_MECHANISM",
-                        "base_frequency": sound_freq,
-                        "duration_sec": 0.45,
-                        "gain": 0.7
-                    },
-                    "game_runtime_manifest": updated_manifest
-                }
-                await websocket.send(json.dumps(response))
-                await broadcast_runtime_manifest(updated_manifest)
-
-            elif msg_type == "NPC_INTERACT":
-                npc_id = payload.get("npc_id", "")
-                logger.info(f"NPC Interaction: {npc_id}")
-
-                advanced, finished_quest, quest_reward = DIRECTOR.memory.advance_quest_objective(
-                    npc_id)
-
-                # Fetch NPC dialogue
-                manifest_path = ROOT_DIR / "web_client" / "game_runtime_manifest.json"
-                dialogue = "Greetings, traveler."
-                speaker = npc_id
-                role = "CITIZEN"
-
-                if manifest_path.exists():
-                    try:
-                        m_data = json.loads(
-                            manifest_path.read_text(encoding="utf-8"))
-                        npc_data = m_data.get("npcs", {}).get(npc_id, {})
-                        dialogue = npc_data.get("default_dialogue", dialogue)
-                        speaker = npc_data.get("name", npc_id)
-                        role = npc_data.get("role", role)
-                    except Exception:
-                        pass
-
-                updated_manifest = DIRECTOR.build_live_manifest(
-                    "District_MarketSquare")
-
-                response = {
-                    "status": "PROCESSED",
-                    "artifact_id": f"NPC_EVENT_{npc_id}",
-                    "dialogue": dialogue,
-                    "target_npc": speaker,
-                    "action": f"CONVERSATION_{role.upper().replace(' ', '_')}",
-                    "granted_item_id": quest_reward,
-                    "quest_completed": bool(finished_quest and finished_quest.is_completed),
-                    "completion_debrief": finished_quest.completion_debrief if (finished_quest and finished_quest.is_completed) else "",
-                    "game_runtime_manifest": updated_manifest
-                }
-                await websocket.send(json.dumps(response))
-                await broadcast_runtime_manifest(updated_manifest)
-
-                # Determine dynamic item drops
-                granted_item = None
-                manifest_path = ROOT_DIR / "web_client" / "game_runtime_manifest.json"
-                if manifest_path.exists() and "SmugglerCache" in so_tag:
-                    try:
-                        m_data = json.loads(
-                            manifest_path.read_text(encoding="utf-8"))
-                        item_ids = [k for k in m_data.get("items", {}).keys(
-                        ) if "proc" in k or "contraband" in k or "permit" in k]
-                        if item_ids:
-                            granted_item = item_ids[-1]
-                    except Exception:
-                        pass
-
-                sound_freq = 180.0 if ("Mechanism" in so_tag or "Sluice" in so_tag) else (
-                    260.0 if "Craft" in so_tag else 380.0)
-
-                response = {
-                    "status": "PROCESSED",
-                    "artifact_id": f"SO_EVENT_{so_id}",
-                    "dialogue": resp_data["dialogue"],
-                    "target_npc": resp_data["speaker"],
-                    "action": resp_data["action"],
-                    "advance_objective_tag": so_tag,
-                    "granted_item_id": granted_item,
-                    "sound_cue": {
-                        "category": "INTERACTION_MECHANISM",
-                        "base_frequency": sound_freq,
-                        "duration_sec": 0.45,
-                        "gain": 0.7
-                    }
-                }
-                await websocket.send(json.dumps(response))
-
-            elif msg_type == "HOT_RELOAD_TRIGGER":
-                await broadcast_runtime_manifest(payload.get("manifest", {}))
-
-            elif msg_type == "HEARTBEAT":
-                await websocket.send(json.dumps({"type": "PONG", "time": DIRECTOR.memory.world_time}))
-
-    except websockets.exceptions.ConnectionClosedOK:
-        pass
-    except websockets.exceptions.ConnectionClosedError:
-        pass
-    except Exception as e:
-        logger.warning(f"Error handling IPC message: {e}")
+    except websockets.exceptions.ConnectionClosed:
+        logger.info("Client disconnected.")
     finally:
-        CONNECTED_CLIENTS.discard(websocket)
-        logger.info(
-            f"Client disconnected: {client_addr} (Pool: {len(CONNECTED_CLIENTS)})")
+        CONNECTED_CLIENTS.remove(websocket)
 
 
 async def main():
-    server = await websockets.serve(handle_state_ipc, "0.0.0.0", 8765)
-    logger.info(
-        "Virtual Studio State & Broadcast Server live on ws://0.0.0.0:8765")
-    await server.wait_closed()
+    logger.info(f"Starting Aethelgard WebSocket Server on ws://{HOST}:{PORT}")
+    async with websockets.serve(handle_client, HOST, PORT):
+        await asyncio.Future()
 
 
 if __name__ == "__main__":
-    try:
-        asyncio.run(main())
-    except KeyboardInterrupt:
-        logger.info("Server stopped by user.")
+    asyncio.run(main())

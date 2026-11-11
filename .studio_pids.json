@@ -1,4 +1,5 @@
 {
-  "state_ipc": 52336,
-  "web_client": 52337
+  "chroma": 2016,
+  "server": 2017,
+  "client": 2018
 }

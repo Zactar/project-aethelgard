@@ -1,239 +1,181 @@
-import json
-from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+"""
+services/agent_runtime/src/roadmap_engine.py
+Project Aethelgard Studio: Universal Roadmap & Milestone Burndown Engine
+"""
 
+from services.agent_runtime.src.chroma_lore_bus import ChromaLoreBus
+from services.agent_runtime.src.studio_retrospective_memory import StudioRetrospectiveMemory
 from schemas.studio_contracts import (
-    BiomeType, MilestoneStatus, SprintGoal, StudioEpic, StudioMilestone
+    MilestoneStatus,
+    DeliverableStatus,
+    StudioMilestone,
+    StudioRoadmapState
 )
+from typing import Optional, Dict, Any, List
+from datetime import datetime
+import logging
+import json
+import sys
+from pathlib import Path
 
-ROADMAP_DIR = Path("build/roadmap")
-ROADMAP_FILE = ROADMAP_DIR / "studio_roadmap.json"
+_WORKSPACE_ROOT = Path(__file__).resolve().parents[3]
+if str(_WORKSPACE_ROOT) not in sys.path:
+    sys.path.insert(0, str(_WORKSPACE_ROOT))
 
-DEFAULT_MILESTONES = [
-    StudioMilestone(
-        milestone_id="M1_UNDERCROFT_EXPANSION",
-        version_tag="v0.2.0",
-        theme="The Subterranean Smuggling Conduit",
-        target_phase="PEACETIME_COMMERCE",
-        status=MilestoneStatus.SHIPPED,
-        epics=[
-            StudioEpic(
-                epic_id="EPIC_M1_01",
-                title="Carve Subterranean Undercroft Vaults",
-                target_biome=BiomeType.SUBTERRANEAN_UNDERCROFT,
-                primary_deliverable="Contiguous spatial nodes connecting aqueducts to clandestine storage",
-                assigned_crews=["Level_Architect", "Client_Architect"],
-                is_completed=True
-            ),
-            StudioEpic(
-                epic_id="EPIC_M1_02",
-                title="Deploy Black Market Contraband Economy",
-                target_biome=BiomeType.SUBTERRANEAN_UNDERCROFT,
-                primary_deliverable="Forged seals, illicit grain arbitration, and stealth buff items",
-                assigned_crews=["Systems_Architect", "Gameplay_Specialist"],
-                is_completed=True
-            )
-        ],
-        release_notes=["Subterranean aqueduct expansion",
-                       "Consumable buff system with active timers"]
-    ),
-    StudioMilestone(
-        milestone_id="M2_CATHEDRAL_INQUEST",
-        version_tag="v0.3.0",
-        theme="Martial Law & Theocratic Tithe Seizures",
-        target_phase="MUNICIPAL_BREAD_RIOT",
-        status=MilestoneStatus.SHIPPED,
-        epics=[
-            StudioEpic(
-                epic_id="EPIC_M2_01",
-                title="Construct City Watch Garrison Checkpoints",
-                target_biome=BiomeType.CATHEDRAL_HEIGHTS,
-                primary_deliverable="Fortified watch garrison, iron barricades, and armory smart objects",
-                assigned_crews=["Level_Architect", "Client_Architect"],
-                is_completed=True
-            ),
-            StudioEpic(
-                epic_id="EPIC_M2_02",
-                title="Implement Granary Caloric Rationing Loop",
-                target_biome=BiomeType.CATHEDRAL_HEIGHTS,
-                primary_deliverable="Hardtack food queues, curfew patrols, and high-tension ambient lighting",
-                assigned_crews=["Systems_Architect", "Narrative_Specialist"],
-                is_completed=True
-            )
-        ],
-        release_notes=["Martial curfew mechanics",
-                       "Cathedral district fortifications", "Emergency food rationing"]
-    ),
-    StudioMilestone(
-        milestone_id="M3_BREAD_RIOT_SIEGE",
-        version_tag="v0.4.0",
-        theme="The Bread Riot & Siege of the High Seat",
-        target_phase="MUNICIPAL_BREAD_RIOT",
-        status=MilestoneStatus.IN_PROGRESS,
-        epics=[
-            StudioEpic(
-                epic_id="EPIC_M3_01",
-                title="Erect Riot Barricades & Fortified Thoroughfares",
-                target_biome=BiomeType.CIVIC_MARKET,
-                primary_deliverable="Obstacle barricades, splintered timber carts, and high-unrest crimson lighting",
-                assigned_crews=["Level_Architect", "Client_Architect"],
-                is_completed=False
-            ),
-            StudioEpic(
-                epic_id="EPIC_M3_02",
-                title="Infiltrate Arch-Prelate Malakor's Inner Sanctum",
-                target_biome=BiomeType.CATHEDRAL_HEIGHTS,
-                primary_deliverable="Sanctum keycard puzzle, episcopal decree ledger, and high-tier stealth items",
-                assigned_crews=["Systems_Architect", "Narrative_Specialist"],
-                is_completed=False
-            )
-        ],
-        release_notes=["Bread riot escalation phase",
-                       "Dynamic barrier props", "Sanctum infiltration storyline"]
-    ),
-    StudioMilestone(
-        milestone_id="M4_GRAND_SLUICE_CONCLAVE",
-        version_tag="v0.5.0",
-        theme="The Episcopal Conclave & Grand Sluice Network",
-        target_phase="POST_RIOT_MARTIAL_RATIONING",
-        status=MilestoneStatus.PLANNING,
-        epics=[
-            StudioEpic(
-                epic_id="EPIC_M4_01",
-                title="Commission Grand Subterranean Sluice Mechanism",
-                target_biome=BiomeType.SUBTERRANEAN_UNDERCROFT,
-                primary_deliverable="Multi-valve aqueduct drainage network and deep waterway traversal",
-                assigned_crews=["Level_Architect", "Gameplay_Specialist"],
-                is_completed=False
-            ),
-            StudioEpic(
-                epic_id="EPIC_M4_02",
-                title="Enforce Guild Trade Arbitration & Debt Debt Collateral",
-                target_biome=BiomeType.LOW_DOCKS,
-                primary_deliverable="Live commodity price bidding and dynamic loan debt liquidation",
-                assigned_crews=["Systems_Architect", "Chaos_Commander"],
-                is_completed=False
-            )
-        ],
-        release_notes=["Grand sluice network",
-                       "Commodity arbitrage market", "Full narrative conclusion"]
-    )
-]
+
+logger = logging.getLogger("Aethelgard.Roadmap")
+logging.basicConfig(level=logging.INFO,
+                    format="[%(asctime)s] [%(levelname)s] [%(name)s]: %(message)s")
 
 
 class StudioRoadmapEngine:
-    def __init__(self):
-        ROADMAP_DIR.mkdir(parents=True, exist_ok=True)
-        if not ROADMAP_FILE.exists():
-            self.save_roadmap(DEFAULT_MILESTONES)
+    def __init__(
+        self,
+        workspace_root: Optional[Path] = None,
+        memory: Optional[StudioRetrospectiveMemory] = None,
+        lore_bus: Optional[ChromaLoreBus] = None
+    ):
+        self.workspace_root = Path(
+            workspace_root) if workspace_root else _WORKSPACE_ROOT
+        self.memory = memory or StudioRetrospectiveMemory(
+            workspace_root=self.workspace_root)
+        self.lore_bus = lore_bus or ChromaLoreBus(
+            workspace_root=self.workspace_root)
+        self.roadmap_dir = self.workspace_root / "build" / "roadmap"
+        self.roadmap_dir.mkdir(parents=True, exist_ok=True)
+        self.roadmap_file = self.roadmap_dir / "studio_roadmap.json"
 
-    def load_roadmap(self) -> List[StudioMilestone]:
-        if not ROADMAP_FILE.exists():
-            return DEFAULT_MILESTONES
-        raw = json.loads(ROADMAP_FILE.read_text(encoding="utf-8"))
-        return [StudioMilestone.model_validate(m) for m in raw]
+    def load_roadmap(self) -> StudioRoadmapState:
+        if not self.roadmap_file.exists():
+            return StudioRoadmapState(active_version="v0.1.0", milestones=[])
+        try:
+            with open(self.roadmap_file, "r", encoding="utf-8") as f:
+                raw_data = json.load(f)
 
-    def save_roadmap(self, milestones: List[StudioMilestone]):
-        raw = [m.model_dump() for m in milestones]
-        ROADMAP_FILE.write_text(json.dumps(raw, indent=2), encoding="utf-8")
+            # Defensive normalizer: backfill missing required Pydantic fields
+            if "milestones" in raw_data and isinstance(raw_data["milestones"], list):
+                for idx, m in enumerate(raw_data["milestones"]):
+                    if not m.get("theme"):
+                        m["theme"] = m.get(
+                            "codename") or f"Milestone {m.get('version', idx)} Theme"
+                    if "deliverables" not in m or not isinstance(m["deliverables"], list):
+                        m["deliverables"] = []
+                    if "completion_percentage" not in m:
+                        m["completion_percentage"] = 100.0 if m.get(
+                            "status") == "SHIPPED" else 0.0
+                    if m.get("status") in ("PENDING", None):
+                        m["status"] = "IN_PROGRESS" if idx == 0 else "PLANNED"
 
-    def get_active_milestone(self) -> StudioMilestone:
-        milestones = self.load_roadmap()
-        for m in milestones:
-            if m.status == MilestoneStatus.IN_PROGRESS:
-                return m
-        for m in milestones:
-            if m.status == MilestoneStatus.PLANNING:
-                return m
-        return milestones[-1]
+            return StudioRoadmapState(**raw_data)
+        except Exception as e:
+            logger.error(f"Error deserializing roadmap state: {e}")
+            return StudioRoadmapState(active_version="v0.1.0", milestones=[])
 
-    def advance_milestone_progress(self, deployed_rfc_titles: List[str]) -> Optional[str]:
-        milestones = self.load_roadmap()
-        active = None
-        for m in milestones:
-            if m.status == MilestoneStatus.IN_PROGRESS:
-                active = m
-                break
+    def save_roadmap(self, state: StudioRoadmapState) -> None:
+        state.last_updated = datetime.utcnow()
+        with open(self.roadmap_file, "w", encoding="utf-8") as f:
+            json.dump(state.model_dump(mode="json"), f, indent=2)
 
-        if not active:
-            for m in milestones:
-                if m.status == MilestoneStatus.PLANNING:
-                    m.status = MilestoneStatus.IN_PROGRESS
-                    active = m
+    def evolve_to_next_milestone(self, forced_next_version: Optional[str] = None) -> Optional[StudioMilestone]:
+        """Advances to the next scheduled milestone in the active project roadmap."""
+        state = self.load_roadmap()
+        current = next(
+            (m for m in state.milestones if m.version == state.active_version), None)
+
+        if current:
+            current.status = MilestoneStatus.SHIPPED
+            current.completed_at = datetime.utcnow()
+            logger.info(
+                f"Archived milestone {current.version} ({current.codename}) as SHIPPED.")
+
+        # Look for the next planned milestone in the project
+        next_ms = None
+        if forced_next_version:
+            next_ms = next(
+                (m for m in state.milestones if m.version == forced_next_version), None)
+        else:
+            for m in state.milestones:
+                if m.status not in (MilestoneStatus.SHIPPED, MilestoneStatus.IN_PROGRESS):
+                    next_ms = m
                     break
 
-        if not active:
-            return None
+        if next_ms:
+            next_ms.status = MilestoneStatus.IN_PROGRESS
+            state.active_version = next_ms.version
+            self.save_roadmap(state)
+            logger.info(
+                f"[AUTONOMOUS ROADMAP EVOLUTION] Advanced to {next_ms.version}: '{next_ms.codename}'")
+            return next_ms
 
-        manifest_path = Path("web_client/game_runtime_manifest.json")
-        manifest_data = {}
-        if manifest_path.exists():
-            try:
-                manifest_data = json.loads(
-                    manifest_path.read_text(encoding="utf-8"))
-            except Exception:
-                pass
+        logger.info(
+            "[AUTONOMOUS ROADMAP] All planned project milestones completed!")
+        self.save_roadmap(state)
+        return current
 
-        existing_nodes = list(manifest_data.get(
-            "spatial_layout", {}).get("nodes", {}).keys())
-        existing_items = list(manifest_data.get("items", {}).keys())
+    def audit_active_milestone(self) -> Dict[str, Any]:
+        state = self.load_roadmap()
+        milestone = next((m for m in state.milestones if m.version ==
+                         state.active_version and m.status != MilestoneStatus.SHIPPED), None)
+        if not milestone:
+            milestone = next((m for m in reversed(state.milestones)
+                             if m.version == state.active_version), None)
 
-        # Strict Verification: Epic completes ONLY if matching physical nodes, items, or RFCs exist
-        for epic in active.epics:
-            if not epic.is_completed:
-                epic_words = epic.title.lower()
+        if not milestone:
+            return {
+                "version": state.active_version,
+                "codename": "Unscheduled Milestone",
+                "status": "INITIALIZING",
+                "verified_deliverables": "0/0",
+                "completion_percentage": 0.0,
+                "deliverables": []
+            }
 
-                # 1. Undercroft / Vault verification
-                if "vault" in epic_words or "aqueduct" in epic_words:
-                    if any("AQUEDUCT" in n or "VAULT" in n or "UNDERCROFT" in n for n in existing_nodes):
-                        epic.is_completed = True
+        approved_rfcs = list(
+            (self.workspace_root / "build" / "rfcs" / "approved").glob("*.json"))
+        verified_count = 0
+        total_count = len(milestone.deliverables)
 
-                # 2. Black Market Economy verification
-                elif "contraband" in epic_words or "black market" in epic_words:
-                    if any("contraband" in i or "permit" in i for i in existing_items):
-                        epic.is_completed = True
+        for deliv in milestone.deliverables:
+            disc_val = deliv.discipline.value if hasattr(
+                deliv.discipline, "value") else str(deliv.discipline)
+            deliv_verified = False
 
-                # 3. Garrison Checkpoints / Barricades verification
-                elif "checkpoint" in epic_words or "garrison" in epic_words or "barricade" in epic_words:
-                    has_node = any(
-                        "GARRISON" in n or "BASTION" in n or "BARRICADE" in n for n in existing_nodes)
-                    has_rfc = any("garrison" in t.lower(
-                    ) or "barricade" in t.lower() for t in deployed_rfc_titles)
-                    if has_node or has_rfc:
-                        epic.is_completed = True
+            for rfc_file in approved_rfcs:
+                try:
+                    with open(rfc_file, "r", encoding="utf-8") as f:
+                        rfc_data = json.load(f)
+                    if (
+                        rfc_data.get("milestone_tag") == milestone.version and
+                        (rfc_data.get("target_deliverable_id") == deliv.deliverable_id or
+                         (rfc_data.get("discipline") == disc_val and deliv.title in rfc_data.get("title", "")))
+                    ):
+                        deliv.status = DeliverableStatus.VERIFIED
+                        deliv.verified_artifact = rfc_file.name
+                        deliv_verified = True
+                        break
+                except Exception:
+                    pass
 
-                # 4. Caloric Rationing / Grain verification
-                elif "ration" in epic_words or "caloric" in epic_words:
-                    has_item = any(
-                        "ration" in i or "flour" in i or "hard tack" in i for i in existing_items)
-                    has_rfc = any("ration" in t.lower() or "bread" in t.lower()
-                                  for t in deployed_rfc_titles)
-                    if has_item or has_rfc:
-                        epic.is_completed = True
+            if deliv_verified:
+                verified_count += 1
+            else:
+                deliv.status = DeliverableStatus.PENDING
 
-                # 5. Sanctum Infiltration verification
-                elif "sanctum" in epic_words or "malakor" in epic_words:
-                    has_node = any(
-                        "SANCTUM" in n or "CATHEDRAL" in n for n in existing_nodes)
-                    has_rfc = any("sanctum" in t.lower()
-                                  for t in deployed_rfc_titles)
-                    if has_node or has_rfc:
-                        epic.is_completed = True
+        milestone.completion_percentage = round(
+            (verified_count / total_count) * 100, 1) if total_count > 0 else 0.0
 
-        # Complete milestone only when all epics are strictly satisfied
-        all_done = all(e.is_completed for e in active.epics)
-        if all_done and active.status != MilestoneStatus.SHIPPED:
-            active.status = MilestoneStatus.SHIPPED
-            shipped_version = active.version_tag
+        if milestone.completion_percentage >= 100.0:
+            milestone.status = MilestoneStatus.VALIDATING
+        elif milestone.status != MilestoneStatus.SHIPPED:
+            milestone.status = MilestoneStatus.IN_PROGRESS
 
-            # Promote next milestone
-            for m in milestones:
-                if m.status == MilestoneStatus.PLANNING:
-                    m.status = MilestoneStatus.IN_PROGRESS
-                    break
+        self.save_roadmap(state)
 
-            self.save_roadmap(milestones)
-            return shipped_version
-
-        self.save_roadmap(milestones)
-        return None
+        return {
+            "version": milestone.version,
+            "codename": milestone.codename,
+            "status": milestone.status if isinstance(milestone.status, str) else milestone.status.value,
+            "verified_deliverables": f"{verified_count}/{total_count}",
+            "completion_percentage": milestone.completion_percentage,
+            "deliverables": [d.model_dump(mode="json") for d in milestone.deliverables]
+        }

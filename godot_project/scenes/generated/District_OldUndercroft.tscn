@@ -27,36 +27,51 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.00, -2.50, 23.00)
 size = Vector3(16.00, 0.2, 10.00)
 use_collision = true
 
+[node name="NODE_CANAL_SLUICE_CONCOURSE_6" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -24.50, 0.00, 0.00)
+size = Vector3(14.00, 0.2, 12.00)
+use_collision = true
+
+[node name="NODE_UNDERCROFT_OSSUARY_7" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 37.50, 0.00, 0.00)
+size = Vector3(14.00, 0.2, 12.00)
+use_collision = true
+
+[node name="NODE_UNDERCROFT_OSSUARY_8" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.00, -2.50, 36.50)
+size = Vector3(14.00, 0.2, 12.00)
+use_collision = true
+
 [node name="NPC_ALDOUS" type="CharacterBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.13, 0.00, 22.88)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.55, 0.00, 22.30)
 [node name="Collision" type="CollisionShape3D" parent="NPC_ALDOUS"]
 [node name="Mesh" type="CSGCylinder3D" parent="NPC_ALDOUS"]
 radius = 0.55
 height = 1.8
 
 [node name="NPC_GARRETT" type="CharacterBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.14, 0.00, 0.54)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.11, 0.00, -1.16)
 [node name="Collision" type="CollisionShape3D" parent="NPC_GARRETT"]
 [node name="Mesh" type="CSGCylinder3D" parent="NPC_GARRETT"]
 radius = 0.55
 height = 1.8
 
 [node name="NPC_CAPTAIN_VANE" type="CharacterBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.01, 0.00, 0.18)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.16, 0.00, -0.46)
 [node name="Collision" type="CollisionShape3D" parent="NPC_CAPTAIN_VANE"]
 [node name="Mesh" type="CSGCylinder3D" parent="NPC_CAPTAIN_VANE"]
 radius = 0.55
 height = 1.8
 
 [node name="NPC_KAELEN" type="CharacterBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17.36, 0.00, 17.81)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16.97, 0.00, 18.15)
 [node name="Collision" type="CollisionShape3D" parent="NPC_KAELEN"]
 [node name="Mesh" type="CSGCylinder3D" parent="NPC_KAELEN"]
 radius = 0.55
 height = 1.8
 
 [node name="NPC_ORLOV" type="CharacterBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 23.20, 0.00, 1.12)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22.04, 0.00, -0.95)
 [node name="Collision" type="CollisionShape3D" parent="NPC_ORLOV"]
 [node name="Mesh" type="CSGCylinder3D" parent="NPC_ORLOV"]
 radius = 0.55

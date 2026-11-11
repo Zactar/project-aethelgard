@@ -1,165 +1,93 @@
 #!/usr/bin/env python3
 """
-PROJECT AETHELGARD: RFC AUTOMATED PIPELINE CLI
-Submits, reviews, and automatically deploys change requests live to the game client.
+tools/rfc_pipeline.py
+Project Aethelgard: End-to-end RFC Authoring, Review Quorum, and Staging Pipeline
 """
 
-from services.agent_runtime.src.change_request_engine import StudioReviewBoardEngine
-from services.agent_runtime.src.virtual_studio_engine import StudioSharedMemoryBus
-from schemas.studio_contracts import (
-    FeatureChangeRequest, RFCChangeType, RFCStatus, GameRuntimeManifest
-)
-import time
-import json
-import asyncio
+from schemas.studio_contracts import DisciplineType
+from services.agent_runtime.src.autonomous_authoring import AutonomousAuthoringAgent
+from services.agent_runtime.src.virtual_studio_engine import VirtualStudioEngine
 import argparse
 import sys
 from pathlib import Path
 
-# Inject repository root into sys.path before local package imports
-ROOT_DIR = Path(__file__).resolve().parents[1]
-if str(ROOT_DIR) not in sys.path:
-    sys.path.insert(0, str(ROOT_DIR))
+# Anchor workspace root to sys.path
+WORKSPACE_ROOT = Path(__file__).resolve().parent.parent
+if str(WORKSPACE_ROOT) not in sys.path:
+    sys.path.insert(0, str(WORKSPACE_ROOT))
 
 
-MANIFEST_PATH = ROOT_DIR / "web_client" / "game_runtime_manifest.json"
-
-
-def trigger_live_hot_reload(manifest: dict):
-    try:
-        import websockets
-
-        async def _notify():
-            async with websockets.connect("ws://127.0.0.1:8765") as ws:
-                await ws.send(json.dumps({
-                    "type": "HOT_RELOAD_TRIGGER",
-                    "manifest": manifest
-                }))
-
-        asyncio.run(_notify())
-        print(
-            "  [LIVE BROADCAST]: Pushed hot-reload update to open browser sessions.")
-    except Exception as e:
-        print(
-            f"  [NOTE]: Client broadcast skipped (server offline or no active clients): {e}")
-
-
-def load_manifest() -> GameRuntimeManifest:
-    if not MANIFEST_PATH.exists():
-        print(
-            f"[ERROR]: {MANIFEST_PATH} not found. Run a generation cycle first.")
-        sys.exit(1)
-    return GameRuntimeManifest.model_validate_json(MANIFEST_PATH.read_text(encoding="utf-8"))
-
-
-def process_single_rfc(file_path: Path):
-    board = StudioReviewBoardEngine(StudioSharedMemoryBus())
-    manifest = load_manifest()
-
-    rfc = FeatureChangeRequest.model_validate_json(
-        file_path.read_text(encoding="utf-8"))
-    print("\n" + "=" * 70)
-    print(f" >>> [REVIEW BOARD CONVENED]: {rfc.rfc_id} ('{rfc.title}') <<<")
-    print("=" * 70)
-
-    evaluated_rfc = board.review_request(rfc, manifest)
-
-    for vote in evaluated_rfc.review_votes:
-        status_sym = "APPROVED" if vote.approved else "REJECTED"
-        print(
-            f"  * [{status_sym}] {vote.agent_id} (Score: {vote.score:.2f}) -> {vote.comments}")
-
-    if evaluated_rfc.status == RFCStatus.APPROVED:
-        print("\n>>> RESULT: APPROVED BY QUORUM. Executing automated deployment...")
-        updated_manifest = board.apply_approved_change(evaluated_rfc, manifest)
-
-        # Write to web client runtime manifest
-        MANIFEST_PATH.write_text(
-            updated_manifest.model_dump_json(indent=2), encoding="utf-8")
-        print(f"  [DEPLOYED]: Updated {MANIFEST_PATH}")
-
-        # Trigger live websocket broadcast to open browser clients
-        trigger_live_hot_reload(updated_manifest.model_dump())
-
-        # Move to approved
-        target = board.approved_dir / file_path.name
-        file_path.unlink()
-        target.write_text(evaluated_rfc.model_dump_json(
-            indent=2), encoding="utf-8")
-    else:
-        print("\n>>> RESULT: REJECTED. Flagged risks:")
-        for r in evaluated_rfc.rejection_reasons:
-            print(f"    - {r}")
-        target = board.rejected_dir / file_path.name
-        file_path.unlink()
-        target.write_text(evaluated_rfc.model_dump_json(
-            indent=2), encoding="utf-8")
-    print("=" * 70 + "\n")
-
-
-def cmd_submit(args):
-    board = StudioReviewBoardEngine(StudioSharedMemoryBus())
-    payload = json.loads(args.diff)
-
-    rfc = FeatureChangeRequest(
-        rfc_id=f"RFC-{int(time.time())}",
-        title=args.title,
-        description=args.desc,
-        submitted_by=args.author,
-        change_type=RFCChangeType(args.type),
-        payload_diff=payload
-    )
-
-    out_file = board.pending_dir / f"{rfc.rfc_id}.json"
-    out_file.write_text(rfc.model_dump_json(indent=2), encoding="utf-8")
-    print(
-        f"\n[RFC SUBMITTED]: {rfc.rfc_id} - '{rfc.title}' saved to {out_file}")
-
-    if args.auto_review:
-        process_single_rfc(out_file)
-
-
-def cmd_review_pending(args):
-    board = StudioReviewBoardEngine(StudioSharedMemoryBus())
-    pending_files = list(board.pending_dir.glob("*.json"))
-    if not pending_files:
-        print("[REVIEW BOARD]: No pending RFCs in queue.")
-        return
-    for f in pending_files:
-        process_single_rfc(f)
-
-
-def main():
+def run_pipeline():
     parser = argparse.ArgumentParser(
-        description="Aethelgard RFC & Feature Deployment Engine")
-    sub = parser.add_subparsers(dest="cmd")
-
-    sub_submit = sub.add_parser(
-        "submit", help="Submit a new feature or change request")
-    sub_submit.add_argument("--title", required=True,
-                            help="Short title of the change")
-    sub_submit.add_argument("--desc", default="",
-                            help="Description and reasoning")
-    sub_submit.add_argument("--author", default="Lead_Dev",
-                            help="Submitting agent or human username")
-    sub_submit.add_argument(
-        "--type", required=True, choices=[e.value for e in RFCChangeType], help="Change discipline")
-    sub_submit.add_argument("--diff", required=True,
-                            help="JSON string representing the diff payload")
-    sub_submit.add_argument(
-        "--auto-review", action="store_true", help="Immediately run the review board")
-
-    sub_review = sub.add_parser(
-        "review", help="Review and process all pending RFCs")
-
+        description="Aethelgard RFC Review Pipeline")
+    parser.add_argument("action", choices=[
+                        "review", "simulate", "status"], default="review", nargs="?")
     args = parser.parse_args()
-    if args.cmd == "submit":
-        cmd_submit(args)
-    elif args.cmd == "review":
-        cmd_review_pending(args)
-    else:
-        parser.print_help()
+
+    engine = VirtualStudioEngine(workspace_root=WORKSPACE_ROOT)
+
+    if args.action == "review":
+        print("[*] Processing all staged RFCs through High-Friction Review Board...")
+        results = engine.process_all_staged_rfcs()
+        print(f"\n[✓] Evaluation completed. Processed: {len(results)} RFCs.")
+
+    elif args.action == "simulate":
+        print("[*] Simulating authoring and review cycle...")
+        author = AutonomousAuthoringAgent(workspace_root=WORKSPACE_ROOT)
+
+        # 1. Author non-compliant RFC
+        print("  -> Authoring non-compliant proposal (draw calls > 120)...")
+        author.author_rfc(
+            discipline=DisciplineType.CLIENT,
+            title="Add Volumetric Dynamic Torches",
+            summary="Adds 50 point lights with individual shadow maps across the citadel square.",
+            target_subsystem="web_client/index.html",
+            proposed_changes={
+                "light_count": 50,
+                "estimated_draw_calls": 240,  # Breaches 120 draw-call cap
+                "parent_hierarchy": "ActorTransformGroup"
+            }
+        )
+
+        # 2. Author compliant RFC
+        print("  -> Authoring compliant proposal (optimized instancing)...")
+        author.author_rfc(
+            discipline=DisciplineType.CLIENT,
+            title="Instanced Cobblestone Kerbs",
+            summary="Consolidates market curb meshes into a single instanced mesh buffer.",
+            target_subsystem="web_client/index.html",
+            proposed_changes={
+                "estimated_draw_calls": 2,
+                "estimated_triangles": 12000,
+                "parent_hierarchy": "ActorTransformGroup"
+            }
+        )
+
+        # 3. Convene review quorum
+        print("\n[*] Convening Review Board Quorum...")
+        results = engine.process_all_staged_rfcs()
+        print("\n--- QUORUM VERDICTS ---")
+        for res in results:
+            print(
+                f"[{res.status}] {res.rfc_id}: Approvals {res.approvals}/{res.total_votes} | Vetoes: {res.vetoes_cast}")
+            for d in res.actionable_directives:
+                print(f"    - {d}")
+
+    elif args.action == "status":
+        staged = list((WORKSPACE_ROOT / "build" /
+                      "staging" / "rfcs").glob("*.json"))
+        approved = list((WORKSPACE_ROOT / "build" /
+                        "rfcs" / "approved").glob("*.json"))
+        rejected = list((WORKSPACE_ROOT / "build" /
+                        "rfcs" / "rejected").glob("*.json"))
+
+        print("\n[Project Aethelgard RFC Registry Status]")
+        print("=" * 60)
+        print(f" - Staged for Review: {len(staged)}")
+        print(f" - Approved:          {len(approved)}")
+        print(f" - Rejected:          {len(rejected)}")
+        print("=" * 60)
 
 
 if __name__ == "__main__":
-    main()
+    run_pipeline()

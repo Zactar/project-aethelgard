@@ -1,2 +1,66 @@
 Serving HTTP on 0.0.0.0 port 3000 (http://0.0.0.0:3000/) ...
-127.0.0.1 - - [30/Oct/2026 22:58:47] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2026 00:41:46] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2026 00:42:26] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2026 00:42:27] "GET /game_runtime_manifest.json?t=1793407344840 HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2026 00:42:28] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 00:42:28] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 00:42:32] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 00:42:32] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 00:42:33] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 00:42:33] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 00:42:33] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 00:42:33] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 00:42:34] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 00:42:34] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 00:42:34] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 00:42:34] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 00:42:34] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 00:42:34] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 01:27:11] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2026 01:27:13] "GET /game_runtime_manifest.json?t=1793410032522 HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2026 01:27:24] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 01:27:24] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 01:58:48] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2026 01:58:49] "GET /game_runtime_manifest.json?t=1793411927584 HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2026 01:58:50] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 01:58:50] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 01:58:59] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 01:58:59] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 01:58:59] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 01:58:59] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 01:59:11] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2026 01:59:11] "GET /game_runtime_manifest.json?t=1793411950078 HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2026 01:59:12] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 01:59:12] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 01:59:14] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 01:59:14] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 01:59:14] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 01:59:14] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 01:59:14] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 01:59:14] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 01:59:15] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 01:59:15] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 01:59:15] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 01:59:15] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 01:59:15] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 01:59:15] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 02:46:10] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2026 02:46:11] "GET /game_runtime_manifest.json?t=1793414769476 HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2026 02:46:11] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 02:46:11] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 03:03:09] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2026 03:03:10] "GET /game_runtime_manifest.json?t=1793415788678 HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2026 03:03:14] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 03:03:14] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 03:03:14] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 03:03:14] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 03:03:37] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2026 03:03:38] "GET /game_runtime_manifest.json?t=1793415816769 HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2026 03:03:39] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 03:03:39] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 03:03:42] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 03:03:42] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 03:03:42] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 03:03:42] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 03:04:54] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2026 03:04:55] "GET /game_runtime_manifest.json?t=1793415893875 HTTP/1.1" 200 -

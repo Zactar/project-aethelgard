@@ -191,87 +191,6 @@
           "clearance_inset": 0.2
         }
       ]
-    },
-    {
-      "room_id": "district_sector_08",
-      "name": "Citadel Sector 08",
-      "district": "Citadel Expansion",
-      "position": [
-        0.0,
-        0.0,
-        -104.0
-      ],
-      "dimensions": [
-        22.0,
-        4.5,
-        20.0
-      ],
-      "inset_offset": 0.2,
-      "corridor_sockets": [
-        {
-          "target_room": "district_sector_07",
-          "position": [
-            0.0,
-            0.0,
-            -94.0
-          ],
-          "clearance_inset": 0.2
-        }
-      ]
-    },
-    {
-      "room_id": "district_sector_07",
-      "name": "Citadel Sector 07",
-      "district": "Citadel Expansion",
-      "position": [
-        0.0,
-        0.0,
-        -76.0
-      ],
-      "dimensions": [
-        22.0,
-        4.5,
-        20.0
-      ],
-      "inset_offset": 0.2,
-      "corridor_sockets": [
-        {
-          "target_room": "lower_warrens_mill",
-          "position": [
-            0.0,
-            0.0,
-            -66.0
-          ],
-          "clearance_inset": 0.2
-        }
-      ]
-    },
-    {
-      "room_id": "lower_warrens_mill",
-      "name": "Lower Warrens Grain Mill",
-      "district": "Citadel Expansion",
-      "position": [
-        0.0,
-        0.0,
-        -48.0
-      ],
-      "dimensions": [
-        22.0,
-        4.5,
-        20.0
-      ],
-      "inset_offset": 0.2,
-      "corridor_sockets": [
-        {
-          "target_room": "market_cross",
-          "position": [
-            0.0,
-            0.0,
-            -38.0
-          ],
-          "clearance_inset": 0.2
-        }
-      ]
     }
   ],
   "thoroughfares": [
@@ -296,24 +215,6 @@
     {
       "from": "undercroft_conduit",
       "to": "aqueduct_sluice_conduit",
-      "width": 3.2,
-      "curb_height": 0.15
-    },
-    {
-      "from": "district_sector_08",
-      "to": "district_sector_07",
-      "width": 3.2,
-      "curb_height": 0.15
-    },
-    {
-      "from": "district_sector_07",
-      "to": "lower_warrens_mill",
-      "width": 3.2,
-      "curb_height": 0.15
-    },
-    {
-      "from": "lower_warrens_mill",
-      "to": "market_cross",
       "width": 3.2,
       "curb_height": 0.15
     }

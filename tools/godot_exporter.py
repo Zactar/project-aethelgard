@@ -1,78 +1,70 @@
 #!/usr/bin/env python3
 """
-PROJECT AETHELGARD: GODOT 4 SCENE & RESOURCE EXPORTER
-Converts GameRuntimeManifest spatial rooms, props, and NPCs into native Godot 4 .tscn files.
+tools/godot_exporter.py
+Project Aethelgard: Godot 4 Scene Tree (.tscn) Dual-Exporter
 """
 
-from schemas.studio_contracts import GameRuntimeManifest
-from pathlib import Path
+import logging
 import json
 import sys
+from pathlib import Path
 
-ROOT_DIR = Path(__file__).resolve().parents[1]
-if str(ROOT_DIR) not in sys.path:
-    sys.path.insert(0, str(ROOT_DIR))
-
-
-GODOT_EXPORT_DIR = ROOT_DIR / "godot_project" / "scenes" / "generated"
-MANIFEST_PATH = ROOT_DIR / "web_client" / "game_runtime_manifest.json"
+WORKSPACE_ROOT = Path(__file__).resolve().parent.parent
+if str(WORKSPACE_ROOT) not in sys.path:
+    sys.path.insert(0, str(WORKSPACE_ROOT))
 
 
-def export_manifest_to_godot(manifest: GameRuntimeManifest) -> Path:
-    GODOT_EXPORT_DIR.mkdir(parents=True, exist_ok=True)
-    scene_file = GODOT_EXPORT_DIR / f"{manifest.district_id}.tscn"
+logger = logging.getLogger("Aethelgard.GodotExporter")
+logging.basicConfig(level=logging.INFO,
+                    format="[%(asctime)s] [%(levelname)s] [%(name)s]: %(message)s")
 
-    tscn_lines = [
-        '[gd_scene format=3 uid="uid://aethelgard_' +
-        manifest.district_id.lower() + '"]',
-        "",
-        '[node name="' + manifest.district_id + '" type="Node3D"]',
-        ""
-    ]
 
-    # Convert Spatial Room Nodes to Godot 3D Floorplates
-    for node_id, node in manifest.spatial_layout.nodes.items():
-        min_p = node.bounds_min
-        max_p = node.bounds_max
-        w = abs(max_p.x - min_p.x) / 100.0  # Scale to meters
-        d = abs(max_p.y - min_p.y) / 100.0
-        cx = node.center_location.x / 100.0
-        cy = node.center_location.z / 100.0
-        cz = node.center_location.y / 100.0
+class Godot4Exporter:
+    def __init__(self, workspace_root: Path = WORKSPACE_ROOT):
+        self.workspace_root = workspace_root
+        self.manifest_path = self.workspace_root / \
+            "web_client" / "game_runtime_manifest.json"
+        self.output_dir = self.workspace_root / "godot_project" / "scenes" / "generated"
+        self.output_dir.mkdir(parents=True, exist_ok=True)
 
-        tscn_lines.extend([
-            f'[node name="{node_id}" type="CSGBox3D" parent="."]',
-            f'transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, {cx:.2f}, {cy:.2f}, {cz:.2f})',
-            f'size = Vector3({w:.2f}, 0.2, {d:.2f})',
-            f'use_collision = true',
-            ""
-        ])
+    def export_scenes(self) -> bool:
+        """Parses runtime manifest and generates native Godot 4 .tscn files."""
+        if not self.manifest_path.exists():
+            logger.error(
+                f"Cannot export: {self.manifest_path} does not exist.")
+            return False
 
-    # Convert NPCs to Godot CharacterBody3D placeholders
-    for npc_id, npc in manifest.npcs.items():
-        nx = npc.position.x / 100.0
-        ny = npc.position.z / 100.0
-        nz = npc.position.y / 100.0
+        try:
+            with open(self.manifest_path, "r", encoding="utf-8") as f:
+                manifest = json.load(f)
 
-        tscn_lines.extend([
-            f'[node name="{npc_id}" type="CharacterBody3D" parent="."]',
-            f'transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, {nx:.2f}, {ny:.2f}, {nz:.2f})',
-            f'[node name="Collision" type="CollisionShape3D" parent="{npc_id}"]',
-            f'[node name="Mesh" type="CSGCylinder3D" parent="{npc_id}"]',
-            f'radius = 0.55',
-            f'height = 1.8',
-            ""
-        ])
+            rooms = manifest.get("rooms", [])
+            for room in rooms:
+                room_id = room.get("room_id", "unnamed_room")
+                pos = room.get("position", [0, 0, 0])
+                dims = room.get("dimensions", [10, 4, 10])
 
-    scene_file.write_text("\n".join(tscn_lines), encoding="utf-8")
-    print(f"  [GODOT 4 EXPORTER]: Exported district scene to {scene_file}")
-    return scene_file
+                tscn_content = f"""[gd_scene format=3]
+
+[node name="{room_id}" type="Node3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, {pos[0]}, {pos[1]}, {pos[2]})
+
+[node name="Floorplate" type="CSGBox3D" parent="."]
+size = Vector3({dims[0]}, 0.4, {dims[2]})
+use_collision = true
+"""
+                scene_file = self.output_dir / f"District_{room_id}.tscn"
+                scene_file.write_text(tscn_content, encoding="utf-8")
+
+            logger.info(
+                f"[✓] Godot 4 Exporter generated {len(rooms)} scenes at {self.output_dir}")
+            return True
+        except Exception as e:
+            logger.error(f"Godot export failed: {e}")
+            return False
 
 
 if __name__ == "__main__":
-    if MANIFEST_PATH.exists():
-        manifest_data = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
-        m = GameRuntimeManifest.model_validate(manifest_data)
-        export_manifest_to_godot(m)
-    else:
-        print(f"[ERROR]: {MANIFEST_PATH} not found.")
+    exporter = Godot4Exporter()
+    success = exporter.export_scenes()
+    sys.exit(0 if success else 1)

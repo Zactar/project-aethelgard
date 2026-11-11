@@ -1,60 +1,75 @@
 #!/usr/bin/env python3
 """
-PROJECT AETHELGARD: ENGINE-AGNOSTIC ASSET INGESTER
-Directs staged artifacts into the Three.js web client and Godot 4 scene representations.
+tools/engine_importer.py
+Project Aethelgard: Autonomous Dynamic Spatial Compiler & Manifest Hot-Patcher
 """
 
-from tools.godot_exporter import export_manifest_to_godot
-from schemas.studio_contracts import GameRuntimeManifest
-from pathlib import Path
+from services.agent_runtime.src.studio_self_healer import StudioSelfHealer
+from typing import Dict, Any, List
+import logging
 import json
-import shutil
 import sys
+from pathlib import Path
 
-ROOT_DIR = Path(__file__).resolve().parents[1]
-if str(ROOT_DIR) not in sys.path:
-    sys.path.insert(0, str(ROOT_DIR))
-
-
-STAGING_DIR = ROOT_DIR / "build" / "staging"
-WEB_DIR = ROOT_DIR / "web_client"
+# Anchor workspace root to sys.path
+WORKSPACE_ROOT = Path(__file__).resolve().parent.parent
+if str(WORKSPACE_ROOT) not in sys.path:
+    sys.path.insert(0, str(WORKSPACE_ROOT))
 
 
-class EngineAssetIngester:
-    def __init__(self):
-        STAGING_DIR.mkdir(parents=True, exist_ok=True)
-        WEB_DIR.mkdir(parents=True, exist_ok=True)
+logger = logging.getLogger("Aethelgard.EngineImporter")
+logging.basicConfig(level=logging.INFO,
+                    format="[%(asctime)s] [%(levelname)s] [%(name)s]: %(message)s")
 
-    def run_once(self) -> int:
-        staged_files = list(STAGING_DIR.glob("*.json"))
-        processed_count = 0
 
-        for f in staged_files:
+class AutonomousEngineImporter:
+    """
+    Dynamically compiles `web_client/game_runtime_manifest.json` from approved RFCs
+    and runtime topology contracts, eliminating hardcoded room dictionaries.
+    """
+
+    def __init__(self, workspace_root: Path = WORKSPACE_ROOT):
+        self.workspace_root = workspace_root
+        self.manifest_path = self.workspace_root / \
+            "web_client" / "game_runtime_manifest.json"
+        self.approved_rfcs_dir = self.workspace_root / "build" / "rfcs" / "approved"
+        self.self_healer = StudioSelfHealer(workspace_root=self.workspace_root)
+
+    def compile_manifest(self) -> bool:
+        # Check active project metadata
+        active_proj_file = self.workspace_root / "projects" / "active_project.json"
+        if active_proj_file.exists():
             try:
-                data = json.loads(f.read_text(encoding="utf-8"))
-                payload = data.get("raw_payload", {})
-                runtime_manifest = payload.get("game_runtime_manifest")
+                with open(active_proj_file, "r", encoding="utf-8") as f:
+                    meta = json.load(f)
+                if meta.get("engine_type") != "WEBGL_3D":
+                    logger.info(
+                        f"[EngineImporter] Project '{meta.get('title')}' is {meta.get('engine_type')}. Skipping 3D spatial room compilation.")
+                    return True
+            except Exception:
+                pass
 
-                if runtime_manifest:
-                    # 1. Update web client target
-                    target_file = WEB_DIR / "game_runtime_manifest.json"
-                    target_file.write_text(json.dumps(
-                        runtime_manifest, indent=2), encoding="utf-8")
+    def _derive_thoroughfares(self, rooms: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        thoroughfares = []
+        seen_pairs = set()
 
-                    # 2. Export Godot 4 compatibility scene
-                    manifest_obj = GameRuntimeManifest.model_validate(
-                        runtime_manifest)
-                    export_manifest_to_godot(manifest_obj)
-
-                    processed_count += 1
-                f.unlink()
-            except Exception as e:
-                print(f"  [INGESTER WARNING] Error processing {f.name}: {e}")
-
-        return processed_count
+        for room in rooms:
+            rid = room.get("room_id")
+            for sock in room.get("corridor_sockets", []):
+                target = sock.get("target_room")
+                pair_key = tuple(sorted([rid, target]))
+                if pair_key not in seen_pairs:
+                    seen_pairs.add(pair_key)
+                    thoroughfares.append({
+                        "from": rid,
+                        "to": target,
+                        "width": 3.2,
+                        "curb_height": 0.15
+                    })
+        return thoroughfares
 
 
 if __name__ == "__main__":
-    ingester = EngineAssetIngester()
-    count = ingester.run_once()
-    print(f"[INGESTER]: Processed {count} staged studio artifact(s).")
+    importer = AutonomousEngineImporter()
+    success = importer.compile_manifest()
+    sys.exit(0 if success else 1)

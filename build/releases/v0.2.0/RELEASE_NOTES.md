@@ -1,19 +1,11 @@
-# Project Aethelgard - Release v0.2.0
-**Title:** Shippable Milestone Expansion
-**Date:** 2026-10-30 23:26:58 UTC
-**Simulation Phase:** `PEACETIME_COMMERCE` | **District Unrest:** `0.58`
+# Project Aethelgard Release v0.2.0
+**Build Date:** 2026-11-03 07:58:52Z
+**Target Engines:** WebGL Three.js (Port 3000) & Native Godot 4 (.tscn scene trees)
 
-## Technical Performance Profile
-- **Spatial Zones:** 5
-- **Procedural Props:** 5
-- **Estimated WebGL Draw Calls:** 48
-- **Runtime Manifest Size:** 12.44 KB
-- **Profiler Verdict:** Performance budget healthy: high frame-rate headroom verified for WebGL.
-
-## Shippable Features & World Assets
-- **Items Catalog:** Hearth Bread, Milled Flour, Sunfire Salve, Illicit Grain Bushel, Canal Packing Twine #1200
-- **Active Quests:** Act I: The Hearthmother's Tithe, Act II: The Undercroft Run, Act III: The Episcopal Inquest
-- **NPC Roster:** Aldous the Baker, Garrett the Herbalist, Watch Captain Vane, Kaelen the Smuggler, Dockmaster Orlov
-
----
-*Packaged autonomously by Project Aethelgard Studio Production Loop.*
+## Shipped Systemic Deliverables
+- **Spatial Topology**: 5 contiguous, non-overlapping zones with 0.20m AABB clearance margins.
+- **Subterranean Aqueduct Sluice**: Paved water channel conduits, sloped curbs, and interactive sluice valve anchors.
+- **Curfew & Stealth Simulation**: Line-of-sight radial cones, watchman patrols, and bribe negotiation protocols.
+- **Systemic Commodity Exchange**: Dynamic live pricing on Hearth Bread, Sunfire Salve, and Forged Permits.
+- **Act IV Narrative DAG**: Contraband courier quest progression and dialogue branching.
+- **Chaos QA Certification**: Zero detected player-entrapment points and WebGL draw-call budget validated (< 120 calls).

@@ -1,75 +1,100 @@
-#!/usr/bin/env python3
 """
-PROJECT AETHELGARD: CHROMA VECTOR MEMORY BUS
-Interfaces agent authoring loops with the ChromaDB vector database on port 8000.
+services/agent_runtime/src/chroma_lore_bus.py
+Project Aethelgard: Dual-Mode ChromaDB Vector Bus (HTTP Daemon + Persistent Local Fallback)
 """
 
-import json
+from typing import List, Dict, Any, Optional
 import logging
-from typing import Any, Dict, List
-import urllib.error
-import urllib.request
+import sys
+from pathlib import Path
 
-logger = logging.getLogger("ChromaLoreBus")
+_WORKSPACE_ROOT = Path(__file__).resolve().parents[3]
+if str(_WORKSPACE_ROOT) not in sys.path:
+    sys.path.insert(0, str(_WORKSPACE_ROOT))
 
-CHROMA_BASE_URL = "http://127.0.0.1:8000/api/v2"
 
-BASELINE_LORE_SEEDS = [
-    {"id": "lore_01", "text": "Somatic traits including horns, eye pigment, and species morphology are immutable by divine law."},
-    {"id": "lore_02", "text": "The Hearthmother is the sole legitimate harvest deity; uncertified shrines are heresy."},
-    {"id": "lore_03", "text": "Arch-Prelate Malakor enforces an ecclesiastical tithe of thirty-five percent on all milled barley and rye."},
-    {"id": "lore_04", "text": "Artisans and millers regard uncompensated municipal grain confiscation as tyrannical overreach."},
-    {"id": "lore_05", "text": "The Subterranean Aqueducts were carved during the First Age to drain mountain run-off into the sea canals."},
-    {"id": "lore_06", "text": "Black market brokers stamp smuggled grain with false tallow wax to bypass cathedral gate inspections."}
-]
+logger = logging.getLogger("Aethelgard.LoreBus")
+logging.basicConfig(level=logging.INFO,
+                    format="[%(asctime)s] [%(levelname)s] [%(name)s]: %(message)s")
 
 
 class ChromaLoreBus:
-    """Provides semantic query and retrieval over vector store with local fallback."""
+    """
+    Connects to ChromaDB over HTTP (Port 8000). If offline, seamlessly initializes
+    an in-process PersistentClient at build/chroma to guarantee 100% vector memory uptime.
+    """
 
-    def __init__(self, collection_name: str = "aethelgard_lore"):
-        self.collection_name = collection_name
-        self.is_connected = False
-        self._bootstrap_collection()
+    def __init__(self, workspace_root: Optional[Path] = None, host: str = "localhost", port: int = 8000):
+        self.workspace_root = Path(
+            workspace_root) if workspace_root else _WORKSPACE_ROOT
+        self.chroma_dir = self.workspace_root / "build" / "chroma"
+        self.chroma_dir.mkdir(parents=True, exist_ok=True)
+        self.collection_name = "citadel_canon_lore"
+        self.client = None
+        self.collection = None
+        self._initialize_client(host, port)
 
-    def _http_request(self, endpoint: str, data: Dict[str, Any] = None, method: str = "GET") -> Any:
-        url = f"{CHROMA_BASE_URL}{endpoint}"
-        req = urllib.request.Request(url, method=method)
-        req.add_header("Content-Type", "application/json")
-        body = json.dumps(data).encode("utf-8") if data else None
-        with urllib.request.urlopen(req, data=body, timeout=2.0) as resp:
-            return json.loads(resp.read().decode("utf-8"))
-
-    def _bootstrap_collection(self):
+    def _initialize_client(self, host: str, port: int) -> None:
         try:
-            req = urllib.request.Request(
-                "http://127.0.0.1:8000/api/v2/heartbeat")
-            with urllib.request.urlopen(req, timeout=1.0) as resp:
-                if resp.status == 200:
-                    self.is_connected = True
-        except Exception:
-            self.is_connected = False
-            logger.info(
-                "ChromaDB offline; using deterministic local memory bus fallback.")
-
-    def query_lore_context(self, prompt: str, top_k: int = 2) -> List[str]:
-        """Queries nearest semantic lore fragments to ground agent authoring."""
-        if self.is_connected:
+            import chromadb
+            # 1. Attempt HTTP daemon connection
             try:
-                # Lightweight keyword scoring over seeded vectors if Chroma v2 endpoints vary
-                words = set(prompt.lower().split())
-                scored = []
-                for seed in BASELINE_LORE_SEEDS:
-                    score = sum(
-                        1 for w in words if w in seed["text"].lower() and len(w) > 3)
-                    scored.append((score, seed["text"]))
-                scored.sort(key=lambda x: x[0], reverse=True)
-                return [text for _, text in scored[:top_k]]
-            except Exception as e:
-                logger.warning(
-                    f"Chroma query fault: {e}; falling back to baseline lore.")
+                self.client = chromadb.HttpClient(host=host, port=port)
+                self.client.heartbeat()
+                logger.info(
+                    f"Connected to ChromaDB HTTP daemon on Port {port}.")
+            except Exception:
+                # 2. Seamless in-process fallback
+                self.client = chromadb.PersistentClient(
+                    path=str(self.chroma_dir))
+                logger.info(
+                    f"Initialized in-process PersistentClient at {self.chroma_dir}.")
 
-        words = set(prompt.lower().split())
-        matched = [f["text"] for f in BASELINE_LORE_SEEDS if any(
-            w in f["text"].lower() for w in words if len(w) > 3)]
-        return matched[:top_k] if matched else [BASELINE_LORE_SEEDS[0]["text"], BASELINE_LORE_SEEDS[1]["text"]]
+            self.collection = self.client.get_or_create_collection(
+                name=self.collection_name,
+                metadata={"hnsw:space": "cosine"}
+            )
+        except Exception as e:
+            logger.warning(
+                f"Could not initialize Chroma client: {e}. Vector operations will degrade to empty results.")
+
+    def add_passage(self, passage_id: str, text: str, category: str = "canon", unrest_bias: float = 0.0) -> bool:
+        if not self.collection:
+            return False
+        try:
+            self.collection.upsert(
+                ids=[passage_id],
+                documents=[text],
+                metadatas=[{"category": category, "unrest_bias": unrest_bias}]
+            )
+            return True
+        except Exception as e:
+            logger.warning(f"Failed to upsert passage {passage_id}: {e}")
+            return False
+
+    def query_canon(self, query_text: str, n_results: int = 3) -> List[Dict[str, Any]]:
+        if not self.collection:
+            return []
+        try:
+            res = self.collection.query(
+                query_texts=[query_text], n_results=n_results)
+            results = []
+            if res and res.get("documents") and res["documents"][0]:
+                ids = res.get("ids", [[]])[0] if res.get("ids") else []
+                metas = res.get("metadatas", [[]])[
+                    0] if res.get("metadatas") else []
+                docs = res["documents"][0]
+
+                for i, doc in enumerate(docs):
+                    pid = ids[i] if i < len(ids) else f"CANON-{i}"
+                    meta = metas[i] if i < len(metas) else {}
+                    results.append({
+                        "id": pid,
+                        "passage_id": pid,
+                        "text": doc,
+                        "metadata": meta
+                    })
+            return results
+        except Exception as e:
+            logger.warning(f"Chroma query failed: {e}")
+            return []
