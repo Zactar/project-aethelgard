@@ -174,6 +174,84 @@
       }
     }
 
+
+    // =========================================================================
+    // METROIDVANIA MULTI-STRATA BIOMES & TRAVERSAL ABILITY GATES (v0.4.0)
+    // =========================================================================
+    const totalRows = 45; // Multi-depth crust: 0-14 Loam, 15-29 Granite, 30-44 Magma
+    const viewRows = 15;
+    let cameraY = 0;
+
+    const upgrades = {
+      jackDrill: false,
+      jumpPiston: false
+    };
+
+    // Expand the world grid dynamically across strata
+    while (grid.length < totalRows) {
+      const r = grid.length;
+      const row = [];
+      for (let c = 0; c < cols; c++) {
+        if (c === 0 || c === cols - 1 || r === totalRows - 1) {
+          row.push(2); // Indestructible Bedrock borders
+        } else if (r >= 14 && r <= 16) {
+          row.push(2); // Dense Granite geological gate barrier
+        } else if (r >= 17 && r < 30) {
+          row.push(1); // Deep Granite sector
+        } else if (r >= 30) {
+          row.push(1); // Magma sector
+        } else {
+          row.push(1);
+        }
+      }
+      grid.push(row);
+    }
+
+    // Ability Gate Pickups: Drill in Loam pocket, Piston in Granite pocket
+    const relics = [
+      { id: 'relic_drill', type: 'drill', col: 3, row: 12, collected: false, icon: '⚡' },
+      { id: 'relic_piston', type: 'piston', col: 16, row: 24, collected: false, icon: '🚀' }
+    ];
+    grid[12][3] = 0; // Clear pocket for Jack-Drill
+    grid[24][16] = 0; // Clear pocket for Jump-Piston
+
+    // Additional Boulders in deeper strata
+    boulders.push({ col: 7, row: 20, state: 'resting', timer: 0 });
+    boulders.push({ col: 12, row: 34, state: 'resting', timer: 0 });
+    grid[20][7] = 3;
+    grid[34][12] = 3;
+
+    // Additional deep fauna
+    enemies.push({ id: 'pooka_deep', type: 'pooka', col: 8, row: 22, color: '#f97316', eyeColor: '#fef08a', inflateStage: 0, inflateTimer: 0, moveTimer: 0, facing: 'left' });
+    enemies.push({ id: 'fygar_deep', type: 'fygar', col: 11, row: 36, color: '#22c55e', eyeColor: '#fef08a', inflateStage: 0, inflateTimer: 0, moveTimer: 0, facing: 'right', fireTimer: 3.0 });
+    grid[22][8] = 0; grid[36][11] = 0;
+
+    function checkRelicPickups() {
+      relics.forEach(rel => {
+        if (!rel.collected && rel.col === player.col && rel.row === player.row) {
+          rel.collected = true;
+          if (rel.type === 'drill') {
+            upgrades.jackDrill = true;
+            document.getElementById('hud-sector').innerText = 'GRANITE STRATA';
+          }
+          if (rel.type === 'piston') {
+            upgrades.jumpPiston = true;
+          }
+          updateAbilitiesHUD();
+        }
+      });
+    }
+
+    function updateAbilitiesHUD() {
+      const hint = document.getElementById('camera-controls-hint');
+      if (hint) {
+        let str = 'WASD / Arrows: Move & Dig | [F]/[J]: Harpoon & Pump';
+        if (upgrades.jackDrill) str += ' | [DRILL ACTIVE]';
+        if (upgrades.jumpPiston) str += ' | [SPACE: Piston Leap]';
+        hint.innerText = str;
+      }
+    }
+
     const cols = 20; // 640px
     const rows = 15; // 480px
 
@@ -281,6 +359,10 @@
 
       if (grid[nr][nc] === 1) grid[nr][nc] = 0;
       document.getElementById('hud-depth').innerText = `${nr * 10}m`;
+      checkRelicPickups();
+      if (nr < 15) document.getElementById('hud-sector').innerText = 'UPPER LOAM';
+      else if (nr < 30) document.getElementById('hud-sector').innerText = 'DENSE GRANITE';
+      else document.getElementById('hud-sector').innerText = 'MAGMA CHAMBER';
       checkRelicPickups();
       if (nr < 15) document.getElementById('hud-sector').innerText = 'UPPER LOAM';
       else if (nr < 30) document.getElementById('hud-sector').innerText = 'DENSE GRANITE';
@@ -444,6 +526,9 @@
       // Smooth vertical camera tracking
       const targetCamY = Math.max(0, Math.min(totalRows - viewRows, player.row - Math.floor(viewRows / 2))) * tileSize;
       cameraY += (targetCamY - cameraY) * 0.15;
+      // Smooth vertical camera tracking
+      const targetCamY = Math.max(0, Math.min(totalRows - viewRows, player.row - Math.floor(viewRows / 2))) * tileSize;
+      cameraY += (targetCamY - cameraY) * 0.15;
       if (gameOver) return;
       updateBoulders(delta);
       updateEnemies(delta);
@@ -568,6 +653,7 @@
       if (player.facing === 'up') ctx.fillRect(px + 8, py - 4, 8, 4);
       if (player.facing === 'left') ctx.fillRect(px - 4, py + 8, 4, 8);
       if (player.facing === 'right') ctx.fillRect(px + player.width, py + 8, 4, 8);
+      ctx.restore();
       ctx.restore();
     }
 
