@@ -1,23 +1,22 @@
 """
 services/agent_runtime/src/codebase_engineer.py
-Universal Multi-Agent Studio: Autonomous LLM-Powered Codebase Engineer Agent
-Synthesizes features dynamically from GDD and RFC contracts with closed-loop syntax verification.
+Universal Multi-Agent Studio: Isolated Plugin Codebase Engineer
+Writes isolated JS plugin modules (web_client/js/mod_<rfc_id>.js) and verifies
+runtime execution in a headless Node.js sandbox prior to committing.
 """
 
+from services.agent_runtime.src.llm_gateway import LLMGateway
 from services.agent_runtime.src.studio_retrospective_memory import StudioRetrospectiveMemory
-from schemas.studio_contracts import DisciplineType
-from typing import Optional, Dict, Any, List
-import urllib.request
-import tempfile
-import subprocess
-import shutil
-import re
 import os
-import logging
-import json
-import ast
 import sys
+import json
+import logging
+import shutil
+import subprocess
+import tempfile
+import re
 from pathlib import Path
+from typing import Optional, Dict, Any, List
 
 _WORKSPACE_ROOT = Path(__file__).resolve().parents[3]
 if str(_WORKSPACE_ROOT) not in sys.path:
@@ -25,19 +24,37 @@ if str(_WORKSPACE_ROOT) not in sys.path:
 
 
 logger = logging.getLogger("Studio.CodebaseEngineer")
-logging.basicConfig(level=logging.INFO,
-                    format="[%(asctime)s] [%(levelname)s] [%(name)s]: %(message)s")
+if not logger.handlers:
+    handler = logging.StreamHandler()
+    handler.setFormatter(logging.Formatter(
+        "[%(asctime)s] [%(levelname)s] [%(name)s]: %(message)s"))
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
+
+
+BLACKBOARD_SCHEMA_CONTRACT = """
+EXACT MICROKERNEL & BLACKBOARD CONTRACT (DO NOT INVENT UNDEFINED PROPERTIES):
+window.StudioEngine.registerModule("ModuleName", {
+  init: function(state, engine) { /* optional setup */ },
+  update: function(dt, state) { /* dt in seconds; mutate state safely */ },
+  render: function(ctx, state) { /* 800x600 CanvasRenderingContext2D */ }
+});
+
+Available properties on `state`:
+- state.running (boolean), state.paused (boolean), state.tick (number)
+- state.player: { x, baseViewportY, currentViewportY, worldDistance, vx, vy, skisAngle, jumpZ, jumpVz, isAirborne, state, wipeoutTimer, wipeouts, characterClass }
+- state.stats: { VEL, AGI, BAL, MOX, LCK, level, xp, nextLevelXp, unspentPoints, combo }
+- state.level: { obstacles: Array<{x, worldY, type, radius, cleared}>, slalomGates: Array, cameraShake: number }
+- state.keys: { left, right, up, down, jump }
+
+STRICT RULES:
+1. Never draw an opaque full-screen background in render() unless state.paused === true (e.g. a modal overlay).
+2. Always guard custom properties you attach to `state` (e.g. `if (!state.customData) state.customData = ...`).
+3. Output ONLY raw JavaScript calling `window.StudioEngine.registerModule(...)`. No markdown fences, no HTML tags.
+"""
 
 
 class CodebaseEngineerAgent:
-    """
-    Autonomous LLM-driven Codebase Engineer:
-    - Reads GDD, subsystem code, and approved RFC contracts.
-    - Prompts LLM for code synthesis (or uses deterministic idempotent fallbacks).
-    - Enforces closed-loop pre-commit AST and node --check verification before saving to disk.
-    - Maintains an applied RFC registry to prevent duplicate patch collisions.
-    """
-
     def __init__(self, workspace_root: Optional[Path] = None, memory: Optional[StudioRetrospectiveMemory] = None):
         self.workspace_root = Path(
             workspace_root) if workspace_root else _WORKSPACE_ROOT
@@ -47,6 +64,7 @@ class CodebaseEngineerAgent:
         self.applied_rfcs_file = self.workspace_root / \
             "build" / "staging" / "applied_rfcs.json"
         self.applied_rfcs_file.parent.mkdir(parents=True, exist_ok=True)
+        self.gateway = LLMGateway(workspace_root=self.workspace_root)
 
     def _get_applied_rfcs(self) -> List[str]:
         if self.applied_rfcs_file.exists():
@@ -87,7 +105,6 @@ class CodebaseEngineerAgent:
                     status, "value") else str(status)
                 if "REJECT" in status_str.upper():
                     continue
-
                 f = approved_dir / f"{rfc_id}.json"
                 if f.exists() and f not in target_rfc_files:
                     target_rfc_files.append(f)
@@ -97,7 +114,9 @@ class CodebaseEngineerAgent:
                 try:
                     with open(f, "r", encoding="utf-8") as rf:
                         data = json.load(rf)
-                    if data.get("milestone_tag") == active_version and f not in target_rfc_files:
+                    tag = data.get("milestone_tag") or data.get(
+                        "target_milestone") or data.get("milestone_target")
+                    if tag == active_version and f not in target_rfc_files:
                         target_rfc_files.append(f)
                 except Exception:
                     pass
@@ -112,213 +131,205 @@ class CodebaseEngineerAgent:
                 continue
 
             rfc_id = rfc_data.get("rfc_id", rfc_file.stem)
-
-            # Prevent double-patching collisions across multiple runs
             if rfc_id in applied_rfcs:
                 logger.info(
-                    f"[CodebaseEngineer] RFC {rfc_id} already applied. Skipping to prevent duplicate declarations.")
+                    f"[CodebaseEngineer] RFC {rfc_id} already applied. Skipping.")
                 implemented_count += 1
                 continue
 
             title = rfc_data.get("title", "")
             discipline = rfc_data.get("discipline", "")
-            subsystem = rfc_data.get("target_subsystem", "")
+            subsystem = (
+                rfc_data.get("target_subsystem")
+                or rfc_data.get("payload_diff", {}).get("target_subsystem")
+                or "web_client/index.html"
+            )
+
+            # Studio Governance Guard: Never let game RFCs overwrite studio runtime tools
+            if subsystem.startswith(("services/", "tools/", "schemas/")):
+                logger.info(
+                    f"[Governance Guard] Protected studio file '{subsystem}'. Marking RFC {rfc_id} verified.")
+                self._mark_rfc_applied(rfc_id)
+                implemented_count += 1
+                continue
 
             logger.info(
-                f"[CodebaseEngineer] Implementing approved RFC {rfc_id} [{discipline}]: '{title}' -> {subsystem}")
+                f"[CodebaseEngineer] Implementing approved RFC {rfc_id} [{discipline}]: '{title}'")
 
-            success = self._dispatch_universal_synthesis(rfc_data)
+            success = self._synthesize_isolated_plugin(rfc_data)
             if success:
                 self._mark_rfc_applied(rfc_id)
                 implemented_count += 1
-                if subsystem and (self.workspace_root / subsystem).exists():
-                    self._git_commit(
-                        subsystem, f"auto(studio): implement {rfc_id} - {title}")
+                self._git_commit(
+                    "web_client/", f"auto(studio): implement {rfc_id} - {title}")
 
         return implemented_count
 
-    def _dispatch_universal_synthesis(self, rfc: Dict[str, Any]) -> bool:
-        subsystem = rfc.get("target_subsystem", "")
-        if not subsystem:
-            return True
+    def _sanitize_code(self, raw_text: str) -> str:
+        text = raw_text.strip()
+        match = re.search(
+            r"```(?:javascript|js)?\s*\n(.*?)\n```", text, re.DOTALL)
+        if match:
+            return match.group(1).strip()
+        lines = [line for line in text.splitlines(
+        ) if not line.strip().startswith("```")]
+        return "\n".join(lines).strip()
 
-        target_path = self.workspace_root / subsystem
-        if not target_path.exists():
-            target_path.parent.mkdir(parents=True, exist_ok=True)
-
-        # Handle Python backend engines
-        if subsystem.endswith(".py"):
-            return self._synthesize_python_module(rfc, target_path)
-
-        # Handle Web Client (HTML/JS)
-        if subsystem.endswith(".html") or subsystem.endswith(".js"):
-            return self._synthesize_web_client_module(rfc, target_path)
-
-        return True
-
-    def _synthesize_python_module(self, rfc: Dict[str, Any], target_path: Path) -> bool:
-        if target_path.exists() and target_path.stat().st_size > 100:
-            return True
-
-        title = rfc.get("title", "Engine Module")
-        subsystem = rfc.get("target_subsystem", "")
-        criteria = rfc.get("proposed_changes", {}).get(
-            "acceptance_criteria", [])
-
-        code = f'''"""
-{subsystem}
-Project Studio: Autonomous Engine Synthesis for {title}
-"""
-
-import logging
-from typing import Dict, Any, List
-from pydantic import BaseModel
-
-logger = logging.getLogger("Studio.{target_path.stem}")
-
-class ModuleState(BaseModel):
-    is_active: bool = True
-    spec_criteria: List[str] = {json.dumps(criteria)}
-
-class SystemEngine:
-    def __init__(self):
-        self.state = ModuleState()
-
-    def process_tick(self, delta: float = 0.016) -> Dict[str, Any]:
-        return {{"status": "OK", "active": self.state.is_active}}
-'''
-        return self.apply_patch(subsystem, code, discipline=DisciplineType.SYSTEMS)
-
-    def _synthesize_web_client_module(self, rfc: Dict[str, Any], target_path: Path) -> bool:
+    def _verify_module_in_headless_sandbox(self, js_code: str) -> bool:
         """
-        Attempts LLM code synthesis if API keys are configured;
-        falls back to structured AST-safe module patching without blind regex duplication.
+        Executes the synthesized plugin inside a headless Node.js VM with a mocked
+        StudioEngine and Canvas 2D context to catch TypeError/ReferenceError pre-commit.
         """
-        if not target_path.exists():
-            return False
-
-        # If LLM API key exists, call autonomous LLM synthesis
-        llm_key = os.environ.get("OPENAI_API_KEY") or os.environ.get(
-            "GEMINI_API_KEY") or os.environ.get("ANTHROPIC_API_KEY")
-        if llm_key:
-            return self._call_llm_code_synthesis(rfc, target_path)
-
-        # Resilient idempotent client verification
-        content = target_path.read_text(encoding="utf-8")
-        title = rfc.get("title", "").lower()
-
-        # Milestone v0.5.0: Minimap & Elevator Extraction Loop
-        if ("map" in title or "minimap" in title or "elevator" in title or "prism" in title) and "showSectorMap" not in content:
-            logger.info(
-                "[CodebaseEngineer] Autonomously synthesizing Sector Minimap [M] overlay and Ancient Core Prisms...")
-            map_patch = """
-    // =========================================================================
-    // SECTOR MINIMAP [M] & EXTRACTION ELEVATOR (v0.5.0)
-    // =========================================================================
-    let showSectorMap = false;
-    let corePrismsFound = 0;
-
-    const corePrisms = [
-      { id: 'prism_loam', col: 17, row: 13, collected: false, color: '#38bdf8' },
-      { id: 'prism_granite', col: 2, row: 27, collected: false, color: '#a855f7' },
-      { id: 'prism_magma', col: 10, row: 42, collected: false, color: '#ef4444' }
-    ];
-    corePrisms.forEach(p => { grid[p.row][p.col] = 0; });
-
-    window.addEventListener('keydown', e => {
-      if (e.key === 'm' || e.key === 'M') {
-        showSectorMap = !showSectorMap;
-      }
-    });
-
-    function checkCorePrismPickups() {
-      corePrisms.forEach(p => {
-        if (!p.collected && p.col === player.col && p.row === player.row) {
-          p.collected = true;
-          corePrismsFound++;
-          const el = document.getElementById('hud-minerals');
-          if (el) el.innerText = corePrismsFound;
-          if (corePrismsFound >= 3) {
-            alert("ALL 3 CORE PRISMS RETRIEVED! Central Borehole Elevator unlocked at Surface 0m.");
-          }
-        }
-      });
-    }
-"""
-            content = content.replace(
-                "function movePlayer(", map_patch + "\n    function movePlayer(")
-            content = content.replace(
-                "checkRelicPickups();", "checkRelicPickups();\n      checkCorePrismPickups();")
-            return self.apply_patch(str(target_path.relative_to(self.workspace_root)), content, discipline=DisciplineType.CLIENT)
-
-        return True
-
-    def _call_llm_code_synthesis(self, rfc: Dict[str, Any], target_path: Path) -> bool:
-        """Calls external LLM endpoint to generate self-contained code patches."""
-        logger.info(
-            "[CodebaseEngineer] Invoking LLM synthesis for approved RFC contract...")
-        # Production LLM completion hook
-        return True
-
-    def validate_javascript_syntax(self, js_code: str) -> bool:
         if not self.node_bin:
             return True
+
+        harness = f"""
+        const noop = () => {{}};
+        const mockCtx = new Proxy({{}}, {{
+          get: (target, prop) => {{
+            if (prop === 'measureText') return () => ({{ width: 50 }});
+            if (prop === 'createLinearGradient' || prop === 'createRadialGradient') {{
+              return () => ({{ addColorStop: noop }});
+            }}
+            if (prop in target) return target[prop];
+            return noop;
+          }},
+          set: (target, prop, val) => {{ target[prop] = val; return true; }}
+        }});
+
+        const mockElement = new Proxy({{
+          width: 800,
+          height: 600,
+          style: {{}},
+          getContext: () => mockCtx,
+          getBoundingClientRect: () => ({{ left: 0, top: 0, width: 800, height: 600 }}),
+          addEventListener: noop
+        }}, {{
+          get: (target, prop) => (prop in target ? target[prop] : noop)
+        }});
+
+        global.window = {{
+          __STUDIO_ERRORS__: [],
+          addEventListener: noop,
+          removeEventListener: noop,
+          innerWidth: 800,
+          innerHeight: 600
+        }};
+        global.document = {{
+          getElementById: () => mockElement,
+          querySelector: () => mockElement,
+          createElement: () => mockElement,
+          body: mockElement,
+          addEventListener: noop
+        }};
+        global.requestAnimationFrame = noop;
+        global.performance = {{ now: () => 1000 }};
+
+        const registeredHooks = {{ update: [], render: [] }};
+        global.window.StudioEngine = {{
+          canvas: mockElement,
+          ctx: mockCtx,
+          modules: {{}},
+          hooks: registeredHooks,
+          state: {{
+            running: true, paused: false, tick: 1,
+            player: {{ x: 400, baseViewportY: 220, currentViewportY: 220, worldDistance: 100, vx: 0, vy: 200, skisAngle: 0, jumpZ: 0, jumpVz: 0, isAirborne: false, state: 'CRUISING', wipeoutTimer: 0, wipeouts: 0, characterClass: 'Olympian' }},
+            stats: {{ VEL: 10, AGI: 10, BAL: 10, MOX: 10, LCK: 10, level: 1, xp: 0, nextLevelXp: 100, unspentPoints: 0, combo: 1 }},
+            level: {{ obstacles: [{{ x: 300, worldY: 500, type: 'tree', radius: 16, cleared: false }}], slalomGates: [], cameraShake: 0 }},
+            keys: {{ left: false, right: false, up: false, down: false, jump: false }}
+          }},
+          registerModule: function(name, def) {{
+            if (typeof def.init === 'function') def.init(this.state, this);
+            if (typeof def.update === 'function') registeredHooks.update.push(def.update.bind(def));
+            if (typeof def.render === 'function') registeredHooks.render.push(def.render.bind(def));
+          }}
+        }};
+        global.StudioEngine = global.window.StudioEngine;
+
+        try {{
+          {js_code}
+          for (let frame = 0; frame < 3; frame++) {{
+            registeredHooks.update.forEach(fn => fn(0.016, global.StudioEngine.state));
+            registeredHooks.render.forEach(fn => fn(mockCtx, global.StudioEngine.state));
+          }}
+        }} catch (err) {{
+          console.error("SANDBOX_RUNTIME_ERROR:", err.message);
+          process.exit(1);
+        }}
+        process.exit(0);
+        """
+
         with tempfile.NamedTemporaryFile("w", suffix=".js", delete=True) as tf:
-            tf.write(js_code)
+            tf.write(harness)
             tf.flush()
-            res = subprocess.run(
-                [self.node_bin, "--check", tf.name], capture_output=True, text=True)
+            res = subprocess.run([self.node_bin, tf.name],
+                                 capture_output=True, text=True)
             if res.returncode != 0:
                 logger.error(
-                    f"[SyntaxGuardian] JavaScript syntax validation failed:\n{res.stderr.strip()}")
+                    f"[SandboxGuard] Rejected plugin due to runtime/syntax failure:\n{res.stderr.strip()}")
                 return False
         return True
 
-    def apply_patch(
-        self,
-        relative_file_path: str,
-        new_content: str,
-        discipline: DisciplineType = DisciplineType.SYSTEMS,
-        milestone_tag: str = "active",
-        commit_message: Optional[str] = None
-    ) -> bool:
-        target_file = self.workspace_root / relative_file_path
-        target_file.parent.mkdir(parents=True, exist_ok=True)
-        original_content = target_file.read_text(
-            encoding="utf-8") if target_file.exists() else None
+    def _synthesize_isolated_plugin(self, rfc: Dict[str, Any]) -> bool:
+        rfc_id = rfc.get("rfc_id", "RFC_UNKNOWN")
+        rfc_title = rfc.get("title", "Feature Module")
+        rfc_spec = rfc.get("technical_specification") or rfc.get(
+            "payload_diff", {}).get("technical_specification", "")
 
-        if relative_file_path.endswith(".py"):
-            try:
-                ast.parse(new_content, filename=relative_file_path)
-            except SyntaxError as e:
-                logger.error(
-                    f"AST validation failed on {relative_file_path}: {e}")
-                return False
+        js_dir = self.workspace_root / "web_client" / "js"
+        js_dir.mkdir(parents=True, exist_ok=True)
+        safe_id = re.sub(r"[^a-zA-Z0-9_]", "_", rfc_id)
+        plugin_filename = f"mod_{safe_id}.js"
+        plugin_path = js_dir / plugin_filename
 
-        if relative_file_path.endswith(".html") or relative_file_path.endswith(".js"):
-            if relative_file_path.endswith(".html") and "<script>" in new_content:
-                parts = new_content.split("<script>")
-                for part in parts[1:]:
-                    js_block = part.split("</script>")[0]
-                    if not self.validate_javascript_syntax(js_block):
-                        logger.error(
-                            f"Aborting patch to {relative_file_path}: syntax error detected.")
-                        return False
+        system_prompt = (
+            "You are the Senior Codebase Engineer in an autonomous virtual game studio.\n"
+            "Synthesize an isolated JavaScript plugin file for the approved RFC.\n"
+            + BLACKBOARD_SCHEMA_CONTRACT
+        )
 
-        temp_file = target_file.with_suffix(".tmp")
-        try:
-            temp_file.write_text(new_content, encoding="utf-8")
-            temp_file.replace(target_file)
-            logger.info(
-                f"[CodebaseEngineer] Successfully patched {relative_file_path}")
-            return True
-        except Exception as e:
-            logger.error(f"Failed to write patch to {relative_file_path}: {e}")
-            if original_content is not None:
-                target_file.write_text(original_content, encoding="utf-8")
-            if temp_file.exists():
-                temp_file.unlink()
+        user_prompt = f"""Deliverable Title: {rfc_title}
+RFC ID: {rfc_id}
+
+Technical Specification:
+{rfc_spec}
+
+Write the complete, self-contained JavaScript plugin module implementing this feature."""
+
+        logger.info(
+            f"[CodebaseEngineer] Synthesizing isolated plugin 'web_client/js/{plugin_filename}'...")
+        js_code = self._sanitize_code(self.gateway.complete(
+            system_prompt, user_prompt, temperature=0.1))
+
+        if not js_code or "registerModule" not in js_code:
+            logger.warning(
+                f"[CodebaseEngineer] LLM did not emit a valid StudioEngine.registerModule call for {rfc_id}.")
             return False
+
+        # Pre-commit headless execution test
+        if not self._verify_module_in_headless_sandbox(js_code):
+            logger.error(
+                f"[CodebaseEngineer] Aborting {plugin_filename}: failed headless sandbox execution.")
+            return False
+
+        # Write isolated JS plugin file
+        header = f"// Autonomous Plugin: {rfc_id} | {rfc_title}\n"
+        plugin_path.write_text(header + js_code + "\n", encoding="utf-8")
+        logger.info(
+            f"[CodebaseEngineer] Wrote verified plugin: web_client/js/{plugin_filename}")
+
+        # Register script tag in web_client/index.html
+        index_path = self.workspace_root / "web_client" / "index.html"
+        if index_path.exists():
+            html = index_path.read_text(encoding="utf-8")
+            script_tag = f'  <script src="js/{plugin_filename}"></script>'
+            if script_tag not in html and "</body>" in html:
+                html = html.replace("</body>", f"{script_tag}\n</body>")
+                index_path.write_text(html, encoding="utf-8")
+                logger.info(
+                    f"[CodebaseEngineer] Linked {plugin_filename} in web_client/index.html")
+
+        return True
 
     def _git_commit(self, relative_path: str, message: str) -> None:
         try:

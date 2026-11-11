@@ -22,10 +22,13 @@ _WORKSPACE_ROOT = Path(__file__).resolve().parents[3]
 if str(_WORKSPACE_ROOT) not in sys.path:
     sys.path.insert(0, str(_WORKSPACE_ROOT))
 
-
 logger = logging.getLogger("Aethelgard.Roadmap")
-logging.basicConfig(level=logging.INFO,
-                    format="[%(asctime)s] [%(levelname)s] [%(name)s]: %(message)s")
+if not logger.handlers:
+    handler = logging.StreamHandler()
+    handler.setFormatter(logging.Formatter(
+        "[%(asctime)s] [%(levelname)s] [%(name)s]: %(message)s"))
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
 
 
 class StudioRoadmapEngine:
@@ -52,7 +55,6 @@ class StudioRoadmapEngine:
             with open(self.roadmap_file, "r", encoding="utf-8") as f:
                 raw_data = json.load(f)
 
-            # Defensive normalizer: backfill missing required Pydantic fields
             if "milestones" in raw_data and isinstance(raw_data["milestones"], list):
                 for idx, m in enumerate(raw_data["milestones"]):
                     if not m.get("theme"):
@@ -88,7 +90,6 @@ class StudioRoadmapEngine:
             logger.info(
                 f"Archived milestone {current.version} ({current.codename}) as SHIPPED.")
 
-        # Look for the next planned milestone in the project
         next_ms = None
         if forced_next_version:
             next_ms = next(
@@ -113,6 +114,7 @@ class StudioRoadmapEngine:
         return current
 
     def audit_active_milestone(self) -> Dict[str, Any]:
+        """Audits approved RFCs against active deliverables with strict applied verification."""
         state = self.load_roadmap()
         milestone = next((m for m in state.milestones if m.version ==
                          state.active_version and m.status != MilestoneStatus.SHIPPED), None)
@@ -130,25 +132,41 @@ class StudioRoadmapEngine:
                 "deliverables": []
             }
 
+        # Check applied RFC registry
+        applied_rfcs_file = self.workspace_root / \
+            "build" / "staging" / "applied_rfcs.json"
+        applied_rfc_ids = []
+        if applied_rfcs_file.exists():
+            try:
+                with open(applied_rfcs_file, "r", encoding="utf-8") as af:
+                    applied_rfc_ids = json.load(af)
+            except Exception:
+                pass
+
         approved_rfcs = list(
             (self.workspace_root / "build" / "rfcs" / "approved").glob("*.json"))
         verified_count = 0
         total_count = len(milestone.deliverables)
 
         for deliv in milestone.deliverables:
-            disc_val = deliv.discipline.value if hasattr(
-                deliv.discipline, "value") else str(deliv.discipline)
             deliv_verified = False
-
             for rfc_file in approved_rfcs:
                 try:
                     with open(rfc_file, "r", encoding="utf-8") as f:
-                        rfc_data = json.load(f)
-                    if (
-                        rfc_data.get("milestone_tag") == milestone.version and
-                        (rfc_data.get("target_deliverable_id") == deliv.deliverable_id or
-                         (rfc_data.get("discipline") == disc_val and deliv.title in rfc_data.get("title", "")))
-                    ):
+                        data = json.load(f)
+
+                    rfc_id = data.get("rfc_id", rfc_file.stem)
+
+                    # STRICT INVARIANT: Must be approved AND applied to disk
+                    if rfc_id not in applied_rfc_ids:
+                        continue
+
+                    title_matches = (
+                        deliv.title.lower() in data.get("title", "").lower()
+                        or data.get("title", "").lower() in deliv.title.lower()
+                    )
+
+                    if title_matches:
                         deliv.status = DeliverableStatus.VERIFIED
                         deliv.verified_artifact = rfc_file.name
                         deliv_verified = True
