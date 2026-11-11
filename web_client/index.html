@@ -441,6 +441,214 @@
 
       const newGate = {
         id: slalom.
+
+  // --- [RFC Applied: RFC-20261111-4C0E1C] Stat tracking system: Velocity, Agility, Balance, Moxie, Luck. ---
+  StudioEngine.registerModule("StatTracker", {
+  init(state, engine) {
+    const defaultStats = { VEL: 25, AGI: 20, BAL: 20, MOX: 15, LCK: 12 };
+    const base = Object.assign({}, defaultStats, (state.stats && state.stats.base) || {});
+    const modifiers = Object.assign({ VEL: 0, AGI: 0, BAL: 0, MOX: 0, LCK: 0 }, (state.stats && state.stats.modifiers) || {});
+
+    state.stats = {
+      base,
+      modifiers,
+      level: (state.stats && state.stats.level) || 1,
+      currentXP: (state.stats && state.stats.currentXP) || 0,
+      statusMask: (state.stats && state.stats.statusMask) || 0,
+      recoveryTimer: 0.0,
+      maxRecoveryTimer: 0.0,
+      majorWipeouts: (state.stats && state.stats.majorWipeouts) || 0,
+      maxWipeouts: 3,
+
+      // Bitmask Constants
+      FLAG_AIRBORNE: 0x0001,
+      FLAG_TUCKED: 0x0002,
+      FLAG_CARVING_LEFT: 0x0004,
+      FLAG_CARVING_RIGHT: 0x0008,
+      FLAG_BRAKING: 0x0010,
+      FLAG_WIPEOUT: 0x0020,
+      FLAG_INVULNERABLE: 0x0040,
+      FLAG_YETI_TERROR: 0x0080,
+      FLAG_CRITICAL_STABILITY: 0x0100,
+
+      getStat(statKey) {
+        const b = this.base[statKey] || 1;
+        const m = this.modifiers[statKey] || 0;
+        return Math.max(1, Math.min(99, Math.floor(b + m)));
+      },
+
+      getXPRequirement(lvl) {
+        return Math.floor(100 * Math.pow(lvl, 1.65) + ((lvl - 1) * 45));
+      },
+
+      addXP(amount) {
+        this.currentXP += amount;
+        let leveledUp = false;
+        while (this.currentXP >= this.getXPRequirement(this.level)) {
+          this.currentXP -= this.getXPRequirement(this.level);
+          this.level++;
+          leveledUp = true;
+          if (state.level) state.level.current = this.level;
+        }
+        return leveledUp;
+      },
+
+      getNearMissXP() {
+        const mox = this.getStat('MOX');
+        return Math.floor(15 * (1.0 + (mox * 0.02)));
+      },
+
+      getGateClearedXP() {
+        const mox = this.getStat('MOX');
+        const lck = this.getStat('LCK');
+        return Math.floor(40 * (1.0 + (mox * 0.015)) * (1.0 + (lck * 0.005)));
+      },
+
+      getDerivedKinematics() {
+        const vel = this.getStat('VEL');
+        const agi = this.getStat('AGI');
+        const bal = this.getStat('BAL');
+        const mox = this.getStat('MOX');
+        const lck = this.getStat('LCK');
+
+        const isTucked = (this.statusMask & this.FLAG_TUCKED) !== 0;
+        const isTerror = (this.statusMask & this.FLAG_YETI_TERROR) !== 0;
+
+        let vyMax = 350.0 + (vel * 8.5);
+        if (isTucked) vyMax *= (1.25 + (vel * 0.002));
+        if (isTerror) vyMax *= (1.0 + (mox * 0.008));
+
+        let ax = 420.0 + (agi * 11.2);
+        if (isTucked) ax *= 0.60;
+
+        return {
+          vyMax,
+          ax,
+          dx: 0.88 + (0.09 * (1.0 - (agi / 100.0))),
+          recoveryTime: Math.max(0.35, 2.50 - (bal * 0.022)),
+          stabilityThreshold: Math.min(0.95, 0.20 + (bal * 0.008)),
+          spinOmega: 4.188 + (mox * 0.125),
+          gateMagnetRadius: 16.0 + (lck * 0.45),
+          critRecoveryProb: Math.min(0.35, lck * 0.0035)
+        };
+      },
+
+      triggerWipeout(prngValue = Math.random()) {
+        const kinematics = this.getDerivedKinematics();
+        if (prngValue < kinematics.critRecoveryProb) {
+          this.statusMask |= this.FLAG_CRITICAL_STABILITY;
+          return false;
+        }
+        this.majorWipeouts++;
+        this.statusMask |= this.FLAG_WIPEOUT;
+        this.recoveryTimer = kinematics.recoveryTime;
+        this.maxRecoveryTimer = kinematics.recoveryTime;
+        return true;
+      }
+    };
+
+    if (state.player) {
+      state.player.kinematics = state.stats.getDerivedKinematics();
+    }
+  },
+
+  update(dt, state) {
+    const s = state.stats;
+    if (!s) return;
+
+    if (state.yeti && state.player) {
+      const dx = (state.yeti.x || 0) - (state.player.x || 0);
+      const dy = (state.yeti.y || 0) - (state.player.y || 0);
+      const dist = Math.hypot(dx, dy);
+      if (dist < 300) {
+        s.statusMask |= s.FLAG_YETI_TERROR;
+      } else {
+        s.statusMask &= ~s.FLAG_YETI_TERROR;
+      }
+    }
+
+    if (s.statusMask & s.FLAG_WIPEOUT) {
+      s.recoveryTimer -= dt;
+      if (s.recoveryTimer <= 0) {
+        s.recoveryTimer = 0;
+        s.statusMask &= ~s.FLAG_WIPEOUT;
+        s.statusMask &= ~s.FLAG_CRITICAL_STABILITY;
+      }
+    }
+
+    const kinematics = s.getDerivedKinematics();
+    if (state.player) {
+      state.player.kinematics = kinematics;
+      state.player.statusMask = s.statusMask;
+      state.player.isWipedOut = (s.statusMask & s.FLAG_WIPEOUT) !== 0;
+    }
+  },
+
+  render(ctx, state) {
+    const s = state.stats;
+    if (!s) return;
+
+    ctx.save();
+
+    // 1. Stat HUD Panel (Top-Right)
+    const panelX = ctx.canvas.width - 210;
+    const panelY = 14;
+    const panelW = 196;
+    const panelH = 156;
+
+    ctx.fillStyle = 'rgba(11, 16, 26, 0.82)';
+    ctx.strokeStyle = 'rgba(80, 160, 220, 0.4)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.roundRect(panelX, panelY, panelW, panelH, 6);
+    ctx.fill();
+    ctx.stroke();
+
+    // Header: Level & Status Badges
+    ctx.font = 'bold 11px monospace';
+    ctx.fillStyle = '#6ee7b7';
+    ctx.fillText(`LVL ${s.level}`, panelX + 12, panelY + 18);
+
+    const xpReq = s.getXPRequirement(s.level);
+    const xpRatio = Math.min(1.0, Math.max(0.0, s.currentXP / xpReq));
+
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+    ctx.fillRect(panelX + 60, panelY + 10, panelW - 72, 8);
+    ctx.fillStyle = '#10b981';
+    ctx.fillRect(panelX + 60, panelY + 10, (panelW - 72) * xpRatio, 8);
+
+    // Active Status Pills
+    let tagX = panelX + 12;
+    const tagY = panelY + 34;
+    const drawTag = (text, bg, fg) => {
+      ctx.font = '9px sans-serif';
+      const tw = ctx.measureText(text).width + 8;
+      ctx.fillStyle = bg;
+      ctx.fillRect(tagX, tagY - 9, tw, 12);
+      ctx.fillStyle = fg;
+      ctx.fillText(text, tagX + 4, tagY);
+      tagX += tw + 4;
+    };
+
+    if (s.statusMask & s.FLAG_TUCKED) drawTag('TUCK', '#1e3a8a', '#93c5fd');
+    if (s.statusMask & s.FLAG_AIRBORNE) drawTag('AIR', '#581c87', '#d8b4fe');
+    if (s.statusMask & s.FLAG_YETI_TERROR) drawTag('TERROR', '#7f1d1d', '#fca5a5');
+    if (s.statusMask & s.FLAG_CRITICAL_STABILITY) drawTag('STABLE', '#065f46', '#6ee7b7');
+
+    // Stat Value Mini Bars
+    const statsList = [
+      { key: 'VEL', label: 'VEL', color: '#38bdf8' },
+      { key: 'AGI', label: 'AGI', color: '#f43f5e' },
+      { key: 'BAL', label: 'BAL', color: '#fbbf24' },
+      { key: 'MOX', label: 'MOX', color: '#a855f7' },
+      { key: 'LCK', label: 'LCK', color: '#34d399' }
+    ];
+
+    statsList.forEach((statDef, index) => {
+      const rowY = panelY + 50 + (index * 19);
+      const val = s.getStat(statDef.key);
+
+      ctx.fillStyle = '#94a3b8';
 </script>
 </body>
 
