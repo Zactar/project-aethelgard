@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 
@@ -9,7 +8,6 @@
   <style>
     * {
       box-sizing: border-box;
-      user-select: none;
     }
 
     body {
@@ -21,254 +19,743 @@
       align-items: center;
       height: 100vh;
       font-family: 'Courier New', Courier, monospace;
-      color: #e2f1ff;
+      user-select: none;
     }
 
-    #game-container {
+    #viewport-container {
       position: relative;
-      width: 100vw;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: radial-gradient(circle at center, #131d2e 0%, #060911 100%);
+      width: 800px;
+      height: 600px;
+      border: 3px solid #334155;
+      box-shadow: 0 0 40px rgba(0, 0, 0, 0.95);
+      background: #f8fafc;
+      overflow: hidden;
     }
 
     canvas {
       display: block;
-      box-shadow: 0 0 30px rgba(0, 195, 255, 0.15);
-      border: 1px solid rgba(135, 206, 250, 0.2);
-      cursor: crosshair;
+      width: 800px;
+      height: 600px;
+    }
+
+    #crt-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.12) 50%);
+      background-size: 100% 4px;
+      z-index: 10;
     }
   </style>
 </head>
 
 <body>
-  <div id="game-container">
-    <canvas id="glissadeCanvas" width="960" height="720"></canvas>
+  <div id="viewport-container">
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <div id="crt-overlay"></div>
   </div>
 
   <script>
-    // --- CANVAS & CONTEXT SETUP ---
-    const canvas = document.getElementById('glissadeCanvas');
-    const ctx = canvas.getContext('2d');
+    (function glissadeEngine() {
+      const canvas = document.getElementById('gameCanvas');
+      const ctx = canvas.getContext('2d');
 
-    // --- GAME CONSTANTS & SPECIFICATIONS ---
-    const V_TERMINAL = 780; // px/sec
-    const BASE_XP = 45;
-    const DELTA_NEAR = 24; // near-miss threshold margin (px)
-    const R_PLAYER = 12;
-    const H_PLAYER = 28;
-
-    // Obstacle types and their hulls
-    const OBSTACLE_TYPES = {
-      PINE: { type: 'pine', shape: 'circle', r: 16, color: '#184728', h: 42 },
-      BOULDER: { type: 'boulder', shape: 'circle', r: 22, color: '#4a5568', h: 32 },
-      LIFT_TOWER: { type: 'lift_tower', shape: 'aabb', w: 24, h: 48, r: 24, color: '#b83232' }
-    };
-
-    // --- GAME STATE ---
-    let t_last = performance.now();
-    let worldDistY = 0;
-    let cameraY = 0;
-    let isGameOver = false;
-
-    // Kinematic & Progression Player State
-    const player = {
-      x: canvas.width / 2,
-      y: 220,
-      vx: 0,
-      vy: 180,
-      baseMuX: 3.8,
-      baseMuY: 0.85,
-      angle: 0,
-      carveInput: 0,
-      tuckInput: 0,
-      wipeoutTimer: 0,
-      isWipedOut: false,
-
-      // Stats & Progression
-      level: 1,
-      xp: 0,
-      unspent_stat_points: 0,
-      stats: {
-        agility: 0,  // Carving / Agility
-        moxie: 0,    // Moxie / Stamina
-        balance: 0,  // Balance / Recovery
-        luck: 0      // Luck / Drafting
-      },
-
-      // Recomputed dynamic tensors
-      cFricX: 3.8,
-      cFricY: 0.85
-    };
-
-    function getXpNext(lvl) {
-      return Math.floor(100 * Math.pow(lvl, 1.5));
-    }
-
-    function updateKinematicTensors() {
-      // Dynamic carving friction tensor: C_fric = diag(mu_x * (1 - 0.03 * Agility), mu_y * (1 - 0.01 * Moxie))
-      player.cFricX = player.baseMuX * Math.max(0.2, (1 - 0.03 * player.stats.agility));
-      player.cFricY = player.baseMuY * Math.max(0.3, (1 - 0.01 * player.stats.moxie));
-    }
-    updateKinematicTensors();
-
-    function allocateStat(statKey) {
-      if (player.unspent_stat_points > 0 && player.stats[statKey] !== undefined) {
-        player.stats[statKey]++;
-        player.unspent_stat_points--;
-        updateKinematicTensors();
-        createFloatingText(player.x, player.y - 40, `+1 ${statKey.toUpperCase()}!`, '#38ef7d');
-        spawnBurstParticles(player.x, player.y, '#38ef7d', 16);
-        return true;
-      }
-      return false;
-    }
-
-    function addXP(amount) {
-      player.xp += amount;
-      while (player.xp >= getXpNext(player.level)) {
-        player.xp -= getXpNext(player.level);
-        player.level += 1;
-        player.unspent_stat_points += 1;
-        createFloatingText(player.x, player.y - 60, "LEVEL UP! (+1 Point)", "#ffd700", 2.2);
-        spawnBurstParticles(player.x, player.y, '#ffd700', 35);
-      }
-    }
-
-    // --- WORLD & OBSTACLES ---
-    const obstacles = [];
-    const particles = [];
-    const skiTracks = [];
-    const floatingTexts = [];
-
-    function seedInitialTerrain() {
-      obstacles.length = 0;
-      for (let y = 400; y < 5000; y += 75) {
-        spawnRowObstacles(y);
-      }
-    }
-
-    function spawnRowObstacles(yPos) {
-      const count = 1 + Math.floor(Math.random() * 2.5);
-      for (let i = 0; i < count; i++) {
-        const xPos = 40 + Math.random() * (canvas.width - 80);
-        const roll = Math.random();
-        let archetype = OBSTACLE_TYPES.PINE;
-        if (roll < 0.45) {
-          archetype = OBSTACLE_TYPES.PINE;
-        } else if (roll < 0.8) {
-          archetype = OBSTACLE_TYPES.BOULDER;
-        } else {
-          archetype = OBSTACLE_TYPES.LIFT_TOWER;
-        }
-
-        obstacles.push({
-          x: xPos,
-          y: yPos,
-          type: archetype.type,
-          shape: archetype.shape,
-          r: archetype.r,
-          w: archetype.w || archetype.r * 2,
-          h: archetype.h || archetype.r * 2,
-          color: archetype.color,
-          near_miss_awarded: false
-        });
-      }
-    }
-
-    // --- VISUAL FX ---
-    function createFloatingText(x, y, text, color = '#ffffff', duration = 1.2) {
-      floatingTexts.push({
-        x: x,
-        y: y,
-        text: text,
-        color: color,
-        life: duration,
-        maxLife: duration,
-        vy: -45
+      // Controls
+      const keys = { left: false, right: false, up: false, down: false, jump: false };
+      window.addEventListener('keydown', e => {
+        if (['ArrowLeft', 'KeyA'].includes(e.code)) keys.left = true;
+        if (['ArrowRight', 'KeyD'].includes(e.code)) keys.right = true;
+        if (['ArrowUp', 'KeyW'].includes(e.code)) keys.up = true;
+        if (['ArrowDown', 'KeyS'].includes(e.code)) keys.down = true;
+        if (['Space'].includes(e.code)) keys.jump = true;
       });
-    }
+      window.addEventListener('keyup', e => {
+        if (['ArrowLeft', 'KeyA'].includes(e.code)) keys.left = false;
+        if (['ArrowRight', 'KeyD'].includes(e.code)) keys.right = false;
+        if (['ArrowUp', 'KeyW'].includes(e.code)) keys.up = false;
+        if (['ArrowDown', 'KeyS'].includes(e.code)) keys.down = false;
+        if (['Space'].includes(e.code)) keys.jump = false;
+      });
 
-    function spawnBurstParticles(x, y, color, count = 12) {
-      for (let i = 0; i < count; i++) {
-        const angle = Math.random() * Math.PI * 2;
-        const spd = 40 + Math.random() * 140;
-        particles.push({
-          x: x,
-          y: y,
-          vx: Math.cos(angle) * spd,
-          vy: Math.sin(angle) * spd,
-          size: 2 + Math.random() * 3,
-          color: color,
-          alpha: 1.0,
-          decay: 1.5 + Math.random() * 1.5
-        });
-      }
-    }
+      // Player State
+      const player = {
+        x: 400,
+        baseViewportY: 220,
+        currentViewportY: 220,
+        worldDistance: 0,
+        vx: 0,
+        vy: 190,
+        angularVelocity: 0,
+        skisAngle: 0,
+        jumpZ: 0,
+        jumpVz: 0,
+        isAirborne: false,
+        trickRotation: 0,
+        state: 'CRUISING',
+        wipeoutTimer: 0,
+        wipeouts: 0,
+        width: 24,
+        height: 36
+      };
 
-    function spawnSnowSpray(originX, originY, normalX, normalY, count = 10, speed = 120) {
-      for (let i = 0; i < count; i++) {
-        const jitter = (Math.random() - 0.5) * 0.7;
-        const nx = normalX * Math.cos(jitter) - normalY * Math.sin(jitter);
-        const ny = normalX * Math.sin(jitter) + normalY * Math.cos(jitter);
-        const mag = speed * (0.6 + Math.random() * 0.8);
-        particles.push({
-          x: originX,
-          y: originY,
-          vx: nx * mag,
-          vy: ny * mag,
-          size: 2 + Math.random() * 2.5,
-          color: '#e0f4ff',
-          alpha: 0.9,
-          decay: 2.2
-        });
-      }
-    }
+      const skiTracks = [];
+      const obstacles = [];
+      const particles = [];
+      const speedLines = [];
+      let nextSpawnDistance = 250;
+      let cameraShake = 0;
+      let lastTime = performance.now();
+      let tickCount = 0;
 
-    // --- INPUT HANDLING ---
-    const keys = {};
-    window.addEventListener('keydown', (e) => {
-      keys[e.key.toLowerCase()] = true;
-      if (e.key === '1') allocateStat('agility');
-      if (e.key === '2') allocateStat('moxie');
-      if (e.key === '3') allocateStat('balance');
-      if (e.key === '4') allocateStat('luck');
-      if (e.key.toLowerCase() === 'r' && player.isWipedOut) {
-        resetGame();
-      }
-    });
+      window.__GAME_STATE__ = {
+        title: "Glissade: Descent of the Yeti",
+        running: true,
+        tick: 0,
+        player: player,
+        obstaclesCount: 0
+      };
 
-    window.addEventListener('keyup', (e) => {
-      keys[e.key.toLowerCase()] = false;
-    });
-
-    // Mouse interaction for HUD Buttons
-    const hudButtons = [
-      { id: 'agility', label: '[1] AGIL', key: '1' },
-      { id: 'moxie',   label: '[2] MOX',  key: '2' },
-      { id: 'balance', label: '[3] BAL',  key: '3' },
-      { id: 'luck',    label: '[4] LUCK', key: '4' }
-    ];
-
-    canvas.addEventListener('mousedown', (e) => {
-      const rect = canvas.getBoundingClientRect();
-      const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
-      const my = (e.clientY - rect.top) * (canvas.height / rect.height);
-
-      for (let btn of hudButtons) {
-        if (btn.bounds &&
-            mx >= btn.bounds.x && mx <= btn.bounds.x + btn.bounds.w &&
-            my >= btn.bounds.y && my <= btn.bounds.y + btn.bounds.h) {
-          allocateStat(btn.id);
-          break;
+      function spawnInitialObstacles() {
+        for (let dist = 300; dist < 3000; dist += 85) {
+          spawnObstacleRow(dist);
         }
       }
-    });
 
-    function resetGame() {
-      player.x = canvas.width / 2;
-      player.y = 220;
-      player.vx = 0;
-      player.vy = 180
+      function spawnObstacleRow(dist) {
+        const roll = Math.random();
+        let type = 'tree';
+        if (roll < 0.45) type = 'tree';
+        else if (roll < 0.65) type = 'rock';
+        else if (roll < 0.82) type = 'mogul';
+        else type = 'gate';
+
+        const x = 70 + Math.random() * 660;
+        obstacles.push({
+          x: x,
+          worldY: dist,
+          type: type,
+          radius: type === 'tree' ? 18 : (type === 'rock' ? 14 : 20),
+          cleared: false
+        });
+      }
+
+      function spawnSnowSpray(x, y, count, dirX, power = 1) {
+        for (let i = 0; i < count; i++) {
+          particles.push({
+            x: x + (Math.random() - 0.5) * 6,
+            y: y + (Math.random() - 0.5) * 4,
+            vx: dirX * (50 + Math.random() * 90) * power,
+            vy: -20 - Math.random() * 40 * power,
+            life: 0.3 + Math.random() * 0.25,
+            maxLife: 0.45,
+            size: 2 + Math.random() * 2.5
+          });
+        }
+      }
+
+      function recordSkiTrack() {
+        if (player.isAirborne || player.state === 'WIPEOUT') return;
+        const cos = Math.cos(player.skisAngle);
+        const sin = Math.sin(player.skisAngle);
+        const spacing = player.state === 'SNOWPLOW' ? 9 : 6;
+        skiTracks.push({
+          lx: player.x - cos * spacing,
+          rx: player.x + cos * spacing,
+          worldY: player.worldDistance,
+          alpha: 0.22
+        });
+        if (skiTracks.length > 350) skiTracks.shift();
+      }
+
+      function updatePlayerKinematics(dt) {
+        // Dynamic camera leading based on downhill speed
+        const targetViewportY = 220 - (player.vy - 180) * 0.25;
+        player.currentViewportY += (targetViewportY - player.currentViewportY) * Math.min(1, 4 * dt);
+
+        if (player.wipeoutTimer > 0) {
+          player.wipeoutTimer -= dt;
+          player.state = 'WIPEOUT';
+          player.vy = Math.max(30, player.vy - 160 * dt);
+          player.vx *= Math.pow(0.2, dt);
+          player.skisAngle += 8 * dt;
+          player.worldDistance += player.vy * dt;
+          return;
+        }
+
+        // Movement State & Acceleration
+        if (keys.up) {
+          player.state = 'SNOWPLOW';
+          player.vy = Math.max(80, player.vy - 360 * dt);
+          player.vx *= Math.pow(0.4, dt);
+          spawnSnowSpray(player.x, player.currentViewportY + 8, 2, -1, 0.7);
+          spawnSnowSpray(player.x, player.currentViewportY + 8, 2, 1, 0.7);
+        } else if (keys.down) {
+          player.state = 'TUCK';
+          player.vy = Math.min(420, player.vy + 320 * dt);
+        } else {
+          player.state = 'CRUISING';
+          if (player.vy < 220) player.vy += 120 * dt;
+          if (player.vy > 220) player.vy -= 80 * dt;
+        }
+
+        // Smooth Carving with Centripetal Friction
+        let targetAngle = 0;
+        const carveAuthority = player.state === 'TUCK' ? 290 : 440;
+        if (keys.left) {
+          player.vx -= carveAuthority * dt;
+          targetAngle = -0.42;
+          player.state = player.state === 'TUCK' ? 'TUCK' : 'CARVE_LEFT';
+          spawnSnowSpray(player.x + 8, player.currentViewportY + 12, 3, 1, 1.2);
+          player.vy -= 30 * dt; // Carving bleeds slight speed
+        } else if (keys.right) {
+          player.vx += carveAuthority * dt;
+          targetAngle = 0.42;
+          player.state = player.state === 'TUCK' ? 'TUCK' : 'CARVE_RIGHT';
+          spawnSnowSpray(player.x - 8, player.currentViewportY + 12, 3, -1, 1.2);
+          player.vy -= 30 * dt;
+        } else {
+          player.vx *= Math.pow(0.78, dt * 60);
+        }
+
+        // Smooth Angular Damping
+        player.skisAngle += (targetAngle - player.skisAngle) * Math.min(1, 12 * dt);
+        player.x += player.vx * dt;
+        player.x = Math.max(50, Math.min(750, player.x));
+        player.worldDistance += player.vy * dt;
+
+        // Jump Parabola & Tricks
+        if (keys.jump && !player.isAirborne) {
+          player.isAirborne = true;
+          player.jumpVz = 340;
+          player.state = 'JUMP';
+          player.trickRotation = 0;
+        }
+
+        if (player.isAirborne) {
+          player.state = 'JUMP';
+          player.jumpZ += player.jumpVz * dt;
+          player.jumpVz -= 880 * dt;
+
+          // Airborne trick spinning
+          if (keys.left) player.trickRotation -= 7 * dt;
+          if (keys.right) player.trickRotation += 7 * dt;
+
+          if (player.jumpZ <= 0) {
+            player.jumpZ = 0;
+            player.isAirborne = false;
+            player.trickRotation = 0;
+            cameraShake = 8;
+            spawnSnowSpray(player.x, player.currentViewportY + 10, 10, 1, 1.4);
+            spawnSnowSpray(player.x, player.currentViewportY + 10, 10, -1, 1.4);
+          }
+        }
+
+        // Speedlines when tucked
+        if (player.state === 'TUCK' && Math.random() < 0.6) {
+          speedLines.push({
+            x: player.x + (Math.random() - 0.5) * 120,
+            y: -20,
+            vy: player.vy * 1.5,
+            len: 30 + Math.random() * 40,
+            alpha: 0.5
+          });
+        }
+
+        recordSkiTrack();
+      }
+
+      function updateObstacles(dt) {
+        while (nextSpawnDistance < player.worldDistance + 1300) {
+          spawnObstacleRow(nextSpawnDistance);
+          nextSpawnDistance += 70 + Math.random() * 50;
+        }
+
+        for (let i = obstacles.length - 1; i >= 0; i--) {
+          const obs = obstacles[i];
+          const screenY = obs.worldY - player.worldDistance + player.currentViewportY;
+
+          if (screenY < -100) {
+            obstacles.splice(i, 1);
+            continue;
+          }
+
+          // Bounding collision
+          if (player.wipeoutTimer <= 0 && Math.abs(screenY - player.currentViewportY) < 18 && Math.abs(obs.x - player.x) < (obs.radius + 10)) {
+            if ((obs.type === 'rock' || obs.type === 'mogul') && player.isAirborne && player.jumpZ > 14) {
+              obs.cleared = true;
+              continue;
+            }
+
+            if (obs.type === 'gate') {
+              obs.cleared = true;
+              cameraShake = 4;
+              continue;
+            }
+
+            if (!obs.cleared) {
+              player.wipeouts++;
+              player.wipeoutTimer = 1.4;
+              cameraShake = 18;
+              spawnSnowSpray(player.x, player.currentViewportY, 20, 1, 2);
+              spawnSnowSpray(player.x, player.currentViewportY, 20, -1, 2);
+            }
+          }
+        }
+        window.__GAME_STATE__.obstaclesCount = obstacles.length;
+      }
+
+      function updateParticles(dt) {
+        for (let i = particles.length - 1; i >= 0; i--) {
+          const p = particles[i];
+          p.life -= dt;
+          if (p.life <= 0) {
+            particles.splice(i, 1);
+            continue;
+          }
+          p.x += p.vx * dt;
+          p.y += p.vy * dt;
+        }
+
+        for (let i = speedLines.length - 1; i >= 0; i--) {
+          const sl = speedLines[i];
+          sl.y += sl.vy * dt;
+          sl.alpha -= dt * 0.8;
+          if (sl.y > 620 || sl.alpha <= 0) speedLines.splice(i, 1);
+        }
+      }
+
+      function render() {
+        ctx.save();
+        if (cameraShake > 0) {
+          ctx.translate((Math.random() - 0.5) * cameraShake, (Math.random() - 0.5) * cameraShake);
+          cameraShake *= 0.86;
+        }
+
+        // Snow Field
+        ctx.fillStyle = '#f8fafc';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Procedural Slope Contours
+        ctx.strokeStyle = '#e2e8f0';
+        ctx.lineWidth = 1.5;
+        const stripeOffset = -(player.worldDistance % 70);
+        for (let y = stripeOffset; y < canvas.height; y += 70) {
+          ctx.beginPath();
+          ctx.moveTo(0, y);
+          ctx.lineTo(canvas.width, y);
+          ctx.stroke();
+        }
+
+        // Persistent Ski Tracks
+        skiTracks.forEach(t => {
+          const sy = t.worldY - player.worldDistance + player.currentViewportY;
+          if (sy < -20 || sy > 620) return;
+          ctx.fillStyle = `rgba(148, 163, 184, ${t.alpha})`;
+          ctx.fillRect(t.lx, sy, 2, 4);
+          ctx.fillRect(t.rx, sy, 2, 4);
+        });
+
+        // Speed lines
+        speedLines.forEach(sl => {
+          ctx.strokeStyle = `rgba(100, 116, 139, ${sl.alpha})`;
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.moveTo(sl.x, sl.y);
+          ctx.lineTo(sl.x, sl.y + sl.len);
+          ctx.stroke();
+        });
+
+        // Render Obstacles
+        obstacles.forEach(obs => {
+          const sy = obs.worldY - player.worldDistance + player.currentViewportY;
+          if (sy < -60 || sy > 660) return;
+
+          if (obs.type === 'tree') {
+            ctx.fillStyle = 'rgba(15, 23, 42, 0.2)';
+            ctx.beginPath();
+            ctx.ellipse(obs.x + 4, sy + 18, 12, 5, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#14532d';
+            ctx.beginPath();
+            ctx.moveTo(obs.x, sy - 28);
+            ctx.lineTo(obs.x - 18, sy + 16);
+            ctx.lineTo(obs.x + 18, sy + 16);
+            ctx.closePath();
+            ctx.fill();
+            ctx.fillStyle = '#166534';
+            ctx.beginPath();
+            ctx.moveTo(obs.x, sy - 24);
+            ctx.lineTo(obs.x - 14, sy + 6);
+            ctx.lineTo(obs.x + 14, sy + 6);
+            ctx.closePath();
+            ctx.fill();
+          } else if (obs.type === 'rock') {
+            ctx.fillStyle = 'rgba(15, 23, 42, 0.25)';
+            ctx.beginPath();
+            ctx.ellipse(obs.x + 3, sy + 6, 14, 6, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#475569';
+            ctx.beginPath();
+            ctx.ellipse(obs.x, sy, 14, 10, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#94a3b8';
+            ctx.beginPath();
+            ctx.ellipse(obs.x - 3, sy - 3, 6, 4, 0, 0, Math.PI * 2);
+            ctx.fill();
+          } else if (obs.type === 'mogul') {
+            ctx.fillStyle = '#cbd5e1';
+            ctx.beginPath();
+            ctx.ellipse(obs.x, sy, 20, 8, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#f1f5f9';
+            ctx.beginPath();
+            ctx.ellipse(obs.x - 2, sy - 2, 14, 5, 0, 0, Math.PI * 2);
+            ctx.fill();
+          } else if (obs.type === 'gate') {
+            ctx.fillStyle = '#dc2626';
+            ctx.fillRect(obs.x - 34, sy - 22, 5, 28);
+            ctx.fillStyle = '#2563eb';
+            ctx.fillRect(obs.x + 30, sy - 22, 5, 28);
+          }
+        });
+
+        // Snow Particles
+        ctx.fillStyle = '#ffffff';
+        particles.forEach(p => {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        // Skier
+        ctx.save();
+        const py = player.currentViewportY - player.jumpZ;
+        ctx.translate(player.x, py);
+
+        // Dynamic Jump Shadow
+        if (player.jumpZ > 0) {
+          ctx.fillStyle = `rgba(15, 23, 42, ${Math.max(0.08, 0.35 - player.jumpZ * 0.003)})`;
+          ctx.beginPath();
+          ctx.ellipse(0, player.jumpZ + 12, 14 + player.jumpZ * 0.05, 7, 0, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        ctx.rotate(player.skisAngle + player.trickRotation);
+
+        if (player.state === 'WIPEOUT') {
+          ctx.fillStyle = '#ef4444';
+          ctx.fillRect(-12, -8, 24, 16);
+          ctx.fillStyle = '#0f172a';
+          ctx.fillRect(-14, -12, 8, 5);
+        } else {
+          // Skis
+          ctx.fillStyle = '#0284c7';
+          if (player.state === 'SNOWPLOW') {
+            ctx.save();
+            ctx.rotate(-0.25);
+            ctx.fillRect(-9, -16, 4, 34);
+            ctx.restore();
+            ctx.save();
+            ctx.rotate(0.25);
+            ctx.fillRect(5, -16, 4, 34);
+            ctx.restore();
+          } else {
+            ctx.fillRect(-8, -16, 4, 34);
+            ctx.fillRect(4, -16, 4, 34);
+          }
+
+          // Body & Jacket
+          ctx.fillStyle = player.state === 'TUCK' ? '#dc2626' : '#ea580c';
+          const bodyHeight = player.state === 'TUCK' ? 12 : 18;
+          ctx.fillRect(-7, -8, 14, bodyHeight);
+
+          // Helmet & Goggles
+          ctx.fillStyle = '#1e293b';
+          ctx.beginPath();
+          ctx.arc(0, -12, 7, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#facc15';
+          ctx.fillRect(-4, -14, 8, 4);
+        }
+        ctx.restore();
+        ctx.restore();
+
+        // CRT Retro HUD
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+        ctx.fillRect(0, 0, canvas.width, 48);
+
+        ctx.fillStyle = '#f8fafc';
+        ctx.font = 'bold 15px "Courier New", monospace';
+        ctx.textAlign = 'left';
+        const speedKmH = Math.round(player.vy * 0.22);
+        ctx.fillText(`SPEED: ${speedKmH} KM/H`, 20, 30);
+
+        ctx.textAlign = 'center';
+        const distMeters = Math.floor(player.worldDistance / 10);
+        ctx.fillText(`DISTANCE: ${distMeters}M`, 300, 30);
+
+        ctx.fillStyle = player.wipeouts > 0 ? '#f87171' : '#4ade80';
+        ctx.fillText(`WIPEOUTS: ${player.wipeouts}`, 500, 30);
+
+        ctx.textAlign = 'right';
+        ctx.fillStyle = player.state === 'TUCK' ? '#ef4444' : (player.state === 'JUMP' ? '#a855f7' : '#38bdf8');
+        ctx.fillText(`[${player.state}]`, 780, 30);
+      }
+
+      function gameLoop(now) {
+        const dt = Math.min((now - lastTime) / 1000, 0.05);
+        lastTime = now;
+        tickCount++;
+        window.__GAME_STATE__.tick = tickCount;
+
+        updatePlayerKinematics(dt);
+        updateObstacles(dt);
+        updateParticles(dt);
+        render();
+
+        requestAnimationFrame(gameLoop);
+      }
+
+      spawnInitialObstacles();
+      requestAnimationFrame(gameLoop);
+    })();
+  
+  // --- [RFC Applied: RFC-20261111-83A6B7] Starting class selection screen (Olympian, Daredevil, Ranger, Occultist). ---
+  (function() {
+(() => {
+  // Ensure global game state container exists
+  window.__GAME_STATE__ = window.__GAME_STATE__ || {};
+  const GS = window.__GAME_STATE__;
+
+  // Class Archetype Definitions
+  const CLASS_REGISTRY = {
+    olympian: {
+      id: 'olympian',
+      name: 'Olympian',
+      icon: '🛡️',
+      tagline: 'Immovable Aegis & God-Forged Might',
+      stats: { vit: 18, str: 16, agi: 8, int: 6, luk: 8 },
+      baseVitals: { hp: 180, maxHp: 180, stamina: 110, maxStamina: 110, mana: 40, maxMana: 40 },
+      startingPerks: ['Aegis Bulwark (50% kinetic damage reduction while bracing)', 'Colossus Slam (Stun on charge)'],
+      startingEquipment: { weapon: 'Crested Xiphos', offhand: 'Tower Hoplon', armor: 'Bronze Cuirass' },
+      themeColor: '#e5a93b'
+    },
+    daredevil: {
+      id: 'daredevil',
+      name: 'Daredevil',
+      icon: '⚡',
+      tagline: 'High-Roller Assassin & Kinetic Blitz',
+      stats: { vit: 10, str: 12, agi: 18, int: 8, luk: 16 },
+      baseVitals: { hp: 105, maxHp: 105, stamina: 160, maxStamina: 160, mana: 60, maxMana: 60 },
+      startingPerks: ['Gambit Rush (+40% crit rate when below 35% HP)', 'Phase Shift (Perfect dodge refunds stamina)'],
+      startingEquipment: { weapon: 'Dual Serrated Stilettos', offhand: null, armor: 'Ballistic Leather Coat' },
+      themeColor: '#e63946'
+    },
+    ranger: {
+      id: 'ranger',
+      name: 'Ranger',
+      icon: '🏹',
+      tagline: 'Precision Ballistics & Sector Denial',
+      stats: { vit: 12, str: 11, agi: 15, int: 10, luk: 12 },
+      baseVitals: { hp: 125, maxHp: 125, stamina: 130, maxStamina: 130, mana: 70, maxMana: 70 },
+      startingPerks: ['Vantage Point (+25% armor pierce from distance)', 'Caltrop Trap (Bleed & Cripple field)'],
+      startingEquipment: { weapon: 'Composite Recurve', offhand: 'Tanto Dagger', armor: 'Ghillie Vest' },
+      themeColor: '#2a9d8f'
+    },
+    occultist: {
+      id: 'occultist',
+      name: 'Occultist',
+      icon: '🔮',
+      tagline: 'Eldritch Transmutation & Soul Syphon',
+      stats: { vit: 8, str: 6, agi: 9, int: 19, luk: 14 },
+      baseVitals: { hp: 85, maxHp: 85, stamina: 80, maxStamina: 80, mana: 190, maxMana: 190 },
+      startingPerks: ['Blood Siphon (Attacks heal for 18% magic output)', 'Void Tether (Damage spreads to 3 adjacent targets)'],
+      startingEquipment: { weapon: 'Gilded Athame', offhand: 'Void Reliquary', armor: 'Runic Vestments' },
+      themeColor: '#9d4edd'
+    }
+  };
+
+  let selectedClassId = 'olympian';
+
+  // Inject UI Styles
+  const styleElement = document.createElement('style');
+  styleElement.id = 'class-selection-styles';
+  styleElement.textContent = `
+    .cs-screen-overlay {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at center, #131722 0%, #080a0f 100%);
+      z-index: 99999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 40px 24px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: #e0e6ed;
+      user-select: none;
+      box-sizing: border-box;
+      overflow-y: auto;
+    }
+    .cs-header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .cs-title {
+      font-size: 2.2rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      font-weight: 800;
+      margin: 0;
+      color: #f1f5f9;
+      text-shadow: 0 0 16px rgba(255,255,255,0.15);
+    }
+    .cs-subtitle {
+      font-size: 0.95rem;
+      color: #94a3b8;
+      letter-spacing: 0.05em;
+      margin-top: 6px;
+    }
+    .cs-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      width: 100%;
+      max-width: 1200px;
+      margin: auto 0;
+    }
+    @media (max-width: 960px) {
+      .cs-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 540px) {
+      .cs-grid { grid-template-columns: 1fr; }
+    }
+    .cs-card {
+      background: rgba(30, 41, 59, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 20px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      position: relative;
+      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+      backdrop-filter: blur(12px);
+    }
+    .cs-card:hover {
+      transform: translateY(-4px);
+      background: rgba(30, 41, 59, 0.7);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+    .cs-card.active {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 28px -6px rgba(0,0,0,0.6);
+    }
+    .cs-card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      width: 100%;
+    }
+    .cs-card-icon {
+      font-size: 2rem;
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 8px;
+    }
+    .cs-card-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      margin: 0;
+    }
+    .cs-card-tagline {
+      font-size: 0.75rem;
+      color: #94a3b8;
+      margin-bottom: 16px;
+      line-height: 1.3;
+      min-height: 32px;
+    }
+    .cs-stats-list {
+      width: 100%;
+      margin: 0 0 16px 0;
+      padding: 0;
+      list-style: none;
+      font-size: 0.8rem;
+    }
+    .cs-stat-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 3px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+    .cs-stat-label { color: #64748b; font-weight: 600; }
+    .cs-stat-val { font-family: monospace; font-weight: bold; color: #cbd5e1; }
+    .cs-perks {
+      margin-top: auto;
+      width: 100%;
+      font-size: 0.75rem;
+    }
+    .cs-perk-item {
+      background: rgba(0, 0, 0, 0.25);
+      border-left: 2px solid #64748b;
+      padding: 6px 8px;
+      margin-top: 6px;
+      border-radius: 0 4px 4px 0;
+      color: #94a3b8;
+      line-height: 1.25;
+    }
+    .cs-footer {
+      margin-top: 28px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    .cs-confirm-btn {
+      background: #f8fafc;
+      color: #090d16;
+      border: none;
+      padding: 14px 42px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      box-shadow: 0 4px 14px rgba(255, 255, 255, 0.2);
+    }
+    .cs-confirm-btn:hover {
+      background: #ffffff;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(255, 255, 255, 0.35);
+    }
+    .cs-confirm-btn:active {
+      transform: translateY(1px);
+    }
+  `;
+  document.head.appendChild(styleElement);
+
+  // Render Base Interface
+  const mountScreen = () => {
+    const existing = document.getElementById('class-selection-screen');
+    if (existing) existing.remove();
+
+    const root = document.createElement('div');
+    root.id = 'class-selection-screen';
+    root.className = 'cs
+  })();
+</script>
+</body>
+
+</html>
