@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Glissade: Descent of the Yeti</title>
+  <title>Aethelgard Studio Runtime</title>
   <style>
     * {
       box-sizing: border-box;
@@ -60,26 +60,22 @@
 
   <script>
     // =========================================================================
-    // STUDIO ENGINE MICROKERNEL & BLACKBOARD
+    // PROJECT AETHELGARD: UNIVERSAL STUDIO MICROKERNEL & BLACKBOARD
     // =========================================================================
     window.__STUDIO_ERRORS__ = [];
     window.onerror = function (msg, url, line, col, error) {
-      window.__STUDIO_ERRORS__.push({ msg, line, error: error ? error.stack : null });
-      console.error("[StudioEngine Error Caught]", msg, "at line", line);
+      window.__STUDIO_ERRORS__.push({ source: url || 'inline', msg: String(msg), line: line });
       return false;
     };
 
     window.StudioEngine = {
-      canvas: null,
-      ctx: null,
+      canvas: document.getElementById('gameCanvas'),
+      ctx: document.getElementById('gameCanvas').getContext('2d'),
       modules: {},
-      hooks: {
-        update: [],
-        render: [],
-        input: []
-      },
+      hooks: { update: [], render: [] },
       state: {
         running: true,
+        paused: false,
         tick: 0,
         player: {
           x: 400,
@@ -92,42 +88,43 @@
           jumpZ: 0,
           jumpVz: 0,
           isAirborne: false,
-          trickRotation: 0,
           state: 'CRUISING',
           wipeoutTimer: 0,
-          wipeouts: 0
+          wipeouts: 0,
+          characterClass: 'Olympian'
         },
         stats: {
           VEL: 10, AGI: 10, BAL: 10, MOX: 10, LCK: 10,
-          level: 1, xp: 0, nextLevelXp: 100
+          level: 1, xp: 0, nextLevelXp: 100, unspentPoints: 0, combo: 1
         },
         level: {
           obstacles: [],
           slalomGates: [],
-          skiTracks: [],
-          particles: [],
-          speedLines: [],
-          cameraShake: 0,
-          nextSpawnDistance: 250
+          cameraShake: 0
         },
         keys: { left: false, right: false, up: false, down: false, jump: false }
       },
 
       registerModule: function (name, moduleDef) {
         this.modules[name] = moduleDef;
-        if (moduleDef.update) this.hooks.update.push(moduleDef.update.bind(moduleDef));
-        if (moduleDef.render) this.hooks.render.push(moduleDef.render.bind(moduleDef));
-        if (moduleDef.init) {
-          try { moduleDef.init(this.state, this); }
-          catch (e) { window.__STUDIO_ERRORS__.push({ msg: "Init failed: " + name, error: e.stack }); }
+        if (typeof moduleDef.update === 'function') {
+          this.hooks.update.push({ name: name, fn: moduleDef.update.bind(moduleDef) });
         }
-        console.log(`[StudioEngine] Registered Module: ${name}`);
+        if (typeof moduleDef.render === 'function') {
+          this.hooks.render.push({ name: name, fn: moduleDef.render.bind(moduleDef) });
+        }
+        if (typeof moduleDef.init === 'function') {
+          try {
+            moduleDef.init(this.state, this);
+          } catch (e) {
+            window.__STUDIO_ERRORS__.push({ source: name + '.init', msg: e.message });
+          }
+        }
       }
     };
 
     window.__GAME_STATE__ = window.StudioEngine.state;
 
-    // Key Listeners
     window.addEventListener('keydown', e => {
       const k = window.StudioEngine.state.keys;
       if (['ArrowLeft', 'KeyA'].includes(e.code)) k.left = true;
@@ -145,11 +142,9 @@
       if (['Space'].includes(e.code)) k.jump = false;
     });
 
-    // Core Baseline Module (Downhill Physics & Base Render)
+    // Core Baseline Module
     window.StudioEngine.registerModule("BaselineDownhillEngine", {
-      init: function (state, engine) {
-        engine.canvas = document.getElementById('gameCanvas');
-        engine.ctx = engine.canvas.getContext('2d');
+      init: function (state) {
         for (let dist = 300; dist < 2500; dist += 85) {
           state.level.obstacles.push({
             x: 70 + Math.random() * 660,
@@ -161,9 +156,12 @@
         }
       },
       update: function (dt, state) {
+        if (state.paused) return;
         const p = state.player;
         const k = state.keys;
         const lvl = state.level;
+        const velMult = 1 + (state.stats.VEL - 10) * 0.03;
+        const agiMult = 1 + (state.stats.AGI - 10) * 0.04;
 
         if (p.wipeoutTimer > 0) {
           p.wipeoutTimer -= dt;
@@ -181,23 +179,24 @@
           p.vx *= Math.pow(0.4, dt);
         } else if (k.down) {
           p.state = 'TUCK';
-          p.vy = Math.min(420, p.vy + 320 * dt);
+          p.vy = Math.min(420 * velMult, p.vy + 320 * dt);
         } else {
           p.state = 'CRUISING';
-          if (p.vy < 220) p.vy += 120 * dt;
-          if (p.vy > 220) p.vy -= 80 * dt;
+          const cruiseTarget = 220 * velMult;
+          if (p.vy < cruiseTarget) p.vy += 120 * dt;
+          if (p.vy > cruiseTarget) p.vy -= 80 * dt;
         }
 
         let targetAngle = 0;
-        const carveSpeed = p.state === 'TUCK' ? 290 : 440;
+        const carveSpeed = (p.state === 'TUCK' ? 290 : 440) * agiMult;
         if (k.left) {
           p.vx -= carveSpeed * dt;
           targetAngle = -0.42;
-          p.state = p.state === 'TUCK' ? 'TUCK' : 'CARVE_LEFT';
+          if (p.state !== 'TUCK') p.state = 'CARVE_LEFT';
         } else if (k.right) {
           p.vx += carveSpeed * dt;
           targetAngle = 0.42;
-          p.state = p.state === 'TUCK' ? 'TUCK' : 'CARVE_RIGHT';
+          if (p.state !== 'TUCK') p.state = 'CARVE_RIGHT';
         } else {
           p.vx *= Math.pow(0.78, dt * 60);
         }
@@ -221,13 +220,17 @@
           }
         }
 
-        // Obstacle collision
         lvl.obstacles.forEach(obs => {
+          if (obs.worldY < p.worldDistance - 150) {
+            obs.worldY += 2400;
+            obs.x = 70 + Math.random() * 660;
+            obs.cleared = false;
+          }
           const sy = obs.worldY - p.worldDistance + p.currentViewportY;
-          if (p.wipeoutTimer <= 0 && Math.abs(sy - p.currentViewportY) < 18 && Math.abs(obs.x - p.x) < 26) {
+          if (p.wipeoutTimer <= 0 && Math.abs(sy - p.currentViewportY) < 18 && Math.abs(obs.x - p.x) < 24) {
             if (!obs.cleared) {
               p.wipeouts++;
-              p.wipeoutTimer = 1.4;
+              p.wipeoutTimer = Math.max(0.5, 1.4 - (state.stats.BAL - 10) * 0.05);
               lvl.cameraShake = 18;
             }
           }
@@ -246,7 +249,6 @@
         ctx.fillStyle = '#f8fafc';
         ctx.fillRect(0, 0, 800, 600);
 
-        // Downhill slope stripes
         ctx.strokeStyle = '#e2e8f0';
         ctx.lineWidth = 1.5;
         const offset = -(p.worldDistance % 70);
@@ -257,7 +259,6 @@
           ctx.stroke();
         }
 
-        // Draw obstacles
         lvl.obstacles.forEach(obs => {
           const sy = obs.worldY - p.worldDistance + p.currentViewportY;
           if (sy < -40 || sy > 640) return;
@@ -276,7 +277,6 @@
           }
         });
 
-        // Draw Skier
         ctx.save();
         ctx.translate(p.x, p.currentViewportY - p.jumpZ);
         ctx.rotate(p.skisAngle);
@@ -292,20 +292,20 @@
         ctx.restore();
         ctx.restore();
 
-        // Default Top HUD
+        // Core Top HUD
         ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
-        ctx.fillRect(0, 0, 800, 48);
+        ctx.fillRect(0, 0, 800, 44);
         ctx.fillStyle = '#f8fafc';
-        ctx.font = 'bold 15px monospace';
-        ctx.fillText(`SPEED: ${Math.round(p.vy * 0.22)} KM/H`, 20, 30);
-        ctx.fillText(`DISTANCE: ${Math.floor(p.worldDistance / 10)}M`, 300, 30);
-        ctx.fillText(`WIPEOUTS: ${p.wipeouts}`, 520, 30);
+        ctx.font = 'bold 14px monospace';
+        ctx.textAlign = 'left';
+        ctx.fillText(`SPD:${Math.round(p.vy * 0.22)}KM/H  DIST:${Math.floor(p.worldDistance / 10)}M  LV:${state.stats.level}  XP:${state.stats.xp}/${state.stats.nextLevelXp}`, 16, 27);
+        ctx.textAlign = 'right';
         ctx.fillStyle = '#38bdf8';
-        ctx.fillText(`[${p.state}]`, 700, 30);
+        ctx.fillText(`[${p.characterClass.toUpperCase()} | ${p.state}]`, 784, 27);
       }
     });
 
-    // Microkernel Main Tick Loop
+    // Main Microkernel Loop with Fault Isolation
     (function runStudioEngine() {
       let lastTime = performance.now();
       function tick(now) {
@@ -314,17 +314,39 @@
         const engine = window.StudioEngine;
         engine.state.tick++;
 
-        // Execute all module update hooks
         for (let i = 0; i < engine.hooks.update.length; i++) {
-          try { engine.hooks.update[i](dt, engine.state); }
-          catch (e) { window.__STUDIO_ERRORS__.push({ msg: "Update error", error: e.stack }); }
+          const hook = engine.hooks.update[i];
+          try {
+            hook.fn(dt, engine.state);
+          } catch (e) {
+            if (window.__STUDIO_ERRORS__.length < 10) {
+              window.__STUDIO_ERRORS__.push({ source: hook.name + '.update', msg: e.message });
+            }
+          }
         }
 
-        // Execute all module render hooks
         if (engine.ctx) {
           for (let i = 0; i < engine.hooks.render.length; i++) {
-            try { engine.hooks.render[i](engine.ctx, engine.state); }
-            catch (e) { window.__STUDIO_ERRORS__.push({ msg: "Render error", error: e.stack }); }
+            const hook = engine.hooks.render[i];
+            try {
+              hook.fn(engine.ctx, engine.state);
+            } catch (e) {
+              if (window.__STUDIO_ERRORS__.length < 10) {
+                window.__STUDIO_ERRORS__.push({ source: hook.name + '.render', msg: e.message });
+              }
+            }
+          }
+
+          // Studio Diagnostic Overlay if any agent plugin threw an error
+          if (window.__STUDIO_ERRORS__.length > 0) {
+            const err = window.__STUDIO_ERRORS__[0];
+            engine.ctx.fillStyle = 'rgba(127, 29, 29, 0.92)';
+            engine.ctx.fillRect(20, 520, 760, 60);
+            engine.ctx.fillStyle = '#fecaca';
+            engine.ctx.font = 'bold 12px monospace';
+            engine.ctx.textAlign = 'left';
+            engine.ctx.fillText(`[STUDIO PLUGIN FAULT] ${err.source}: ${err.msg}`, 32, 545);
+            engine.ctx.fillText(`Total Faults: ${window.__STUDIO_ERRORS__.length} (Isolated to preserve core engine)`, 32, 565);
           }
         }
 
@@ -332,695 +354,9 @@
       }
       requestAnimationFrame(tick);
     })();
-
-    // --- AUTONOMOUS AGENT PLUGINS INJECT BELOW ---
-  
-  // --- [RFC Applied: RFC-20261111-F15787] Slalom gate generator with combo multiplier tracking. ---
-  StudioEngine.registerModule('SlalomGateSystem', {
-  init(state, engine) {
-    state.slalom = {
-      gates: [],
-      gateIndex: 0,
-      comboState: 'COMBO_INACTIVE', // COMBO_INACTIVE, COMBO_ACTIVE, COMBO_DECAYING
-      comboCount: 0,
-      multiplier: 1.0,
-      comboTimer: 0,
-      maxDuration: 3.0,
-      floatingTexts: [],
-      lastGeneratedY: 0,
-      lastGateX: (state.level && state.level.width ? state.level.width * 0.5 : 400),
-      lastGateY: 0,
-      lastPolarity: 1, // 1 = Blue (Right), -1 = Red (Left)
-      prevPlayerPos: {
-        x: (state.player && state.player.x) || 400,
-        y: (state.player && state.player.y) || 0
-      },
-      time: 0
-    };
-
-    // Public exclusion query for external Poisson-disk / chunk obstacle generators
-    state.isSlalomExcluded = (x, y) => {
-      const gates = state.slalom.gates;
-      for (let i = 0; i < gates.length - 1; i++) {
-        const g1 = gates[i];
-        const g2 = gates[i + 1];
-        const r = g2.width * 0.8;
-        const rSq = r * r;
-        const dx = g2.x - g1.x;
-        const dy = g2.y - g1.y;
-        const l2 = dx * dx + dy * dy;
-        let t = 0;
-        if (l2 > 0) {
-          t = Math.max(0, Math.min(1, ((x - g1.x) * dx + (y - g1.y) * dy) / l2));
-        }
-        const projX = g1.x + t * dx;
-        const projY = g1.y + t * dy;
-        const distSq = (x - projX) * (x - projX) + (y - projY) * (y - projY);
-        if (distSq <= rSq) return true;
-      }
-      return false;
-    };
-  },
-
-  update(dt, state) {
-    if (!state.player) return;
-    const slalom = state.slalom;
-    slalom.time += dt;
-
-    const player = state.player;
-    const stats = state.stats || {};
-    const pX = player.x;
-    const pY = player.y;
-    const pPrevX = slalom.prevPlayerPos.x;
-    const pPrevY = slalom.prevPlayerPos.y;
-
-    // Check Wipeout condition
-    if (player.isWipedOut || player.wipedOut) {
-      if (slalom.comboState !== 'COMBO_INACTIVE') {
-        slalom.comboState = 'COMBO_INACTIVE';
-        slalom.comboCount = 0;
-        slalom.multiplier = 1.0;
-        slalom.comboTimer = 0;
-      }
-    }
-
-    // Dynamic gate generation along descending Y axis
-    const lookaheadY = pY + 1600;
-    const minX = 100;
-    const maxX = (state.level && state.level.width ? state.level.width - 100 : 700);
-
-    if (slalom.lastGeneratedY === 0) {
-      slalom.lastGeneratedY = pY + 200;
-      slalom.lastGateY = slalom.lastGeneratedY;
-      slalom.lastGateX = (minX + maxX) * 0.5;
-    }
-
-    const nominalVy = Math.max(280, Math.abs(player.vy || 350));
-    const maxVx = Math.max(240, Math.abs(player.vxMax || 320));
-    const eta = 0.75;
-
-    while (slalom.lastGeneratedY < lookaheadY) {
-      const dtTurn = 0.6 + Math.random() * 0.6; // 0.6s to 1.2s
-      const dy = Math.max(240, Math.min(480, nominalVy * dtTurn));
-      const nextY = slalom.lastGeneratedY + dy;
-
-      // Kinematic reachable bounds
-      const maxDx = (maxVx / nominalVy) * dy * eta;
-      const targetPolarity = -slalom.lastPolarity; // Alternating polarity
-      const lateralBias = targetPolarity * (maxDx * 0.6 + Math.random() * maxDx * 0.35);
-      let nextX = slalom.lastGateX + lateralBias;
-      nextX = Math.max(minX, Math.min(maxX, nextX));
-
-      // Re-verify kinematic solvability after clamping
-      if (Math.abs(nextX - slalom.lastGateX) > maxDx) {
-        nextX = slalom.lastGateX + Math.sign(nextX - slalom.lastGateX) * maxDx;
-      }
-
-      const totalDist = nextY;
-      const gateWidth = Math.max(70, Math.min(110, 110 - (totalDist / 5000) * 10));
-
-      const newGate = {
-        id: slalom.
-
-  // --- [RFC Applied: RFC-20261111-4C0E1C] Stat tracking system: Velocity, Agility, Balance, Moxie, Luck. ---
-  StudioEngine.registerModule("StatTracker", {
-  init(state, engine) {
-    const defaultStats = { VEL: 25, AGI: 20, BAL: 20, MOX: 15, LCK: 12 };
-    const base = Object.assign({}, defaultStats, (state.stats && state.stats.base) || {});
-    const modifiers = Object.assign({ VEL: 0, AGI: 0, BAL: 0, MOX: 0, LCK: 0 }, (state.stats && state.stats.modifiers) || {});
-
-    state.stats = {
-      base,
-      modifiers,
-      level: (state.stats && state.stats.level) || 1,
-      currentXP: (state.stats && state.stats.currentXP) || 0,
-      statusMask: (state.stats && state.stats.statusMask) || 0,
-      recoveryTimer: 0.0,
-      maxRecoveryTimer: 0.0,
-      majorWipeouts: (state.stats && state.stats.majorWipeouts) || 0,
-      maxWipeouts: 3,
-
-      // Bitmask Constants
-      FLAG_AIRBORNE: 0x0001,
-      FLAG_TUCKED: 0x0002,
-      FLAG_CARVING_LEFT: 0x0004,
-      FLAG_CARVING_RIGHT: 0x0008,
-      FLAG_BRAKING: 0x0010,
-      FLAG_WIPEOUT: 0x0020,
-      FLAG_INVULNERABLE: 0x0040,
-      FLAG_YETI_TERROR: 0x0080,
-      FLAG_CRITICAL_STABILITY: 0x0100,
-
-      getStat(statKey) {
-        const b = this.base[statKey] || 1;
-        const m = this.modifiers[statKey] || 0;
-        return Math.max(1, Math.min(99, Math.floor(b + m)));
-      },
-
-      getXPRequirement(lvl) {
-        return Math.floor(100 * Math.pow(lvl, 1.65) + ((lvl - 1) * 45));
-      },
-
-      addXP(amount) {
-        this.currentXP += amount;
-        let leveledUp = false;
-        while (this.currentXP >= this.getXPRequirement(this.level)) {
-          this.currentXP -= this.getXPRequirement(this.level);
-          this.level++;
-          leveledUp = true;
-          if (state.level) state.level.current = this.level;
-        }
-        return leveledUp;
-      },
-
-      getNearMissXP() {
-        const mox = this.getStat('MOX');
-        return Math.floor(15 * (1.0 + (mox * 0.02)));
-      },
-
-      getGateClearedXP() {
-        const mox = this.getStat('MOX');
-        const lck = this.getStat('LCK');
-        return Math.floor(40 * (1.0 + (mox * 0.015)) * (1.0 + (lck * 0.005)));
-      },
-
-      getDerivedKinematics() {
-        const vel = this.getStat('VEL');
-        const agi = this.getStat('AGI');
-        const bal = this.getStat('BAL');
-        const mox = this.getStat('MOX');
-        const lck = this.getStat('LCK');
-
-        const isTucked = (this.statusMask & this.FLAG_TUCKED) !== 0;
-        const isTerror = (this.statusMask & this.FLAG_YETI_TERROR) !== 0;
-
-        let vyMax = 350.0 + (vel * 8.5);
-        if (isTucked) vyMax *= (1.25 + (vel * 0.002));
-        if (isTerror) vyMax *= (1.0 + (mox * 0.008));
-
-        let ax = 420.0 + (agi * 11.2);
-        if (isTucked) ax *= 0.60;
-
-        return {
-          vyMax,
-          ax,
-          dx: 0.88 + (0.09 * (1.0 - (agi / 100.0))),
-          recoveryTime: Math.max(0.35, 2.50 - (bal * 0.022)),
-          stabilityThreshold: Math.min(0.95, 0.20 + (bal * 0.008)),
-          spinOmega: 4.188 + (mox * 0.125),
-          gateMagnetRadius: 16.0 + (lck * 0.45),
-          critRecoveryProb: Math.min(0.35, lck * 0.0035)
-        };
-      },
-
-      triggerWipeout(prngValue = Math.random()) {
-        const kinematics = this.getDerivedKinematics();
-        if (prngValue < kinematics.critRecoveryProb) {
-          this.statusMask |= this.FLAG_CRITICAL_STABILITY;
-          return false;
-        }
-        this.majorWipeouts++;
-        this.statusMask |= this.FLAG_WIPEOUT;
-        this.recoveryTimer = kinematics.recoveryTime;
-        this.maxRecoveryTimer = kinematics.recoveryTime;
-        return true;
-      }
-    };
-
-    if (state.player) {
-      state.player.kinematics = state.stats.getDerivedKinematics();
-    }
-  },
-
-  update(dt, state) {
-    const s = state.stats;
-    if (!s) return;
-
-    if (state.yeti && state.player) {
-      const dx = (state.yeti.x || 0) - (state.player.x || 0);
-      const dy = (state.yeti.y || 0) - (state.player.y || 0);
-      const dist = Math.hypot(dx, dy);
-      if (dist < 300) {
-        s.statusMask |= s.FLAG_YETI_TERROR;
-      } else {
-        s.statusMask &= ~s.FLAG_YETI_TERROR;
-      }
-    }
-
-    if (s.statusMask & s.FLAG_WIPEOUT) {
-      s.recoveryTimer -= dt;
-      if (s.recoveryTimer <= 0) {
-        s.recoveryTimer = 0;
-        s.statusMask &= ~s.FLAG_WIPEOUT;
-        s.statusMask &= ~s.FLAG_CRITICAL_STABILITY;
-      }
-    }
-
-    const kinematics = s.getDerivedKinematics();
-    if (state.player) {
-      state.player.kinematics = kinematics;
-      state.player.statusMask = s.statusMask;
-      state.player.isWipedOut = (s.statusMask & s.FLAG_WIPEOUT) !== 0;
-    }
-  },
-
-  render(ctx, state) {
-    const s = state.stats;
-    if (!s) return;
-
-    ctx.save();
-
-    // 1. Stat HUD Panel (Top-Right)
-    const panelX = ctx.canvas.width - 210;
-    const panelY = 14;
-    const panelW = 196;
-    const panelH = 156;
-
-    ctx.fillStyle = 'rgba(11, 16, 26, 0.82)';
-    ctx.strokeStyle = 'rgba(80, 160, 220, 0.4)';
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    ctx.roundRect(panelX, panelY, panelW, panelH, 6);
-    ctx.fill();
-    ctx.stroke();
-
-    // Header: Level & Status Badges
-    ctx.font = 'bold 11px monospace';
-    ctx.fillStyle = '#6ee7b7';
-    ctx.fillText(`LVL ${s.level}`, panelX + 12, panelY + 18);
-
-    const xpReq = s.getXPRequirement(s.level);
-    const xpRatio = Math.min(1.0, Math.max(0.0, s.currentXP / xpReq));
-
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
-    ctx.fillRect(panelX + 60, panelY + 10, panelW - 72, 8);
-    ctx.fillStyle = '#10b981';
-    ctx.fillRect(panelX + 60, panelY + 10, (panelW - 72) * xpRatio, 8);
-
-    // Active Status Pills
-    let tagX = panelX + 12;
-    const tagY = panelY + 34;
-    const drawTag = (text, bg, fg) => {
-      ctx.font = '9px sans-serif';
-      const tw = ctx.measureText(text).width + 8;
-      ctx.fillStyle = bg;
-      ctx.fillRect(tagX, tagY - 9, tw, 12);
-      ctx.fillStyle = fg;
-      ctx.fillText(text, tagX + 4, tagY);
-      tagX += tw + 4;
-    };
-
-    if (s.statusMask & s.FLAG_TUCKED) drawTag('TUCK', '#1e3a8a', '#93c5fd');
-    if (s.statusMask & s.FLAG_AIRBORNE) drawTag('AIR', '#581c87', '#d8b4fe');
-    if (s.statusMask & s.FLAG_YETI_TERROR) drawTag('TERROR', '#7f1d1d', '#fca5a5');
-    if (s.statusMask & s.FLAG_CRITICAL_STABILITY) drawTag('STABLE', '#065f46', '#6ee7b7');
-
-    // Stat Value Mini Bars
-    const statsList = [
-      { key: 'VEL', label: 'VEL', color: '#38bdf8' },
-      { key: 'AGI', label: 'AGI', color: '#f43f5e' },
-      { key: 'BAL', label: 'BAL', color: '#fbbf24' },
-      { key: 'MOX', label: 'MOX', color: '#a855f7' },
-      { key: 'LCK', label: 'LCK', color: '#34d399' }
-    ];
-
-    statsList.forEach((statDef, index) => {
-      const rowY = panelY + 50 + (index * 19);
-      const val = s.getStat(statDef.key);
-
-      ctx.fillStyle = '#94a3b8';
-
-  // --- [RFC Applied: RFC-20261111-7AC25D] Starting class selection screen (Olympian, Daredevil, Ranger, Occultist). ---
-  StudioEngine.registerModule('classSelectionScreen', {
-  init(state, engine) {
-    if (!state.player) state.player = {};
-    if (!state.stats) state.stats = {};
-
-    state.classSelection = {
-      active: state.player.class === undefined,
-      selectedIndex: 0,
-      animTime: 0,
-      cooldown: 0,
-      classes: [
-        {
-          id: 'olympian',
-          name: 'OLYMPIAN',
-          title: 'Titan of the Slopes',
-          color: '#F59E0B',
-          accent: '#FEF3C7',
-          description: 'Disciplined alpine powerhouse. Built for unstoppable downhill momentum, crushing drifts, and unmatched poise.',
-          stats: { speed: 85, control: 65, stability: 95, trick: 50 },
-          passive: 'Kinetic Dominance: Collisions cause 60% less speed decay. Carving accumulates heavy downhill charge.'
-        },
-        {
-          id: 'daredevil',
-          name: 'DAREDEVIL',
-          title: 'Adrenaline Zealot',
-          color: '#EF4444',
-          accent: '#FEE2E2',
-          description: 'High-risk trickster operating on razor-thin margins. Fragile handling traded for explosive boost and acrobatic airtime.',
-          stats: { speed: 95, control: 50, stability: 40, trick: 100 },
-          passive: 'Near-Miss Surge: Skimming obstacles awards instant nitro-boost and supercharges combo ratings.'
-        },
-        {
-          id: 'ranger',
-          name: 'RANGER',
-          title: 'Wayfinder of the Wilds',
-          color: '#10B981',
-          accent: '#D1FAE5',
-          description: 'Sublime mountain scout with pinpoint edge precision, dynamic traction adjustment, and unmatched recovery.',
-          stats: { speed: 70, control: 95, stability: 80, trick: 65 },
-          passive: 'Adaptive Edge: Zero speed loss on powder, ice patches, or off-piste trails. Rapid stamina recovery.'
-        },
-        {
-          id: 'occultist',
-          name: 'OCCULTIST',
-          title: 'Sovereign of the Black Ice',
-          color: '#8B5CF6',
-          accent: '#EDE9FE',
-          description: 'Harnesses forbidden mountain spirits. Capable of ethereal phantom-drifting and reality-bending acceleration bursts.',
-          stats: { speed: 80, control: 75, stability: 60, trick: 90 },
-          passive: 'Spectral Slipstream: Phasing through gates or rifts generates Eldritch Surge, pulling surrounding pickups.'
-        }
-      ]
-    };
-
-    this.onKeyDown = (e) => {
-      if (!state.classSelection || !state.classSelection.active) return;
-      const count = state.classSelection.classes.length;
-      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
-        state.classSelection.selectedIndex = (state.classSelection.selectedIndex - 1 + count) % count;
-      } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
-        state.classSelection.selectedIndex = (state.classSelection.selectedIndex + 1) % count;
-      } else if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
-        this.confirmSelection(state);
-      }
-    };
-
-    this.onPointerDown = (e) => {
-      if (!state.classSelection || !state.classSelection.active) return;
-      const canvas = engine.canvas || (engine.ctx && engine.ctx.canvas) || window;
-      const rect = canvas.getBoundingClientRect ? canvas.getBoundingClientRect() : { left: 0, top: 0, width: window.innerWidth, height: window.innerHeight };
-      const mx = e.clientX - rect.left;
-      const my = e.clientY - rect.top;
-
-      const totalCards = state.classSelection.classes.length;
-      const cardWidth = Math.min(260, (rect.width - 120) / totalCards);
-      const gap = 16;
-      const totalWidth = totalCards * cardWidth + (totalCards - 1) * gap;
-      const startX = (rect.width - totalWidth) / 2;
-      const cardY = rect.height * 0.32;
-      const cardHeight = rect.height * 0.52;
-
-      for (let i = 0; i < totalCards; i++) {
-        const cx = startX + i * (cardWidth + gap);
-        if (mx >= cx && mx <= cx + cardWidth && my >= cardY && my <= cardY + cardHeight) {
-          if (state.classSelection.selectedIndex === i) {
-            this.confirmSelection(state);
-          } else {
-            state.classSelection.selectedIndex = i;
-          }
-          break;
-        }
-      }
-    };
-
-    window.addEventListener('keydown', this.onKeyDown);
-    window.addEventListener('pointerdown', this.onPointerDown);
-  },
-
-  confirmSelection(state) {
-    const sel = state.classSelection.classes[state.classSelection.selectedIndex];
-    state.player.class = sel.id;
-    state.player.className = sel.name;
-    state.player.baseStats = { ...sel.stats };
-    state.player.passive = sel.passive;
-    
-    // Apply core initial stats based on class archetype
-    state.stats.speed = sel.stats.speed * 1.2;
-    state.stats.handling = sel.stats.control / 100;
-    state.stats.stability = sel.stats.stability / 100;
-    state.stats.trickBoost = sel.stats.trick / 100;
-    state.stats.trickMultiplier = 1.0;
-    state.stats.score = state.stats.score || 0;
-
-    state.classSelection.active = false;
-  },
-
-  update(dt, state) {
-    if (!state.classSelection || !state.classSelection.active) return;
-    state.classSelection.animTime += dt;
-  },
-
-  render(ctx, state) {
-    if (!state.classSelection || !state.classSelection.active) return;
-
-    const w = ctx.canvas.width;
-    const h = ctx.canvas.height;
-    const cs = state.classSelection;
-    const t = cs.animTime;
-
-    ctx.save();
-
-    // Backdrop with atmospheric gradient
-    const bgGrad = ctx.createRadialGradient(w / 2, h / 2, 50, w / 2, h / 2, Math.max(w, h) * 0.75);
-    bgGrad.addColorStop(0, 'rgba(10, 15, 26, 0.94)');
-    bgGrad.addColorStop(1, 'rgba(2, 4, 8, 0.98)');
-    ctx.fillStyle = bgGrad;
-    ctx.fillRect(0, 0, w, h);
-
-    // Decorative geometric grid lines
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
-    ctx.lineWidth = 1;
-    const step = 40;
-    for (let x = 0; x < w; x += step) {
-      ctx.beginPath();
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x, h);
-      ctx.stroke();
-    }
-    for (let y = 0; y < h; y += step) {
-      ctx.beginPath();
-      ctx.moveTo(0, y);
-      ctx.lineTo(w, y);
-      ctx.stroke();
-    }
-
-    // Title & Subtitle Header
-    ctx.textAlign = 'center';
-    ctx.fillStyle = '#FFFFFF';
-    ctx.font = '900 36px "Segoe UI", Montserrat, sans-serif';
-    ctx.letterSpacing = '6px';
-    ctx.fillText('SELECT RUN PROTOCOL', w / 2, h * 0.14);
-
-    ctx.font = '500 13px "Segoe UI", Roboto, sans-serif';
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
-    ctx.letterSpacing = '3px';
-    ctx.fillText('ESTABLISH DOWNHILL BIOMETRICS AND TRACTION TRAITS', w / 2, h * 0.18);
-
-    // Calculate layout for 4 cards
-    const numCards = cs.classes.length;
-    const maxCardW = 280;
-    const padding = 20;
-    const cardW = Math.min(maxCardW, (w - padding * 2 - (numCards - 1) * 20) / numCards);
-    const cardH = Math.min(500, h * 0.58);
-    const totalW = numCards * cardW + (numCards - 1) * 20;
-    const startX = (w - totalW) / 2;
-    const startY = h * 0.24;
-
-    cs.classes.forEach((c, idx) => {
-      const isSelected = idx === cs.selectedIndex;
-      const x = startX + idx * (cardW + 20);
-      const hoverOffset = isSelected ? Math.sin(t * 3.5) * 4 - 8 : 0;
-      const y = startY + hoverOffset;
-
-      // Card Background & Shadow
-      ctx.save();
-      if (isSelected) {
-        ctx.shadowColor = c.color;
-        ctx.shadowBlur = 24;
-      } else {
-        ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
-        ctx.shadowBlur = 10;
-      }
-
-      ctx.fillStyle = isSelected ? 'rgba(20, 26, 38, 0.95)' : 'rgba(15, 18, 26, 0.82)';
-      ctx.strokeStyle = isSelected ? c.color : 'rgba(255, 255, 255, 0.12)';
-      ctx.lineWidth = isSelected ? 2.5 : 1;
-
-      // Draw Rounded Card
-      const r = 8;
-      ctx.beginPath();
-      ctx.moveTo(x + r, y);
-      ctx.lineTo(x + cardW - r, y);
-      ctx.quadraticCurveTo(x + cardW, y, x + cardW, y + r);
-      ctx.lineTo(x + cardW, y + cardH - r);
-      ctx.quadraticCurveTo(x + cardW, y + cardH, x + cardW - r, y + cardH);
-      ctx.lineTo(x + r, y + cardH);
-      ctx.quadraticCurveTo(x, y + cardH, x, y + cardH - r);
-      ctx.lineTo(x, y + r);
-      ctx.quadraticCurveTo(x, y, x + r, y);
-      ctx.closePath();
-      ctx.fill();
-      ctx.stroke();
-      ctx.restore();
-
-      // Top Class Emblem / Accent Bar
-      ctx.fillStyle = c.color;
-      ctx.fillRect(x + 16, y + 16, isSelected ? 32 : 16, 4);
-
-      // Class Name & Title
-      ctx.textAlign = 'left';
-      ctx.font = '800 20px "Segoe UI", Montserrat, sans-serif';
-      ctx.fillStyle = isSelected ? '#FFFFFF' : 'rgba(255, 255, 255, 0.85)';
-      ctx.fillText(c.name, x + 16, y + 44);
-
-      ctx.font = '600 11px "Segoe UI", sans-serif';
-      ctx.fillStyle = c.color;
-      ctx.letterSpacing = '1px';
-      ctx.fillText(c.title.toUpperCase(), x + 16, y + 62);
-
-      // Class Lore
-      ctx.font = '400 12px "Segoe UI", sans-serif';
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
-      ctx.letterSpacing = '0px';
-
-      // Simple multiline wrapping for description
-      const descWords = c.description.split(' ');
-      let line = '';
-      let textY = y + 88;
-      for (let i = 0; i < descWords.length; i++) {
-        const testLine = line +
-
-  // --- [RFC Applied: RFC-20261111-B65D92] Near-miss hazard detection and XP-driven level-up stat allocation bar. ---
-  StudioEngine.registerModule('near_miss_progression', {
-  init(state, engine) {
-    state.player = state.player || {};
-    state.stats = state.stats || { agility: 5, balance: 5, moxie: 5, stamina: 5, luck: 5 };
-    state.level = state.level || 1;
-    state.xp = state.xp || 0;
-    state.statPoints = state.statPoints || 0;
-    state.timeScale = state.timeScale !== undefined ? state.timeScale : 1.0;
-    state.hazards = state.hazards || [];
-    state.floatingTexts = state.floatingTexts || [];
-
-    // Kinematic player properties
-    const p = state.player;
-    p.pos = p.pos || { x: 400, y: 300 };
-    p.vel = p.vel || { x: 0, y: 180 };
-    p.mass = p.mass || 75.0;
-    p.rSkier = 12.0;
-    p.inputDir = p.inputDir || 0;
-
-    this.recomputeDerivedStats(state);
-
-    // Mouse / UI interaction mapping
-    this.mouse = { x: 0, y: 0, clicked: false };
-    this.buttons = [];
-
-    const canvas = engine.canvas || (engine.renderer && engine.renderer.domElement) || null;
-    if (canvas && !this._listenersAttached) {
-      canvas.addEventListener('mousemove', (e) => {
-        const rect = canvas.getBoundingClientRect();
-        this.mouse.x = (e.clientX - rect.left) * (canvas.width / rect.width);
-        this.mouse.y = (e.clientY - rect.top) * (canvas.height / rect.height);
-      });
-      canvas.addEventListener('mousedown', () => {
-        this.mouse.clicked = true;
-      });
-      this._listenersAttached = true;
-    }
-  },
-
-  recomputeDerivedStats(state) {
-    const s = state.stats;
-    const p = state.player;
-    p.kappa_t = 0.85 + (s.agility * 0.04);
-    p.tau_rec = Math.max(8, Math.floor(60 - (s.balance * 4.5)));
-    p.moxieMult = 1.0 + (s.moxie * 0.15);
-    p.maxStamina = 100.0 + (s.stamina * 20.0);
-    p.relicGateFreq = 1.0 + (s.luck * 0.12);
-  },
-
-  update(dt, state) {
-    const dt_safe = Math.min(dt || 0.016, 0.05);
-    const eff_dt = dt_safe * (state.timeScale !== undefined ? state.timeScale : 1.0);
-
-    const p = state.player;
-    const stats = state.stats;
-
-    // 1. KINEMATICS PIPELINE (Semi-Implicit Euler)
-    const F_gravity = { x: 0, y: p.mass * 98.0 };
-    const F_carve = { x: (p.inputDir || 0) * 12000.0 * p.kappa_t, y: 0 };
-    const speed = Math.hypot(p.vel.x, p.vel.y);
-    const c_drag = 0.52;
-    const F_drag = {
-      x: -c_drag * speed * p.vel.x,
-      y: -c_drag * speed * p.vel.y
-    };
-
-    const accel_x = (F_gravity.x + F_carve.x + F_drag.x) / p.mass;
-    const accel_y = (F_gravity.y + F_carve.y + F_drag.y) / p.mass;
-
-    p.vel.x += accel_x * eff_dt;
-    p.vel.y += accel_y * eff_dt;
-
-    p.pos.x += p.vel.x * eff_dt;
-    p.pos.y += p.vel.y * eff_dt;
-
-    // 2. NEAR-MISS PROXIMITY GEOMETRY
-    const delta_miss = 36.0;
-    const R_skier = p.rSkier;
-    const base_xp = 50.0;
-
-    for (let i = 0; i < state.hazards.length; i++) {
-      const H = state.hazards[i];
-      H.rSolid = H.rSolid || 24.0;
-      H.rMiss = H.rSolid + delta_miss;
-
-      if (!H._state) {
-        H._state = {
-          inside_zone: false,
-          prev_inside: false,
-          triggered: false,
-          entered_solid: false,
-          d_min: Infinity
-        };
-      }
-      const hs = H._state;
-      const dx = p.pos.x - H.x;
-      const dy = p.pos.y - H.y;
-      const dist = Math.hypot(dx, dy);
-
-      // Solid hull intersection
-      if (dist <= H.rSolid + R_skier) {
-        hs.entered_solid = true;
-      }
-
-      // Shell proximity tracking
-      const insideNow = (dist > (H.rSolid + R_skier)) && (dist <= (H.rMiss + R_skier));
-      hs.inside_zone = insideNow;
-
-      if (insideNow) {
-        const edgeDist = Math.max(0, dist - R_skier);
-        if (edgeDist < hs.d_min) {
-          hs.d_min = edgeDist;
-        }
-      }
-
-      // Moving away check: dot(V, D) > 0
-      const dotVD = (p.vel.x * dx) + (p.vel.y * dy);
-
-      if (hs.prev_inside && dotVD > 0 && !hs.triggered && !hs.entered_solid) {
-        hs.triggered = true;
-        const proximityBonus = 1.0 + Math.max(0, (1.0 - ((hs.d_min - H.rSolid) / delta_miss)));
-        const gain = Math.round(base_xp * proximityBonus * p.moxieMult);
-        state.xp += gain;
-
-        state.floatingTexts.push({
-          text: `NEAR MISS +${gain} XP`,
-          x: p.pos
-</script>
+  </script>
+  <!-- AUTONOMOUS AGENT MODULE PLUGINS -->
+  <script src="js/mod_RFC_20261111_6BAC24.js"></script>
 </body>
 
 </html>
