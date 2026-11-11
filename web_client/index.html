@@ -59,1417 +59,388 @@
   </div>
 
   <script>
-    (function glissadeEngine() {
-      const canvas = document.getElementById('gameCanvas');
-      const ctx = canvas.getContext('2d');
+    // =========================================================================
+    // STUDIO ENGINE MICROKERNEL & BLACKBOARD
+    // =========================================================================
+    window.__STUDIO_ERRORS__ = [];
+    window.onerror = function (msg, url, line, col, error) {
+      window.__STUDIO_ERRORS__.push({ msg, line, error: error ? error.stack : null });
+      console.error("[StudioEngine Error Caught]", msg, "at line", line);
+      return false;
+    };
 
-      // Controls
-      const keys = { left: false, right: false, up: false, down: false, jump: false };
-      window.addEventListener('keydown', e => {
-        if (['ArrowLeft', 'KeyA'].includes(e.code)) keys.left = true;
-        if (['ArrowRight', 'KeyD'].includes(e.code)) keys.right = true;
-        if (['ArrowUp', 'KeyW'].includes(e.code)) keys.up = true;
-        if (['ArrowDown', 'KeyS'].includes(e.code)) keys.down = true;
-        if (['Space'].includes(e.code)) keys.jump = true;
-      });
-      window.addEventListener('keyup', e => {
-        if (['ArrowLeft', 'KeyA'].includes(e.code)) keys.left = false;
-        if (['ArrowRight', 'KeyD'].includes(e.code)) keys.right = false;
-        if (['ArrowUp', 'KeyW'].includes(e.code)) keys.up = false;
-        if (['ArrowDown', 'KeyS'].includes(e.code)) keys.down = false;
-        if (['Space'].includes(e.code)) keys.jump = false;
-      });
-
-      // Player State
-      const player = {
-        x: 400,
-        baseViewportY: 220,
-        currentViewportY: 220,
-        worldDistance: 0,
-        vx: 0,
-        vy: 190,
-        angularVelocity: 0,
-        skisAngle: 0,
-        jumpZ: 0,
-        jumpVz: 0,
-        isAirborne: false,
-        trickRotation: 0,
-        state: 'CRUISING',
-        wipeoutTimer: 0,
-        wipeouts: 0,
-        width: 24,
-        height: 36
-      };
-
-      const skiTracks = [];
-      const obstacles = [];
-      const particles = [];
-      const speedLines = [];
-      let nextSpawnDistance = 250;
-      let cameraShake = 0;
-      let lastTime = performance.now();
-      let tickCount = 0;
-
-      window.__GAME_STATE__ = {
-        title: "Glissade: Descent of the Yeti",
+    window.StudioEngine = {
+      canvas: null,
+      ctx: null,
+      modules: {},
+      hooks: {
+        update: [],
+        render: [],
+        input: []
+      },
+      state: {
         running: true,
         tick: 0,
-        player: player,
-        obstaclesCount: 0
-      };
+        player: {
+          x: 400,
+          baseViewportY: 220,
+          currentViewportY: 220,
+          worldDistance: 0,
+          vx: 0,
+          vy: 190,
+          skisAngle: 0,
+          jumpZ: 0,
+          jumpVz: 0,
+          isAirborne: false,
+          trickRotation: 0,
+          state: 'CRUISING',
+          wipeoutTimer: 0,
+          wipeouts: 0
+        },
+        stats: {
+          VEL: 10, AGI: 10, BAL: 10, MOX: 10, LCK: 10,
+          level: 1, xp: 0, nextLevelXp: 100
+        },
+        level: {
+          obstacles: [],
+          slalomGates: [],
+          skiTracks: [],
+          particles: [],
+          speedLines: [],
+          cameraShake: 0,
+          nextSpawnDistance: 250
+        },
+        keys: { left: false, right: false, up: false, down: false, jump: false }
+      },
 
-      function spawnInitialObstacles() {
-        for (let dist = 300; dist < 3000; dist += 85) {
-          spawnObstacleRow(dist);
+      registerModule: function (name, moduleDef) {
+        this.modules[name] = moduleDef;
+        if (moduleDef.update) this.hooks.update.push(moduleDef.update.bind(moduleDef));
+        if (moduleDef.render) this.hooks.render.push(moduleDef.render.bind(moduleDef));
+        if (moduleDef.init) {
+          try { moduleDef.init(this.state, this); }
+          catch (e) { window.__STUDIO_ERRORS__.push({ msg: "Init failed: " + name, error: e.stack }); }
         }
+        console.log(`[StudioEngine] Registered Module: ${name}`);
       }
+    };
 
-      function spawnObstacleRow(dist) {
-        const roll = Math.random();
-        let type = 'tree';
-        if (roll < 0.45) type = 'tree';
-        else if (roll < 0.65) type = 'rock';
-        else if (roll < 0.82) type = 'mogul';
-        else type = 'gate';
+    window.__GAME_STATE__ = window.StudioEngine.state;
 
-        const x = 70 + Math.random() * 660;
-        obstacles.push({
-          x: x,
-          worldY: dist,
-          type: type,
-          radius: type === 'tree' ? 18 : (type === 'rock' ? 14 : 20),
-          cleared: false
-        });
-      }
+    // Key Listeners
+    window.addEventListener('keydown', e => {
+      const k = window.StudioEngine.state.keys;
+      if (['ArrowLeft', 'KeyA'].includes(e.code)) k.left = true;
+      if (['ArrowRight', 'KeyD'].includes(e.code)) k.right = true;
+      if (['ArrowUp', 'KeyW'].includes(e.code)) k.up = true;
+      if (['ArrowDown', 'KeyS'].includes(e.code)) k.down = true;
+      if (['Space'].includes(e.code)) k.jump = true;
+    });
+    window.addEventListener('keyup', e => {
+      const k = window.StudioEngine.state.keys;
+      if (['ArrowLeft', 'KeyA'].includes(e.code)) k.left = false;
+      if (['ArrowRight', 'KeyD'].includes(e.code)) k.right = false;
+      if (['ArrowUp', 'KeyW'].includes(e.code)) k.up = false;
+      if (['ArrowDown', 'KeyS'].includes(e.code)) k.down = false;
+      if (['Space'].includes(e.code)) k.jump = false;
+    });
 
-      function spawnSnowSpray(x, y, count, dirX, power = 1) {
-        for (let i = 0; i < count; i++) {
-          particles.push({
-            x: x + (Math.random() - 0.5) * 6,
-            y: y + (Math.random() - 0.5) * 4,
-            vx: dirX * (50 + Math.random() * 90) * power,
-            vy: -20 - Math.random() * 40 * power,
-            life: 0.3 + Math.random() * 0.25,
-            maxLife: 0.45,
-            size: 2 + Math.random() * 2.5
+    // Core Baseline Module (Downhill Physics & Base Render)
+    window.StudioEngine.registerModule("BaselineDownhillEngine", {
+      init: function (state, engine) {
+        engine.canvas = document.getElementById('gameCanvas');
+        engine.ctx = engine.canvas.getContext('2d');
+        for (let dist = 300; dist < 2500; dist += 85) {
+          state.level.obstacles.push({
+            x: 70 + Math.random() * 660,
+            worldY: dist,
+            type: Math.random() < 0.6 ? 'tree' : 'rock',
+            radius: 16,
+            cleared: false
           });
         }
-      }
+      },
+      update: function (dt, state) {
+        const p = state.player;
+        const k = state.keys;
+        const lvl = state.level;
 
-      function recordSkiTrack() {
-        if (player.isAirborne || player.state === 'WIPEOUT') return;
-        const cos = Math.cos(player.skisAngle);
-        const sin = Math.sin(player.skisAngle);
-        const spacing = player.state === 'SNOWPLOW' ? 9 : 6;
-        skiTracks.push({
-          lx: player.x - cos * spacing,
-          rx: player.x + cos * spacing,
-          worldY: player.worldDistance,
-          alpha: 0.22
-        });
-        if (skiTracks.length > 350) skiTracks.shift();
-      }
-
-      function updatePlayerKinematics(dt) {
-        // Dynamic camera leading based on downhill speed
-        const targetViewportY = 220 - (player.vy - 180) * 0.25;
-        player.currentViewportY += (targetViewportY - player.currentViewportY) * Math.min(1, 4 * dt);
-
-        if (player.wipeoutTimer > 0) {
-          player.wipeoutTimer -= dt;
-          player.state = 'WIPEOUT';
-          player.vy = Math.max(30, player.vy - 160 * dt);
-          player.vx *= Math.pow(0.2, dt);
-          player.skisAngle += 8 * dt;
-          player.worldDistance += player.vy * dt;
+        if (p.wipeoutTimer > 0) {
+          p.wipeoutTimer -= dt;
+          p.state = 'WIPEOUT';
+          p.vy = Math.max(30, p.vy - 160 * dt);
+          p.vx *= Math.pow(0.2, dt);
+          p.skisAngle += 8 * dt;
+          p.worldDistance += p.vy * dt;
           return;
         }
 
-        // Movement State & Acceleration
-        if (keys.up) {
-          player.state = 'SNOWPLOW';
-          player.vy = Math.max(80, player.vy - 360 * dt);
-          player.vx *= Math.pow(0.4, dt);
-          spawnSnowSpray(player.x, player.currentViewportY + 8, 2, -1, 0.7);
-          spawnSnowSpray(player.x, player.currentViewportY + 8, 2, 1, 0.7);
-        } else if (keys.down) {
-          player.state = 'TUCK';
-          player.vy = Math.min(420, player.vy + 320 * dt);
+        if (k.up) {
+          p.state = 'SNOWPLOW';
+          p.vy = Math.max(80, p.vy - 360 * dt);
+          p.vx *= Math.pow(0.4, dt);
+        } else if (k.down) {
+          p.state = 'TUCK';
+          p.vy = Math.min(420, p.vy + 320 * dt);
         } else {
-          player.state = 'CRUISING';
-          if (player.vy < 220) player.vy += 120 * dt;
-          if (player.vy > 220) player.vy -= 80 * dt;
+          p.state = 'CRUISING';
+          if (p.vy < 220) p.vy += 120 * dt;
+          if (p.vy > 220) p.vy -= 80 * dt;
         }
 
-        // Smooth Carving with Centripetal Friction
         let targetAngle = 0;
-        const carveAuthority = player.state === 'TUCK' ? 290 : 440;
-        if (keys.left) {
-          player.vx -= carveAuthority * dt;
+        const carveSpeed = p.state === 'TUCK' ? 290 : 440;
+        if (k.left) {
+          p.vx -= carveSpeed * dt;
           targetAngle = -0.42;
-          player.state = player.state === 'TUCK' ? 'TUCK' : 'CARVE_LEFT';
-          spawnSnowSpray(player.x + 8, player.currentViewportY + 12, 3, 1, 1.2);
-          player.vy -= 30 * dt; // Carving bleeds slight speed
-        } else if (keys.right) {
-          player.vx += carveAuthority * dt;
+          p.state = p.state === 'TUCK' ? 'TUCK' : 'CARVE_LEFT';
+        } else if (k.right) {
+          p.vx += carveSpeed * dt;
           targetAngle = 0.42;
-          player.state = player.state === 'TUCK' ? 'TUCK' : 'CARVE_RIGHT';
-          spawnSnowSpray(player.x - 8, player.currentViewportY + 12, 3, -1, 1.2);
-          player.vy -= 30 * dt;
+          p.state = p.state === 'TUCK' ? 'TUCK' : 'CARVE_RIGHT';
         } else {
-          player.vx *= Math.pow(0.78, dt * 60);
+          p.vx *= Math.pow(0.78, dt * 60);
         }
 
-        // Smooth Angular Damping
-        player.skisAngle += (targetAngle - player.skisAngle) * Math.min(1, 12 * dt);
-        player.x += player.vx * dt;
-        player.x = Math.max(50, Math.min(750, player.x));
-        player.worldDistance += player.vy * dt;
+        p.skisAngle += (targetAngle - p.skisAngle) * Math.min(1, 12 * dt);
+        p.x += p.vx * dt;
+        p.x = Math.max(50, Math.min(750, p.x));
+        p.worldDistance += p.vy * dt;
 
-        // Jump Parabola & Tricks
-        if (keys.jump && !player.isAirborne) {
-          player.isAirborne = true;
-          player.jumpVz = 340;
-          player.state = 'JUMP';
-          player.trickRotation = 0;
+        if (k.jump && !p.isAirborne) {
+          p.isAirborne = true;
+          p.jumpVz = 340;
         }
-
-        if (player.isAirborne) {
-          player.state = 'JUMP';
-          player.jumpZ += player.jumpVz * dt;
-          player.jumpVz -= 880 * dt;
-
-          // Airborne trick spinning
-          if (keys.left) player.trickRotation -= 7 * dt;
-          if (keys.right) player.trickRotation += 7 * dt;
-
-          if (player.jumpZ <= 0) {
-            player.jumpZ = 0;
-            player.isAirborne = false;
-            player.trickRotation = 0;
-            cameraShake = 8;
-            spawnSnowSpray(player.x, player.currentViewportY + 10, 10, 1, 1.4);
-            spawnSnowSpray(player.x, player.currentViewportY + 10, 10, -1, 1.4);
+        if (p.isAirborne) {
+          p.state = 'JUMP';
+          p.jumpZ += p.jumpVz * dt;
+          p.jumpVz -= 880 * dt;
+          if (p.jumpZ <= 0) {
+            p.jumpZ = 0;
+            p.isAirborne = false;
           }
         }
 
-        // Speedlines when tucked
-        if (player.state === 'TUCK' && Math.random() < 0.6) {
-          speedLines.push({
-            x: player.x + (Math.random() - 0.5) * 120,
-            y: -20,
-            vy: player.vy * 1.5,
-            len: 30 + Math.random() * 40,
-            alpha: 0.5
-          });
-        }
-
-        recordSkiTrack();
-      }
-
-      function updateObstacles(dt) {
-        while (nextSpawnDistance < player.worldDistance + 1300) {
-          spawnObstacleRow(nextSpawnDistance);
-          nextSpawnDistance += 70 + Math.random() * 50;
-        }
-
-        for (let i = obstacles.length - 1; i >= 0; i--) {
-          const obs = obstacles[i];
-          const screenY = obs.worldY - player.worldDistance + player.currentViewportY;
-
-          if (screenY < -100) {
-            obstacles.splice(i, 1);
-            continue;
-          }
-
-          // Bounding collision
-          if (player.wipeoutTimer <= 0 && Math.abs(screenY - player.currentViewportY) < 18 && Math.abs(obs.x - player.x) < (obs.radius + 10)) {
-            if ((obs.type === 'rock' || obs.type === 'mogul') && player.isAirborne && player.jumpZ > 14) {
-              obs.cleared = true;
-              continue;
-            }
-
-            if (obs.type === 'gate') {
-              obs.cleared = true;
-              cameraShake = 4;
-              continue;
-            }
-
+        // Obstacle collision
+        lvl.obstacles.forEach(obs => {
+          const sy = obs.worldY - p.worldDistance + p.currentViewportY;
+          if (p.wipeoutTimer <= 0 && Math.abs(sy - p.currentViewportY) < 18 && Math.abs(obs.x - p.x) < 26) {
             if (!obs.cleared) {
-              player.wipeouts++;
-              player.wipeoutTimer = 1.4;
-              cameraShake = 18;
-              spawnSnowSpray(player.x, player.currentViewportY, 20, 1, 2);
-              spawnSnowSpray(player.x, player.currentViewportY, 20, -1, 2);
+              p.wipeouts++;
+              p.wipeoutTimer = 1.4;
+              lvl.cameraShake = 18;
             }
           }
-        }
-        window.__GAME_STATE__.obstaclesCount = obstacles.length;
-      }
+        });
+      },
+      render: function (ctx, state) {
+        const p = state.player;
+        const lvl = state.level;
 
-      function updateParticles(dt) {
-        for (let i = particles.length - 1; i >= 0; i--) {
-          const p = particles[i];
-          p.life -= dt;
-          if (p.life <= 0) {
-            particles.splice(i, 1);
-            continue;
-          }
-          p.x += p.vx * dt;
-          p.y += p.vy * dt;
-        }
-
-        for (let i = speedLines.length - 1; i >= 0; i--) {
-          const sl = speedLines[i];
-          sl.y += sl.vy * dt;
-          sl.alpha -= dt * 0.8;
-          if (sl.y > 620 || sl.alpha <= 0) speedLines.splice(i, 1);
-        }
-      }
-
-      function render() {
         ctx.save();
-        if (cameraShake > 0) {
-          ctx.translate((Math.random() - 0.5) * cameraShake, (Math.random() - 0.5) * cameraShake);
-          cameraShake *= 0.86;
+        if (lvl.cameraShake > 0) {
+          ctx.translate((Math.random() - 0.5) * lvl.cameraShake, (Math.random() - 0.5) * lvl.cameraShake);
+          lvl.cameraShake *= 0.86;
         }
 
-        // Snow Field
         ctx.fillStyle = '#f8fafc';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillRect(0, 0, 800, 600);
 
-        // Procedural Slope Contours
+        // Downhill slope stripes
         ctx.strokeStyle = '#e2e8f0';
         ctx.lineWidth = 1.5;
-        const stripeOffset = -(player.worldDistance % 70);
-        for (let y = stripeOffset; y < canvas.height; y += 70) {
+        const offset = -(p.worldDistance % 70);
+        for (let y = offset; y < 600; y += 70) {
           ctx.beginPath();
           ctx.moveTo(0, y);
-          ctx.lineTo(canvas.width, y);
+          ctx.lineTo(800, y);
           ctx.stroke();
         }
 
-        // Persistent Ski Tracks
-        skiTracks.forEach(t => {
-          const sy = t.worldY - player.worldDistance + player.currentViewportY;
-          if (sy < -20 || sy > 620) return;
-          ctx.fillStyle = `rgba(148, 163, 184, ${t.alpha})`;
-          ctx.fillRect(t.lx, sy, 2, 4);
-          ctx.fillRect(t.rx, sy, 2, 4);
-        });
-
-        // Speed lines
-        speedLines.forEach(sl => {
-          ctx.strokeStyle = `rgba(100, 116, 139, ${sl.alpha})`;
-          ctx.lineWidth = 1.5;
-          ctx.beginPath();
-          ctx.moveTo(sl.x, sl.y);
-          ctx.lineTo(sl.x, sl.y + sl.len);
-          ctx.stroke();
-        });
-
-        // Render Obstacles
-        obstacles.forEach(obs => {
-          const sy = obs.worldY - player.worldDistance + player.currentViewportY;
-          if (sy < -60 || sy > 660) return;
-
+        // Draw obstacles
+        lvl.obstacles.forEach(obs => {
+          const sy = obs.worldY - p.worldDistance + p.currentViewportY;
+          if (sy < -40 || sy > 640) return;
           if (obs.type === 'tree') {
-            ctx.fillStyle = 'rgba(15, 23, 42, 0.2)';
-            ctx.beginPath();
-            ctx.ellipse(obs.x + 4, sy + 18, 12, 5, 0, 0, Math.PI * 2);
-            ctx.fill();
             ctx.fillStyle = '#14532d';
             ctx.beginPath();
             ctx.moveTo(obs.x, sy - 28);
             ctx.lineTo(obs.x - 18, sy + 16);
             ctx.lineTo(obs.x + 18, sy + 16);
-            ctx.closePath();
             ctx.fill();
-            ctx.fillStyle = '#166534';
-            ctx.beginPath();
-            ctx.moveTo(obs.x, sy - 24);
-            ctx.lineTo(obs.x - 14, sy + 6);
-            ctx.lineTo(obs.x + 14, sy + 6);
-            ctx.closePath();
-            ctx.fill();
-          } else if (obs.type === 'rock') {
-            ctx.fillStyle = 'rgba(15, 23, 42, 0.25)';
-            ctx.beginPath();
-            ctx.ellipse(obs.x + 3, sy + 6, 14, 6, 0, 0, Math.PI * 2);
-            ctx.fill();
+          } else {
             ctx.fillStyle = '#475569';
             ctx.beginPath();
             ctx.ellipse(obs.x, sy, 14, 10, 0, 0, Math.PI * 2);
             ctx.fill();
-            ctx.fillStyle = '#94a3b8';
-            ctx.beginPath();
-            ctx.ellipse(obs.x - 3, sy - 3, 6, 4, 0, 0, Math.PI * 2);
-            ctx.fill();
-          } else if (obs.type === 'mogul') {
-            ctx.fillStyle = '#cbd5e1';
-            ctx.beginPath();
-            ctx.ellipse(obs.x, sy, 20, 8, 0, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.fillStyle = '#f1f5f9';
-            ctx.beginPath();
-            ctx.ellipse(obs.x - 2, sy - 2, 14, 5, 0, 0, Math.PI * 2);
-            ctx.fill();
-          } else if (obs.type === 'gate') {
-            ctx.fillStyle = '#dc2626';
-            ctx.fillRect(obs.x - 34, sy - 22, 5, 28);
-            ctx.fillStyle = '#2563eb';
-            ctx.fillRect(obs.x + 30, sy - 22, 5, 28);
           }
         });
 
-        // Snow Particles
-        ctx.fillStyle = '#ffffff';
-        particles.forEach(p => {
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-          ctx.fill();
-        });
-
-        // Skier
+        // Draw Skier
         ctx.save();
-        const py = player.currentViewportY - player.jumpZ;
-        ctx.translate(player.x, py);
-
-        // Dynamic Jump Shadow
-        if (player.jumpZ > 0) {
-          ctx.fillStyle = `rgba(15, 23, 42, ${Math.max(0.08, 0.35 - player.jumpZ * 0.003)})`;
-          ctx.beginPath();
-          ctx.ellipse(0, player.jumpZ + 12, 14 + player.jumpZ * 0.05, 7, 0, 0, Math.PI * 2);
-          ctx.fill();
-        }
-
-        ctx.rotate(player.skisAngle + player.trickRotation);
-
-        if (player.state === 'WIPEOUT') {
-          ctx.fillStyle = '#ef4444';
-          ctx.fillRect(-12, -8, 24, 16);
-          ctx.fillStyle = '#0f172a';
-          ctx.fillRect(-14, -12, 8, 5);
-        } else {
-          // Skis
-          ctx.fillStyle = '#0284c7';
-          if (player.state === 'SNOWPLOW') {
-            ctx.save();
-            ctx.rotate(-0.25);
-            ctx.fillRect(-9, -16, 4, 34);
-            ctx.restore();
-            ctx.save();
-            ctx.rotate(0.25);
-            ctx.fillRect(5, -16, 4, 34);
-            ctx.restore();
-          } else {
-            ctx.fillRect(-8, -16, 4, 34);
-            ctx.fillRect(4, -16, 4, 34);
-          }
-
-          // Body & Jacket
-          ctx.fillStyle = player.state === 'TUCK' ? '#dc2626' : '#ea580c';
-          const bodyHeight = player.state === 'TUCK' ? 12 : 18;
-          ctx.fillRect(-7, -8, 14, bodyHeight);
-
-          // Helmet & Goggles
-          ctx.fillStyle = '#1e293b';
-          ctx.beginPath();
-          ctx.arc(0, -12, 7, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.fillStyle = '#facc15';
-          ctx.fillRect(-4, -14, 8, 4);
-        }
+        ctx.translate(p.x, p.currentViewportY - p.jumpZ);
+        ctx.rotate(p.skisAngle);
+        ctx.fillStyle = '#0284c7';
+        ctx.fillRect(-8, -16, 4, 34);
+        ctx.fillRect(4, -16, 4, 34);
+        ctx.fillStyle = p.state === 'TUCK' ? '#dc2626' : '#ea580c';
+        ctx.fillRect(-7, -8, 14, 18);
+        ctx.fillStyle = '#1e293b';
+        ctx.beginPath();
+        ctx.arc(0, -12, 7, 0, Math.PI * 2);
+        ctx.fill();
         ctx.restore();
         ctx.restore();
 
-        // CRT Retro HUD
+        // Default Top HUD
         ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
-        ctx.fillRect(0, 0, canvas.width, 48);
-
+        ctx.fillRect(0, 0, 800, 48);
         ctx.fillStyle = '#f8fafc';
-        ctx.font = 'bold 15px "Courier New", monospace';
-        ctx.textAlign = 'left';
-        const speedKmH = Math.round(player.vy * 0.22);
-        ctx.fillText(`SPEED: ${speedKmH} KM/H`, 20, 30);
-
-        ctx.textAlign = 'center';
-        const distMeters = Math.floor(player.worldDistance / 10);
-        ctx.fillText(`DISTANCE: ${distMeters}M`, 300, 30);
-
-        ctx.fillStyle = player.wipeouts > 0 ? '#f87171' : '#4ade80';
-        ctx.fillText(`WIPEOUTS: ${player.wipeouts}`, 500, 30);
-
-        ctx.textAlign = 'right';
-        ctx.fillStyle = player.state === 'TUCK' ? '#ef4444' : (player.state === 'JUMP' ? '#a855f7' : '#38bdf8');
-        ctx.fillText(`[${player.state}]`, 780, 30);
+        ctx.font = 'bold 15px monospace';
+        ctx.fillText(`SPEED: ${Math.round(p.vy * 0.22)} KM/H`, 20, 30);
+        ctx.fillText(`DISTANCE: ${Math.floor(p.worldDistance / 10)}M`, 300, 30);
+        ctx.fillText(`WIPEOUTS: ${p.wipeouts}`, 520, 30);
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillText(`[${p.state}]`, 700, 30);
       }
+    });
 
-      function gameLoop(now) {
+    // Microkernel Main Tick Loop
+    (function runStudioEngine() {
+      let lastTime = performance.now();
+      function tick(now) {
         const dt = Math.min((now - lastTime) / 1000, 0.05);
         lastTime = now;
-        tickCount++;
-        window.__GAME_STATE__.tick = tickCount;
+        const engine = window.StudioEngine;
+        engine.state.tick++;
 
-        updatePlayerKinematics(dt);
-        updateObstacles(dt);
-        updateParticles(dt);
-        render();
+        // Execute all module update hooks
+        for (let i = 0; i < engine.hooks.update.length; i++) {
+          try { engine.hooks.update[i](dt, engine.state); }
+          catch (e) { window.__STUDIO_ERRORS__.push({ msg: "Update error", error: e.stack }); }
+        }
 
-        requestAnimationFrame(gameLoop);
+        // Execute all module render hooks
+        if (engine.ctx) {
+          for (let i = 0; i < engine.hooks.render.length; i++) {
+            try { engine.hooks.render[i](engine.ctx, engine.state); }
+            catch (e) { window.__STUDIO_ERRORS__.push({ msg: "Render error", error: e.stack }); }
+          }
+        }
+
+        requestAnimationFrame(tick);
       }
-
-      spawnInitialObstacles();
-      requestAnimationFrame(gameLoop);
+      requestAnimationFrame(tick);
     })();
+
+    // --- AUTONOMOUS AGENT PLUGINS INJECT BELOW ---
   
-  // --- [RFC Applied: RFC-20261111-83A6B7] Starting class selection screen (Olympian, Daredevil, Ranger, Occultist). ---
-  (function() {
-(() => {
-  // Ensure global game state container exists
-  window.__GAME_STATE__ = window.__GAME_STATE__ || {};
-  const GS = window.__GAME_STATE__;
-
-  // Class Archetype Definitions
-  const CLASS_REGISTRY = {
-    olympian: {
-      id: 'olympian',
-      name: 'Olympian',
-      icon: '🛡️',
-      tagline: 'Immovable Aegis & God-Forged Might',
-      stats: { vit: 18, str: 16, agi: 8, int: 6, luk: 8 },
-      baseVitals: { hp: 180, maxHp: 180, stamina: 110, maxStamina: 110, mana: 40, maxMana: 40 },
-      startingPerks: ['Aegis Bulwark (50% kinetic damage reduction while bracing)', 'Colossus Slam (Stun on charge)'],
-      startingEquipment: { weapon: 'Crested Xiphos', offhand: 'Tower Hoplon', armor: 'Bronze Cuirass' },
-      themeColor: '#e5a93b'
-    },
-    daredevil: {
-      id: 'daredevil',
-      name: 'Daredevil',
-      icon: '⚡',
-      tagline: 'High-Roller Assassin & Kinetic Blitz',
-      stats: { vit: 10, str: 12, agi: 18, int: 8, luk: 16 },
-      baseVitals: { hp: 105, maxHp: 105, stamina: 160, maxStamina: 160, mana: 60, maxMana: 60 },
-      startingPerks: ['Gambit Rush (+40% crit rate when below 35% HP)', 'Phase Shift (Perfect dodge refunds stamina)'],
-      startingEquipment: { weapon: 'Dual Serrated Stilettos', offhand: null, armor: 'Ballistic Leather Coat' },
-      themeColor: '#e63946'
-    },
-    ranger: {
-      id: 'ranger',
-      name: 'Ranger',
-      icon: '🏹',
-      tagline: 'Precision Ballistics & Sector Denial',
-      stats: { vit: 12, str: 11, agi: 15, int: 10, luk: 12 },
-      baseVitals: { hp: 125, maxHp: 125, stamina: 130, maxStamina: 130, mana: 70, maxMana: 70 },
-      startingPerks: ['Vantage Point (+25% armor pierce from distance)', 'Caltrop Trap (Bleed & Cripple field)'],
-      startingEquipment: { weapon: 'Composite Recurve', offhand: 'Tanto Dagger', armor: 'Ghillie Vest' },
-      themeColor: '#2a9d8f'
-    },
-    occultist: {
-      id: 'occultist',
-      name: 'Occultist',
-      icon: '🔮',
-      tagline: 'Eldritch Transmutation & Soul Syphon',
-      stats: { vit: 8, str: 6, agi: 9, int: 19, luk: 14 },
-      baseVitals: { hp: 85, maxHp: 85, stamina: 80, maxStamina: 80, mana: 190, maxMana: 190 },
-      startingPerks: ['Blood Siphon (Attacks heal for 18% magic output)', 'Void Tether (Damage spreads to 3 adjacent targets)'],
-      startingEquipment: { weapon: 'Gilded Athame', offhand: 'Void Reliquary', armor: 'Runic Vestments' },
-      themeColor: '#9d4edd'
-    }
-  };
-
-  let selectedClassId = 'olympian';
-
-  // Inject UI Styles
-  const styleElement = document.createElement('style');
-  styleElement.id = 'class-selection-styles';
-  styleElement.textContent = `
-    .cs-screen-overlay {
-      position: fixed;
-      inset: 0;
-      background: radial-gradient(circle at center, #131722 0%, #080a0f 100%);
-      z-index: 99999;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: space-between;
-      padding: 40px 24px;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      color: #e0e6ed;
-      user-select: none;
-      box-sizing: border-box;
-      overflow-y: auto;
-    }
-    .cs-header {
-      text-align: center;
-      margin-bottom: 24px;
-    }
-    .cs-title {
-      font-size: 2.2rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      font-weight: 800;
-      margin: 0;
-      color: #f1f5f9;
-      text-shadow: 0 0 16px rgba(255,255,255,0.15);
-    }
-    .cs-subtitle {
-      font-size: 0.95rem;
-      color: #94a3b8;
-      letter-spacing: 0.05em;
-      margin-top: 6px;
-    }
-    .cs-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 20px;
-      width: 100%;
-      max-width: 1200px;
-      margin: auto 0;
-    }
-    @media (max-width: 960px) {
-      .cs-grid { grid-template-columns: repeat(2, 1fr); }
-    }
-    @media (max-width: 540px) {
-      .cs-grid { grid-template-columns: 1fr; }
-    }
-    .cs-card {
-      background: rgba(30, 41, 59, 0.4);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 12px;
-      padding: 20px;
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      position: relative;
-      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-      backdrop-filter: blur(12px);
-    }
-    .cs-card:hover {
-      transform: translateY(-4px);
-      background: rgba(30, 41, 59, 0.7);
-      border-color: rgba(255, 255, 255, 0.2);
-    }
-    .cs-card.active {
-      transform: translateY(-6px);
-      box-shadow: 0 12px 28px -6px rgba(0,0,0,0.6);
-    }
-    .cs-card-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 12px;
-      width: 100%;
-    }
-    .cs-card-icon {
-      font-size: 2rem;
-      width: 44px;
-      height: 44px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(0, 0, 0, 0.3);
-      border-radius: 8px;
-    }
-    .cs-card-title {
-      font-size: 1.25rem;
-      font-weight: 700;
-      letter-spacing: 0.05em;
-      margin: 0;
-    }
-    .cs-card-tagline {
-      font-size: 0.75rem;
-      color: #94a3b8;
-      margin-bottom: 16px;
-      line-height: 1.3;
-      min-height: 32px;
-    }
-    .cs-stats-list {
-      width: 100%;
-      margin: 0 0 16px 0;
-      padding: 0;
-      list-style: none;
-      font-size: 0.8rem;
-    }
-    .cs-stat-row {
-      display: flex;
-      justify-content: space-between;
-      padding: 3px 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-    }
-    .cs-stat-label { color: #64748b; font-weight: 600; }
-    .cs-stat-val { font-family: monospace; font-weight: bold; color: #cbd5e1; }
-    .cs-perks {
-      margin-top: auto;
-      width: 100%;
-      font-size: 0.75rem;
-    }
-    .cs-perk-item {
-      background: rgba(0, 0, 0, 0.25);
-      border-left: 2px solid #64748b;
-      padding: 6px 8px;
-      margin-top: 6px;
-      border-radius: 0 4px 4px 0;
-      color: #94a3b8;
-      line-height: 1.25;
-    }
-    .cs-footer {
-      margin-top: 28px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 12px;
-    }
-    .cs-confirm-btn {
-      background: #f8fafc;
-      color: #090d16;
-      border: none;
-      padding: 14px 42px;
-      font-size: 0.95rem;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: all 0.18s ease;
-      box-shadow: 0 4px 14px rgba(255, 255, 255, 0.2);
-    }
-    .cs-confirm-btn:hover {
-      background: #ffffff;
-      transform: translateY(-1px);
-      box-shadow: 0 6px 20px rgba(255, 255, 255, 0.35);
-    }
-    .cs-confirm-btn:active {
-      transform: translateY(1px);
-    }
-  `;
-  document.head.appendChild(styleElement);
-
-  // Render Base Interface
-  const mountScreen = () => {
-    const existing = document.getElementById('class-selection-screen');
-    if (existing) existing.remove();
-
-    const root = document.createElement('div');
-    root.id = 'class-selection-screen';
-    root.className = 'cs
-  })();
-
-  // --- [RFC Applied: RFC-20261111-384543] Slalom gate generator with combo multiplier tracking. ---
-  (function() {
-(() => {
-  if (!window.__GAME_STATE__) {
-    window.__GAME_STATE__ = {};
-  }
-  const GS = window.__GAME_STATE__;
-
-  // --- Constants & Config ---
-  const PALETTE = {
-    RED: '#E70000',
-    RED_SHADOW: '#8A0000',
-    BLUE: '#0045E7',
-    BLUE_SHADOW: '#002682',
-    POLE: '#FFFFFF',
-    POLE_BASE: '#222222',
-    TEXT_FILL: '#FFFF00',
-    TEXT_STROKE: '#000000'
-  };
-
-  const COMBO_STATES = {
-    INACTIVE: 'COMBO_INACTIVE',
-    ACTIVE: 'COMBO_ACTIVE',
-    DECAYING: 'COMBO_DECAYING'
-  };
-
-  // --- State Initialization ---
-  if (!GS.slalom) {
-    GS.slalom = {
+  // --- [RFC Applied: RFC-20261111-F15787] Slalom gate generator with combo multiplier tracking. ---
+  StudioEngine.registerModule('SlalomGateSystem', {
+  init(state, engine) {
+    state.slalom = {
       gates: [],
-      floatingTexts: [],
-      lastGateY: 0,
-      nextPolarity: -1, // -1: Left (Red), 1: Right (Blue)
-      comboState: COMBO_STATES.INACTIVE,
+      gateIndex: 0,
+      comboState: 'COMBO_INACTIVE', // COMBO_INACTIVE, COMBO_ACTIVE, COMBO_DECAYING
       comboCount: 0,
       multiplier: 1.0,
       comboTimer: 0,
-      maxComboDuration: 3.0,
-      totalXpEarned: 0
+      maxDuration: 3.0,
+      floatingTexts: [],
+      lastGeneratedY: 0,
+      lastGateX: (state.level && state.level.width ? state.level.width * 0.5 : 400),
+      lastGateY: 0,
+      lastPolarity: 1, // 1 = Blue (Right), -1 = Red (Left)
+      prevPlayerPos: {
+        x: (state.player && state.player.x) || 400,
+        y: (state.player && state.player.y) || 0
+      },
+      time: 0
     };
-  }
 
-  const S = GS.slalom;
+    // Public exclusion query for external Poisson-disk / chunk obstacle generators
+    state.isSlalomExcluded = (x, y) => {
+      const gates = state.slalom.gates;
+      for (let i = 0; i < gates.length - 1; i++) {
+        const g1 = gates[i];
+        const g2 = gates[i + 1];
+        const r = g2.width * 0.8;
+        const rSq = r * r;
+        const dx = g2.x - g1.x;
+        const dy = g2.y - g1.y;
+        const l2 = dx * dx + dy * dy;
+        let t = 0;
+        if (l2 > 0) {
+          t = Math.max(0, Math.min(1, ((x - g1.x) * dx + (y - g1.y) * dy) / l2));
+        }
+        const projX = g1.x + t * dx;
+        const projY = g1.y + t * dy;
+        const distSq = (x - projX) * (x - projX) + (y - projY) * (y - projY);
+        if (distSq <= rSq) return true;
+      }
+      return false;
+    };
+  },
 
-  // --- Kinematics & Solvability Envelope Generator ---
-  function getGateWidth(distance) {
-    return Math.max(70, Math.min(110, 110 - (distance / 5000) * 10));
-  }
+  update(dt, state) {
+    if (!state.player) return;
+    const slalom = state.slalom;
+    slalom.time += dt;
 
-  function generateGatesAhead(currentY, targetDistance, bounds) {
-    const minTrackX = (bounds && bounds.minX) !== undefined ? bounds.minX : -400;
-    const maxTrackX = (bounds && bounds.maxX) !== undefined ? bounds.maxX : 400;
+    const player = state.player;
+    const stats = state.stats || {};
+    const pX = player.x;
+    const pY = player.y;
+    const pPrevX = slalom.prevPlayerPos.x;
+    const pPrevY = slalom.prevPlayerPos.y;
 
-    const VyNominal = (GS.player && GS.player.vyNominal) || 350;
-    const currentVy = (GS.player && GS.player.vy) || VyNominal;
-    const VxMax = (GS.player && GS.player.vxMax) || 300;
-    const eta = 0.75; // Kinematic solvability safety factor
-
-    if (S.gates.length === 0) {
-      S.lastGateY = currentY + 300;
-      S.gates.push({
-        id: 0,
-        x: 0,
-        y: S.lastGateY,
-        width: getGateWidth(S.lastGateY),
-        polarity: S.nextPolarity,
-        cleared: false,
-        missed: false
-      });
-      S.nextPolarity *= -1;
+    // Check Wipeout condition
+    if (player.isWipedOut || player.wipedOut) {
+      if (slalom.comboState !== 'COMBO_INACTIVE') {
+        slalom.comboState = 'COMBO_INACTIVE';
+        slalom.comboCount = 0;
+        slalom.multiplier = 1.0;
+        slalom.comboTimer = 0;
+      }
     }
 
-    let lastGate = S.gates[S.gates.length - 1];
+    // Dynamic gate generation along descending Y axis
+    const lookaheadY = pY + 1600;
+    const minX = 100;
+    const maxX = (state.level && state.level.width ? state.level.width - 100 : 700);
 
-    while (lastGate.y < currentY + targetDistance) {
-      // Bounded vertical descent spacing: dy = clamp(Vy * dt_turn, 240, 480)
-      const dtTurn = 0.6 + Math.random() * 0.6; // [0.6s, 1.2s]
-      const dy = Math.max(240, Math.min(480, currentVy * dtTurn));
-      const nextY = lastGate.y + dy;
+    if (slalom.lastGeneratedY === 0) {
+      slalom.lastGeneratedY = pY + 200;
+      slalom.lastGateY = slalom.lastGeneratedY;
+      slalom.lastGateX = (minX + maxX) * 0.5;
+    }
 
-      // Lateral step governed by max lateral arc: |dx| <= (VxMax / VyNominal) * dy * eta
-      const maxDx = (VxMax / VyNominal) * dy * eta;
-      const targetOffset = S.nextPolarity * (maxDx * (0.55 + Math.random() * 0.45));
-      let nextX = lastGate.x + targetOffset;
+    const nominalVy = Math.max(280, Math.abs(player.vy || 350));
+    const maxVx = Math.max(240, Math.abs(player.vxMax || 320));
+    const eta = 0.75;
 
-      // Soft clamp within bounds, flip polarity if out of bounds
-      const Wg = getGateWidth(nextY);
-      const halfW = Wg / 2 + 30;
-      if (nextX - halfW < minTrackX) {
-        nextX = minTrackX + halfW;
-        S.nextPolarity = 1;
-      } else if (nextX + halfW > maxTrackX) {
-        nextX = maxTrackX - halfW;
-        S.nextPolarity = -1;
-      } else {
-        S.nextPolarity *= -1;
+    while (slalom.lastGeneratedY < lookaheadY) {
+      const dtTurn = 0.6 + Math.random() * 0.6; // 0.6s to 1.2s
+      const dy = Math.max(240, Math.min(480, nominalVy * dtTurn));
+      const nextY = slalom.lastGeneratedY + dy;
+
+      // Kinematic reachable bounds
+      const maxDx = (maxVx / nominalVy) * dy * eta;
+      const targetPolarity = -slalom.lastPolarity; // Alternating polarity
+      const lateralBias = targetPolarity * (maxDx * 0.6 + Math.random() * maxDx * 0.35);
+      let nextX = slalom.lastGateX + lateralBias;
+      nextX = Math.max(minX, Math.min(maxX, nextX));
+
+      // Re-verify kinematic solvability after clamping
+      if (Math.abs(nextX - slalom.lastGateX) > maxDx) {
+        nextX = slalom.lastGateX + Math.sign(nextX - slalom.lastGateX) * maxDx;
       }
+
+      const totalDist = nextY;
+      const gateWidth = Math.max(70, Math.min(110, 110 - (totalDist / 5000) * 10));
 
       const newGate = {
-        id: lastGate.id + 1,
-        x: nextX,
-        y: nextY,
-        width: Wg,
-        polarity: S.nextPolarity * -1,
-        cleared: false,
-        missed: false
-      };
-
-      S.gates.push(newGate);
-      lastGate = newGate;
-    }
-  }
-
-  // --- Hazard Masking & Poisson-Disk Exclusion ---
-  function pointToSegmentDistanceSquared(px, py, x1, y1, x2, y2) {
-    const l2 = (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1);
-    if (l2 === 0) return (px - x1) * (px - x1) + (py - y1) * (py - y1);
-    let t = ((px - x1) * (x2 - x1) + (py - y1) * (y2 - y1)) / l2;
-    t = Math.max(0, Math.min(1, t));
-    const projX = x1 + t * (x2 - x1);
-    const projY = y1 + t * (y2 - y1);
-    return (px - projX) * (px - projX) + (py - projY) * (py - projY);
-  }
-
-  // Returns true if candidate obstacle overlaps with any slalom clearance capsule
-  function isHazardInSlalomCapsule(obsX, obsY) {
-    for (let i = 0; i < S.gates.length - 1; i++) {
-      const g1 = S.gates[i];
-      const g2 = S.gates[i + 1];
-      const minY = Math.min(g1.y, g2.y) - 100;
-      const maxY = Math.max(g1.y, g2.y) + 100;
-      if (obsY < minY || obsY > maxY) continue;
-
-      const avgWidth = (g1.width + g2.width) * 0.5;
-      const capsuleRadius = avgWidth * 0.8;
-      const distSq = pointToSegmentDistanceSquared(obsX, obsY, g1.x, g1.y, g2.x, g2.y);
-      if (distSq <= capsuleRadius * capsuleRadius) {
-        return true;
-      }
-    }
-    return false;
-  }
-  GS.isHazardInSlalomCapsule = isHazardInSlalomCapsule;
-
-  // --- Combo State Machine ---
-  function triggerClear(gate, xCross) {
-    gate.cleared = true;
-    S.comboCount++;
-    S.comboState = COMBO_STATES.ACTIVE;
-
-    // Multiplier formula: M = 1.0 + min(floor(combo_count / 3) * 0.5, 4.0)
-    S.multiplier = 1.0 + Math.min(Math.floor(S.comboCount / 3) * 0.5, 4.0);
-
-    const xpEarned = Math.round(50 * S.multiplier);
-    S.totalXpEarned += xpEarned;
-
-    // Agility / Moxie stat scaling for combo decay resilience
-    const agility = (GS.player && GS.player.agility) || 1.0;
-    const baseDuration = 3.0;
-    S.comboTimer = baseDuration * (0.8 + agility * 0.2);
-
-    S.floatingTexts.push({
-      x: xCross,
-      y: gate.y - 15,
-      text: `+${xpEarned} XP [COMBO x${S.multiplier.toFixed(1)}]`,
-      alpha: 1.0,
-      vy: -55
-    });
-
-    if (typeof GS.onSlalomGateCleared === 'function') {
-      GS.onSlalomGateCleared(gate, xpEarned, S.multiplier);
-    }
-  }
-
-  function triggerMiss(gate) {
-    gate.missed = true;
-    S.comboState = COMBO_STATES.INACTIVE;
-    S.comboCount = 0;
-    S.multiplier = 1.0;
-    S.comboTimer = 0;
-
-    S.floatingTexts.push({
-      x: gate.x,
-      y: gate.y - 15,
-      text: 'MISS! COMBO LOST',
-      alpha: 1.0,
-      vy: -30,
-      color: '#FF2222'
-    });
-
-    if (typeof GS.onSlalomGateMissed === 'function') {
-      GS.onSlalomGateMissed(gate);
-    }
-  }
-
-  // --- Swept-Line Detection & Lifecycle Update ---
-  function update(dt, pPrev, pCurr, bounds) {
-    if (!dt || dt <= 0) return;
-
-    // Maintain procedural path buffer ahead of the skier
-    generateGatesAhead(pCurr.y, 2500, bounds);
-
-    // Continuous Swept-Line Crossing Check
-    for (let i = 0; i < S.gates.length; i++) {
-      const g = S.gates[i];
-      if (g.cleared || g.missed) continue;
-
-      // Swept collision on Y axis
-      if (pPrev.y <= g.y && pCurr.y >= g.y) {
-        const dyTotal = pCurr.y - pPrev.y;
-        const t = dyTotal === 0 ? 0 : (g.y - pPrev.y) / dyTotal;
-        const xCross = pPrev.x + t * (pCurr.x - pPrev.x);
-
-        const xLeft = g.x - g.width / 2;
-        const xRight = g.x + g.width / 2;
-
-        if (xCross >= xLeft && xCross <= xRight) {
-          triggerClear(g, xCross);
-        } else {
-          triggerMiss(g);
-        }
-      } else if (pCurr.y > g.y + 20) {
-        // Skier bypassed gate plane beyond recovery threshold
-        triggerMiss(g);
-      }
-    }
-
-    // Handle Combo Timer & Decay Machine
-    if (S.comboState === COMBO_STATES.ACTIVE) {
-      S.comboTimer -= dt;
-      if (S.comboTimer <= 0) {
-        S.comboTimer = 0;
-        S.comboState = COMBO_STATES.DECAYING;
-      }
-    } else if (S.comboState === COMBO_STATES.DECAYING) {
-      // Drops by 1.0x per second until hitting 1.0x
-      S.multiplier = Math.max(1.0, S.multiplier - 1.0 * dt);
-      if (S.multiplier <= 1.0) {
-        S.multiplier = 1.0;
-        S.comboCount = 0;
-        S.comboState = COMBO_STATES.INACTIVE;
-      }
-    }
-
-    // Update Floating Texts
-    for (let i = S.floatingTexts.length - 1; i >= 0; i--) {
-      const ft = S.floatingTexts[i];
-      ft.y += ft.vy * dt;
-      ft.alpha -= dt * 0.9;
-      if (ft.alpha <= 0) {
-        S.floatingTexts.splice(i, 1);
-      }
-    }
-
-    // Cull old gates behind player
-    while (S.gates.length > 0 && S.gates[0].y < pCurr.y - 800) {
-      S.gates.shift();
-    }
-  }
-
-  // --- Canvas 2D Rendering ---
-  function render(ctx, cameraY, cameraX, totalTime) {
-    if (!ctx) return;
-    const time = totalTime || performance.now() * 0.001;
-
-    ctx.save();
-    ctx.translate(-cameraX, -cameraY);
-
-    // Draw Gates
-    for (let i = 0; i < S.gates.length; i++) {
-      const g = S.gates[i];
-      const isRed = g.polarity < 0;
-      const gateColor = isRed ? PALETTE.RED : PALETTE.BLUE;
-      const shadowColor = isRed ? PALETTE.RED_SHADOW : PALETTE.BLUE_SHADOW;
-      const xLeft = g.x - g.width / 2;
-      const xRight = g.x + g.width / 2;
-
-      // Draw dashed threshold guideline between poles
-      ctx.beginPath();
-      ctx.strokeStyle = g.cleared ? 'rgba(0, 255, 128, 0.4)' : g.missed ? 'rgba(255, 50, 50, 0.3)' : 'rgba(255, 255, 255, 0.25)';
-      ctx.lineWidth = 2;
-      ctx.setLineDash([4, 6]);
-      ctx.moveTo(xLeft, g.y);
-      ctx.lineTo(xRight, g.y);
-      ctx.stroke();
-      ctx.setLineDash([]);
-
-      // Draw Left and Right Poles
-      [x
-  })();
-
-  // --- [RFC Applied: RFC-20261111-705A00] Stat tracking system: Velocity, Agility, Balance, Moxie, Luck. ---
-  (function() {
-(() => {
-  'use strict';
-
-  window.__GAME_STATE__ = window.__GAME_STATE__ || {};
-
-  const STATUS_FLAGS = Object.freeze({
-    AIRBORNE:           0x0001,
-    TUCKED:             0x0002,
-    CARVING_LEFT:       0x0004,
-    CARVING_RIGHT:      0x0008,
-    BRAKING:            0x0010,
-    WIPEOUT:            0x0020,
-    INVULNERABLE:       0x0040,
-    YETI_TERROR:        0x0080,
-    CRITICAL_STABILITY: 0x0100
-  });
-
-  class StatTracker {
-    constructor(baseStats = { VEL: 10, AGI: 10, BAL: 10, MOX: 10, LCK: 10 }) {
-      this.base = {
-        VEL: Math.max(1, Math.min(99, baseStats.VEL ?? 10)),
-        AGI: Math.max(1, Math.min(99, baseStats.AGI ?? 10)),
-        BAL: Math.max(1, Math.min(99, baseStats.BAL ?? 10)),
-        MOX: Math.max(1, Math.min(99, baseStats.MOX ?? 10)),
-        LCK: Math.max(1, Math.min(99, baseStats.LCK ?? 10))
-      };
-      this.modifiers = { VEL: 0, AGI: 0, BAL: 0, MOX: 0, LCK: 0 };
-      this.level = 1;
-      this.currentXP = 0;
-      this.statusMask = 0;
-      this.recoveryTimer = 0.0;
-      this.majorWipeouts = 0;
-      this.maxWipeouts = 3;
-    }
-
-    getStat(stat) {
-      const b = this.base[stat] || 1;
-      const m = this.modifiers[stat] || 0;
-      return Math.max(1, Math.min(99, Math.floor(b + m)));
-    }
-
-    setModifier(stat, val) {
-      if (this.modifiers[stat] !== undefined) {
-        this.modifiers[stat] = val;
-      }
-    }
-
-    getXPRequirement(lvl) {
-      return Math.floor(100 * Math.pow(lvl, 1.65) + ((lvl - 1) * 45));
-    }
-
-    addXP(amount) {
-      this.currentXP += Math.max(0, amount);
-      let leveledUp = false;
-      while (this.currentXP >= this.getXPRequirement(this.level)) {
-        this.currentXP -= this.getXPRequirement(this.level);
-        this.level++;
-        leveledUp = true;
-      }
-      return leveledUp;
-    }
-
-    awardNearMissXP() {
-      const mox = this.getStat('MOX');
-      const xp = Math.floor(15 * (1.0 + (mox * 0.02)));
-      return { xp, leveledUp: this.addXP(xp) };
-    }
-
-    awardGateXP() {
-      const mox = this.getStat('MOX');
-      const lck = this.getStat('LCK');
-      const xp = Math.floor(40 * (1.0 + (mox * 0.015)) * (1.0 + (lck * 0.005)));
-      return { xp, leveledUp: this.addXP(xp) };
-    }
-
-    hasStatus(flag) {
-      return (this.statusMask & flag) === flag;
-    }
-
-    setStatus(flag) {
-      this.statusMask |= flag;
-    }
-
-    clearStatus(flag) {
-      this.statusMask &= ~flag;
-    }
-
-    getDerivedKinematics() {
-      const vel = this.getStat('VEL');
-      const agi = this.getStat('AGI');
-      const bal = this.getStat('BAL');
-      const mox = this.getStat('MOX');
-      const lck = this.getStat('LCK');
-
-      const isTucked = (this.statusMask & STATUS_FLAGS.TUCKED) !== 0;
-      const isTerror = (this.statusMask & STATUS_FLAGS.YETI_TERROR) !== 0;
-
-      let vyMax = 350.0 + (vel * 8.5);
-      if (isTucked) vyMax *= (1.25 + (vel * 0.002));
-      if (isTerror) vyMax *= (1.0 + (mox * 0.008));
-
-      let ax = 420.0 + (agi * 11.2);
-      if (isTucked) ax *= 0.60;
-
-      return {
-        vyMax,
-        ax,
-        dx: 0.88 + (0.09 * (1.0 - (agi / 100.0))),
-        recoveryTime: Math.max(0.35, 2.50 - (bal * 0.022)),
-        stabilityThreshold: Math.min(0.95, 0.20 + (bal * 0.008)),
-        spinOmega: 4.188 + (mox * 0.125),
-        gateMagnetRadius: 16.0 + (lck * 0.45),
-        critRecoveryProb: Math.min(0.35, lck * 0.0035)
-      };
-    }
-
-    triggerWipeout(prngValue = Math.random()) {
-      if (this.hasStatus(STATUS_FLAGS.INVULNERABLE)) {
-        return false;
-      }
-
-      if (this.hasStatus(STATUS_FLAGS.CRITICAL_STABILITY)) {
-        this.clearStatus(STATUS_FLAGS.CRITICAL_STABILITY);
-        return false;
-      }
-
-      const kinematics = this.getDerivedKinematics();
-      if (prngValue < kinematics.critRecoveryProb) {
-        this.setStatus(STATUS_FLAGS.CRITICAL_STABILITY);
-        return false;
-      }
-
-      this.majorWipeouts++;
-      this.setStatus(STATUS_FLAGS.WIPEOUT);
-      this.clearStatus(STATUS_FLAGS.TUCKED | STATUS_FLAGS.CARVING_LEFT | STATUS_FLAGS.CARVING_RIGHT | STATUS_FLAGS.BRAKING);
-      this.recoveryTimer = kinematics.recoveryTime;
-      return true;
-    }
-
-    update(dt) {
-      if (this.hasStatus(STATUS_FLAGS.WIPEOUT)) {
-        this.recoveryTimer -= dt;
-        if (this.recoveryTimer <= 0) {
-          this.recoveryTimer = 0.0;
-          this.clearStatus(STATUS_FLAGS.WIPEOUT);
-        }
-      }
-    }
-  }
-
-  window.__GAME_STATE__.STATUS_FLAGS = STATUS_FLAGS;
-  window.__GAME_STATE__.StatTracker = StatTracker;
-  if (!window.__GAME_STATE__.stats) {
-    window.__GAME_STATE__.stats = new StatTracker();
-  }
-})();
-  })();
-
-  // --- [RFC Applied: RFC-20261111-C4CCE7] Near-miss hazard detection and XP-driven level-up stat allocation bar. ---
-  (function() {
-(() => {
-  // Ensure game state namespace exists
-  const GS = (window.__GAME_STATE__ = window.__GAME_STATE__ || {});
-
-  // 1. STATE INITIALIZATION & DEFAULTS
-  GS.physics = GS.physics || {
-    mass: 75.0,
-    gravity: { x: 0, y: 980.0 }, // Downhill acceleration vector
-    dragCoeff: 0.25,
-    carveFriction: 0.85,
-    timeScale: 1.0,
-    autoPauseOnLevelUp: true
-  };
-
-  GS.player = GS.player || {
-    P: { x: 400, y: 150 },
-    V: { x: 0, y: 120 },
-    R_skier: 12,
-    mass: 75.0,
-    heading: 0, // radians
-    isCarving: false,
-    carveDir: 0
-  };
-
-  GS.progression = GS.progression || {
-    level: 1,
-    xpCurrent: 0,
-    statPoints: 0,
-    stats: {
-      agility: 1,  // Carve rate & lateral responsiveness
-      balance: 1,  // Wipeout stability / recovery rate
-      moxie: 1,    // XP multiplier & trick score scaling
-      stamina: 1,  // Boost capacity & sustained tuck
-      luck: 1      // Rare terrain / bonus trigger frequency
-    },
-    derived: {
-      kappa_t: 1.0,      // Carve friction tensor scale
-      tau_rec: 60,       // Recovery frames
-      moxieMult: 1.0,    // XP multiplier
-      maxStamina: 100,
-      luckChance: 0.05
-    }
-  };
-
-  GS.hazards = GS.hazards || [];
-  GS.events = GS.events || new EventTarget();
-
-  // Active floating combat / XP notifications
-  GS.floatingTexts = GS.floatingTexts || [];
-
-  const DELTA_MISS = 36.0;
-  const BASE_XP_NEAR_MISS = 45.0;
-
-  // 2. FORMULAS & DERIVED ATTRIBUTE RECALCULATION
-  function getXPThreshold(level) {
-    return Math.floor(100 * Math.pow(1.35, level - 1));
-  }
-
-  function recomputeDerivedStats() {
-    const s = GS.progression.stats;
-    const d = GS.progression.derived;
-    d.kappa_t = 0.8 + s.agility * 0.12;
-    d.tau_rec = Math.max(15, Math.floor(60 * Math.pow(0.92, s.balance - 1)));
-    d.moxieMult = 1.0 + (s.moxie - 1) * 0.22;
-    d.maxStamina = 100 + (s.stamina - 1) * 20;
-    d.luckChance = Math.min(0.5, 0.05 + (s.luck - 1) * 0.035);
-  }
-  recomputeDerivedStats();
-
-  // 3. KINEMATICS PIPELINE (Semi-Implicit Euler)
-  GS.integrateKinematics = function (dtSafe) {
-    const pl = GS.player;
-    const phys = GS.physics;
-    const dt = dtSafe * phys.timeScale;
-    if (dt <= 0) return;
-
-    // Forces calculation: Gravity along slope, Aerodynamic Drag, Carve Lateral Force
-    const speed = Math.hypot(pl.V.x, pl.V.y);
-    const F_drag = {
-      x: -phys.dragCoeff * pl.V.x * speed,
-      y: -phys.dragCoeff * pl.V.y * speed
-    };
-
-    let F_carve = { x: 0, y: 0 };
-    if (pl.isCarving && pl.carveDir !== 0) {
-      const lateralNorm = { x: -pl.V.y / (speed || 1), y: pl.V.x / (speed || 1) };
-      const carveMagnitude = pl.mass * 850.0 * GS.progression.derived.kappa_t * pl.carveDir;
-      F_carve.x = lateralNorm.x * carveMagnitude;
-      F_carve.y = lateralNorm.y * carveMagnitude;
-    }
-
-    const totalF = {
-      x: phys.gravity.x + F_drag.x + F_carve.x,
-      y: phys.gravity.y + F_drag.y + F_carve.y
-    };
-
-    // V_t = V_{t-1} + (F / m) * dt
-    pl.V.x += (totalF.x / pl.mass) * dt;
-    pl.V.y += (totalF.y / pl.mass) * dt;
-
-    // P_t = P_{t-1} + V_t * dt
-    pl.P.x += pl.V.x * dt;
-    pl.P.y += pl.V.y * dt;
-  };
-
-  // 4. COLLISION HULLS & NEAR-MISS PROXIMITY GEOMETRY
-  GS.evaluateHazards = function () {
-    const pl = GS.player;
-    const px = pl.P.x, py = pl.P.y;
-    const rSkier = pl.R_skier;
-
-    for (let i = 0; i < GS.hazards.length; i++) {
-      const h = GS.hazards[i];
-      // Transient tracking state bootstrap
-      if (!h._prox) {
-        h._prox = {
-          inside_zone: false,
-          triggered: false,
-          entered_solid: false,
-          d_min: Infinity
-        };
-      }
-      const prox = h._prox;
-      const rSolid = h.r_solid || 20;
-      const rMiss = rSolid + (h.delta_miss || DELTA_MISS);
-
-      // Vector separation D = P - C
-      const dx = px - h.x;
-      const dy = py - h.y;
-      const dist = Math.hypot(dx, dy);
-
-      const solidThreshold = rSolid + rSkier;
-      const missThreshold = rMiss + rSkier;
-
-      // Solid collision flag
-      if (dist <= solidThreshold) {
-        prox.entered_solid = true;
-      }
-
-      const wasInside = prox.inside_zone;
-      const isNowInside = dist > solidThreshold && dist <= missThreshold;
-
-      if (isNowInside) {
-        prox.inside_zone = true;
-        if (dist < prox.d_min) prox.d_min = dist;
-      } else {
-        prox.inside_zone = false;
-      }
-
-      // Check if moving away: dot(V, D) > 0
-      const dotV_D = pl.V.x * dx + pl.V.y * dy;
-
-      // Trigger condition: was inside in t-1, moving away or exited boundary, not yet triggered or crashed
-      if (wasInside && dotV_D > 0 && !prox.triggered && !prox.entered_solid) {
-        prox.triggered = true;
-
-        // Clamped minimum penetration calculation
-        const clampedDMin = Math.max(prox.d_min, solidThreshold);
-        const proximityProportion = 1.0 - Math.min(1.0, (clampedDMin - solidThreshold) / (rMiss - rSolid));
-        const xpGain = Math.round(
-          BASE_XP_NEAR_MISS * (1.0 + proximityProportion) * GS.progression.derived.moxieMult
-        );
-
-        GS.awardXP(xpGain, { x: px, y: py - 20 }, "NEAR MISS!");
-        GS.events.dispatchEvent(new CustomEvent("NEAR_MISS", {
-          detail: { hazard: h, xp: xpGain, d_min: prox.d_min }
-        }));
-      }
-
-      // Reset cycle if player completely clears hazard downstream
-      if (dist > missThreshold * 1.5 && prox.triggered) {
-        prox.inside_zone = false;
-        prox.triggered = false;
-        prox.entered_solid = false;
-        prox.d_min = Infinity;
-      }
-    }
-  };
-
-  // 5. XP PROGRESSION & LEVEL-UP
-  GS.awardXP = function (amount, worldPos, label) {
-    const prog = GS.progression;
-    prog.xpCurrent += amount;
-
-    if (worldPos) {
-      GS.floatingTexts.push({
-        text: `+${amount} XP ${label ? `(${label})` : ""}`,
-        x: worldPos.x,
-        y: worldPos.y,
-        life: 1.0,
-        color: "#fbbf24"
-      });
-    }
-
-    let threshold = getXPThreshold(prog.level);
-    while (prog.xpCurrent >= threshold) {
-      prog.xpCurrent -= threshold;
-      prog.level += 1;
-      prog.statPoints += 1;
-      threshold = getXPThreshold(prog.level);
-
-      if (GS.physics.autoPauseOnLevelUp) {
-        GS.physics.timeScale = 0.05; // Cinematic slow-mo for stat allocation
-      }
-
-      GS.floatingTexts.push({
-        text: `LEVEL UP! Lv.${prog.level}`,
-        x: GS.player.P.x,
-        y: GS.player.P.y - 45,
-        life: 2.0,
-        color: "#38bdf8"
-      });
-
-      GS.events.dispatchEvent(new CustomEvent("LEVEL_UP", {
-        detail: { level: prog.level, statPoints: prog.statPoints }
-      }));
-    }
-  };
-
-  // 6. STAT ALLOCATION & HUD INTERACTION
-  const STAT_CONFIG = [
-    { key: "agility", label: "AGI", title: "Agility (Carve)" },
-    { key: "balance", label: "BAL", title: "Balance (Recovery)" },
-    { key: "moxie",   label: "MOX", title: "Moxie (XP & Score)" },
-    { key: "stamina", label: "STM", title: "Stamina (Boost Pool)" },
-    { key: "luck",    label: "LCK", title: "Luck (Gate Spawns)" }
-  ];
-
-  let clickRegions = [];
-
-  GS.renderStatAllocationHUD = function (ctx, canvasWidth, canvasHeight) {
-    const prog = GS.progression;
-    clickRegions = [];
-
-    // Render Floating Text System
-    for (let i = GS.floatingTexts.length - 1; i >= 0; i--) {
-      const ft = GS.floatingTexts[i];
-      ctx.save();
-      ctx.font = "bold 13px 'Segoe UI', sans-serif";
-      ctx.textAlign = "center";
-      ctx.fillStyle = ft.color;
-      ctx.globalAlpha = Math.min(1.0, ft.life);
-      ctx.fillText(ft.text, ft.x, ft.y);
-      ctx.restore();
-      ft.y -= 0.6;
-      ft.life -= 0.016;
-      if (ft.life <= 0) GS.floatingTexts.splice(i, 1);
-    }
-
-    // Top XP Progress Bar
-    const xpThreshold = getXPThreshold(prog.level);
-    const xpRatio = Math.min(1.0, Math.max(0.0, prog.xpCurrent / xpThreshold));
-    const barW = Math.min(420, canvasWidth - 40);
-    const barH = 10;
-    const barX = (canvasWidth - barW) / 2;
-    const barY = 16;
-
-    ctx.save();
-    ctx.fillStyle = "rgba(15, 23, 42, 0.75)";
-    ctx.fillRect(barX
-  })();
+        id: slalom.
 </script>
 </body>
 
