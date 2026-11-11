@@ -96,6 +96,84 @@
     const ctx = canvas.getContext('2d');
 
     const tileSize = 32;
+
+    // =========================================================================
+    // METROIDVANIA MULTI-STRATA BIOMES & TRAVERSAL ABILITY GATES (v0.4.0)
+    // =========================================================================
+    const totalRows = 45; // Multi-depth crust: 0-14 Loam, 15-29 Granite, 30-44 Magma
+    const viewRows = 15;
+    let cameraY = 0;
+
+    const upgrades = {
+      jackDrill: false,
+      jumpPiston: false
+    };
+
+    // Expand the world grid dynamically across strata
+    while (grid.length < totalRows) {
+      const r = grid.length;
+      const row = [];
+      for (let c = 0; c < cols; c++) {
+        if (c === 0 || c === cols - 1 || r === totalRows - 1) {
+          row.push(2); // Indestructible Bedrock borders
+        } else if (r >= 14 && r <= 16) {
+          row.push(2); // Dense Granite geological gate barrier
+        } else if (r >= 17 && r < 30) {
+          row.push(1); // Deep Granite sector
+        } else if (r >= 30) {
+          row.push(1); // Magma sector
+        } else {
+          row.push(1);
+        }
+      }
+      grid.push(row);
+    }
+
+    // Ability Gate Pickups: Drill in Loam pocket, Piston in Granite pocket
+    const relics = [
+      { id: 'relic_drill', type: 'drill', col: 3, row: 12, collected: false, icon: '⚡' },
+      { id: 'relic_piston', type: 'piston', col: 16, row: 24, collected: false, icon: '🚀' }
+    ];
+    grid[12][3] = 0; // Clear pocket for Jack-Drill
+    grid[24][16] = 0; // Clear pocket for Jump-Piston
+
+    // Additional Boulders in deeper strata
+    boulders.push({ col: 7, row: 20, state: 'resting', timer: 0 });
+    boulders.push({ col: 12, row: 34, state: 'resting', timer: 0 });
+    grid[20][7] = 3;
+    grid[34][12] = 3;
+
+    // Additional deep fauna
+    enemies.push({ id: 'pooka_deep', type: 'pooka', col: 8, row: 22, color: '#f97316', eyeColor: '#fef08a', inflateStage: 0, inflateTimer: 0, moveTimer: 0, facing: 'left' });
+    enemies.push({ id: 'fygar_deep', type: 'fygar', col: 11, row: 36, color: '#22c55e', eyeColor: '#fef08a', inflateStage: 0, inflateTimer: 0, moveTimer: 0, facing: 'right', fireTimer: 3.0 });
+    grid[22][8] = 0; grid[36][11] = 0;
+
+    function checkRelicPickups() {
+      relics.forEach(rel => {
+        if (!rel.collected && rel.col === player.col && rel.row === player.row) {
+          rel.collected = true;
+          if (rel.type === 'drill') {
+            upgrades.jackDrill = true;
+            document.getElementById('hud-sector').innerText = 'GRANITE STRATA';
+          }
+          if (rel.type === 'piston') {
+            upgrades.jumpPiston = true;
+          }
+          updateAbilitiesHUD();
+        }
+      });
+    }
+
+    function updateAbilitiesHUD() {
+      const hint = document.getElementById('camera-controls-hint');
+      if (hint) {
+        let str = 'WASD / Arrows: Move & Dig | [F]/[J]: Harpoon & Pump';
+        if (upgrades.jackDrill) str += ' | [DRILL ACTIVE]';
+        if (upgrades.jumpPiston) str += ' | [SPACE: Piston Leap]';
+        hint.innerText = str;
+      }
+    }
+
     const cols = 20; // 640px
     const rows = 15; // 480px
 
@@ -161,7 +239,14 @@
       const k = e.key.toLowerCase();
       keys[k] = true;
       if (gameOver) {
-        if (e.code === 'Space') respawnPlayer();
+        if (e.code === 'Space') {
+          if (gameOver) { respawnPlayer(); }
+          else if (upgrades.jumpPiston && player.row >= 2 && grid[player.row - 1][player.col] === 0) {
+            player.row = Math.max(0, player.row - 2);
+            document.getElementById('hud-depth').innerText = `${player.row * 10}m`;
+          }
+          return;
+        }
         return;
       }
       if (k === 'arrowup' || k === 'w') movePlayer(0, -1, 'up');
@@ -181,13 +266,25 @@
       const nr = player.row + dr;
 
       if (nc < 0 || nc >= cols || nr < 0 || nr >= rows) return;
-      if (grid[nr][nc] === 2 || grid[nr][nc] === 3) return;
+      if (grid[nr][nc] === 3) return;
+      if (grid[nr][nc] === 2) {
+        // Bedrock borders (outer walls) remain permanent
+        if (nc === 0 || nc === cols - 1 || nr === totalRows - 1) return;
+        // Granite strata requires the Pneumatic Jack-Drill!
+        if (!upgrades.jackDrill) return;
+        // Drill carves through Granite
+        grid[nr][nc] = 0;
+      }
 
       player.col = nc;
       player.row = nr;
 
       if (grid[nr][nc] === 1) grid[nr][nc] = 0;
       document.getElementById('hud-depth').innerText = `${nr * 10}m`;
+      checkRelicPickups();
+      if (nr < 15) document.getElementById('hud-sector').innerText = 'UPPER LOAM';
+      else if (nr < 30) document.getElementById('hud-sector').innerText = 'DENSE GRANITE';
+      else document.getElementById('hud-sector').innerText = 'MAGMA CHAMBER';
     }
 
     function handleHarpoonAction() {
@@ -344,6 +441,9 @@
     }
 
     function update(delta) {
+      // Smooth vertical camera tracking
+      const targetCamY = Math.max(0, Math.min(totalRows - viewRows, player.row - Math.floor(viewRows / 2))) * tileSize;
+      cameraY += (targetCamY - cameraY) * 0.15;
       if (gameOver) return;
       updateBoulders(delta);
       updateEnemies(delta);
@@ -353,21 +453,33 @@
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       // Render Destructible Grid
-      for (let r = 0; r < rows; r++) {
+      
+      ctx.save();
+      ctx.translate(0, -Math.round(cameraY));
+
+      // Render Destructible Grid across active strata
+      const startR = Math.max(0, Math.floor(cameraY / tileSize));
+      const endR = Math.min(totalRows, startR + viewRows + 2);
+
+      for (let r = startR; r < endR; r++) {
         for (let c = 0; c < cols; c++) {
           const tile = grid[r][c];
           const x = c * tileSize;
           const y = r * tileSize;
 
           if (tile === 1) {
-            ctx.fillStyle = '#78350f';
+            // Dirt color changes by depth/stratum
+            if (r < 15) { ctx.fillStyle = '#78350f'; }
+            else if (r < 30) { ctx.fillStyle = '#475569'; } // Granite Loam
+            else { ctx.fillStyle = '#7c2d12'; } // Volcanic Loam
             ctx.fillRect(x, y, tileSize, tileSize);
-            ctx.fillStyle = '#92400e';
+            ctx.fillStyle = r < 15 ? '#92400e' : (r < 30 ? '#64748b' : '#9a3412');
             ctx.fillRect(x + 2, y + 2, tileSize - 4, tileSize - 4);
           } else if (tile === 2) {
-            ctx.fillStyle = '#44403c';
+            // Dense Bedrock / Granite
+            ctx.fillStyle = '#1e293b';
             ctx.fillRect(x, y, tileSize, tileSize);
-            ctx.fillStyle = '#292524';
+            ctx.fillStyle = '#0f172a';
             ctx.fillRect(x + 3, y + 3, tileSize - 6, tileSize - 6);
           } else if (tile === 3) {
             ctx.fillStyle = '#a8a29e';
@@ -379,11 +491,25 @@
             ctx.arc(x + 14, y + 14, 9, 0, Math.PI * 2);
             ctx.fill();
           } else {
-            ctx.fillStyle = '#1c1917';
+            // Dug Tunnel
+            ctx.fillStyle = r >= 30 ? '#1c100e' : '#1c1917';
             ctx.fillRect(x, y, tileSize, tileSize);
           }
         }
       }
+
+      // Render Traversal Relic Pickups
+      relics.forEach(rel => {
+        if (!rel.collected) {
+          const rx = rel.col * tileSize + 8;
+          const ry = rel.row * tileSize + 8;
+          ctx.fillStyle = '#fbbf24';
+          ctx.fillRect(rx, ry, 16, 16);
+          ctx.font = '12px monospace';
+          ctx.fillText(rel.icon, rx + 1, ry + 12);
+        }
+      });
+
 
       // Render Pneumatic Tether Cable
       if (player.tether) {
@@ -442,6 +568,7 @@
       if (player.facing === 'up') ctx.fillRect(px + 8, py - 4, 8, 4);
       if (player.facing === 'left') ctx.fillRect(px - 4, py + 8, 4, 8);
       if (player.facing === 'right') ctx.fillRect(px + player.width, py + 8, 4, 8);
+      ctx.restore();
     }
 
     let lastTime = performance.now();
