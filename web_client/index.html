@@ -891,6 +891,135 @@
       let textY = y + 88;
       for (let i = 0; i < descWords.length; i++) {
         const testLine = line +
+
+  // --- [RFC Applied: RFC-20261111-B65D92] Near-miss hazard detection and XP-driven level-up stat allocation bar. ---
+  StudioEngine.registerModule('near_miss_progression', {
+  init(state, engine) {
+    state.player = state.player || {};
+    state.stats = state.stats || { agility: 5, balance: 5, moxie: 5, stamina: 5, luck: 5 };
+    state.level = state.level || 1;
+    state.xp = state.xp || 0;
+    state.statPoints = state.statPoints || 0;
+    state.timeScale = state.timeScale !== undefined ? state.timeScale : 1.0;
+    state.hazards = state.hazards || [];
+    state.floatingTexts = state.floatingTexts || [];
+
+    // Kinematic player properties
+    const p = state.player;
+    p.pos = p.pos || { x: 400, y: 300 };
+    p.vel = p.vel || { x: 0, y: 180 };
+    p.mass = p.mass || 75.0;
+    p.rSkier = 12.0;
+    p.inputDir = p.inputDir || 0;
+
+    this.recomputeDerivedStats(state);
+
+    // Mouse / UI interaction mapping
+    this.mouse = { x: 0, y: 0, clicked: false };
+    this.buttons = [];
+
+    const canvas = engine.canvas || (engine.renderer && engine.renderer.domElement) || null;
+    if (canvas && !this._listenersAttached) {
+      canvas.addEventListener('mousemove', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        this.mouse.x = (e.clientX - rect.left) * (canvas.width / rect.width);
+        this.mouse.y = (e.clientY - rect.top) * (canvas.height / rect.height);
+      });
+      canvas.addEventListener('mousedown', () => {
+        this.mouse.clicked = true;
+      });
+      this._listenersAttached = true;
+    }
+  },
+
+  recomputeDerivedStats(state) {
+    const s = state.stats;
+    const p = state.player;
+    p.kappa_t = 0.85 + (s.agility * 0.04);
+    p.tau_rec = Math.max(8, Math.floor(60 - (s.balance * 4.5)));
+    p.moxieMult = 1.0 + (s.moxie * 0.15);
+    p.maxStamina = 100.0 + (s.stamina * 20.0);
+    p.relicGateFreq = 1.0 + (s.luck * 0.12);
+  },
+
+  update(dt, state) {
+    const dt_safe = Math.min(dt || 0.016, 0.05);
+    const eff_dt = dt_safe * (state.timeScale !== undefined ? state.timeScale : 1.0);
+
+    const p = state.player;
+    const stats = state.stats;
+
+    // 1. KINEMATICS PIPELINE (Semi-Implicit Euler)
+    const F_gravity = { x: 0, y: p.mass * 98.0 };
+    const F_carve = { x: (p.inputDir || 0) * 12000.0 * p.kappa_t, y: 0 };
+    const speed = Math.hypot(p.vel.x, p.vel.y);
+    const c_drag = 0.52;
+    const F_drag = {
+      x: -c_drag * speed * p.vel.x,
+      y: -c_drag * speed * p.vel.y
+    };
+
+    const accel_x = (F_gravity.x + F_carve.x + F_drag.x) / p.mass;
+    const accel_y = (F_gravity.y + F_carve.y + F_drag.y) / p.mass;
+
+    p.vel.x += accel_x * eff_dt;
+    p.vel.y += accel_y * eff_dt;
+
+    p.pos.x += p.vel.x * eff_dt;
+    p.pos.y += p.vel.y * eff_dt;
+
+    // 2. NEAR-MISS PROXIMITY GEOMETRY
+    const delta_miss = 36.0;
+    const R_skier = p.rSkier;
+    const base_xp = 50.0;
+
+    for (let i = 0; i < state.hazards.length; i++) {
+      const H = state.hazards[i];
+      H.rSolid = H.rSolid || 24.0;
+      H.rMiss = H.rSolid + delta_miss;
+
+      if (!H._state) {
+        H._state = {
+          inside_zone: false,
+          prev_inside: false,
+          triggered: false,
+          entered_solid: false,
+          d_min: Infinity
+        };
+      }
+      const hs = H._state;
+      const dx = p.pos.x - H.x;
+      const dy = p.pos.y - H.y;
+      const dist = Math.hypot(dx, dy);
+
+      // Solid hull intersection
+      if (dist <= H.rSolid + R_skier) {
+        hs.entered_solid = true;
+      }
+
+      // Shell proximity tracking
+      const insideNow = (dist > (H.rSolid + R_skier)) && (dist <= (H.rMiss + R_skier));
+      hs.inside_zone = insideNow;
+
+      if (insideNow) {
+        const edgeDist = Math.max(0, dist - R_skier);
+        if (edgeDist < hs.d_min) {
+          hs.d_min = edgeDist;
+        }
+      }
+
+      // Moving away check: dot(V, D) > 0
+      const dotVD = (p.vel.x * dx) + (p.vel.y * dy);
+
+      if (hs.prev_inside && dotVD > 0 && !hs.triggered && !hs.entered_solid) {
+        hs.triggered = true;
+        const proximityBonus = 1.0 + Math.max(0, (1.0 - ((hs.d_min - H.rSolid) / delta_miss)));
+        const gain = Math.round(base_xp * proximityBonus * p.moxieMult);
+        state.xp += gain;
+
+        state.floatingTexts.push({
+          text: `NEAR MISS +${gain} XP`,
+          x: p.pos
 </script>
 </body>
 
