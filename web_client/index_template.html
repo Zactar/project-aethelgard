@@ -115,8 +115,26 @@
 
       if (prop === 'fillText' || prop === 'strokeText') {
         return function(text, x, y, maxWidth) {
-          if (typeof text === 'string' && text.includes('.')) {
-            text = text.replace(/(\d+)\.(\d{2,})/g, (m, a, b) => y < 40 && text.includes('SCORE') ? a : a + '.' + b.slice(0, 1));
+          if (typeof text === 'string') {
+            if (text.includes('.')) {
+              text = text.replace(/(\d+)\.(\d{2,})/g, (m, a, b) => y < 40 && text.includes('SCORE') ? a : a + '.' + b.slice(0, 1));
+            }
+            // Detect Menu/Modal Screens by Header Text even if drawn as 4 separate pilot cards!
+            if (
+              _currentModName !== 'Milestone_v0_1_0' &&
+              (text.includes('SELECT PILOT') || text.includes('HYPER-MOD') || text.includes('SELECT UPGRADE') ||
+               text.includes('GAME OVER') || text.includes('OBITUARY') || text.includes('VICTORY') || text.includes('SYNTH-RANK'))
+            ) {
+              if (!_modalOwnerThisFrame) {
+                _modalOwnerThisFrame = _currentModName;
+                _inModalPass = true;
+                _modalCtx.font = target.font;
+                _modalCtx.textAlign = target.textAlign;
+                _modalCtx.textBaseline = target.textBaseline;
+                _modalCtx.fillStyle = 'rgba(5, 2, 13, 0.94)';
+                _modalCtx.fillRect(0, 36, 800, 564);
+              }
+            }
           }
           if (_inModalPass === 'SUPPRESSED') return;
           const dest = _inModalPass ? _modalCtx : target;
@@ -252,6 +270,116 @@
     window.StudioEngine.state.pointer.clicked = false;
   });
 
+
+  // Master 128-BPM Neo-80s Synthwave & Chiptune Sequencer Bus (Guaranteed Pulsing Soundtrack)
+  window.__SYNTH_BUS__ = {
+    ctx: null,
+    noiseBuf: null,
+    step: 0,
+    stepTimer: 0,
+    stepDur: (60 / 128) / 4, // 128 BPM 16th note (~0.1172s)
+    bassNotes: [73.42, 73.42, 146.83, 73.42, 87.31, 87.31, 98.00, 110.00, 73.42, 146.83, 130.81, 110.00, 98.00, 87.31, 73.42, 65.41],
+    leadNotes: [293.66, 0, 349.23, 392.00, 440.00, 0, 523.25, 440.00, 392.00, 349.23, 293.66, 0, 349.23, 440.00, 587.33, 523.25],
+    unlock: function() {
+      if (!this.ctx) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return;
+        this.ctx = new AC();
+        const sr = this.ctx.sampleRate;
+        this.noiseBuf = this.ctx.createBuffer(1, sr * 0.2, sr);
+        const d = this.noiseBuf.getChannelData(0);
+        for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+      }
+      if (this.ctx && this.ctx.state === 'suspended') {
+        this.ctx.resume();
+      }
+    },
+    tick: function(dt, state) {
+      if (!state.world) return;
+      state.world.beatPulse = Math.max(0, (state.world.beatPulse || 0) - dt * 3.8);
+      this.stepTimer += dt;
+      if (this.stepTimer < this.stepDur) return;
+      this.stepTimer -= this.stepDur;
+      const s = this.step;
+      this.step = (this.step + 1) % 16;
+
+      // Always pulse the visual beat clock on every quarter note (even before audio unlock!)
+      if (s % 4 === 0) {
+        state.world.beatPulse = 1.0;
+      }
+      if (!this.ctx || this.ctx.state !== 'running') return;
+      const now = this.ctx.currentTime;
+      const isPaused = Boolean(state.paused);
+
+      // 1. 4-on-the-Floor Punchy Synth Kick (Steps 0, 4, 8, 12)
+      if (s % 4 === 0) {
+        const osc = this.ctx.createOscillator();
+        const g = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(145, now);
+        osc.frequency.exponentialRampToValueAtTime(36, now + 0.13);
+        g.gain.setValueAtTime(isPaused ? 0.12 : 0.24, now);
+        g.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+        osc.connect(g); g.connect(this.ctx.destination);
+        osc.start(now); osc.stop(now + 0.14);
+      }
+
+      // 2. Driving Lowpass Sawtooth Synthwave Bassline (Every 16th note)
+      const bf = this.bassNotes[s];
+      if (bf) {
+        const osc = this.ctx.createOscillator();
+        const flt = this.ctx.createBiquadFilter();
+        const g = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(bf, now);
+        flt.type = 'lowpass';
+        const comboBoost = Math.min(900, ((state.stats && state.stats.combo) || 1) * 85);
+        flt.frequency.setValueAtTime(isPaused ? 320 : 480 + comboBoost, now);
+        flt.Q.setValueAtTime(4.0, now);
+        g.gain.setValueAtTime(isPaused ? 0.04 : 0.085, now);
+        g.gain.exponentialRampToValueAtTime(0.001, now + 0.10);
+        osc.connect(flt); flt.connect(g); g.connect(this.ctx.destination);
+        osc.start(now); osc.stop(now + 0.105);
+      }
+
+      if (isPaused) return;
+
+      // 3. Crispy Noise Snare (Steps 4, 12) & Off-Beat Hi-Hat (Steps 2, 6, 10, 14)
+      if ((s % 8 === 4 || s % 4 === 2) && this.noiseBuf) {
+        const isSnare = (s % 8 === 4);
+        const src = this.ctx.createBufferSource();
+        src.buffer = this.noiseBuf;
+        const flt = this.ctx.createBiquadFilter();
+        flt.type = 'highpass';
+        flt.frequency.setValueAtTime(isSnare ? 1100 : 5800, now);
+        const g = this.ctx.createGain();
+        const dur = isSnare ? 0.11 : 0.04;
+        g.gain.setValueAtTime(isSnare ? 0.09 : 0.035, now);
+        g.gain.exponentialRampToValueAtTime(0.001, now + dur);
+        src.connect(flt); flt.connect(g); g.connect(this.ctx.destination);
+        src.start(now); src.stop(now + dur);
+      }
+
+      // 4. Melodic Chiptune Arpeggio Lead (Unmutes during active combat!)
+      const lf = this.leadNotes[s];
+      if (lf && ((state.stats && state.stats.combo >= 1.2) || s % 2 === 0)) {
+        const osc = this.ctx.createOscillator();
+        const flt = this.ctx.createBiquadFilter();
+        const g = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(lf, now);
+        flt.type = 'lowpass';
+        flt.frequency.setValueAtTime(1600, now);
+        g.gain.setValueAtTime(0.055, now);
+        g.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+        osc.connect(flt); flt.connect(g); g.connect(this.ctx.destination);
+        osc.start(now); osc.stop(now + 0.095);
+      }
+    }
+  };
+  window.addEventListener('keydown', () => window.__SYNTH_BUS__.unlock());
+  window.addEventListener('mousedown', () => window.__SYNTH_BUS__.unlock());
+
   // Main Microkernel Loop with Modal-First Update Lock & 2-Canvas Z-Compositing
   (function runMicrokernel() {
     let lastTime = performance.now();
@@ -284,8 +412,23 @@
         }
       }
 
-      // Automatically sync state.paused with whether a modal is currently active on screen
-      state.paused = Boolean(_modalOwnerThisFrame);
+      // Preserve plugin-controlled state.paused (e.g. Pilot Select or Draft Modal)
+      if (_modalOwnerThisFrame && _modalOwnerThisFrame !== 'BOOT_HOLD') {
+        state.paused = true;
+      } else if (_modalOwnerThisFrame === 'BOOT_HOLD') {
+        _modalOwnerThisFrame = null;
+      }
+
+      // Canonical Arcade Control Stabilizer: S/Down acts as smooth Inertial Retro-Brake in zero-G
+      if (!state.paused && state.player && state.keys && state.keys.down) {
+        state.player.vx = (state.player.vx || 0) * Math.pow(0.08, dt);
+        state.player.vy = (state.player.vy || 0) * Math.pow(0.08, dt);
+      }
+
+      // Master 128-BPM Synthwave Beat Clock & Procedural Sequencer Bus (Guarantees pulsing soundtrack!)
+      if (window.__SYNTH_BUS__) {
+        window.__SYNTH_BUS__.tick(dt, state);
+      }
 
       // 1. Update Phase: Run v0.2.0+ feature/modal controllers FIRST so pause locks apply before v0.1.0 physics
       for (let i = engine.hooks.update.length - 1; i >= 0; i--) {
@@ -342,14 +485,12 @@
           _baseCtx.restore();
         }
 
-        // Composite the topmost Modal Canvas over the base canvas LAST & update pause state
+        // Composite the topmost Modal Canvas over the base canvas LAST
         if (_modalOwnerThisFrame) {
           _baseCtx.drawImage(_modalCanvas, 0, 0);
           window.__COMPAT_REPORT__.activeOwnerModal = _modalOwnerThisFrame;
-          state.paused = true;
         } else {
           window.__COMPAT_REPORT__.activeOwnerModal = null;
-          state.paused = false;
         }
       }
 
