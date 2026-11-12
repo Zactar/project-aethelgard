@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BLACK CHALICE // DOOM OF THE UNDERWORLD</title>
+  <title>TRINITAS // THE NINEFOLD LATTICE</title>
   <style>
     * { box-sizing: border-box; }
     body {
@@ -275,8 +275,8 @@
   });
   _baseCanvas.addEventListener('mousemove', e => {
     const rect = _baseCanvas.getBoundingClientRect();
-    _st.pointer.x = e.clientX - rect.left;
-    _st.pointer.y = e.clientY - rect.top;
+    _st.pointer.x = (e.clientX - rect.left) * (800 / (rect.width || 800));
+    _st.pointer.y = (e.clientY - rect.top) * (600 / (rect.height || 600));
   });
   _baseCanvas.addEventListener('mousedown', () => {
     _st.pointer.clicked = true;
@@ -441,14 +441,5 @@
   </script>
   <!-- AUTONOMOUS AGENT MODULE PLUGINS -->
   <script src="js/milestone_v0_1_0.js"></script>
-  <script src="js/milestone_v0_2_0.js"></script>
-  <script src="js/milestone_v0_3_0.js"></script>
-  <script src="js/milestone_v0_4_0.js"></script>
-  <script src="js/milestone_v0_5_0.js"></script>
-  <script src="js/milestone_v0_6_0.js"></script>
-  <script src="js/milestone_v0_7_0.js"></script>
-  <script src="js/milestone_v0_8_0.js"></script>
-  <script src="js/milestone_v0_9_0.js"></script>
-  <script src="js/milestone_v1_0_0.js"></script>
 </body>
 </html>

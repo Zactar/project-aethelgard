@@ -275,8 +275,8 @@
   });
   _baseCanvas.addEventListener('mousemove', e => {
     const rect = _baseCanvas.getBoundingClientRect();
-    _st.pointer.x = e.clientX - rect.left;
-    _st.pointer.y = e.clientY - rect.top;
+    _st.pointer.x = (e.clientX - rect.left) * (800 / (rect.width || 800));
+    _st.pointer.y = (e.clientY - rect.top) * (600 / (rect.height || 600));
   });
   _baseCanvas.addEventListener('mousedown', () => {
     _st.pointer.clicked = true;
