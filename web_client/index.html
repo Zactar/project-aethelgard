@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Glissade: Descent of the Yeti</title>
+  <title>HYPERVOID // NEON SHATTER</title>
   <style>
     * { box-sizing: border-box; }
     body {
@@ -78,7 +78,7 @@
       if (prop === 'fillRect' || prop === 'strokeRect') {
         return function(x, y, w, h) {
           // Detect full-screen or centered modal overlay (width >= 350, height >= 170)
-          if (w >= 350 && h >= 170 && _currentModName !== 'Milestone_v0_1_0') {
+          if (x >= 30 && y >= 30 && w >= 340 && w <= 750 && h >= 160 && h <= 540 && _currentModName !== 'Milestone_v0_1_0') {
             if (_modalOwnerThisFrame && _modalOwnerThisFrame !== _currentModName) {
               // Another module already owns the modal layer this frame; suppress competing modal!
               _inModalPass = 'SUPPRESSED';
@@ -104,7 +104,7 @@
           if (_inModalPass === 'SUPPRESSED') return;
 
           // Shift v0.2.0 Top-Left Level/XP HUD box down by +42px so it sits cleanly below SPEED
-          if (!_inModalPass && _currentModName === 'Milestone_v0_2_0' && x < 60 && y < 44 && w < 340 && h < 60) {
+          if (false) {
             _v2HudShiftActive = true;
             return target[prop](x, y + 42, w, h);
           }
@@ -118,7 +118,7 @@
           if (_inModalPass === 'SUPPRESSED') return;
           const dest = _inModalPass ? _modalCtx : target;
           // Shift v0.2.0 Top-Left Level/XP text down by +42px
-          if (!_inModalPass && _currentModName === 'Milestone_v0_2_0' && x < 320 && y < 48) {
+          if (false) {
             return maxWidth !== undefined ? dest[prop](text, x, y + 42, maxWidth) : dest[prop](text, x, y + 42);
           }
           return maxWidth !== undefined ? dest[prop](text, x, y, maxWidth) : dest[prop](text, x, y);
@@ -163,7 +163,7 @@
       },
       world: {
         distance: 0, speed: 0, cameraX: 0, cameraY: 0, cameraShake: 0,
-        biome: 'Alpine Resort', entities: [], obstacles: [], gates: [], slalomGates: [],
+        biome: 'DEFAULT', entities: [], obstacles: [], gates: [], slalomGates: [],
         particles: [], floatingTexts: [], skiTracks: [], speedLines: [], hazards: []
       },
       keys: {
@@ -367,11 +367,5 @@
   </script>
   <!-- AUTONOMOUS AGENT MODULE PLUGINS -->
   <script src="js/milestone_v0_1_0.js"></script>
-  <script src="js/milestone_v0_2_0.js"></script>
-  <script src="js/milestone_v0_3_0.js"></script>
-  <script src="js/milestone_v0_4_0.js"></script>
-  <script src="js/milestone_v0_5_0.js"></script>
-  <script src="js/milestone_v0_6_0.js"></script>
-  <script src="js/milestone_v0_7_0.js"></script>
 </body>
 </html>
