@@ -215,9 +215,9 @@ def cmd_project(args):
 
 
 def cmd_auto(args):
-    from tools.engine_importer import AutonomousEngineImporter
-    importer = AutonomousEngineImporter(workspace_root=WORKSPACE_ROOT)
-    importer.compile_manifest()
+    pass  # engine_importer retired
+    importer = None
+    pass
 
     runner_script = WORKSPACE_ROOT / "tools" / "autonomous_runner.py"
     if runner_script.exists():
@@ -226,32 +226,7 @@ def cmd_auto(args):
 
 
 def cmd_retro(args):
-    from services.agent_runtime.src.studio_retrospective_memory import StudioRetrospectiveMemory
-    mem = StudioRetrospectiveMemory(workspace_root=WORKSPACE_ROOT)
-
-    if args.subcommand == "competency":
-        comps = mem.load_competencies()
-        print("\n[Project Aethelgard] Discipline Competency & Reliability Ledger:")
-        print("=" * 68)
-        print(
-            f"{'Discipline':<15} | {'Clean Streak':<12} | {'Regressions':<12} | {'Accepted RFCs':<12}")
-        print("-" * 68)
-        for disc, data in comps.items():
-            print(f"{disc:<15} | {data.get('clean_streak', 0):<12} | {data.get('regressions_caused', 0):<12} | {data.get('accepted_rfcs', 0):<12}")
-        print("=" * 68)
-    elif args.subcommand == "incidents":
-        records = mem.load_ledger()
-        limit = args.limit
-        shown = records[-limit:] if limit > 0 else records
-        print(
-            f"\n[Project Aethelgard] Retrospective Post-Mortem Ledger ({len(records)} incidents):")
-        print("=" * 80)
-        for r in shown:
-            print(
-                f"[{r.get('severity')}] {r.get('incident_id')} ({r.get('discipline')}) - {r.get('milestone_tag')}")
-            print(f"  Summary: {r.get('summary')}")
-            print(f"  Rule:    {r.get('prevention_rule')}")
-            print("-" * 80)
+    return cmd_retro_and_train(args)
 
 
 def cmd_project(args):
@@ -283,24 +258,59 @@ def cmd_project(args):
 
 
 def cmd_train(args):
-    """Executes team training cycle across all game design curricula."""
-    from services.agent_runtime.src.studio_knowledge_base import StudioKnowledgeBase
-    kb = StudioKnowledgeBase(workspace_root=WORKSPACE_ROOT)
-    res = kb.train_team()
-    print(f"\n[Project Aethelgard] Virtual Dev Team Training Ledger:")
-    print("=" * 65)
-    print(f" Status:           {res['status']}")
-    print(f" Modules Mastered: {res['modules_trained']}")
-    print("-" * 65)
-    for topic in res["topics"]:
-        print(f" [✓] {topic}")
-    print("=" * 65)
+    return cmd_retro_and_train(args)
 
+
+def cmd_budget(args):
+    """Displays cumulative Gemini API token usage and spend ledger."""
+    ledger_file = WORKSPACE_ROOT / "build" / "staging" / "spend_ledger.json"
+    if getattr(args, "reset", False) and ledger_file.exists():
+        ledger_file.unlink()
+        print("[✓] Reset cumulative spend ledger to $0.00.")
+        return
+    if not ledger_file.exists():
+        print("[Studio Budget] $0.0000 spent (No paid API calls recorded yet).")
+        return
+    data = json.loads(ledger_file.read_text(encoding="utf-8"))
+    print("\n[Aethelgard Virtual Studio - API Spend & Token Ledger]")
+    print("=================================================================")
+    print(f" Active Model:      {data.get('model', 'gemini-flash-latest')}")
+    print(f" Total API Calls:   {data.get('total_calls', 0)} (Disk Cache Hits: {data.get('cache_hits', 0)})")
+    print(f" Input Tokens:      {data.get('total_input_tokens', 0):,}")
+    print(f" Output Tokens:     {data.get('total_output_tokens', 0):,}")
+    print(f" Cumulative Spend:  ${data.get('total_spend_usd', 0.0):.4f} / ${data.get('budget_cap_usd', 1.00):.2f} Hard Cap")
+    print("=================================================================\n")
+
+
+def cmd_retro_and_train(args):
+    """Conducts an End-of-Project Post-Mortem & Role Training cycle, updating projects/studio_skill_cards.json."""
+    from services.agent_runtime.src.studio_retrospective_memory import StudioRetrospectiveMemory
+    mem = StudioRetrospectiveMemory(workspace_root=WORKSPACE_ROOT)
+    cards = mem.conduct_project_retrospective(use_llm=True)
+    print("\n=================================================================")
+    print(f" AETHELGARD VIRTUAL STUDIO - POST-MORTEM & ROLE TRAINING (v{cards.get('version', 1)})")
+    print("=================================================================")
+    history = cards.get("postmortem_history", [])
+    if history:
+        latest = history[-1]
+        print(f" Project Audited:  {latest.get('project')}")
+        print(f" Critique:         {latest.get('summary')}")
+        print(" Mistakes Fixed:")
+        for m in latest.get("mistakes_corrected", []):
+            print(f"   * {m}")
+    print("-----------------------------------------------------------------")
+    print(" Active Discipline Skill Cards (Injected into Next Game):")
+    for role, directive in cards.get("role_skill_cards", {}).items():
+        print(f"   [{role}]: {directive}")
+    print("=================================================================\n")
 
 def main():
     parser = argparse.ArgumentParser(
         description="Project Aethelgard Studio Manager")
     subparsers = parser.add_subparsers(dest="action", required=True)
+    p_budget = subparsers.add_parser("budget", help="View or reset LLM API spend ledger")
+    p_budget.add_argument("--reset", action="store_true", help="Reset spend ledger to $0.00")
+    p_budget.set_defaults(func=cmd_budget)
 
     p_start = subparsers.add_parser(
         "start", help="Start background runtime services")

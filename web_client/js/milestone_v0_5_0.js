@@ -1,300 +1,199 @@
-// Cohesive Milestone Plugin: v0.5.0
-// Cohesive Milestone Plugin: v0.5.0 (Observatory Arbiter Verdict, Constellation Matrix & Shatter Finale)
+// Cohesive Milestone Plugin: v0.5.0 (Grand Arbiter Coronation Modal, Constellation Starfield & Master Ledger)
 window.StudioEngine.registerModule("Milestone_v0_5_0", {
   init: function(state, engine) {
-    const s = (state.stats = state.stats || {});
-    const w = (state.world = state.world || {});
-
-    // Metrics, Ledger, Series State
-    s.sectorHistory = s.sectorHistory || [];
-    s.forkCount = s.forkCount || 0;
-    s.seriesOver = s.seriesOver || false;
-    s.observatoryLedger = s.observatoryLedger || [];
-    s.configOpen = s.configOpen || false;
-    s.seriesTargetWins = s.seriesTargetWins || 3;
-
-    // Visuals & Narrative
-    state.narrative = state.narrative || { activeAxiom: "" };
-    w.constellationNodes = w.constellationNodes || [];
-    w.shatterParticles = w.shatterParticles || [];
-    w.timeDilation = w.timeDilation || 1.0;
-    this.dilationFrames = 0;
-    this.recordedLedger = false;
-
-    // Fixed 12 celestial nodes in observatory background
-    if (w.constellationNodes.length === 0) {
-      const angles = [0.2, 0.7, 1.3, 1.9, 2.5, 3.1, 3.8, 4.4, 5.0, 5.6, 6.0, 0.9];
-      const rads = [240, 280, 220, 270, 250, 290, 230, 275, 245, 285, 235, 260];
-      for (let i = 0; i < 12; i++) {
-        (w.constellationNodes || (w.constellationNodes = [])).push({
-          x: 400 + Math.cos(angles[i]) * rads[i],
-          y: 310 + Math.sin(angles[i]) * rads[i] * 0.75,
-          active: false
-        });
-      }
+    this.verdictOpen = false;
+    this.lastVerdictBout = 0;
+    this.stars = [];
+    for (let i = 0; i < 36; i++) {
+      // Place constellation stars in the left/right astral margins outside the 360x360 matrix
+      const side = (i % 2 === 0) ? (25 + Math.random() * 170) : (605 + Math.random() * 170);
+      this.stars.push({
+        x: side,
+        y: 60 + Math.random() * 480,
+        r: 1.2 + (i % 3) * 0.7,
+        phase: Math.random() * Math.PI * 2
+      });
     }
 
-    // Input Arbitration for Verdict Modal
+    this.ledger = [
+      { name: "HYPATIA // PRIME GEOMETER", score: 6400, rank: "S-RANK" },
+      { name: "ARCHIMEDES // TRIAD SAGE", score: 4800, rank: "A-RANK" },
+      { name: "PYTHAGORAS // NEXUS LORD", score: 3200, rank: "B-RANK" },
+      { name: "EUCLID // AXIOM KEEPER", score: 1800, rank: "C-RANK" }
+    ];
+
+    this.axioms = {
+      CENTER: "AXIOM OF THE NEXUS: 'He who commands the central convergence bends all eight vectors to his will.'",
+      CORNER: "AXIOM OF THE FOUR PILLARS: 'Strike from the outer vertices; a dual-vector fork cannot be parried.'",
+      ATTRITION: "AXIOM OF EQUILIBRIUM: 'Against an infallible oracle, patience turns deadlock into revelation.'"
+    };
+    this.activeAxiom = this.axioms.CENTER;
+
+    engine.on("BOUT_CONCLUDED", () => {
+      const lat = state.world && state.world.lattice;
+      if (!lat) return;
+      // Trigger Series Coronation Verdict when a contender reaches 3 wins OR after 5 completed bouts!
+      const totalFinished = lat.playerWins + lat.arbiterWins + lat.deadlocks;
+      if ((lat.playerWins >= 3 || lat.arbiterWins >= 3 || totalFinished >= 5) && this.lastVerdictBout !== totalFinished) {
+        this.lastVerdictBout = totalFinished;
+        setTimeout(() => {
+          this.openVerdict(state);
+        }, 950);
+      }
+    });
+
     engine.on("KEYDOWN", (ev) => {
-      if (!s.seriesOver) return;
-      if (ev.code === "Space") {
-        this.resetSeries(state, engine);
+      if (!this.verdictOpen) return;
+      if (ev.code === "Space" || ev.code === "Enter") {
+        this.startNewSeries(state, engine, false);
       } else if (ev.code === "KeyC") {
-        s.configOpen = !s.configOpen;
+        this.startNewSeries(state, engine, true);
       }
     });
 
-    // Inscription tracking for Tactical Axiom & Fork Detection
-    engine.on("SECTOR_INSCRIBED", (ev) => {
-      if (ev.symbol === "X") {
-        (s.sectorHistory || (s.sectorHistory = [])).push(ev.index);
-        const lat = w.lattice;
-        if (lat && lat.board) {
-          const b = lat.board.slice();
-          let threats = 0;
-          const TRIADS = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-          for (let t of TRIADS) {
-            const vals = [b[t[0]], b[t[1]], b[t[2]]];
-            if (vals.filter(v => v === "X").length === 2 && vals.filter(v => !v).length === 1) threats++;
-          }
-          if (threats >= 2) s.forkCount++;
-        }
-      }
-    });
-
-    // Bout Concluded Listener: Constellation link & series win check
-    engine.on("BOUT_CONCLUDED", (ev) => {
-      const lat = w.lattice || {};
-      const pWins = lat.playerWins || 0;
-      const aWins = lat.arbiterWins || 0;
-      const deadlocks = lat.deadlocks || 0;
-
-      if (ev && ev.winner === "X") {
-        const nextNode = w.constellationNodes.find(n => !n.active);
-        if (nextNode) nextNode.active = true;
-      }
-
-      if (pWins >= s.seriesTargetWins || aWins >= s.seriesTargetWins || (pWins + aWins + deadlocks) >= 7) {
-        s.seriesOver = true;
-        this.evaluateSeries(state, engine);
+    engine.on("POINTER_DOWN", () => {
+      if (this.verdictOpen) {
+        this.startNewSeries(state, engine, false);
       }
     });
   },
 
-  evaluateSeries: function(state, engine) {
-    const s = state.stats, w = state.world, lat = w.lattice || {};
-    const wins = lat.playerWins || 0, losses = lat.arbiterWins || 0, deadlocks = lat.deadlocks || 0;
-    const rounds = Math.max(1, wins + losses + deadlocks);
-    const E = (wins * 3 + deadlocks) / (rounds * 3);
-
-    let rank = "C-RANK: INITIATE";
-    if (E >= 0.85) rank = "S-RANK: GRAND GEOMETER";
-    else if (E >= 0.65) rank = "A-RANK: CELESTIAL ARCHITECT";
-    else if (E >= 0.45) rank = "B-RANK: SECTOR ADEPT";
-
-    // Positional placement axiom evaluation
-    const total = Math.max(1, s.sectorHistory.length);
-    const corners = s.sectorHistory.filter(i => [0, 2, 6, 8].includes(i)).length;
-    const centers = s.sectorHistory.filter(i => i === 4).length;
-    const C = corners / total, M = centers / total, F = s.forkCount;
-
-    if (F >= 2) state.narrative.activeAxiom = "THE DUAL WEFT: BIFURCATION PRECEDES INEVITABILITY";
-    else if (M >= 0.35) state.narrative.activeAxiom = "THE SOLAR AXIS: HE WHO BINDS THE CORE DIRECTS THE PERIPHERY";
-    else if (C >= 0.50) state.narrative.activeAxiom = "THE CARDINAL QUAD: THE BOUNDS DEFINE THE HARMONY";
-    else state.narrative.activeAxiom = "THE DRIFTING VOID: TRANSCENDENCE THROUGH FLUID CONVERGENCE";
-
-    if (!this.recordedLedger) {
-      (s.observatoryLedger || (s.observatoryLedger = [])).push({ wins, losses, deadlocks, rank, score: Math.round(E * 1000) });
-      s.observatoryLedger.sort((a, b) => b.score - a.score);
-      if (s.observatoryLedger.length > 5) s.observatoryLedger.length = 5;
-      this.recordedLedger = true;
-    }
-
-    // Slow-motion harmonic shatter finale on championship series clinch
-    if (wins > losses) {
-      w.timeDilation = 0.25;
-      this.dilationFrames = 180;
-      for (let i = 0; i < 60; i++) {
-        const theta = Math.random() * Math.PI * 2;
-        const v = Math.random() * 4 + 2;
-        (w.shatterParticles || (w.shatterParticles = [])).push({
-          x: 400, y: 310,
-          vx: Math.cos(theta) * v, vy: Math.sin(theta) * v,
-          rot: Math.random() * Math.PI, spin: (Math.random() - 0.5) * 0.1,
-          size: Math.random() * 8 + 4,
-          hue: Math.random() > 0.5 ? 45 : 185,
-          alpha: 1.0
-        });
-      }
-    }
+  openVerdict: function(state) {
+    const lat = state.world.lattice;
+    this.verdictOpen = true;
     state.paused = true;
-    engine.emit("SERIES_CONCLUDED", { rank, wins, losses, score: Math.round(E * 1000) });
+    state.modal = "VERDICT";
+
+    const sc = Math.floor(state.score || 0);
+    const rank = lat.playerWins > lat.arbiterWins
+      ? (sc >= 4000 ? "S-RANK // GRAND GEOMETER" : "A-RANK // TRIAD SOVEREIGN")
+      : (lat.playerWins === lat.arbiterWins ? "B-RANK // EQUILIBRIUM KEEPER" : "C-RANK // ASTRAL INITIATE");
+
+    if (lat.board[4] === "X") this.activeAxiom = this.axioms.CENTER;
+    else if (lat.deadlocks >= 2) this.activeAxiom = this.axioms.ATTRITION;
+    else this.activeAxiom = this.axioms.CORNER;
+
+    this.lastSummary = {
+      rank: rank,
+      score: sc,
+      w: lat.playerWins,
+      d: lat.deadlocks,
+      l: lat.arbiterWins
+    };
+
+    this.ledger = this.ledger.filter(r => !r.name.startsWith("YOU"));
+    this.ledger.push({ name: "YOU (INITIATOR)", score: sc, rank: rank.split(" ")[0] });
+    this.ledger.sort((a, b) => b.score - a.score);
+    this.ledger = this.ledger.slice(0, 5);
   },
 
-  resetSeries: function(state, engine) {
-    const s = state.stats, w = state.world, lat = w.lattice;
-    s.seriesOver = false;
-    s.sectorHistory = [];
-    s.forkCount = 0;
-    this.recordedLedger = false;
-    w.shatterParticles = [];
-    w.constellationNodes.forEach(n => n.active = false);
-    if (lat) {
-      lat.playerWins = 0;
-      lat.arbiterWins = 0;
-      lat.deadlocks = 0;
-      lat.bout = 1;
-      lat.board = Array(9).fill(null);
-      lat.cellAnim = Array(9).fill(0);
-      lat.phase = "PLAYER_TURN";
-      lat.winner = null;
-      lat.winTriad = null;
+  startNewSeries: function(state, engine, openConfig) {
+    const lat = state.world.lattice;
+    this.verdictOpen = false;
+    lat.playerWins = 0;
+    lat.arbiterWins = 0;
+    lat.deadlocks = 0;
+    lat.bout = 0;
+    this.lastVerdictBout = 0;
+    state.score = 0;
+
+    const m1 = engine.modules["Milestone_v0_1_0"];
+    const m2 = engine.modules["Milestone_v0_2_0"];
+    if (openConfig && m2) {
+      m2.configOpen = true;
+      state.paused = true;
+      state.modal = "CONFIG";
+    } else {
+      state.paused = false;
+      state.modal = null;
+      if (m1) m1.resetBout(state, engine);
     }
-    state.paused = false;
-    engine.emit("SERIES_RESET");
   },
 
   update: function(dt, state) {
-    const w = state.world;
-    if (this.dilationFrames > 0) {
-      this.dilationFrames--;
-      if (this.dilationFrames <= 0) w.timeDilation = 1.0;
-    }
-    // Update harmonic shatter particles
-    for (let i = w.shatterParticles.length - 1; i >= 0; i--) {
-      const p = w.shatterParticles[i];
-      p.x += p.vx * (w.timeDilation || 1.0);
-      p.y += p.vy * (w.timeDilation || 1.0);
-      p.rot += p.spin;
-      p.alpha -= 0.005;
-      if (p.alpha <= 0) w.shatterParticles.splice(i, 1);
+    if (this.verdictOpen) {
+      state.paused = true;
     }
   },
 
   render: function(ctx, state) {
-    const w = state.world, s = state.stats, t = w.time || 0;
+    const lat = state.world && state.world.lattice;
+    if (!lat) return;
+    const pal = lat.palettes[lat.paletteIdx] || lat.palettes[0];
 
-    // 1. Constellation Background Starfield Behind Lattice
+    // 1. Render Astral Observatory Constellation Starfield in Left & Right Wings
+    const t = performance.now() * 0.002;
     ctx.save();
-    const activeNodes = w.constellationNodes.filter(n => n.active);
-    if (activeNodes.length > 1) {
-      ctx.lineWidth = 1.5;
-      ctx.strokeStyle = `rgba(0, 243, 255, ${Math.sin(t * 0.003) * 0.3 + 0.7})`;
-      ctx.shadowColor = "#00f3ff";
-      ctx.shadowBlur = 8;
-      ctx.beginPath();
-      ctx.moveTo(activeNodes[0].x, activeNodes[0].y);
-      for (let i = 1; i < activeNodes.length; i++) ctx.lineTo(activeNodes[i].x, activeNodes[i].y);
-      ctx.stroke();
+    for (let i = 0; i < this.stars.length; i++) {
+      const s = this.stars[i];
+      const alpha = 0.35 + Math.sin(t + s.phase) * 0.25;
+      ctx.fillStyle = `rgba(226, 232, 240, ${alpha})`;
+      ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2); ctx.fill();
     }
-    w.constellationNodes.forEach((n, idx) => {
-      ctx.fillStyle = n.active ? "#facc15" : "rgba(255, 255, 255, 0.25)";
-      ctx.shadowColor = n.active ? "#facc15" : "transparent";
-      ctx.shadowBlur = n.active ? 10 : 0;
-      ctx.beginPath();
-      ctx.arc(n.x, n.y, n.active ? 3.5 : 1.5, 0, Math.PI * 2);
-      ctx.fill();
-    });
+
+    // Link constellation stars into glowing zodiac geometries based on Bouts played!
+    const links = Math.min(this.stars.length - 2, (lat.playerWins * 4) + (lat.deadlocks * 2) + 4);
+    ctx.strokeStyle = pal.xCol;
+    ctx.globalAlpha = 0.22;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (let i = 0; i < links; i += 2) {
+      ctx.moveTo(this.stars[i].x, this.stars[i].y);
+      ctx.lineTo(this.stars[i + 2].x, this.stars[i + 2].y);
+    }
+    ctx.stroke();
     ctx.restore();
 
-    // 2. Slow-Motion Harmonic Shatter Prisms
-    if (w.shatterParticles.length > 0) {
+    // 2. Render Grand Arbiter Series Verdict Modal if Open
+    if (this.verdictOpen && this.lastSummary) {
+      const sum = this.lastSummary;
       ctx.save();
-      w.shatterParticles.forEach(p => {
-        ctx.save();
-        ctx.translate(p.x, p.y);
-        ctx.rotate(p.rot);
-        ctx.fillStyle = `hsla(${p.hue}, 90%, 65%, ${p.alpha})`;
-        ctx.shadowColor = `hsla(${p.hue}, 100%, 50%, 0.6)`;
-        ctx.shadowBlur = 6;
-        ctx.beginPath();
-        ctx.moveTo(0, -p.size);
-        ctx.lineTo(p.size * 0.7, p.size * 0.8);
-        ctx.lineTo(-p.size * 0.7, p.size * 0.8);
-        ctx.closePath();
-        ctx.fill();
-        ctx.restore();
-      });
+      ctx.fillStyle = "#080c17";
+      ctx.fillRect(140, 82, 520, 440);
+      ctx.strokeStyle = pal.xCol;
+      ctx.lineWidth = 2.5;
+      ctx.strokeRect(140, 82, 520, 440);
+
+      ctx.textAlign = "center";
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "bold 20px monospace";
+      ctx.fillText("// GRAND ARBITER SERIES VERDICT //", 400, 122);
+
+      ctx.fillStyle = pal.xCol;
+      ctx.font = "bold 15px monospace";
+      ctx.fillText(sum.rank, 400, 152);
+
+      ctx.fillStyle = "#cbd5e1";
+      ctx.font = "13px monospace";
+      ctx.fillText(`SERIES RECORD: ${sum.w}W - ${sum.d}D - ${sum.l}L   |   TOTAL SCORE: ${sum.score}`, 400, 180);
+
+      ctx.fillStyle = pal.oCol;
+      ctx.font = "bold 13px monospace";
+      ctx.fillText("--- OBSERVATORY GRANDMASTER LEDGER ---", 400, 218);
+
+      ctx.font = "12px monospace";
+      for (let i = 0; i < this.ledger.length; i++) {
+        const row = this.ledger[i];
+        const ry = 246 + i * 24;
+        ctx.fillStyle = row.name.startsWith("YOU") ? "#10b981" : "#94a3b8";
+        ctx.textAlign = "left";
+        ctx.fillText(`${i + 1}. ${row.name}`, 185, ry);
+        ctx.textAlign = "right";
+        ctx.fillText(`${row.rank}  //  ${row.score} PTS`, 615, ry);
+      }
+
+      ctx.textAlign = "center";
+      ctx.fillStyle = "#fde68a";
+      ctx.font = "italic 10.5px monospace";
+      ctx.fillText(this.activeAxiom, 400, 392);
+
+      ctx.fillStyle = "#10b981";
+      ctx.font = "bold 13px monospace";
+      ctx.fillText("[SPACE / CLICK] COMMENCE NEW CHAMPIONSHIP SERIES", 400, 442);
+      ctx.fillStyle = "#38bdf8";
+      ctx.font = "bold 12px monospace";
+      ctx.fillText("[PRESS C] RECONFIGURE LATTICE ARCHITECTURE", 400, 472);
       ctx.restore();
     }
-
-    // 3. End-of-Series Grand Arbiter Verdict Modal
-    if (!s.seriesOver) return;
-
-    ctx.save();
-    ctx.setTransform(1, 0, 0, 1, 0, 0); // Steady HUD law
-
-    // Dark backdrop overlay
-    ctx.fillStyle = "rgba(7, 9, 19, 0.88)";
-    ctx.fillRect(0, 0, 800, 600);
-
-    // High-contrast modal container
-    const mx = 180, my = 120, mw = 440, mh = 370;
-    ctx.fillStyle = "#0c1021";
-    ctx.strokeStyle = "#facc15";
-    ctx.lineWidth = 2;
-    ctx.shadowColor = "#facc15";
-    ctx.shadowBlur = 16;
-    ctx.fillRect(mx, my, mw, mh);
-    ctx.strokeRect(mx, my, mw, mh);
-
-    // Inner gold geometric accents
-    ctx.strokeStyle = "rgba(250, 204, 21, 0.35)";
-    ctx.strokeRect(mx + 6, my + 6, mw - 12, mh - 12);
-
-    const lat = w.lattice || {};
-    const wins = lat.playerWins || 0, losses = lat.arbiterWins || 0, deadlocks = lat.deadlocks || 0;
-    const rounds = Math.max(1, wins + losses + deadlocks);
-    const E = (wins * 3 + deadlocks) / (rounds * 3);
-    let rank = "C-RANK: INITIATE";
-    if (E >= 0.85) rank = "S-RANK: GRAND GEOMETER";
-    else if (E >= 0.65) rank = "A-RANK: CELESTIAL ARCHITECT";
-    else if (E >= 0.45) rank = "B-RANK: SECTOR ADEPT";
-
-    // Title & Strategic Rating
-    ctx.textAlign = "center";
-    ctx.fillStyle = "#ffffff";
-    ctx.font = "bold 17px monospace";
-    ctx.fillText("GRAND ARBITER // VERDICT", 400, 155);
-
-    ctx.fillStyle = wins > losses ? "#00f3ff" : (wins === losses ? "#facc15" : "#f43f5e");
-    ctx.font = "bold 13px monospace";
-    ctx.fillText(wins > losses ? "SERIES CLINCHED: TRIUMPH" : (wins === losses ? "SERIES DEADLOCK: PARITY" : "SERIES SEVERED: DISSOLUTION"), 400, 178);
-
-    ctx.fillStyle = "#facc15";
-    ctx.font = "bold 15px monospace";
-    ctx.fillText(rank, 400, 204);
-
-    // Tally Breakdown
-    ctx.font = "12px monospace";
-    ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
-    ctx.fillText(`VICTORIES: ${wins}   DEADLOCKS: ${deadlocks}   DEFEATS: ${losses}`, 400, 230);
-
-    // Top-5 Observatory Ledger
-    ctx.fillStyle = "rgba(0, 243, 255, 0.9)";
-    ctx.font = "10px monospace";
-    ctx.fillText("--- OBSERVATORY CHRONICLE (TOP 5) ---", 400, 258);
-
-    ctx.textAlign = "left";
-    const ledger = s.observatoryLedger || [];
-    ledger.slice(0, 5).forEach((rec, idx) => {
-      const ly = 278 + idx * 17;
-      ctx.fillStyle = idx === 0 ? "#facc15" : "rgba(255, 255, 255, 0.7)";
-      ctx.fillText(`#${idx + 1}  ${rec.rank.padEnd(23)} ${rec.wins}W-${rec.deadlocks}D-${rec.losses}L  PTS: ${rec.score}`, 215, ly);
-    });
-
-    // Philosophical Tactical Axiom
-    const axiomAlpha = Math.sin(t * 0.005) * 0.35 + 0.65;
-    ctx.textAlign = "center";
-    ctx.font = "italic 10px monospace";
-    ctx.fillStyle = `rgba(250, 204, 21, ${axiomAlpha})`;
-    ctx.fillText(state.narrative.activeAxiom || "THE BOUNDS DEFINE THE HARMONY", 400, 442);
-
-    // Footer Controls Prompt
-    ctx.fillStyle = "#00f3ff";
-    ctx.font = "11px monospace";
-    ctx.fillText("[SPACE] NEW SERIES      [C] RECONFIGURE", 400, 470);
-
-    ctx.restore();
   }
 });

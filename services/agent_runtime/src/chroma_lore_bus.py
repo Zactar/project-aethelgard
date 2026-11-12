@@ -14,6 +14,7 @@ if str(_WORKSPACE_ROOT) not in sys.path:
 
 
 logger = logging.getLogger("Aethelgard.LoreBus")
+logger.propagate = False
 logging.basicConfig(level=logging.INFO,
                     format="[%(asctime)s] [%(levelname)s] [%(name)s]: %(message)s")
 

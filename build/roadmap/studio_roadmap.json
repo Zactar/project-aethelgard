@@ -1,294 +1,244 @@
 {
-  "active_version": "v0.2.0",
+  "active_version": "v0.7.0",
+  "last_updated": "2026-11-12T12:58:32.852323",
   "milestones": [
     {
       "version": "v0.1.0",
       "codename": "Codename-v0.1.0",
-      "theme": "Alpine Baseline & Downhill Physics",
+      "theme": "The Ninefold Matrix, Alternating Turn Protocol & Collinear Triad Arbiter",
       "status": "SHIPPED",
-      "created_at": "2026-11-11T19:34:01.375154",
-      "completed_at": "2026-11-11T20:01:21.108299",
+      "completion_percentage": 100.0,
       "deliverables": [
         {
-          "deliverable_id": "DELIV-v0.1.0-01",
-          "discipline": "Client",
-          "title": "Continuous downhill vertical scrolling canvas loop with delta-time clamping.",
+          "deliverable_id": "DELIV-V0_1_0-01",
+          "discipline": "Level",
+          "title": "Centered 9-sector orthogonal lattice (`three ranks by three files`) rendered with glowing architectural dividers, sector coordinate mapping, and dual Mouse-Click + Keyboard (`WASD`/`Arrows` + `SPACE`) sector selection.",
           "target_subsystem": "web_client/index.html",
-          "acceptance_criteria": [
-            "Render visual viewport and HUD elements for Continuous downhill vertical scrolling canvas loop with delta-time clamping..",
-            "Maintain 60 FPS zero-allocation canvas draw loop.",
-            "Verify responsive display on 800x600 canvas."
-          ],
           "status": "VERIFIED",
-          "verified_artifact": "RFC-20261111-D163D3.json"
+          "verified_artifact": "RFC-20261112-D59AFB.json"
         },
         {
-          "deliverable_id": "DELIV-v0.1.0-02",
+          "deliverable_id": "DELIV-V0_1_0-02",
           "discipline": "Gameplay",
-          "title": "Player ski movement state machine: Carve Left/Right, Tuck, Snowplow, and Jump.",
+          "title": "Alternating turn state machine (`PLAYER_TURN` -> `AI_THINKING` -> `ROUND_OVER`), immutable sector claiming, evaluation of all 8 collinear triads (3 ranks, 3 files, 2 diagonals) plus 9-sector Equilibrium Deadlock detection, and instant `[SPACE]` / Click bout reset.",
           "target_subsystem": "web_client/index.html",
-          "acceptance_criteria": [
-            "Implement Player ski movement state machine: Carve Left/Right, Tuck, Snowplow, and Jump. with delta-time clamped kinematics.",
-            "Verify responsive player controls and state machine transitions.",
-            "Ensure no uncaught exceptions thrown during frame integration."
-          ],
           "status": "VERIFIED",
-          "verified_artifact": "RFC-20261111-59BE4E.json"
+          "verified_artifact": "RFC-20261112-944106.json"
         },
         {
-          "deliverable_id": "DELIV-v0.1.0-03",
-          "discipline": "Systems",
-          "title": "Basic obstacle generation: Pine trees, boulders, and moguls with bounding-box collision and wipeout states.",
+          "deliverable_id": "DELIV-V0_1_0-03",
+          "discipline": "Aesthetics",
+          "title": "Animated geometric sigil drawing (*Intersecting Diagonal Blades* vs. *Concentric Meridian Ring*), radial particle bursts upon inscription, and a blazing harmonic laser beam connecting the 3 aligned sectors on victory.",
           "target_subsystem": "web_client/index.html",
-          "acceptance_criteria": [
-            "Define state models, formulas, and schema for Basic obstacle generation: Pine trees, boulders, and moguls with bounding-box collision and wipeout states..",
-            "Ensure deterministic state transitions and mutation guards.",
-            "Verify integration with active game state."
-          ],
           "status": "VERIFIED",
-          "verified_artifact": "RFC-20261111-B888EE.json"
-        },
-        {
-          "deliverable_id": "DELIV-v0.1.0-04",
-          "discipline": "Client",
-          "title": "HUD displaying current speed, distance traveled, and wipeout counter.",
-          "target_subsystem": "web_client/index.html",
-          "acceptance_criteria": [
-            "Render visual viewport and HUD elements for HUD displaying current speed, distance traveled, and wipeout counter..",
-            "Maintain 60 FPS zero-allocation canvas draw loop.",
-            "Verify responsive display on 800x600 canvas."
-          ],
-          "status": "VERIFIED",
-          "verified_artifact": "RFC-20261111-D6F1AC.json"
+          "verified_artifact": "RFC-20261112-2CDE9F.json"
         }
       ],
-      "completion_percentage": 100.0
+      "completed_at": "2026-11-12T12:07:29.722618"
     },
     {
       "version": "v0.2.0",
       "codename": "Codename-v0.2.0",
-      "theme": "Character Creation, Core Stats & Slalom XP Loop",
-      "status": "IN_PROGRESS",
-      "created_at": "2026-11-11T19:34:01.375228",
-      "completed_at": "2026-11-11T23:25:07.665589",
+      "theme": "Contender Sigil Customization, Minimax Oracle AI & Threat Telemetry",
+      "status": "SHIPPED",
+      "completion_percentage": 100.0,
       "deliverables": [
         {
-          "deliverable_id": "DELIV-v0.2.0-01",
+          "deliverable_id": "DELIV-V0_2_0-01",
+          "discipline": "UI_UX",
+          "title": "Pre-series Contender Configuration Modal allowing the player to choose their Geometric Crest palette, select who claims the opening turn (`Initiator First` vs `Arbiter First` vs `Alternating`), and select the Arbiter's cognitive tier (*Tier I: Opportunist*, *Tier II: Tactical Blocker*, *Tier III: Perfect Minimax Oracle*).",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-1C50B2.json"
+        },
+        {
+          "deliverable_id": "DELIV-V0_2_0-02",
           "discipline": "Systems",
-          "title": "Starting class selection screen (Olympian, Daredevil, Ranger, Occultist).",
+          "title": "Three-tier Synthetic Arbiter AI: Tier I claims random/adjacent sectors; Tier II detects and blocks any collinear vector where the opponent holds 2 of 3 sectors; Tier III executes full recursive Minimax lookahead (prioritizing immediate winning triads, blocking opponent threats, seizing the central nexus or corner anchors, and setting up dual-vector forks).",
           "target_subsystem": "web_client/index.html",
-          "acceptance_criteria": [
-            "Define state models, formulas, and schema for Starting class selection screen (Olympian, Daredevil, Ranger, Occultist)..",
-            "Ensure deterministic state transitions and mutation guards.",
-            "Verify integration with active game state."
-          ],
           "status": "VERIFIED",
-          "verified_artifact": "RFC-20261111-669891.json"
+          "verified_artifact": "RFC-20261112-74BCA8.json"
         },
         {
-          "deliverable_id": "DELIV-v0.2.0-02",
-          "discipline": "Systems",
-          "title": "Stat tracking system: Velocity, Agility, Balance, Moxie, Luck.",
+          "deliverable_id": "DELIV-V0_2_0-03",
+          "discipline": "Aesthetics",
+          "title": "Translucent ghost-sigil hover preview inside vacant sectors and subtle pulsing threat-threads along any rank, file, or diagonal where a contender holds 2 of 3 sectors.",
           "target_subsystem": "web_client/index.html",
-          "acceptance_criteria": [
-            "Define state models, formulas, and schema for Stat tracking system: Velocity, Agility, Balance, Moxie, Luck..",
-            "Ensure deterministic state transitions and mutation guards.",
-            "Verify integration with active game state."
-          ],
           "status": "VERIFIED",
-          "verified_artifact": "RFC-20261111-6BAC24.json"
-        },
-        {
-          "deliverable_id": "DELIV-v0.2.0-03",
-          "discipline": "Level",
-          "title": "Slalom gate generator with combo multiplier tracking.",
-          "target_subsystem": "web_client/index.html",
-          "acceptance_criteria": [
-            "Implement procedural generation logic for Slalom gate generator with combo multiplier tracking..",
-            "Verify terrain solvability and collision bounds.",
-            "Ensure off-screen entities are cleaned up."
-          ],
-          "status": "VERIFIED",
-          "verified_artifact": "RFC-20261111-A760D1.json"
-        },
-        {
-          "deliverable_id": "DELIV-v0.2.0-04",
-          "discipline": "Gameplay",
-          "title": "Near-miss hazard detection and XP-driven level-up stat allocation bar.",
-          "target_subsystem": "web_client/index.html",
-          "acceptance_criteria": [
-            "Implement Near-miss hazard detection and XP-driven level-up stat allocation bar. with delta-time clamped kinematics.",
-            "Verify responsive player controls and state machine transitions.",
-            "Ensure no uncaught exceptions thrown during frame integration."
-          ],
-          "status": "PENDING",
-          "verified_artifact": null
+          "verified_artifact": "RFC-20261112-20090D.json"
         }
       ],
-      "completion_percentage": 75.0
+      "completed_at": "2026-11-12T12:18:30.788872"
     },
     {
       "version": "v0.3.0",
       "codename": "Codename-v0.3.0",
-      "theme": "500m Mountain Shelter & 3-Card Item Drafting",
-      "status": "PLANNED",
-      "created_at": "2026-11-11T19:34:01.375287",
-      "completed_at": null,
+      "theme": "Pentatonic Crystal Audio Synthesizer, Championship Series & Blitz Clock",
+      "status": "SHIPPED",
+      "completion_percentage": 100.0,
       "deliverables": [
         {
-          "deliverable_id": "DELIV-v0.3.0-01",
-          "discipline": "Systems",
-          "title": "Checkpoint shelter detection every 500m.",
+          "deliverable_id": "DELIV-V0_3_0-01",
+          "discipline": "Client",
+          "title": "Centralized Web Audio API harmonic synthesizer: 9 distinct pentatonic crystal chime frequencies mapped to the 9 matrix sectors, deep sub-bass lock thuds on placement, triumphant chord fanfare on Triad Victory, and a suspended chord resolve on Equilibrium Deadlock.",
           "target_subsystem": "web_client/index.html",
-          "acceptance_criteria": [
-            "Define state models, formulas, and schema for Checkpoint shelter detection every 500m..",
-            "Ensure deterministic state transitions and mutation guards.",
-            "Verify integration with active game state."
-          ],
-          "status": "PENDING",
-          "verified_artifact": null
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-3035E8.json"
         },
         {
-          "deliverable_id": "DELIV-v0.3.0-02",
+          "deliverable_id": "DELIV-V0_3_0-02",
           "discipline": "Systems",
-          "title": "Modal draft screen displaying 3 randomized item cards with icons, rarities, and descriptions.",
+          "title": "Best-of-5 Championship Series & Streak Multiplier system tracking Tactical Forks, Center-Nexus Control, and Flawless Series Sweeps inside the top status ribbon.",
           "target_subsystem": "web_client/index.html",
-          "acceptance_criteria": [
-            "Define state models, formulas, and schema for Modal draft screen displaying 3 randomized item cards with icons, rarities, and descriptions..",
-            "Ensure deterministic state transitions and mutation guards.",
-            "Verify integration with active game state."
-          ],
-          "status": "PENDING",
-          "verified_artifact": null
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-0B8BF5.json"
         },
         {
-          "deliverable_id": "DELIV-v0.3.0-03",
-          "discipline": "Systems",
-          "title": "Core inventory engine supporting passive stat modifications and active ability cooldowns.",
+          "deliverable_id": "DELIV-V0_3_0-03",
+          "discipline": "Gameplay",
+          "title": "Optional 5.0-second Blitz Turn Timer integrated diegetically into the outer frame of the Ninefold Matrix (pulsing faster during the final 2 seconds and awarding speed-placement score bonuses).",
           "target_subsystem": "web_client/index.html",
-          "acceptance_criteria": [
-            "Define state models, formulas, and schema for Core inventory engine supporting passive stat modifications and active ability cooldowns..",
-            "Ensure deterministic state transitions and mutation guards.",
-            "Verify integration with active game state."
-          ],
-          "status": "PENDING",
-          "verified_artifact": null
-        },
-        {
-          "deliverable_id": "DELIV-v0.3.0-04",
-          "discipline": "Systems",
-          "title": "Implementation of initial 25 equipment and gadget items.",
-          "target_subsystem": "web_client/index.html",
-          "acceptance_criteria": [
-            "Define state models, formulas, and schema for Implementation of initial 25 equipment and gadget items..",
-            "Ensure deterministic state transitions and mutation guards.",
-            "Verify integration with active game state."
-          ],
-          "status": "PENDING",
-          "verified_artifact": null
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-45149B.json"
         }
       ],
-      "completion_percentage": 0.0
+      "completed_at": "2026-11-12T12:19:01.255701"
     },
     {
       "version": "v0.4.0",
       "codename": "Codename-v0.4.0",
-      "theme": "100+ Relic System, Biomes & Environmental Hazards",
-      "status": "PLANNED",
-      "created_at": "2026-11-11T19:34:01.375339",
-      "completed_at": null,
+      "theme": "Ephemeral Decay Mutator & Quantum Swap Protocol",
+      "status": "SHIPPED",
+      "completion_percentage": 100.0,
       "deliverables": [
         {
-          "deliverable_id": "DELIV-v0.4.0-01",
-          "discipline": "Systems",
-          "title": "Full expansion of the 100+ item relic database across Common, Rare, Epic, and Cursed tiers.",
-          "target_subsystem": "web_client/index.html",
-          "acceptance_criteria": [
-            "Define state models, formulas, and schema for Full expansion of the 100+ item relic database across Common, Rare, Epic, and Cursed tiers..",
-            "Ensure deterministic state transitions and mutation guards.",
-            "Verify integration with active game state."
-          ],
-          "status": "PENDING",
-          "verified_artifact": null
-        },
-        {
-          "deliverable_id": "DELIV-v0.4.0-02",
-          "discipline": "Level",
-          "title": "Dynamic biome transitions (Alpine Resort $\\rightarrow$ Black Diamond Pines $\\rightarrow$ Glacial Crevasse $\\rightarrow$ Yeti Tundra).",
-          "target_subsystem": "web_client/index.html",
-          "acceptance_criteria": [
-            "Implement procedural generation logic for Dynamic biome transitions (Alpine Resort $\\rightarrow$ Black Diamond Pines $\\rightarrow$ Glacial Crevasse $\\rightarrow$ Yeti Tundra)..",
-            "Verify terrain solvability and collision bounds.",
-            "Ensure off-screen entities are cleaned up."
-          ],
-          "status": "PENDING",
-          "verified_artifact": null
-        },
-        {
-          "deliverable_id": "DELIV-v0.4.0-03",
+          "deliverable_id": "DELIV-V0_4_0-01",
           "discipline": "Gameplay",
-          "title": "Environmental hazards: Ice patches, jump chasms, and blizzard visibility masking.",
+          "title": "Optional \"Ephemeral Protocol\" mutator toggle (`[KeyM]` or pre-match toggle): each contender may only maintain at most 3 active sigils on the lattice at once\u2014when a contender inscribes their 4th sigil, their oldest sigil on the lattice dissolves back into a vacant sector, making Equilibrium Deadlocks impossible!",
           "target_subsystem": "web_client/index.html",
-          "acceptance_criteria": [
-            "Implement Environmental hazards: Ice patches, jump chasms, and blizzard visibility masking. with delta-time clamped kinematics.",
-            "Verify responsive player controls and state machine transitions.",
-            "Ensure no uncaught exceptions thrown during frame integration."
-          ],
-          "status": "PENDING",
-          "verified_artifact": null
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-CFA130.json"
+        },
+        {
+          "deliverable_id": "DELIV-V0_4_0-02",
+          "discipline": "Aesthetics",
+          "title": "Shimmering half-life decay indicators and disintegration particle motes on whichever sigil is queued to vanish next under Ephemeral Protocol.",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-BD6A58.json"
+        },
+        {
+          "deliverable_id": "DELIV-V0_4_0-03",
+          "discipline": "UI_UX",
+          "title": "Diegetic turn-order age pips (`1`, `2`, `3`) subtly etched into the corner of each occupied sector so both contenders can read the decay queue at a glance.",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-2DA166.json"
         }
       ],
-      "completion_percentage": 0.0
+      "completed_at": "2026-11-12T12:57:09.998130"
     },
     {
       "version": "v0.5.0",
       "codename": "Codename-v0.5.0",
-      "theme": "The Abominable Yeti, Audio Synthesis & Endgame Run Extraction",
-      "status": "PLANNED",
-      "created_at": "2026-11-11T19:34:01.375384",
-      "completed_at": null,
+      "theme": "Grand Arbiter Coronation, Match Replay & Master Ledger",
+      "status": "SHIPPED",
+      "completion_percentage": 100.0,
       "deliverables": [
         {
-          "deliverable_id": "DELIV-v0.5.0-01",
-          "discipline": "Level",
-          "title": "Procedural Yeti AI predator with sprint pathfinding, bounding leap attacks, and tree trip recovery.",
+          "deliverable_id": "DELIV-V0_5_0-01",
+          "discipline": "UI_UX",
+          "title": "End-of-Series Grand Arbiter Verdict Modal displaying Series Outcome, Strategic Rating (`S-RANK: GRAND GEOMETER` to `C-RANK: INITIATE`), Win/Deadlock/Loss breakdown, Top-5 Observatory Ledger, and `[SPACE]` New Series / `[C]` Reconfigure Protocol.",
           "target_subsystem": "web_client/index.html",
-          "acceptance_criteria": [
-            "Implement procedural generation logic for Procedural Yeti AI predator with sprint pathfinding, bounding leap attacks, and tree trip recovery..",
-            "Verify terrain solvability and collision bounds.",
-            "Ensure off-screen entities are cleaned up."
-          ],
-          "status": "PENDING",
-          "verified_artifact": null
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-844826.json"
         },
         {
-          "deliverable_id": "DELIV-v0.5.0-02",
-          "discipline": "Gameplay",
-          "title": "Web Audio API procedural sound engine: Carve hiss, wind rush, slalom chime, and Yeti roar.",
+          "deliverable_id": "DELIV-V0_5_0-02",
+          "discipline": "Aesthetics",
+          "title": "Constellation background starfield that links won bouts into glowing zodiac geometries behind the lattice, plus a slow-motion harmonic shatter finale when a Championship Series is clinched.",
           "target_subsystem": "web_client/index.html",
-          "acceptance_criteria": [
-            "Implement Web Audio API procedural sound engine: Carve hiss, wind rush, slalom chime, and Yeti roar. with delta-time clamped kinematics.",
-            "Verify responsive player controls and state machine transitions.",
-            "Ensure no uncaught exceptions thrown during frame integration."
-          ],
-          "status": "PENDING",
-          "verified_artifact": null
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-B233B9.json"
         },
         {
-          "deliverable_id": "DELIV-v0.5.0-03",
+          "deliverable_id": "DELIV-V0_5_0-03",
           "discipline": "Narrative",
-          "title": "High score leaderboard, terminal run obituary screen, and endless descent victory conditions.",
+          "title": "Concise, atmospheric philosophical axioms from the Observatory Arbiter inscribed along the bottom border of the Verdict Modal reflecting the player's tactical style (Corner Dominance, Center Control, or Fork Mastery).",
           "target_subsystem": "web_client/index.html",
-          "acceptance_criteria": [
-            "Author diegetic text and flavor vignettes for High score leaderboard, terminal run obituary screen, and endless descent victory conditions..",
-            "Integrate modal text formatting with retro shareware aesthetic."
-          ],
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-3F6F9F.json"
+        }
+      ],
+      "completed_at": "2026-11-12T12:57:48.277053"
+    },
+    {
+      "version": "v0.6.0",
+      "codename": "Operation Celestial Flux",
+      "theme": "Dynamic Astral Hazards & Kinetic Gravity Resonance",
+      "status": "SHIPPED",
+      "completion_percentage": 100.0,
+      "deliverables": [
+        {
+          "deliverable_id": "DELIV-V0_6_0-01",
+          "discipline": "Systems",
+          "title": "Astra-Singularity Dynamic Core: An interactive graviton node that manifests at sector intersections, physically pulsing gravitational wave rings outward to magnetically pull cursor reticles and bend inscribed particle beams toward its epicenter.",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-8F19AB.json"
+        },
+        {
+          "deliverable_id": "DELIV-V0_6_0-02",
+          "discipline": "Gameplay",
+          "title": "Kinetic Overcharge Sigil Strike: Active placement mechanic where timing an inscription input with the lattice's inward breathing pulse supercharges the sigil, emitting a directional shockwave that displaces adjacent ambient energy embers and fractures neighboring partition borders.",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-1E71B2.json"
+        },
+        {
+          "deliverable_id": "DELIV-V0_6_0-03",
+          "discipline": "Client",
+          "title": "Diegetic Lattice Stress Fractures & Radiant Crucible Bloom: Pure in-world visual feedback system replacing external state prompts with progressive glowing obsidian fractures, dynamic refractive ripples along partition lines, and prismatic heat distortion over contested triad corridors.",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-5152A0.json"
+        }
+      ],
+      "completed_at": "2026-11-12T12:58:29.270397"
+    },
+    {
+      "version": "v0.7.0",
+      "codename": "Operation Prismatic Tether",
+      "theme": "Resonant Leyline Polarization & Dynamic Rift Synthesis",
+      "status": "IN_PROGRESS",
+      "completion_percentage": 0.0,
+      "deliverables": [
+        {
+          "deliverable_id": "DELIV-V0_7_0-01",
+          "discipline": "Systems",
+          "title": "Leyline Harmonic Conduction: Adjacent friendly sigils generate pulsating optical resonance beams along the grid dividers that actively scorch neutral sectors into supercharged conduits, multiplying the kinetic particle bloom and triggering double-weight scoring along intersecting vectors.",
+          "target_subsystem": "web_client/index.html",
+          "status": "PENDING",
+          "verified_artifact": null
+        },
+        {
+          "deliverable_id": "DELIV-V0_7_0-02",
+          "discipline": "Gameplay",
+          "title": "Spatial Rift Translocation: When an inscribed sigil is placed on a polarized sector, it spawns an unstable spatial vortex that physically pulls the cursor reticle and drifts adjacent floating grid lines toward its nexus, allowing contenders to slingshot tactical placements across distorted spatial lanes.",
+          "target_subsystem": "web_client/index.html",
+          "status": "PENDING",
+          "verified_artifact": null
+        },
+        {
+          "deliverable_id": "DELIV-V0_7_0-03",
+          "discipline": "Client",
+          "title": "Diegetic Prism Bloom & In-World Chromatic Fracturing: Inscribed vectors project radial volumetric light refraction directly across the obsidian floor canvas, shattering the 2D arena's divider lines into vibrating, chromatic-aberrated shockwaves upon high-velocity triad locks without HUD text.",
+          "target_subsystem": "web_client/index.html",
           "status": "PENDING",
           "verified_artifact": null
         }
       ],
-      "completion_percentage": 0.0
+      "completed_at": null
     }
-  ],
-  "last_updated": "2026-11-11T23:34:53.520780"
+  ]
 }

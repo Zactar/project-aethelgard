@@ -405,7 +405,7 @@ window.StudioEngine.registerModule("Milestone_v0_1_0", {
       ctx.fillText("ARBITER SYNTHESIZING TRIAD TOPOLOGY...", 400, 536);
     } else {
       ctx.fillStyle = "#94a3b8";
-      ctx.fillText("INITIATOR'S DOMINION // CLICK SECTOR OR [WASD + SPACE] TO INSCRIBE   |   [C] CONFIG", 400, 536);
+      ctx.fillText(`INITIATOR'S DOMINION // [CLICK / SPACE] INSCRIBE  |  [M] EPHEMERAL: ${lat.ephemeralMode ? "ON (MAX 3)" : "OFF"}  |  [C] CONFIG`, 400, 536);
     }
 
     ctx.restore();
