@@ -832,6 +832,19 @@ drawArticulatedDelver: function(ctx, p, t) {
       }
     }
 
+    // Defer Enemies, Delver, Torchlight Shader, Top HUD & Cartography Minimap to Post-World Pass
+    // so v0.2.0..v0.9.0 floor hazards/props render UNDERNEATH the player, torchlight, and UI!
+    ctx.restore();
+  },
+
+  renderPostWorldPass: function(ctx, state) {
+    const p = state.player, w = state.world, lp = w.lowPoly;
+    const flicker = Math.sin(performance.now() * 0.014) * 6;
+    ctx.save();
+    if (w.cameraShake > 0.3 && !state.paused) {
+      ctx.translate((Math.random() - 0.5) * Math.min(w.cameraShake, 6), (Math.random() - 0.5) * Math.min(w.cameraShake, 6));
+    }
+
     // 6. Render Articulated Dark-Fantasy Enemies (Skeletons, Phalanxes, Necromancers, Fungoid Horrors)
     const nowSec = performance.now() * 0.001;
     for (let i = 0; i < (w.enemies || []).length; i++) {
@@ -975,6 +988,13 @@ drawArticulatedDelver: function(ctx, p, t) {
     ctx.fillStyle = "#f59e0b";
     ctx.textAlign = "right";
     ctx.fillText("[SPC]ATK [SHF/E]ACT", 792, 22);
+    if (w.quest) {
+      ctx.textAlign = "left";
+      ctx.font = "bold 11px monospace";
+      ctx.fillStyle = w.quest.completed ? "#10b981" : "#eab308";
+      const qStatus = w.quest.completed ? "COMPLETED" : `[${w.quest.progress}/${w.quest.target}]`;
+      ctx.fillText(`⚔ OSR QUEST: ${w.quest.title} ${qStatus}  |  PACT: ${w.quest.alignment}`, 14, 52);
+    }
     ctx.restore();
 
     // 10. Darkened Cartographer's Parchment Inset Minimap (Reveals Procedural Maze & Room Shapes!)

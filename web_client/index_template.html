@@ -325,6 +325,17 @@
           p.shields = restored;
           engine._prevHealth = restored;
         }
+        if (!state.paused && !state.gameOver && typeof p.health === 'number' && p.health <= 0) {
+          if ((state.tick || 0) < 120) {
+            p.health = p.maxHealth || 5;
+            p.shields = p.health;
+            engine._prevHealth = p.health;
+          } else {
+            const m5 = engine.modules['Milestone_v0_5_0'];
+            if (m5 && typeof m5.triggerChronicle === 'function') m5.triggerChronicle(state, false);
+            else { p.health = p.maxHealth || 5; p.shields = p.health; engine._prevHealth = p.health; }
+          }
+        }
         const spd = Math.hypot(p.vx || 0, p.vy || 0);
         const maxSpd = p.maxSpeed || 320;
         if (spd > maxSpd) {
@@ -381,6 +392,21 @@
             }
           }
           _modalCtx.restore();
+          _baseCtx.restore();
+        }
+        // Studio v4.0 Scene-Graph Post-Pass: Render Articulated Actors, Torchlight Vignette, HUD, Minimap & Tooltips ABOVE all plugin floor props!
+        const m1 = engine.modules['Milestone_v0_1_0'];
+        if (m1 && typeof m1.renderPostWorldPass === 'function') {
+          _currentModName = 'Milestone_v0_1_0';
+          _inModalPass = false;
+          _baseCtx.save();
+          try { m1.renderPostWorldPass(_smartCtx, state, engine); } catch (e) {}
+          _baseCtx.restore();
+        }
+        const m6 = engine.modules['Milestone_v0_6_0'];
+        if (m6 && typeof m6._drawTopTooltip === 'function' && !state.paused && !state.gameOver) {
+          _baseCtx.save();
+          try { m6._drawTopTooltip(_baseCtx, state); } catch (e) {}
           _baseCtx.restore();
         }
 

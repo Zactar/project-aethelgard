@@ -159,15 +159,17 @@ window.StudioEngine.registerModule("Milestone_v0_4_0", {
       ctx.fillRect(w.corpse.x + 6, w.corpse.y - 6, 4, 10);
 
       if (Math.hypot(p.x - w.corpse.x, p.y - w.corpse.y) < 68) {
-        ctx.fillStyle = "rgba(9, 7, 15, 0.92)";
-        ctx.fillRect(w.corpse.x - 175, w.corpse.y - 44, 350, 28);
-        ctx.strokeStyle = "#f59e0b";
-        ctx.lineWidth = 1;
-        ctx.strokeRect(w.corpse.x - 175, w.corpse.y - 44, 350, 28);
-        ctx.fillStyle = "#fde68a";
         ctx.font = "10px monospace";
+        const boxW = Math.max(320, ctx.measureText(w.corpse.inscription).width + 28);
+        const bx = Math.max(70 + boxW * 0.5, Math.min(730 - boxW * 0.5, w.corpse.x));
+        ctx.fillStyle = "rgba(9, 7, 15, 0.95)";
+        ctx.fillRect(bx - boxW * 0.5, w.corpse.y - 44, boxW, 26);
+        ctx.strokeStyle = "#f59e0b";
+        ctx.lineWidth = 1.2;
+        ctx.strokeRect(bx - boxW * 0.5, w.corpse.y - 44, boxW, 26);
+        ctx.fillStyle = "#fde68a";
         ctx.textAlign = "center";
-        ctx.fillText(w.corpse.inscription, w.corpse.x, w.corpse.y - 26);
+        ctx.fillText(w.corpse.inscription, bx, w.corpse.y - 27);
       }
     }
 

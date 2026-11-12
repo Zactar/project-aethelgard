@@ -394,11 +394,7 @@ window.StudioEngine.registerModule("Milestone_v0_5_0", {
       // Portcullis Spikes at y=560
       ctx.strokeStyle = "#64748b";
       ctx.lineWidth = 4;
-      for (let x = 60; x < 740; x += 28) {
-        ctx.beginPath();
-        ctx.moveTo(x, 560); ctx.lineTo(x + 14, 574); ctx.lineTo(x + 28, 560);
-        ctx.stroke();
-      }
+      /* removed bottom sawtooth clutter */
       ctx.restore();
     }
 
