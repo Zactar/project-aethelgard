@@ -34,7 +34,7 @@ window.StudioEngine.registerModule("Milestone_v0_3_0", {
       if (!AC) return false;
       a.ctx = new AC();
       a.masterGain = a.ctx.createGain();
-      a.masterGain.gain.setValueAtTime(0.3, a.ctx.currentTime);
+      a.masterGain.gain.setValueAtTime(0.135, a.ctx.currentTime);
       a.masterGain.connect(a.ctx.destination);
       const bLen = Math.floor(a.ctx.sampleRate * 0.2);
       a.noiseBuf = a.ctx.createBuffer(1, bLen, a.ctx.sampleRate);
@@ -56,15 +56,15 @@ window.StudioEngine.registerModule("Milestone_v0_3_0", {
         const osc = a.ctx.createOscillator(), g = a.ctx.createGain();
         osc.frequency.setValueAtTime(140, st);
         osc.frequency.exponentialRampToValueAtTime(35, st + 0.09);
-        g.gain.setValueAtTime(0.35, st);
+        g.gain.setValueAtTime(0.158, st);
         g.gain.exponentialRampToValueAtTime(0.001, st + 0.12);
         osc.connect(g); g.connect(a.masterGain);
         osc.start(st); osc.stop(st + 0.12);
       }
       if (s % 8 === 4 && a.noiseBuf) {
         const src = a.ctx.createBufferSource(), f = a.ctx.createBiquadFilter(), g = a.ctx.createGain();
-        src.buffer = a.noiseBuf; f.type = 'bandpass'; f.frequency.setValueAtTime(1200, st); f.Q.value = 2.0;
-        g.gain.setValueAtTime(0.25, st); g.gain.exponentialRampToValueAtTime(0.001, st + 0.11);
+        src.buffer = a.noiseBuf; f.type = 'bandpass'; f.frequency.setValueAtTime(624, st); f.Q.value = 2.0;
+        g.gain.setValueAtTime(0.113, st); g.gain.exponentialRampToValueAtTime(0.001, st + 0.11);
         src.connect(f); f.connect(g); g.connect(a.masterGain);
         src.start(st); src.stop(st + 0.11);
       }
@@ -74,7 +74,7 @@ window.StudioEngine.registerModule("Milestone_v0_3_0", {
       bOsc.frequency.setValueAtTime(bassFreqs[s % bassFreqs.length], st);
       bFilt.type = 'lowpass';
       bFilt.frequency.setValueAtTime(320 + Math.min(600, (state.stats?.combo || 1) * 80), st);
-      bG.gain.setValueAtTime(0.18, st);
+      bG.gain.setValueAtTime(0.081, st);
       bG.gain.exponentialRampToValueAtTime(0.001, st + stepDur * 0.9);
       bOsc.connect(bFilt); bFilt.connect(bG); bG.connect(a.masterGain);
       bOsc.start(st); bOsc.stop(st + stepDur * 0.9);
@@ -101,7 +101,7 @@ window.StudioEngine.registerModule("Milestone_v0_3_0", {
     osc.type = 'sawtooth';
     osc.frequency.setValueAtTime(freq || 900, t);
     osc.frequency.exponentialRampToValueAtTime(140, t + (decay || 0.14));
-    g.gain.setValueAtTime(0.15, t);
+    g.gain.setValueAtTime(0.068, t);
     g.gain.exponentialRampToValueAtTime(0.001, t + (decay || 0.14));
     osc.connect(g); g.connect(a.masterGain);
     osc.start(t); osc.stop(t + (decay || 0.14));

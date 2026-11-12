@@ -115,6 +115,9 @@
 
       if (prop === 'fillText' || prop === 'strokeText') {
         return function(text, x, y, maxWidth) {
+          if (typeof text === 'string' && text.includes('.')) {
+            text = text.replace(/(\d+)\.(\d{2,})/g, (m, a, b) => y < 40 && text.includes('SCORE') ? a : a + '.' + b.slice(0, 1));
+          }
           if (_inModalPass === 'SUPPRESSED') return;
           const dest = _inModalPass ? _modalCtx : target;
           // Shift v0.2.0 Top-Left Level/XP text down by +42px
@@ -259,6 +262,10 @@
       const state = engine.state;
       state.dt = dt;
       state.tick++;
+      if (typeof state.score === 'number') state.score = Math.floor(state.score);
+      if (state.stats && typeof state.stats.combo === 'number') {
+        state.stats.combo = Math.round(state.stats.combo * 10) / 10;
+      }
       // Synchronize v0.1.0 wipeouts, live distanceMeters, and auto-emit PLAYER_WIPEOUT
       if (state.world) {
         const rawDist = state.world.distance || 0;
@@ -369,5 +376,6 @@
   <script src="js/milestone_v0_1_0.js"></script>
   <script src="js/milestone_v0_2_0.js"></script>
   <script src="js/milestone_v0_3_0.js"></script>
+  <script src="js/milestone_v0_4_0.js"></script>
 </body>
 </html>
