@@ -1,4 +1,4 @@
-// Cohesive Milestone Plugin: v0.1.0 (Procedural OSR Dungeon Rooms, Chiaroscuro Torchlight & Souls-Zelda Melee)
+// Cohesive Milestone Plugin: v0.1.0 (2.5D Low-Poly Faceted Dungeon, Dynamic Shadow Volumes & Souls-Zelda Melee)
 window.StudioEngine.registerModule("Milestone_v0_1_0", {
   init: function(state, engine) {
     const p = state.player;
@@ -30,10 +30,86 @@ window.StudioEngine.registerModule("Milestone_v0_1_0", {
     w.bonePiles = [];
     w.braziers = [];
     w.pillars = [];
-    w.hazards = [];
     w.bloodStains = [];
     w.particles = w.particles || [];
     w.floatingTexts = w.floatingTexts || [];
+
+    // Expose 2.5D Low-Poly Projection & Lambertian Shading Helper on state.world.lowPoly
+    w.lowPoly = {
+      project: function(x, y, z) {
+        const k = z * 0.0022;
+        return { x: x + (x - 400) * k, y: y + (y - 310) * k - z * 0.55 };
+      },
+      shadeHex: function(hex, factor) {
+        const c = hex.replace("#", "");
+        const num = parseInt(c, 16);
+        const r = Math.min(255, Math.max(0, Math.floor(((num >> 16) & 255) * factor)));
+        const g = Math.min(255, Math.max(0, Math.floor(((num >> 8) & 255) * factor)));
+        const b = Math.min(255, Math.max(0, Math.floor((num & 255) * factor)));
+        return `rgb(${r},${g},${b})`;
+      },
+      drawExtrudedBox: function(ctx, bx, by, bw, bh, bz, baseColor, strokeColor, lightX, lightY) {
+        const p00 = this.project(bx, by, 0), p10 = this.project(bx + bw, by, 0);
+        const p11 = this.project(bx + bw, by + bh, 0), p01 = this.project(bx, by + bh, 0);
+        const t00 = this.project(bx, by, bz), t10 = this.project(bx + bw, by, bz);
+        const t11 = this.project(bx + bw, by + bh, bz), t01 = this.project(bx, by + bh, bz);
+
+        const cx = bx + bw * 0.5, cy = by + bh * 0.5;
+        const dist = Math.hypot(lightX - cx, lightY - cy) || 1;
+        const atten = Math.max(0.28, Math.min(1.35, 220 / (dist + 60)));
+        const lx = (lightX - cx) / dist, ly = (lightY - cy) / dist;
+
+        const drawFace = (pts, nx, ny, nz) => {
+          const dot = Math.max(0.15, nx * lx + ny * ly + nz * 0.55);
+          ctx.fillStyle = this.shadeHex(baseColor, dot * atten);
+          ctx.beginPath();
+          ctx.moveTo(pts[0].x, pts[0].y);
+          for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+          ctx.closePath();
+          ctx.fill();
+          if (strokeColor) {
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = 1;
+            ctx.stroke();
+          }
+        };
+
+        // Render visible side faces sorted by camera perspective + roof
+        if (cy < 310) drawFace([p01, p11, t11, t01], 0, 1, 0.1);
+        else drawFace([p00, p10, t10, t00], 0, -1, 0.1);
+        drawFace([p01, p11, t11, t01], 0, 1, 0.15); // South front-facing bevel always visible in top-down
+        if (cx < 400) drawFace([p10, p11, t11, t10], 1, 0, 0.1);
+        else drawFace([p00, p01, t01, t00], -1, 0, 0.1);
+
+        // Top cap (faceted pyramid or flat roof)
+        drawFace([t00, t10, t11, t01], 0, 0, 1.0);
+      },
+      drawLowPolyPrism: function(ctx, cx, cy, r, zBase, zTop, sides, color, lightX, lightY, rot) {
+        const apex = this.project(cx, cy, zTop);
+        const dist = Math.hypot(lightX - cx, lightY - cy) || 1;
+        const atten = Math.max(0.35, Math.min(1.45, 240 / (dist + 50)));
+        const lx = (lightX - cx) / dist, ly = (lightY - cy) / dist;
+
+        for (let i = 0; i < sides; i++) {
+          const a1 = (rot || 0) + (i / sides) * Math.PI * 2;
+          const a2 = (rot || 0) + ((i + 1) / sides) * Math.PI * 2;
+          const v1 = this.project(cx + Math.cos(a1) * r, cy + Math.sin(a1) * r, zBase);
+          const v2 = this.project(cx + Math.cos(a2) * r, cy + Math.sin(a2) * r, zBase);
+          const midA = (a1 + a2) * 0.5;
+          const dot = Math.max(0.22, Math.cos(midA) * lx + Math.sin(midA) * ly + 0.45);
+          ctx.fillStyle = this.shadeHex(color, dot * atten);
+          ctx.beginPath();
+          ctx.moveTo(v1.x, v1.y);
+          ctx.lineTo(v2.x, v2.y);
+          ctx.lineTo(apex.x, apex.y);
+          ctx.closePath();
+          ctx.fill();
+          ctx.strokeStyle = "rgba(15, 23, 42, 0.65)";
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+      }
+    };
 
     this.loadRoom(state, 0, 0);
   },
@@ -51,41 +127,41 @@ window.StudioEngine.registerModule("Milestone_v0_1_0", {
     if (!w.rooms[key]) {
       const archetypeIdx = Math.floor(this._seedHash(rx, ry, 1) * 5);
       const archetypes = [
-        { name: "PILLARED OSSUARY", floor: "#100d16", accent: "#a855f7" },
-        { name: "VERDIGRIS ACID CISTERN", floor: "#0b1311", accent: "#10b981" },
-        { name: "BLOOD-ALTAR SANCTUM", floor: "#160b0f", accent: "#dc2626" },
-        { name: "COLLAPSED CATACOMB", floor: "#12100e", accent: "#eab308" },
-        { name: "OBSIDIAN GREAT HALL", floor: "#0d0b14", accent: "#f59e0b" }
+        { name: "PILLARED OSSUARY", floor: "#120e1a", wall: "#2d233d", accent: "#a855f7" },
+        { name: "VERDIGRIS CISTERN", floor: "#0b1513", wall: "#1d3530", accent: "#10b981" },
+        { name: "BLOOD SANCTUM", floor: "#170b10", wall: "#3d1a24", accent: "#dc2626" },
+        { name: "DOOM CATACOMB", floor: "#14110d", wall: "#362d20", accent: "#eab308" },
+        { name: "OBSIDIAN HALL", floor: "#0e0c16", wall: "#252136", accent: "#f59e0b" }
       ];
       const arch = archetypes[archetypeIdx];
 
       const braziers = [
-        { x: 130, y: 120, lit: true, r: 14 },
-        { x: 670, y: 120, lit: true, r: 14 },
-        { x: 130, y: 500, lit: this._seedHash(rx, ry, 2) > 0.25, r: 14 },
-        { x: 670, y: 500, lit: this._seedHash(rx, ry, 3) > 0.25, r: 14 }
+        { x: 135, y: 125, lit: true, r: 14 },
+        { x: 665, y: 125, lit: true, r: 14 },
+        { x: 135, y: 495, lit: this._seedHash(rx, ry, 2) > 0.2, r: 14 },
+        { x: 665, y: 495, lit: this._seedHash(rx, ry, 3) > 0.2, r: 14 }
       ];
 
       const pillars = [];
       if (archetypeIdx === 0 || archetypeIdx === 4) {
-        pillars.push({ x: 250, y: 220, w: 36, h: 36 }, { x: 514, y: 220, w: 36, h: 36 });
-        pillars.push({ x: 250, y: 380, w: 36, h: 36 }, { x: 514, y: 380, w: 36, h: 36 });
+        pillars.push({ x: 245, y: 205, w: 38, h: 38 }, { x: 517, y: 205, w: 38, h: 38 });
+        pillars.push({ x: 245, y: 385, w: 38, h: 38 }, { x: 517, y: 385, w: 38, h: 38 });
       } else if (archetypeIdx === 2) {
-        pillars.push({ x: 376, y: 286, w: 48, h: 48, isAltar: true });
+        pillars.push({ x: 374, y: 284, w: 52, h: 52, isAltar: true });
       } else if (archetypeIdx === 3) {
-        pillars.push({ x: 310, y: 240, w: 42, h: 42 }, { x: 450, y: 360, w: 42, h: 42 });
+        pillars.push({ x: 295, y: 230, w: 42, h: 42 }, { x: 465, y: 365, w: 42, h: 42 });
       }
 
       const acidPools = [];
       if (archetypeIdx === 1) {
-        acidPools.push({ x: 240, y: 260, r: 48 }, { x: 560, y: 360, r: 52 });
+        acidPools.push({ x: 240, y: 260, r: 46 }, { x: 560, y: 360, r: 50 });
       }
 
       const bonePiles = [];
       for (let i = 0; i < 4; i++) {
-        const bx = 150 + this._seedHash(rx, ry, 10 + i) * 500;
-        const by = 140 + this._seedHash(rx, ry, 20 + i) * 340;
-        if (Math.hypot(bx - 400, by - 310) > 75) {
+        const bx = 155 + this._seedHash(rx, ry, 10 + i) * 490;
+        const by = 145 + this._seedHash(rx, ry, 20 + i) * 330;
+        if (Math.hypot(bx - 400, by - 310) > 80) {
           bonePiles.push({ x: bx, y: by, hp: 1, r: 14 });
         }
       }
@@ -94,24 +170,22 @@ window.StudioEngine.registerModule("Milestone_v0_1_0", {
       const isStart = (rx === 0 && ry === 0);
       const count = isStart ? 2 : 3 + (Math.abs(rx) + Math.abs(ry)) % 3;
       for (let i = 0; i < count; i++) {
-        const ex = 160 + this._seedHash(rx, ry, 30 + i) * 480;
-        const ey = 140 + this._seedHash(rx, ry, 40 + i) * 340;
-        if (Math.hypot(ex - 400, ey - 310) < 90) continue;
+        const ex = 165 + this._seedHash(rx, ry, 30 + i) * 470;
+        const ey = 145 + this._seedHash(rx, ry, 40 + i) * 330;
+        if (Math.hypot(ex - 400, ey - 310) < 95) continue;
         const kind = (i % 2 === 0) ? "SKELETON" : "SLIME";
         enemies.push({
           type: kind,
           x: ex, y: ey, vx: 0, vy: 0,
-          r: kind === "SKELETON" ? 14 : 16,
+          r: kind === "SKELETON" ? 15 : 17,
           hp: kind === "SKELETON" ? 45 : 35,
           maxHp: kind === "SKELETON" ? 45 : 35,
           speed: kind === "SKELETON" ? 72 : 52,
-          stagger: 0, windup: 0, color: kind === "SKELETON" ? "#e2e8f0" : "#10b981"
+          stagger: 0, color: kind === "SKELETON" ? "#cbd5e1" : "#10b981"
         });
       }
 
-      w.rooms[key] = {
-        rx, ry, arch, braziers, pillars, acidPools, bonePiles, enemies, bloodStains: []
-      };
+      w.rooms[key] = { rx, ry, arch, braziers, pillars, acidPools, bonePiles, enemies, bloodStains: [] };
     }
 
     const room = w.rooms[key];
@@ -135,21 +209,17 @@ window.StudioEngine.registerModule("Milestone_v0_1_0", {
     if (p.dashTimer > 0) p.dashTimer = Math.max(0, p.dashTimer - dt);
     if (p.dashCooldown > 0) p.dashCooldown = Math.max(0, p.dashCooldown - dt);
 
-    // Torch decay (clamped at 25 minimum so the player is NEVER in 100% blind pitch-black darkness!)
-    p.torchLevel = Math.max(25, (p.torchLevel || 100) - dt * 0.45);
-    // Standing near a lit brazier warms & restores Torchlight!
+    p.torchLevel = Math.max(30, (p.torchLevel || 100) - dt * 0.40);
     for (let i = 0; i < (w.braziers || []).length; i++) {
       const b = w.braziers[i];
-      if (b.lit && Math.hypot(p.x - b.x, p.y - b.y) < 75) {
-        p.torchLevel = Math.min(100, p.torchLevel + dt * 18);
+      if (b.lit && Math.hypot(p.x - b.x, p.y - b.y) < 80) {
+        p.torchLevel = Math.min(100, p.torchLevel + dt * 20);
       }
     }
 
-    // Stamina regeneration
     if (p.stamRegenDelay > 0) p.stamRegenDelay -= dt;
-    else p.stamina = Math.min(p.maxStamina || 100, (p.stamina || 0) + 34 * dt);
+    else p.stamina = Math.min(p.maxStamina || 100, (p.stamina || 0) + 35 * dt);
 
-    // 8-way Movement
     let dx = (keys.right ? 1 : 0) - (keys.left ? 1 : 0);
     let dy = (keys.down ? 1 : 0) - (keys.up ? 1 : 0);
     const len = Math.hypot(dx, dy);
@@ -158,7 +228,6 @@ window.StudioEngine.registerModule("Milestone_v0_1_0", {
       if (p.attackTimer <= 0) p.facingAngle = Math.atan2(dy, dx);
     }
 
-    // Dodge-Roll on [SHIFT / E] (`keys.action`)
     if (keys.action && p.dashCooldown <= 0 && p.stamina >= 18) {
       p.dashTimer = 0.20;
       p.dashCooldown = 0.65;
@@ -171,7 +240,6 @@ window.StudioEngine.registerModule("Milestone_v0_1_0", {
       engine.emit("PLAYER_DODGE", { x: p.x, y: p.y, angle: rollAngle });
     }
 
-    // Directional Melee Cleave on [SPACE] (`keys.jump`)
     if (keys.jump && p.attackCooldown <= 0 && p.stamina >= 14) {
       p.attackTimer = 0.22;
       p.attackCooldown = 0.34;
@@ -191,53 +259,42 @@ window.StudioEngine.registerModule("Milestone_v0_1_0", {
     p.x += p.vx * dt;
     p.y += p.vy * dt;
 
-    // Resolve Pillar Collisions
     for (let i = 0; i < (w.pillars || []).length; i++) {
       const pl = w.pillars[i];
       const cx = pl.x + pl.w / 2, cy = pl.y + pl.h / 2;
       const ox = p.x - cx, oy = p.y - cy;
-      const minDist = pl.w / 2 + 12;
+      const minDist = pl.w / 2 + 13;
       if (Math.abs(ox) < minDist && Math.abs(oy) < minDist) {
         if (Math.abs(ox) > Math.abs(oy)) p.x = cx + Math.sign(ox) * minDist;
         else p.y = cy + Math.sign(oy) * minDist;
       }
     }
 
-    // Room-to-Room Archway Transitions (N/S/E/W Doors)
     const inHorizDoor = (p.y > 265 && p.y < 365);
     const inVertDoor = (p.x > 350 && p.x < 450);
+    if (p.x < 64 && inHorizDoor) { p.x = 724; this.loadRoom(state, w.currentRoom.x - 1, w.currentRoom.y); return; }
+    else if (p.x > 736 && inHorizDoor) { p.x = 76; this.loadRoom(state, w.currentRoom.x + 1, w.currentRoom.y); return; }
+    else if (p.y < 82 && inVertDoor) { p.y = 532; this.loadRoom(state, w.currentRoom.x, w.currentRoom.y - 1); return; }
+    else if (p.y > 548 && inVertDoor) { p.y = 94; this.loadRoom(state, w.currentRoom.x, w.currentRoom.y + 1); return; }
 
-    if (p.x < 64 && inHorizDoor) {
-      p.x = 724; this.loadRoom(state, w.currentRoom.x - 1, w.currentRoom.y); return;
-    } else if (p.x > 736 && inHorizDoor) {
-      p.x = 76; this.loadRoom(state, w.currentRoom.x + 1, w.currentRoom.y); return;
-    } else if (p.y < 82 && inVertDoor) {
-      p.y = 532; this.loadRoom(state, w.currentRoom.x, w.currentRoom.y - 1); return;
-    } else if (p.y > 548 && inVertDoor) {
-      p.y = 94; this.loadRoom(state, w.currentRoom.x, w.currentRoom.y + 1); return;
-    }
-
-    // Clamp to Stone Walls
     p.x = Math.max(66, Math.min(734, p.x));
     p.y = Math.max(84, Math.min(546, p.y));
 
-    // Destructible Bone Piles
     for (let i = (w.bonePiles || []).length - 1; i >= 0; i--) {
       const bp = w.bonePiles[i];
       if (Math.hypot(p.x - bp.x, p.y - bp.y) < 26 && (p.attackTimer > 0 || p.dashTimer > 0)) {
         w.bonePiles.splice(i, 1);
         p.gold = (p.gold || 0) + 5;
         p.torchLevel = Math.min(100, p.torchLevel + 8);
-        w.floatingTexts.push({ text: "+5G // TORCH EMBER", x: bp.x, y: bp.y - 10, color: "#eab308", life: 0.9 });
+        w.floatingTexts.push({ text: "+5G // EMBER", x: bp.x, y: bp.y - 10, color: "#eab308", life: 0.9 });
       }
     }
 
-    // Update Dungeon Enemies
     const enemies = w.enemies || [];
     for (let i = enemies.length - 1; i >= 0; i--) {
       const en = enemies[i];
       if (en.hp <= 0) {
-        w.bloodStains.push({ x: en.x, y: en.y, r: 16 + Math.random() * 8, color: en.type === "SLIME" ? "rgba(16,185,129,0.35)" : "rgba(185,28,28,0.42)" });
+        w.bloodStains.push({ x: en.x, y: en.y, r: 16 + Math.random() * 8, color: en.type === "SLIME" ? "rgba(16,185,129,0.35)" : "rgba(185,28,28,0.45)" });
         p.gold = (p.gold || 0) + 12;
         state.score = (state.score || 0) + 150;
         engine.emit("ENEMY_SLAIN", { enemy: en, x: en.x, y: en.y });
@@ -251,23 +308,22 @@ window.StudioEngine.registerModule("Milestone_v0_1_0", {
       } else {
         const edx = p.x - en.x, edy = p.y - en.y;
         const dist = Math.hypot(edx, edy) || 1;
-        if (dist < 280) {
+        if (dist < 290) {
           en.x += (edx / dist) * en.speed * dt;
           en.y += (edy / dist) * en.speed * dt;
         }
         if (dist < en.r + 13) {
-          if (p.dashTimer > 0 && p.dashTimer > 0.06) {
-            // Timed Parry / Riposte Deflection!
-            en.stagger = 1.1;
-            en.vx = -(edx / dist) * 240;
-            en.vy = -(edy / dist) * 240;
+          if (p.dashTimer > 0 && p.dashTimer > 0.05) {
+            en.stagger = 1.2;
+            en.vx = -(edx / dist) * 250;
+            en.vy = -(edy / dist) * 250;
             w.floatingTexts.push({ text: "⚔ PARRIED! ⚔", x: p.x, y: p.y - 24, color: "#eab308", life: 0.9 });
-            engine.emit("PARRY_SUCCESS", { enemy: en });
+            engine.emit("PARRY_SUCCESS", { enemy: en, x: p.x, y: p.y });
           } else if (p.invuln <= 0) {
             p.health = Math.max(0, (p.health || 5) - 1);
             p.shields = p.health;
             p.invuln = 1.1;
-            w.cameraShake = 8; // Subtle context-aware world shake
+            w.cameraShake = 7;
             w.floatingTexts.push({ text: "-1 HP", x: p.x, y: p.y - 20, color: "#dc2626", life: 0.8 });
           }
         }
@@ -276,7 +332,6 @@ window.StudioEngine.registerModule("Milestone_v0_1_0", {
       en.y = Math.max(90, Math.min(540, en.y));
     }
 
-    // Update Floating Texts & Particles
     for (let i = w.floatingTexts.length - 1; i >= 0; i--) {
       const ft = w.floatingTexts[i];
       ft.y -= 22 * dt;
@@ -294,9 +349,10 @@ window.StudioEngine.registerModule("Milestone_v0_1_0", {
 
   performMeleeCleave: function(state, engine) {
     const p = state.player, w = state.world;
-    const reach = p.weaponReach || 58;
+    const reach = p.weaponReach || 60;
     const cleaveDmg = p.weaponDamage || 22;
     const enemies = w.enemies || [];
+    const swingArc = p.whirlwindCleave ? Math.PI * 2 : 1.4;
 
     for (let i = 0; i < enemies.length; i++) {
       const en = enemies[i];
@@ -306,13 +362,13 @@ window.StudioEngine.registerModule("Milestone_v0_1_0", {
         const angToEnemy = Math.atan2(dy, dx);
         let diff = Math.abs(angToEnemy - p.facingAngle);
         if (diff > Math.PI) diff = Math.PI * 2 - diff;
-        if (diff <= 1.35) {
+        if (diff <= swingArc) {
           const isCrit = en.stagger > 0;
           const dmg = isCrit ? Math.floor(cleaveDmg * 1.6) : cleaveDmg;
           en.hp -= dmg;
           en.stagger = 0.42;
-          en.vx = Math.cos(p.facingAngle) * 210;
-          en.vy = Math.sin(p.facingAngle) * 210;
+          en.vx = Math.cos(angToEnemy) * 210;
+          en.vy = Math.sin(angToEnemy) * 210;
           p.hitStop = 0.03;
           w.cameraShake = 3.5;
           w.floatingTexts.push({
@@ -321,7 +377,7 @@ window.StudioEngine.registerModule("Milestone_v0_1_0", {
             color: isCrit ? "#eab308" : "#f8fafc", life: 0.75
           });
           for (let k = 0; k < 6; k++) {
-            const a = p.facingAngle + (Math.random() - 0.5) * 1.2;
+            const a = angToEnemy + (Math.random() - 0.5) * 1.2;
             w.particles.push({
               x: en.x, y: en.y,
               vx: Math.cos(a) * (90 + Math.random() * 90),
@@ -336,61 +392,64 @@ window.StudioEngine.registerModule("Milestone_v0_1_0", {
   },
 
   render: function(ctx, state) {
-    const p = state.player, w = state.world;
+    const p = state.player, w = state.world, lp = w.lowPoly;
     const roomKey = `${w.currentRoom.x},${w.currentRoom.y}`;
-    const room = (w.rooms && w.rooms[roomKey]) || { arch: { name: "CRYPT", floor: "#100d16", accent: "#a855f7" }, acidPools: [] };
+    const room = (w.rooms && w.rooms[roomKey]) || { arch: { name: "CRYPT", floor: "#120e1a", wall: "#2d233d", accent: "#a855f7" }, acidPools: [] };
 
-    // 1. Apply Context-Aware World Screen Shake ONLY to the Dungeon Viewport (NOT the Top Status Bar!)
     ctx.save();
     if (w.cameraShake > 0.3 && !state.paused) {
-      const sx = (Math.random() - 0.5) * Math.min(w.cameraShake, 7);
-      const sy = (Math.random() - 0.5) * Math.min(w.cameraShake, 7);
-      ctx.translate(sx, sy);
+      ctx.translate((Math.random() - 0.5) * Math.min(w.cameraShake, 6), (Math.random() - 0.5) * Math.min(w.cameraShake, 6));
     }
 
-    // 2. Render Carved Flagstone Dungeon Floor & Masonry Walls
+    // 1. Render Faceted Low-Poly Stone Slabs & Distance-Shaded Cobblestones
     ctx.fillStyle = room.arch.floor;
     ctx.fillRect(0, 36, 800, 564);
 
-    // Carved Stone Flagstone Grid with Mortar Bevels
-    ctx.strokeStyle = "rgba(148, 163, 184, 0.09)";
-    ctx.lineWidth = 1;
     for (let gx = 60; gx < 740; gx += 40) {
-      for (let gy = 76; gy < 556; gy += 40) {
-        ctx.strokeRect(gx, gy, 40, 40);
+      for (let gy = 76; gy < 552; gy += 40) {
+        const dLight = Math.hypot((gx + 20) - p.x, (gy + 20) - p.y);
+        const lit = Math.max(0.06, Math.min(0.32, 1 - dLight / 340));
+        // Beveled 3D stone slab top-left highlight & bottom-right shadow
+        ctx.strokeStyle = `rgba(226, 232, 240, ${lit * 0.45})`;
+        ctx.beginPath();
+        ctx.moveTo(gx + 1, gy + 38); ctx.lineTo(gx + 1, gy + 1); ctx.lineTo(gx + 38, gy + 1);
+        ctx.stroke();
+        ctx.strokeStyle = "rgba(4, 2, 8, 0.75)";
+        ctx.beginPath();
+        ctx.moveTo(gx + 39, gy + 1); ctx.lineTo(gx + 39, gy + 39); ctx.lineTo(gx + 1, gy + 39);
+        ctx.stroke();
       }
     }
 
-    // Outer Obsidian Dungeon Walls (with N/S/E/W Carved Archway Openings)
-    ctx.fillStyle = "#1c1926";
-    ctx.strokeStyle = "#334155";
-    ctx.lineWidth = 2;
-    // Top wall (split by North Archway x:350..450)
-    ctx.fillRect(40, 56, 310, 22); ctx.strokeRect(40, 56, 310, 22);
-    ctx.fillRect(450, 56, 310, 22); ctx.strokeRect(450, 56, 310, 22);
-    // Bottom wall (split by South Archway x:350..450)
-    ctx.fillRect(40, 554, 310, 22); ctx.strokeRect(40, 554, 310, 22);
-    ctx.fillRect(450, 554, 310, 22); ctx.strokeRect(450, 554, 310, 22);
-    // Left wall (split by West Archway y:265..365)
-    ctx.fillRect(40, 78, 20, 187); ctx.strokeRect(40, 78, 20, 187);
-    ctx.fillRect(40, 365, 20, 189); ctx.strokeRect(40, 365, 20, 189);
-    // Right wall (split by East Archway y:265..365)
-    ctx.fillRect(740, 78, 20, 187); ctx.strokeRect(740, 78, 20, 187);
-    ctx.fillRect(740, 365, 20, 189); ctx.strokeRect(740, 365, 20, 189);
+    // 2. Render Dynamic Ray-Cast Shadow Volumes Behind Pillars (From Player Torch!)
+    for (let i = 0; i < (w.pillars || []).length; i++) {
+      const pl = w.pillars[i];
+      const cx = pl.x + pl.w * 0.5, cy = pl.y + pl.h * 0.5;
+      const ang = Math.atan2(cy - p.y, cx - p.x);
+      const perp = ang + Math.PI * 0.5;
+      const r = pl.w * 0.52;
+      const c1x = cx + Math.cos(perp) * r, c1y = cy + Math.sin(perp) * r;
+      const c2x = cx - Math.cos(perp) * r, c2y = cy - Math.sin(perp) * r;
+      const s1x = c1x + Math.cos(ang + 0.14) * 360, s1y = c1y + Math.sin(ang + 0.14) * 360;
+      const s2x = c2x + Math.cos(ang - 0.14) * 360, s2y = c2y + Math.sin(ang - 0.14) * 360;
 
-    // Glowing Archway Threshold Runes
-    ctx.fillStyle = "rgba(234, 179, 8, 0.22)";
-    ctx.fillRect(352, 58, 96, 16);
-    ctx.fillRect(352, 556, 96, 16);
-    ctx.fillRect(42, 267, 16, 96);
-    ctx.fillRect(742, 267, 16, 96);
+      ctx.fillStyle = "rgba(4, 2, 9, 0.52)";
+      ctx.beginPath();
+      ctx.moveTo(c1x, c1y); ctx.lineTo(c2x, c2y);
+      ctx.lineTo(s2x, s2y); ctx.lineTo(s1x, s1y);
+      ctx.closePath();
+      ctx.fill();
+    }
 
-    // Acid Pools / Floor Bloodstains
+    // Acid Pools & Blood Stains
     for (let i = 0; i < (room.acidPools || []).length; i++) {
       const ap = room.acidPools[i];
-      ctx.fillStyle = "rgba(16, 185, 129, 0.24)";
+      const ag = ctx.createRadialGradient(ap.x, ap.y, 6, ap.x, ap.y, ap.r);
+      ag.addColorStop(0, "rgba(52, 211, 153, 0.55)");
+      ag.addColorStop(0.7, "rgba(16, 185, 129, 0.28)");
+      ag.addColorStop(1, "rgba(6, 78, 59, 0)");
+      ctx.fillStyle = ag;
       ctx.beginPath(); ctx.arc(ap.x, ap.y, ap.r, 0, Math.PI * 2); ctx.fill();
-      ctx.strokeStyle = "#10b981"; ctx.stroke();
     }
     for (let i = 0; i < (w.bloodStains || []).length; i++) {
       const bs = w.bloodStains[i];
@@ -398,132 +457,104 @@ window.StudioEngine.registerModule("Milestone_v0_1_0", {
       ctx.beginPath(); ctx.arc(bs.x, bs.y, bs.r, 0, Math.PI * 2); ctx.fill();
     }
 
-    // Pillars & Blood Altars
+    // 3. Render 2.5D Extruded Low-Poly Outer Dungeon Walls & Carved Archways
+    const wc = room.arch.wall || "#2d233d";
+    lp.drawExtrudedBox(ctx, 40, 52, 310, 24, 34, wc, "#0f172a", p.x, p.y);
+    lp.drawExtrudedBox(ctx, 450, 52, 310, 24, 34, wc, "#0f172a", p.x, p.y);
+    lp.drawExtrudedBox(ctx, 40, 550, 310, 24, 34, wc, "#0f172a", p.x, p.y);
+    lp.drawExtrudedBox(ctx, 450, 550, 310, 24, 34, wc, "#0f172a", p.x, p.y);
+    lp.drawExtrudedBox(ctx, 38, 76, 22, 189, 34, wc, "#0f172a", p.x, p.y);
+    lp.drawExtrudedBox(ctx, 38, 365, 22, 185, 34, wc, "#0f172a", p.x, p.y);
+    lp.drawExtrudedBox(ctx, 740, 76, 22, 189, 34, wc, "#0f172a", p.x, p.y);
+    lp.drawExtrudedBox(ctx, 740, 365, 22, 185, 34, wc, "#0f172a", p.x, p.y);
+
+    // 4. Render 2.5D Extruded Low-Poly Pillars, Obelisks & Blood Altars
     for (let i = 0; i < (w.pillars || []).length; i++) {
       const pl = w.pillars[i];
-      ctx.fillStyle = pl.isAltar ? "#450a0a" : "#272333";
-      ctx.fillRect(pl.x, pl.y, pl.w, pl.h);
-      ctx.strokeStyle = pl.isAltar ? "#dc2626" : "#64748b";
-      ctx.lineWidth = 2;
-      ctx.strokeRect(pl.x, pl.y, pl.w, pl.h);
-      // Inner bevel
-      ctx.strokeRect(pl.x + 6, pl.y + 6, pl.w - 12, pl.h - 12);
+      const pColor = pl.isAltar ? "#7f1d1d" : wc;
+      lp.drawExtrudedBox(ctx, pl.x, pl.y, pl.w, pl.h, pl.isAltar ? 28 : 44, pColor, pl.isAltar ? "#ef4444" : "#1e293b", p.x, p.y);
+      if (pl.isAltar) {
+        lp.drawLowPolyPrism(ctx, pl.x + pl.w * 0.5, pl.y + pl.h * 0.5, 14, 28, 54, 4, "#dc2626", p.x, p.y, performance.now() * 0.002);
+      }
     }
 
-    // Bone Piles
+    // 5. Render Low-Poly Bone Pyramids & Flickering 3D Braziers
     for (let i = 0; i < (w.bonePiles || []).length; i++) {
       const bp = w.bonePiles[i];
-      ctx.fillStyle = "#cbd5e1";
-      ctx.fillRect(bp.x - 8, bp.y - 5, 16, 10);
-      ctx.fillStyle = "#94a3b8";
-      ctx.fillRect(bp.x - 4, bp.y - 8, 8, 8);
+      lp.drawLowPolyPrism(ctx, bp.x, bp.y, 13, 0, 18, 5, "#cbd5e1", p.x, p.y, i);
     }
 
-    // Flickering Wall Braziers (with Warm Secondary Light Halo!)
-    const flicker = Math.sin(performance.now() * 0.012) * 6;
+    const flicker = Math.sin(performance.now() * 0.014) * 6;
     for (let i = 0; i < (w.braziers || []).length; i++) {
       const b = w.braziers[i];
+      lp.drawLowPolyPrism(ctx, b.x, b.y, 13, 0, 16, 6, "#475569", p.x, p.y, 0);
       if (b.lit) {
-        const bg = ctx.createRadialGradient(b.x, b.y, 4, b.x, b.y, 95 + flicker);
-        bg.addColorStop(0, "rgba(245, 158, 11, 0.28)");
+        const bg = ctx.createRadialGradient(b.x, b.y, 4, b.x, b.y, 110 + flicker);
+        bg.addColorStop(0, "rgba(245, 158, 11, 0.34)");
+        bg.addColorStop(0.5, "rgba(217, 119, 6, 0.14)");
         bg.addColorStop(1, "rgba(245, 158, 11, 0)");
         ctx.fillStyle = bg;
-        ctx.beginPath(); ctx.arc(b.x, b.y, 95 + flicker, 0, Math.PI * 2); ctx.fill();
-      }
-      ctx.fillStyle = "#334155";
-      ctx.beginPath(); ctx.arc(b.x, b.y, 11, 0, Math.PI * 2); ctx.fill();
-      if (b.lit) {
-        ctx.fillStyle = "#f59e0b";
-        ctx.beginPath(); ctx.arc(b.x, b.y, 7 + flicker * 0.2, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = "#fef08a";
-        ctx.beginPath(); ctx.arc(b.x, b.y, 3.5, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(b.x, b.y, 110 + flicker, 0, Math.PI * 2); ctx.fill();
+        lp.drawLowPolyPrism(ctx, b.x, b.y, 8, 12, 32 + flicker * 0.5, 5, "#f59e0b", b.x, b.y - 10, performance.now() * 0.006);
       }
     }
 
-    // Enemies (Detailed Skeleton Warriors & Eldritch Sludge-Slimes)
+    // 6. Render Low-Poly 3D Faceted Enemies (Skeletons & Faceted Acid Crystals/Slimes)
     for (let i = 0; i < (w.enemies || []).length; i++) {
       const en = w.enemies[i];
-      ctx.save();
-      ctx.translate(en.x, en.y);
       if (en.type === "SKELETON") {
-        // Bony Shoulders & Skull
-        ctx.fillStyle = en.stagger > 0 ? "#facc15" : "#cbd5e1";
-        ctx.fillRect(-10, -8, 20, 16);
-        ctx.fillStyle = "#0f172a";
-        ctx.fillRect(-5, -4, 3, 3);
-        ctx.fillRect(2, -4, 3, 3);
-        // Iron Shield & Rusty Blade
-        ctx.fillStyle = "#64748b";
-        ctx.fillRect(-14, -6, 4, 14);
-        ctx.fillStyle = "#dc2626";
-        ctx.fillRect(10, -10, 3, 18);
+        const col = en.stagger > 0 ? "#facc15" : "#cbd5e1";
+        lp.drawLowPolyPrism(ctx, en.x, en.y, 13, 0, 26, 4, col, p.x, p.y, Math.atan2(p.y - en.y, p.x - en.x));
+        lp.drawLowPolyPrism(ctx, en.x, en.y, 7, 22, 36, 4, "#f8fafc", p.x, p.y, 0);
       } else {
-        // Pulsing Verdigris Acid Slime
-        const pulse = Math.sin(performance.now() * 0.008 + i) * 2.5;
-        ctx.fillStyle = "rgba(16, 185, 129, 0.82)";
-        ctx.beginPath(); ctx.arc(0, 0, en.r + pulse, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = "#a7f3d0";
-        ctx.fillRect(-5, -4, 4, 4); ctx.fillRect(3, -4, 4, 4);
+        const pulse = Math.sin(performance.now() * 0.008 + i) * 4;
+        lp.drawLowPolyPrism(ctx, en.x, en.y, 16, 0, 22 + pulse, 6, "#10b981", p.x, p.y, performance.now() * 0.003);
       }
-      // Mini Health Bar above Enemy
       if (en.hp < en.maxHp) {
-        ctx.fillStyle = "#1e293b";
-        ctx.fillRect(-14, -18, 28, 4);
+        const topPt = lp.project(en.x, en.y, 38);
+        ctx.fillStyle = "#0f172a";
+        ctx.fillRect(topPt.x - 14, topPt.y - 6, 28, 4);
         ctx.fillStyle = "#dc2626";
-        ctx.fillRect(-14, -18, 28 * Math.max(0, en.hp / en.maxHp), 4);
+        ctx.fillRect(topPt.x - 14, topPt.y - 6, 28 * Math.max(0, en.hp / en.maxHp), 4);
       }
-      ctx.restore();
     }
 
-    // 3. Render Detailed OSR Adventurer Sprite & Weapon Cleave Arc
+    // 7. Render 2.5D Low-Poly Delver Mesh & Weapon Cleave Arc
     ctx.save();
-    ctx.translate(p.x, p.y);
     if (p.invuln > 0 && Math.floor(performance.now() / 60) % 2 === 0) ctx.globalAlpha = 0.45;
 
-    // Weapon Cleave Slash Arc when attacking
     if (p.attackTimer > 0) {
-      const reach = p.weaponReach || 58;
+      const reach = p.weaponReach || 60;
+      const arcSpan = p.whirlwindCleave ? Math.PI : 0.95;
       ctx.save();
+      ctx.translate(p.x, p.y);
       ctx.rotate(p.facingAngle);
-      ctx.strokeStyle = p.classColor || "#eab308";
-      ctx.lineWidth = 6;
-      ctx.beginPath();
-      ctx.arc(0, 0, reach, -0.95, 0.95);
-      ctx.stroke();
+      ctx.strokeStyle = p.weaponGlow || p.classColor || "#eab308";
+      ctx.shadowBlur = 14;
+      ctx.shadowColor = ctx.strokeStyle;
+      ctx.lineWidth = 7;
+      ctx.beginPath(); ctx.arc(0, 0, reach, -arcSpan, arcSpan); ctx.stroke();
       ctx.strokeStyle = "#ffffff";
       ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.arc(0, 0, reach - 5, -0.85, 0.85);
-      ctx.stroke();
+      ctx.beginPath(); ctx.arc(0, 0, reach - 5, -arcSpan * 0.9, arcSpan * 0.9); ctx.stroke();
       ctx.restore();
     }
 
-    // Delver Cloak / Armored Shoulders
-    ctx.fillStyle = p.classColor || "#eab308";
-    ctx.fillRect(-11, -9, 22, 18);
-    // Dark Iron Breastplate
-    ctx.fillStyle = "#334155";
-    ctx.fillRect(-8, -7, 16, 14);
-    // Knight Greathelm / Hood & Glowing Visor Eyes
-    ctx.fillStyle = "#e2e8f0";
-    ctx.fillRect(-7, -11, 14, 11);
-    ctx.fillStyle = "#0f172a";
-    ctx.fillRect(-5, -7, 10, 3);
-    ctx.fillStyle = p.classColor || "#f59e0b";
-    ctx.fillRect(-4, -7, 3, 2);
-    ctx.fillRect(1, -7, 3, 2);
-    // Flickering Off-Hand Torch
-    ctx.fillStyle = "#f59e0b";
-    ctx.beginPath(); ctx.arc(-13, -4, 4 + flicker * 0.15, 0, Math.PI * 2); ctx.fill();
+    // Delver 3D Armored Torso Pyramid + Hooded/Helmed Head + Torch
+    lp.drawLowPolyPrism(ctx, p.x, p.y, 14, 0, 26, 6, p.classColor || "#eab308", p.x + Math.cos(p.facingAngle) * 30, p.y + Math.sin(p.facingAngle) * 30, p.facingAngle);
+    lp.drawLowPolyPrism(ctx, p.x, p.y, 8, 22, 38, 4, "#e2e8f0", p.x, p.y - 20, p.facingAngle);
+    const torchPos = lp.project(p.x - Math.sin(p.facingAngle) * 12, p.y + Math.cos(p.facingAngle) * 12, 24);
+    ctx.fillStyle = p.uvTorch ? "#a855f7" : "#f59e0b";
+    ctx.beginPath(); ctx.arc(torchPos.x, torchPos.y, 4.5 + flicker * 0.15, 0, Math.PI * 2); ctx.fill();
     ctx.restore();
 
-    // Particles & Floating Combat Text
+    // Particles & Floating Texts
     for (let i = 0; i < w.particles.length; i++) {
       const pt = w.particles[i];
       ctx.fillStyle = pt.color || "#dc2626";
       ctx.fillRect(pt.x - 2, pt.y - 2, 4, 4);
     }
-    ctx.font = "bold 12px monospace";
+    ctx.font = "bold 11px monospace";
     ctx.textAlign = "center";
     for (let i = 0; i < w.floatingTexts.length; i++) {
       const ft = w.floatingTexts[i];
@@ -531,60 +562,63 @@ window.StudioEngine.registerModule("Milestone_v0_1_0", {
       ctx.fillText(ft.text, ft.x, ft.y);
     }
 
-    // 4. Chiaroscuro Torchlight Vignette (Balanced so Room Architecture Remains Visible!)
-    const torchR = 165 + (p.torchLevel || 100) * 1.35 + flicker;
-    const grad = ctx.createRadialGradient(p.x, p.y, 45, p.x, p.y, torchR);
-    grad.addColorStop(0, "rgba(245, 158, 11, 0.08)");
-    grad.addColorStop(0.55, "rgba(10, 7, 16, 0.38)");
-    grad.addColorStop(1, "rgba(5, 3, 9, 0.78)");
+    // 8. Chiaroscuro Multi-Stop Torchlight & Stoner-Metal Color Grading Pass
+    const torchR = 180 + (p.torchLevel || 100) * 1.45 + flicker;
+    const grad = ctx.createRadialGradient(p.x, p.y, 35, p.x, p.y, torchR);
+    if (p.uvTorch) {
+      grad.addColorStop(0, "rgba(168, 85, 247, 0.12)");
+      grad.addColorStop(0.55, "rgba(18, 9, 36, 0.42)");
+      grad.addColorStop(1, "rgba(4, 2, 10, 0.80)");
+    } else {
+      grad.addColorStop(0, "rgba(245, 158, 11, 0.10)");
+      grad.addColorStop(0.55, "rgba(16, 8, 24, 0.40)");
+      grad.addColorStop(1, "rgba(5, 3, 10, 0.78)");
+    }
     ctx.fillStyle = grad;
     ctx.fillRect(0, 36, 800, 564);
 
-    ctx.restore(); // End of World Camera Shake Scope!
+    ctx.restore(); // End World Camera Shake
 
-    // 5. Render Rock-Steady Single Gothic Status Ribbon at Top (y: 0..36, NEVER shakes!)
+    // 9. Rock-Steady Top Gothic Status Ribbon (Zero Overlaps even at 8+ MaxHP!)
     ctx.save();
     ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.fillStyle = "#09070e";
+    ctx.fillStyle = "#08060d";
     ctx.fillRect(0, 0, 800, 36);
     ctx.strokeStyle = "#475569";
     ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.moveTo(0, 36); ctx.lineTo(800, 36); ctx.stroke();
 
-    // HP Crimson Vessels
-    for (let i = 0; i < (p.maxHealth || 5); i++) {
+    const maxH = p.maxHealth || 5;
+    const pipW = Math.min(12, Math.floor(96 / maxH) - 3);
+    for (let i = 0; i < maxH; i++) {
       ctx.fillStyle = i < (p.health || 0) ? "#dc2626" : "#1e293b";
-      ctx.fillRect(14 + i * 18, 10, 13, 15);
+      ctx.fillRect(10 + i * (pipW + 3), 11, pipW, 14);
       ctx.strokeStyle = "#fca5a5";
       ctx.lineWidth = 1;
-      ctx.strokeRect(14 + i * 18, 10, 13, 15);
+      ctx.strokeRect(10 + i * (pipW + 3), 11, pipW, 14);
     }
 
-    // Stamina Bar (Verdigris Green)
-    ctx.fillStyle = "#1e293b";
-    ctx.fillRect(114, 12, 86, 11);
-    ctx.fillStyle = "#10b981";
-    ctx.fillRect(114, 12, 86 * Math.max(0, (p.stamina || 0) / (p.maxStamina || 100)), 11);
+    // Stamina Bar (x: 118..194)
+    ctx.fillStyle = "#1e293b"; ctx.fillRect(118, 12, 76, 11);
+    ctx.fillStyle = "#10b981"; ctx.fillRect(118, 12, 76 * Math.max(0, (p.stamina || 0) / (p.maxStamina || 100)), 11);
 
-    // Torch Flame Bar (Amber Gold)
-    ctx.fillStyle = "#1e293b";
-    ctx.fillRect(212, 12, 68, 11);
-    ctx.fillStyle = "#f59e0b";
-    ctx.fillRect(212, 12, 68 * Math.max(0, (p.torchLevel || 0) / 100), 11);
+    // Torch Bar (x: 202..262)
+    ctx.fillStyle = "#1e293b"; ctx.fillRect(202, 12, 60, 11);
+    ctx.fillStyle = p.uvTorch ? "#a855f7" : "#f59e0b";
+    ctx.fillRect(202, 12, 60 * Math.max(0, (p.torchLevel || 0) / 100), 11);
 
-    // Compact Integrated Status Readout (Fits 100% inside 800px width with ZERO clipping!)
-    const stressVal = Math.floor(p.stress || 0);
-    ctx.fillStyle = "#e2e8f0";
     ctx.font = "bold 11px monospace";
     ctx.textAlign = "left";
-    ctx.fillText(`GOLD:${p.gold || 0}`, 292, 22);
-    ctx.fillStyle = "#a855f7";
-    ctx.fillText(`STRESS:${stressVal}%`, 362, 22);
-    ctx.fillStyle = "#cbd5e1";
-    ctx.fillText(`${w.roomName || "CRYPT"} [${w.currentRoom.x},${w.currentRoom.y}] D:${w.depth || 1}`, 448, 22);
     ctx.fillStyle = "#eab308";
+    ctx.fillText(`G:${p.gold || 0}`, 270, 22);
+    ctx.fillStyle = "#a855f7";
+    ctx.fillText(`STRESS:${Math.floor(p.stress || 0)}%`, 322, 22);
+    ctx.fillStyle = "#cbd5e1";
+    const shortRoom = (w.roomName || "CRYPT").slice(0, 16);
+    ctx.fillText(`${shortRoom} [${w.currentRoom.x},${w.currentRoom.y}] D:${w.depth || 1}`, 405, 22);
+    ctx.fillStyle = "#f59e0b";
     ctx.textAlign = "right";
-    ctx.fillText("[SPC]CLEAVE [SHF/E]ROLL", 790, 22);
+    ctx.fillText("[SPC]ATK [SHF/E]ACT", 792, 22);
     ctx.restore();
   }
 });
