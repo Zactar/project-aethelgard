@@ -210,7 +210,7 @@ window.StudioEngine.registerModule("Milestone_v0_2_0", {
         ctx.fillStyle = plt.color; ctx.shadowBlur = isSel ? 10 : 0;
         for (let r = 0; r < 12; r++) {
           const rowBits = plt.map[r];
-          for (let c = 0; c < 12; c++) {
+          for (let c = 0; c < 12; c++) { const symC = c < 6 ? c : 11 - c;
             if (rowBits & (1 << (11 - c))) ctx.fillRect(-48 + c * 8, -135 + r * 8, 7, 7);
           }
         }
