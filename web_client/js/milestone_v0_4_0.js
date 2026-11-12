@@ -54,7 +54,7 @@ window.StudioEngine.registerModule("Milestone_v0_4_0", {
     if (w.blizzardAlpha > 0) p.vx = (p.vx || 0) + Math.sin(st.tick * 0.05) * 40 * w.blizzardAlpha * dt;
 
     // 500m Refuge Checkpoint Draft Trigger
-    const check500 = Math.floor(d / 500);
+    const check500 = Math.floor(d / 350);
     if (check500 > (w.lastCheck500 || 0)) {
       w.lastCheck500 = check500;
       const cat = st.inventory.relicCatalog;
@@ -121,14 +121,14 @@ window.StudioEngine.registerModule("Milestone_v0_4_0", {
     ctx.fillStyle = "#fff"; ctx.font = "10px monospace";
     ctx.fillText(`BIOME: ${w.currentBiome || "Resort"}`, 530, 64);
     ctx.fillText(`RELICS: ${(st.inventory.equippedRelics || []).length} | GRIP: ${(p.carveGrip || 1).toFixed(2)}x`, 530, 80);
-    ctx.fillText(`NEXT 500m: ${500 - (Math.floor(w.distance || 0) % 500)}m`, 530, 96);
+    ctx.fillText(`NEXT 500m: ${350 - (Math.floor(w.distance || 0) % 500)}m`, 530, 96);
 
     // 500m Checkpoint Tri-Draft Modal Overlay
     if (st.inventory.activeDraft) {
       ctx.fillStyle = "rgba(5, 10, 20, 0.88)"; ctx.fillRect(100, 160, 600, 280);
       ctx.strokeStyle = "#ffaa00"; ctx.lineWidth = 2; ctx.strokeRect(100, 160, 600, 280);
       ctx.fillStyle = "#ffcc00"; ctx.font = "bold 16px monospace"; ctx.textAlign = "center";
-      ctx.fillText("--- 500M REFUGE SHELTER: SELECT RELIC ---", 400, 195);
+      ctx.fillText("--- ALPINE RELIC SHRINE: SELECT RELIC ---", 400, 195);
       st.inventory.activeDraft.forEach((r, i) => {
         const col = r.rarity === "Cursed" ? "#ff4444" : (r.rarity === "Epic" ? "#c060ff" : (r.rarity === "Rare" ? "#44aaff" : "#aaffaa"));
         ctx.fillStyle = "rgba(255,255,255,0.06)"; ctx.fillRect(125 + i * 190, 220, 170, 190);

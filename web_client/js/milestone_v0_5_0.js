@@ -1,0 +1,162 @@
+// Cohesive Milestone Plugin: v0.5.0
+window.StudioEngine.registerModule("Milestone_v0_5_0", {
+  init(st, eng) {
+    const w = st.world = st.world || {};
+    st.stats = st.stats || { xp: 0, tricksScore: 0 };
+    w.mode = "PLAY";
+    w.yetiSpawnThreshold = 800;
+    w.yeti = { active: false, x: 400, y: -200, z: 0, vy: 0, state: "CHASE", t: 0, cd: 3.0, w: 38, h: 48, shadowX: 400, shadowY: 0 };
+    this.obituary = null;
+    this.leaderboard = JSON.parse(localStorage.getItem("glissade_leaderboard") || "[]");
+    this.snd = { ctx: null, carveG: null, windG: null, windF: null, initialized: false };
+
+    const startAudio = () => {
+      if (this.snd.initialized) return;
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      const ac = this.snd.ctx = new AC();
+      const bsz = 2 * ac.sampleRate, nBuf = ac.createBuffer(1, bsz, ac.sampleRate), data = nBuf.getChannelData(0);
+      for (let i = 0; i < bsz; i++) data[i] = Math.random() * 2 - 1;
+      const mkN = () => { const s = ac.createBufferSource(); s.buffer = nBuf; s.loop = true; return s; };
+
+      const cSrc = mkN(), cBpf = ac.createBiquadFilter();
+      cBpf.type = "bandpass"; cBpf.frequency.value = 1200; cBpf.Q.value = 4.0;
+      this.snd.carveG = ac.createGain(); this.snd.carveG.gain.value = 0;
+      cSrc.connect(cBpf).connect(this.snd.carveG).connect(ac.destination); cSrc.start();
+
+      const wSrc = mkN(); this.snd.windF = ac.createBiquadFilter();
+      this.snd.windF.type = "lowpass"; this.snd.windF.frequency.value = 200;
+      this.snd.windG = ac.createGain(); this.snd.windG.gain.value = 0.05;
+      wSrc.connect(this.snd.windF).connect(this.snd.windG).connect(ac.destination); wSrc.start();
+      this.snd.initialized = true;
+    };
+    window.addEventListener("keydown", startAudio, { once: true });
+    window.addEventListener("pointerdown", startAudio, { once: true });
+
+    eng.on("GATE_CLEARED", () => {
+      if (!this.snd.ctx) return;
+      const t = this.snd.ctx.currentTime;
+      [880, 1320].forEach(f => {
+        const osc = this.snd.ctx.createOscillator(), g = this.snd.ctx.createGain();
+        osc.type = "sine"; osc.frequency.value = f;
+        g.gain.setValueAtTime(0.12, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.2);
+        osc.connect(g).connect(this.snd.ctx.destination); osc.start(t); osc.stop(t + 0.2);
+      });
+    });
+
+    eng.on("YETI_ROAR", () => {
+      if (!this.snd.ctx) return;
+      const t = this.snd.ctx.currentTime, osc = this.snd.ctx.createOscillator(), f = this.snd.ctx.createBiquadFilter(), g = this.snd.ctx.createGain();
+      osc.type = "sawtooth"; osc.frequency.setValueAtTime(65, t); osc.frequency.exponentialRampToValueAtTime(32, t + 1.2);
+      f.type = "lowpass"; f.frequency.setValueAtTime(450, t); f.frequency.linearRampToValueAtTime(100, t + 1.2);
+      g.gain.setValueAtTime(0.25, t); g.gain.exponentialRampToValueAtTime(0.001, t + 1.2);
+      osc.connect(f).connect(g).connect(this.snd.ctx.destination); osc.start(t); osc.stop(t + 1.2);
+    });
+
+    const triggerDeath = (cause) => {
+      if (w.mode === "OBITUARY") return;
+      w.mode = "OBITUARY"; st.paused = true;
+      const dist = Math.floor(w.distanceMeters || w.distance || 0), xp = st.stats.xp || 0, tricks = st.stats.tricksScore || 0;
+      const total = Math.floor(dist * 10 + xp * 2 + tricks);
+      this.obituary = { score: total, dist, cause, date: new Date().toISOString().slice(0, 10), relics: (st.inventory?.equippedRelics || []).length };
+      (this.leaderboard || (this.leaderboard = [])).push(this.obituary);
+      this.leaderboard.sort((a, b) => b.score - a.score);
+      this.leaderboard = this.leaderboard.slice(0, 5);
+      localStorage.setItem("glissade_leaderboard", JSON.stringify(this.leaderboard));
+    };
+
+    eng.on("YETI_MAUL", () => triggerDeath("Devoured by the Beast"));
+    eng.on("PLAYER_WIPEOUT", () => { if ((st.player?.wipeouts || 0) >= (st.player?.maxWipeouts || 3)) triggerDeath("Wrapped around a Bristlecone Pine"); });
+  },
+
+  update(dt, st, eng) {
+    const w = st.world, p = st.player, d = w.distanceMeters = w.distanceMeters || w.distance || 0;
+    if (w.mode === "OBITUARY") {
+      if (st.keys?.jump || st.pointer?.clicked) { w.mode = "PLAY"; st.paused = false; p.wipeouts = 0; p.state = 0x01; w.yeti.active = false; }
+      return;
+    }
+    if (this.snd.initialized && this.snd.ctx.state === "running") {
+      const spd = Math.max(0, p.vy || 0), maxV = 420, absVx = Math.abs(p.vx || 0);
+      this.snd.windF.frequency.value = Math.min(3000, 200 + (spd / maxV) * 2800);
+      this.snd.carveG.gain.value = (p.z === 0 && absVx > 30) ? Math.min(0.2, (absVx / 200) * 0.2) : 0;
+    }
+    if (d >= w.yetiSpawnThreshold && !w.yeti.active) {
+      w.yeti.active = true; w.yeti.x = p.x; w.yeti.y = (w.camY || p.y) - 300;
+      eng.emit("YETI_ROAR");
+    }
+    const y = w.yeti;
+    if (y.active) {
+      y.cd -= dt;
+      const dx = p.x - y.x, dy = p.y - y.y, dist = Math.hypot(dx, dy);
+      if (y.state === "CHASE") {
+        y.x += (p.x - y.x) * Math.min(1, 2.5 * dt);
+        y.y += Math.max(p.vy * 1.35, 180) * dt;
+        if (dist <= 180 && y.cd <= 0) {
+          y.state = "LEAP"; y.t = 0; y.shadowX = p.x; y.shadowY = p.y;
+          eng.emit("YETI_ROAR");
+        }
+      } else if (y.state === "LEAP") {
+        y.t += dt; const T = 0.8, progress = Math.min(1, y.t / T);
+        y.z = 4 * 90 * progress * (1 - progress);
+        y.x += (y.shadowX - y.x) * (progress);
+        y.y += (y.shadowY - y.y) * (progress);
+        if (y.t >= T) {
+          y.z = 0; y.state = "CHASE"; y.cd = 3.5;
+          if (Math.hypot(p.x - y.x, p.y - y.y) < 32 && (p.invulnTimer || 0) <= 0) eng.emit("YETI_MAUL");
+        }
+      } else if (y.state === "STUMBLE") {
+        y.t -= dt; if (y.t <= 0) { y.state = "CHASE"; y.cd = 2.0; }
+      }
+      if (y.state !== "STUMBLE" && y.z < 10) {
+        for (let o of (w.obstacles || [])) {
+          if (!o.low && Math.hypot(y.x - o.x, y.y - o.y) < 24) {
+            y.state = "STUMBLE"; y.t = 1.4; eng.emit("YETI_STUMBLED"); break;
+          }
+        }
+      }
+    }
+  },
+
+  render(ctx, st) {
+    ctx.save(); ctx.textAlign = "left";
+    const w = st.world, p = st.player, y = w.yeti;
+    if (y.active) {
+      const sy = y.y - (w.camY ? w.camY - 200 : 0) - y.z, sx = y.x - ((w.camX || 400) - 400);
+      ctx.fillStyle = "rgba(40,40,70,0.3)";
+      ctx.beginPath(); ctx.ellipse(sx, sy + y.z, 22, 10, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = y.state === "STUMBLE" ? "#8fb1cc" : "#e8f4fc";
+      ctx.fillRect(sx - 16, sy - 36, 32, 40);
+      ctx.fillStyle = "#ff1a40"; ctx.fillRect(sx - 8, sy - 28, 4, 4); ctx.fillRect(sx + 4, sy - 28, 4, 4);
+    }
+    // Bottom-Right Dock x:520..788, y:536..588
+    ctx.fillStyle = "rgba(10, 16, 26, 0.85)"; ctx.strokeStyle = "#4da6ff"; ctx.lineWidth = 1;
+    ctx.fillRect(520, 536, 268, 52); ctx.strokeRect(520, 536, 268, 52);
+    ctx.fillStyle = "#ffffff"; ctx.font = "10px monospace";
+    ctx.fillText("RADAR // " + (y.active ? (y.state === "LEAP" ? "! AIRBORNE !" : "AGGRESSIVE") : "CALM"), 528, 550);
+    const prox = y.active ? Math.max(0, 1 - Math.hypot(p.x - y.x, p.y - y.y) / 800) : 0;
+    ctx.fillStyle = "#223344"; ctx.fillRect(528, 556, 120, 6);
+    ctx.fillStyle = prox > 0.75 ? "#ff3333" : "#00ffcc"; ctx.fillRect(528, 556, 120 * prox, 6);
+    ctx.fillStyle = "#aaccff"; ctx.fillText(`SND: ${this.snd.initialized ? "ACTIVE" : "STANDBY"}`, 660, 550);
+    const hi = this.leaderboard[0] ? this.leaderboard[0].score : 0;
+    ctx.fillText(`HI: ${hi}`, 660, 564);
+
+    if (w.mode === "OBITUARY" && this.obituary) {
+      ctx.fillStyle = "rgba(4, 8, 16, 0.92)"; ctx.fillRect(100, 60, 600, 480);
+      ctx.strokeStyle = "#ff4444"; ctx.lineWidth = 2; ctx.strokeRect(100, 60, 600, 480);
+      ctx.fillStyle = "#ff4444"; ctx.font = "bold 22px monospace"; ctx.fillText("RUN TERMINATED // OBITUARY", 130, 104);
+      ctx.fillStyle = "#e0e8f0"; ctx.font = "13px monospace";
+      ctx.fillText(`EPITAPH : "${this.obituary.cause}"`, 130, 140);
+      ctx.fillText(`DISTANCE: ${this.obituary.dist}m    SCORE: ${this.obituary.score}`, 130, 165);
+      ctx.fillText(`RELICS SECURED: ${this.obituary.relics}`, 130, 190);
+      ctx.strokeStyle = "#335577"; ctx.beginPath(); ctx.moveTo(130, 210); ctx.lineTo(670, 210); ctx.stroke();
+      ctx.fillStyle = "#4da6ff"; ctx.font = "bold 14px monospace"; ctx.fillText("SUMMIT ROLL OF HONORS", 130, 235);
+      ctx.font = "11px monospace"; ctx.fillStyle = "#c0d0e0";
+      this.leaderboard.forEach((e, i) => {
+        ctx.fillText(`${i + 1}. ${e.score} PTS - ${e.dist}m - [${e.cause.slice(0, 24)}] - ${e.date}`, 130, 265 + i * 26);
+      });
+      ctx.fillStyle = "#ffff55"; ctx.font = "bold 13px monospace";
+      ctx.fillText("PRESS [JUMP] OR CLICK TO RERUN DESCENT", 220, 480);
+    }
+    ctx.restore();
+  }
+});
