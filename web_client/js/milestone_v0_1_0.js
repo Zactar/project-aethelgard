@@ -84,6 +84,169 @@ window.StudioEngine.registerModule("Milestone_v0_1_0", {
         // Top cap (faceted pyramid or flat roof)
         drawFace([t00, t10, t11, t01], 0, 0, 1.0);
       },
+drawArticulatedDelver: function(ctx, p, t) {
+        const isMoving = Math.hypot(p.vx || 0, p.vy || 0) > 12;
+        const stride = isMoving ? Math.sin(t * 14) * 3.5 : 0;
+        const breath = Math.sin(t * 3.5) * 1.2;
+        const col = p.classColor || "#eab308";
+
+        ctx.save();
+        ctx.translate(p.x, p.y);
+
+        // Ground shadow ellipse
+        ctx.fillStyle = "rgba(0, 0, 0, 0.55)";
+        ctx.beginPath(); ctx.ellipse(0, 12, 13, 6, 0, 0, Math.PI * 2); ctx.fill();
+
+        // Animated Striding Boots
+        ctx.fillStyle = "#1e293b";
+        ctx.fillRect(-7, 6 + stride, 5, 7);
+        ctx.fillRect(2, 6 - stride, 5, 7);
+
+        // Billowing Tattered Dark-Fantasy Cloak (3-point mantle)
+        const sway = isMoving ? Math.sin(t * 10) * 4 : Math.sin(t * 2.5) * 1.5;
+        ctx.fillStyle = this.shadeHex(col, 0.55);
+        ctx.beginPath();
+        ctx.moveTo(-11, -6);
+        ctx.lineTo(11, -6);
+        ctx.lineTo(14 + sway, 11);
+        ctx.lineTo(0, 8);
+        ctx.lineTo(-14 + sway, 11);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = "#09070e"; ctx.lineWidth = 1.2; ctx.stroke();
+
+        // Armored Pauldrons & Breastplate
+        ctx.fillStyle = "#334155";
+        ctx.fillRect(-9, -6 + breath * 0.4, 18, 13);
+        ctx.fillStyle = col;
+        ctx.fillRect(-12, -7 + breath * 0.5, 6, 7);
+        ctx.fillRect(6, -7 + breath * 0.5, 6, 7);
+
+        // Articulated Off-Hand Flickering Torch
+        const flick = Math.sin(t * 18) * 1.5;
+        ctx.strokeStyle = "#78350f"; ctx.lineWidth = 2.5;
+        ctx.beginPath(); ctx.moveTo(-11, -2); ctx.lineTo(-16, -12); ctx.stroke();
+        ctx.fillStyle = p.uvTorch ? "#a855f7" : "#f59e0b";
+        ctx.beginPath(); ctx.arc(-16, -14, 4.5 + flick * 0.4, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = "#fef08a";
+        ctx.beginPath(); ctx.arc(-16, -14, 2, 0, Math.PI * 2); ctx.fill();
+
+        // Articulated Main-Hand Weapon (Swings during attackTimer, held at ready otherwise)
+        ctx.save();
+        const swingOffset = p.attackTimer > 0 ? Math.sin((0.22 - p.attackTimer) / 0.22 * Math.PI) * 1.8 - 0.9 : 0.35;
+        ctx.rotate(p.facingAngle + swingOffset);
+        ctx.fillStyle = "#cbd5e1";
+        ctx.fillRect(8, -2, 22, 4); // Blade shaft
+        ctx.fillStyle = p.weaponGlow || col;
+        ctx.fillRect(10, -1, 20, 2); // Runic fuller
+        ctx.fillStyle = "#eab308";
+        ctx.fillRect(7, -6, 3, 12); // Crossguard
+        ctx.restore();
+
+        // Knight Greathelm / Cultist Hood + Glowing Visor Slits
+        ctx.fillStyle = "#cbd5e1";
+        ctx.beginPath();
+        ctx.moveTo(-7, -6 + breath);
+        ctx.lineTo(0, -17 + breath);
+        ctx.lineTo(7, -6 + breath);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillRect(-6, -13 + breath, 12, 9);
+        ctx.strokeStyle = "#0f172a"; ctx.strokeRect(-6, -13 + breath, 12, 9);
+        // Visor slit & glowing eyes
+        ctx.fillStyle = "#09070e";
+        ctx.fillRect(-5, -10 + breath, 10, 3);
+        ctx.fillStyle = p.weaponGlow || col;
+        ctx.fillRect(-4, -10 + breath, 3, 2);
+        ctx.fillRect(1, -10 + breath, 3, 2);
+
+        ctx.restore();
+      },
+      drawArticulatedEnemy: function(ctx, en, p, t, idx) {
+        const bob = Math.sin(t * 7 + idx * 1.7) * 2.2;
+        const ang = en.facing !== undefined ? en.facing : Math.atan2(p.y - en.y, p.x - en.x);
+        const kind = (en.type || "SKELETON").toUpperCase();
+
+        ctx.save();
+        ctx.translate(en.x, en.y);
+
+        // Ground shadow
+        ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+        ctx.beginPath(); ctx.ellipse(0, 11, 12, 5, 0, 0, Math.PI * 2); ctx.fill();
+
+        if (kind.includes("NECRO")) {
+          // Articulated Crypt Necromancer: Tattered Violet Cultist Robes, Horned Skull Crown & Levitating Staff
+          ctx.fillStyle = "#3b0764";
+          ctx.beginPath();
+          ctx.moveTo(0, -16 + bob); ctx.lineTo(13, 11); ctx.lineTo(-13, 11); ctx.closePath();
+          ctx.fill();
+          ctx.strokeStyle = "#a855f7"; ctx.lineWidth = 1.5; ctx.stroke();
+          // Skull face & glowing purple eyes
+          ctx.fillStyle = "#e2e8f0";
+          ctx.fillRect(-5, -13 + bob, 10, 8);
+          ctx.fillStyle = "#a855f7";
+          ctx.fillRect(-4, -10 + bob, 3, 3); ctx.fillRect(1, -10 + bob, 3, 3);
+          // Necrotic Orb Staff
+          ctx.strokeStyle = "#cbd5e1"; ctx.beginPath(); ctx.moveTo(11, 8); ctx.lineTo(13, -14 - bob); ctx.stroke();
+          ctx.fillStyle = "#c084fc"; ctx.beginPath(); ctx.arc(13, -16 - bob, 4.5, 0, Math.PI * 2); ctx.fill();
+        } else if (kind.includes("FUNG") || kind.includes("SLIME") || kind.includes("HORROR")) {
+          // Articulated Bioluminescent Fungoid Spore-Horror (Multi-cap Mycelium Beast)
+          const pulse = Math.sin(t * 5 + idx) * 2;
+          // Stalk & tendrils
+          ctx.fillStyle = "#064e3b";
+          ctx.fillRect(-6, -2, 12, 12);
+          // Domed Spore Cap
+          ctx.fillStyle = "#059669";
+          ctx.beginPath(); ctx.arc(0, -4 + bob * 0.6, 14 + pulse * 0.5, Math.PI, 0); ctx.closePath(); ctx.fill();
+          ctx.strokeStyle = "#34d399"; ctx.lineWidth = 1.5; ctx.stroke();
+          // Glowing Toxic Spots & Eyes
+          ctx.fillStyle = "#a7f3d0";
+          ctx.beginPath(); ctx.arc(-6, -9 + bob * 0.6, 2.5, 0, Math.PI * 2); ctx.arc(5, -10 + bob * 0.6, 3, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = "#fef08a";
+          ctx.fillRect(-5, 1, 3, 3); ctx.fillRect(2, 1, 3, 3);
+        } else if (kind.includes("MIMIC")) {
+          // Articulated Tooth-Maw Iron Mimic Chest
+          ctx.fillStyle = "#78350f"; ctx.fillRect(-13, -9 + bob * 0.5, 26, 18);
+          ctx.strokeStyle = "#eab308"; ctx.lineWidth = 2; ctx.strokeRect(-13, -9 + bob * 0.5, 26, 18);
+          ctx.fillStyle = "#dc2626"; ctx.fillRect(-10, -2 + bob * 0.5, 20, 6);
+          ctx.fillStyle = "#f8fafc";
+          for (let k = -8; k <= 8; k += 4) ctx.fillRect(k, -2 + bob * 0.5, 2, 3);
+        } else {
+          // Articulated Skeleton / Phalanx Warrior (Ribcage, Skull, Directional Tower Shield & Spear)
+          const isPhalanx = kind.includes("PHALANX");
+          ctx.fillStyle = en.stagger > 0 ? "#facc15" : "#94a3b8";
+          ctx.fillRect(-7, -4 + bob * 0.5, 14, 11); // Ribcage
+          ctx.fillStyle = "#0f172a";
+          ctx.fillRect(-5, -2 + bob * 0.5, 10, 2); ctx.fillRect(-5, 2 + bob * 0.5, 10, 2);
+          // Skull
+          ctx.fillStyle = "#f1f5f9";
+          ctx.fillRect(-6, -13 + bob, 12, 9);
+          ctx.fillStyle = "#dc2626";
+          ctx.fillRect(-4, -10 + bob, 3, 3); ctx.fillRect(1, -10 + bob, 3, 3);
+          // Directional Weapon & Tower Shield
+          ctx.save();
+          ctx.rotate(ang);
+          ctx.fillStyle = "#cbd5e1";
+          ctx.fillRect(6, 5, 16, 2.5); // Spear/Blade
+          if (isPhalanx) {
+            ctx.strokeStyle = "#38bdf8";
+            ctx.fillStyle = "#1e293b";
+            ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.arc(0, 0, 17, -1.05, 1.05); ctx.stroke();
+          }
+          ctx.restore();
+        }
+
+        // Crisp Enemy Health Bar
+        if (en.hp < (en.maxHp || 45)) {
+          ctx.fillStyle = "#09070e";
+          ctx.fillRect(-14, -22, 28, 4);
+          ctx.fillStyle = "#dc2626";
+          ctx.fillRect(-14, -22, 28 * Math.max(0, en.hp / (en.maxHp || 45)), 4);
+        }
+        ctx.restore();
+      },
+
       drawLowPolyPrism: function(ctx, cx, cy, r, zBase, zTop, sides, color, lightX, lightY, rot) {
         const apex = this.project(cx, cy, zTop);
         const dist = Math.hypot(lightX - cx, lightY - cy) || 1;
@@ -499,24 +662,10 @@ window.StudioEngine.registerModule("Milestone_v0_1_0", {
       }
     }
 
-    // 6. Render Low-Poly 3D Faceted Enemies (Skeletons & Faceted Acid Crystals/Slimes)
+    // 6. Render Articulated Dark-Fantasy Enemies (Skeletons, Phalanxes, Necromancers, Fungoid Horrors)
+    const nowSec = performance.now() * 0.001;
     for (let i = 0; i < (w.enemies || []).length; i++) {
-      const en = w.enemies[i];
-      if (en.type === "SKELETON") {
-        const col = en.stagger > 0 ? "#facc15" : "#cbd5e1";
-        lp.drawLowPolyPrism(ctx, en.x, en.y, 13, 0, 26, 4, col, p.x, p.y, Math.atan2(p.y - en.y, p.x - en.x));
-        lp.drawLowPolyPrism(ctx, en.x, en.y, 7, 22, 36, 4, "#f8fafc", p.x, p.y, 0);
-      } else {
-        const pulse = Math.sin(performance.now() * 0.008 + i) * 4;
-        lp.drawLowPolyPrism(ctx, en.x, en.y, 16, 0, 22 + pulse, 6, "#10b981", p.x, p.y, performance.now() * 0.003);
-      }
-      if (en.hp < en.maxHp) {
-        const topPt = lp.project(en.x, en.y, 38);
-        ctx.fillStyle = "#0f172a";
-        ctx.fillRect(topPt.x - 14, topPt.y - 6, 28, 4);
-        ctx.fillStyle = "#dc2626";
-        ctx.fillRect(topPt.x - 14, topPt.y - 6, 28 * Math.max(0, en.hp / en.maxHp), 4);
-      }
+      lp.drawArticulatedEnemy(ctx, w.enemies[i], p, nowSec, i);
     }
 
     // 7. Render 2.5D Low-Poly Delver Mesh & Weapon Cleave Arc
@@ -540,12 +689,8 @@ window.StudioEngine.registerModule("Milestone_v0_1_0", {
       ctx.restore();
     }
 
-    // Delver 3D Armored Torso Pyramid + Hooded/Helmed Head + Torch
-    lp.drawLowPolyPrism(ctx, p.x, p.y, 14, 0, 26, 6, p.classColor || "#eab308", p.x + Math.cos(p.facingAngle) * 30, p.y + Math.sin(p.facingAngle) * 30, p.facingAngle);
-    lp.drawLowPolyPrism(ctx, p.x, p.y, 8, 22, 38, 4, "#e2e8f0", p.x, p.y - 20, p.facingAngle);
-    const torchPos = lp.project(p.x - Math.sin(p.facingAngle) * 12, p.y + Math.cos(p.facingAngle) * 12, 24);
-    ctx.fillStyle = p.uvTorch ? "#a855f7" : "#f59e0b";
-    ctx.beginPath(); ctx.arc(torchPos.x, torchPos.y, 4.5 + flicker * 0.15, 0, Math.PI * 2); ctx.fill();
+    // Delver Multi-Part Articulated Dark-Fantasy Rig
+    lp.drawArticulatedDelver(ctx, p, nowSec);
     ctx.restore();
 
     // Particles & Floating Texts
@@ -554,12 +699,25 @@ window.StudioEngine.registerModule("Milestone_v0_1_0", {
       ctx.fillStyle = pt.color || "#dc2626";
       ctx.fillRect(pt.x - 2, pt.y - 2, 4, 4);
     }
+    // UI/UX Spatial De-Collision for Floating Combat & Lore Texts
     ctx.font = "bold 11px monospace";
     ctx.textAlign = "center";
+    if (w.floatingTexts.length > 8) w.floatingTexts.splice(0, w.floatingTexts.length - 8);
     for (let i = 0; i < w.floatingTexts.length; i++) {
       const ft = w.floatingTexts[i];
+      let drawY = ft.y;
+      for (let j = 0; j < i; j++) {
+        const prev = w.floatingTexts[j];
+        if (Math.abs((prev.x || 0) - (ft.x || 0)) < 75 && Math.abs((prev._drawY || prev.y) - drawY) < 15) {
+          drawY = (prev._drawY || prev.y) - 16;
+        }
+      }
+      ft._drawY = drawY;
+      ctx.fillStyle = "rgba(5, 3, 10, 0.82)";
+      const tw = ctx.measureText(ft.text || "").width + 8;
+      ctx.fillRect(ft.x - tw * 0.5, drawY - 10, tw, 14);
       ctx.fillStyle = ft.color || "#f8fafc";
-      ctx.fillText(ft.text, ft.x, ft.y);
+      ctx.fillText(ft.text, ft.x, drawY);
     }
 
     // 8. Chiaroscuro Multi-Stop Torchlight & Stoner-Metal Color Grading Pass

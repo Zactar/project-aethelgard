@@ -394,7 +394,7 @@ window.StudioEngine.registerModule("Milestone_v0_3_0", {
     if (closestItem) {
       const tx = Math.max(155, Math.min(645, closestItem.x));
       const ty = Math.max(95, closestItem.y - 72);
-      ctx.fillStyle = "rgba(9, 7, 15, 0.94)";
+      ctx.fillStyle = "#09070f";
       ctx.fillRect(tx - 145, ty - 42, 290, 64);
       ctx.strokeStyle = closestItem.color;
       ctx.lineWidth = 1.8;
