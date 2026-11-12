@@ -12,7 +12,7 @@ window.StudioEngine.registerModule("Milestone_v0_1_0", {
     const n = Math.min(45, Math.floor(12 + (st.world.distance / 100) * 1.5));
     for (let i = 0; i < n; i++) {
       const typeRoll = this.prng(st.world), type = typeRoll < 0.50 ? 0 : (typeRoll < 0.75 ? 1 : 2);
-      st.world.obstacles.push({ x: 40 + this.prng(st.world) * 720, y: cy * 1200 + this.prng(st.world) * 1200, type, w: type === 0 ? 20 : (type === 1 ? 24 : 28), h: type === 0 ? 14 : (type === 1 ? 18 : 12), low: type === 2 });
+      (st.world.obstacles || (st.world.obstacles = [])).push({ x: 40 + this.prng(st.world) * 720, y: cy * 1200 + this.prng(st.world) * 1200, type, w: type === 0 ? 20 : (type === 1 ? 24 : 28), h: type === 0 ? 14 : (type === 1 ? 18 : 12), low: type === 2 });
     }
   },
   update(dt, st, eng) {
@@ -35,7 +35,7 @@ window.StudioEngine.registerModule("Milestone_v0_1_0", {
         else if (k.up) { p.state = 0x01; p.vy = Math.max(40, p.vy - 320 * sdt); p.vx *= Math.pow(0.01, sdt); }
         else { p.state = 0x01; p.vy += (210 - p.vy) * Math.min(1, 1.5 * sdt); }
         p.vx += (Math.sin(p.heading) * 320 * carvelMult - p.vx * 3.0) * sdt;
-        if (Math.abs(turn) > 0 && Math.random() < 0.3) w.particles.push({ x: p.x - turn * 8, y: p.y + 12, vx: -turn * 40 + (Math.random() - 0.5) * 20, vy: -20, life: 0.25 });
+        if (Math.abs(turn) > 0 && Math.random() < 0.3) (w.particles || (w.particles = [])).push({ x: p.x - turn * 8, y: p.y + 12, vx: -turn * 40 + (Math.random() - 0.5) * 20, vy: -20, life: 0.25 });
       }
       p.x = Math.max(30, Math.min(770, p.x + p.vx * sdt)); p.y += p.vy * sdt;
       w.distance += (p.vy * sdt) / 10; w.speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy) * 0.36;

@@ -26,7 +26,7 @@ window.StudioEngine.registerModule("Milestone_v0_2_0", {
   reqXp(lvl) { return Math.floor(100 * Math.pow(lvl, 1.4)); },
   addXp(st, eng, amt, x, y, label) {
     st.player.xp += amt * st.player.mXp;
-    st.world.floatingTexts.push({ text: `+${Math.floor(amt * st.player.mXp)} ${label}`, x, y, life: 1.0 });
+    (st.world.floatingTexts || (st.world.floatingTexts = [])).push({ text: `+${Math.floor(amt * st.player.mXp)} ${label}`, x, y, life: 1.0 });
     const req = this.reqXp(st.player.level);
     if (st.player.xp >= req) {
       st.player.xp -= req; st.player.level++; st.world.gameState = "LEVEL_UP"; st.paused = true;
@@ -43,7 +43,7 @@ window.StudioEngine.registerModule("Milestone_v0_2_0", {
       if (k.jump || k.action) {
         const cls = this.classes[this.selClass]; p.classId = cls.id;
         for (let s in cls.s) st.stats[s] += cls.s[s];
-        st.inventory.traits.push(cls.id); eng.stats.recalculate();
+        (st.inventory.traits || (st.inventory.traits = [])).push(cls.id); eng.stats.recalculate();
         st.world.gameState = "RUNNING";
       }
       return;
@@ -61,7 +61,7 @@ window.StudioEngine.registerModule("Milestone_v0_2_0", {
     const sdt = Math.min(dt, 0.05);
     while (w.nextGateY < p.y + 1600) {
       const gx = 100 + Math.random() * 600, color = (w.gates.length % 2 === 0) ? "#ef4444" : "#3b82f6";
-      w.gates.push({ x1: gx - 32, x2: gx + 32, y: w.nextGateY, color, passed: false });
+      (w.gates || (w.gates = [])).push({ x1: gx - 32, x2: gx + 32, y: w.nextGateY, color, passed: false });
       w.nextGateY += 180 + (Math.random() * 80 - 40);
     }
     for (let g of w.gates) {
@@ -74,7 +74,7 @@ window.StudioEngine.registerModule("Milestone_v0_2_0", {
           eng.emit("SLALOM_CLEAR", { streak: p.slalomStreak });
         } else {
           p.slalomStreak = 0; eng.emit("SLALOM_MISSED", {});
-          w.floatingTexts.push({ text: "MISSED!", x: p.x, y: p.y - 20, life: 0.8 });
+          (w.floatingTexts || (w.floatingTexts = [])).push({ text: "MISSED!", x: p.x, y: p.y - 20, life: 0.8 });
         }
       }
     }
