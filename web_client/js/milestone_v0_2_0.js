@@ -1,0 +1,306 @@
+// Cohesive Milestone Plugin: v0.2.0
+// Cohesive Milestone Plugin: v0.2.0 - Parrying, OSR Classes, Stress & Resolve System
+window.StudioEngine.registerModule("Milestone_v0_2_0", {
+  init: function(state) {
+    state.player = state.player || {};
+    state.stats = state.stats || {};
+    state.world = state.world || {};
+    state.world.torch = state.world.torch !== undefined ? state.world.torch : 100;
+    state.world.particles = state.world.particles || [];
+    state.world.floatingTexts = state.world.floatingTexts || [];
+
+    state.player.classSelected = state.player.classSelected || false;
+    state.player.classId = state.player.classId || 'doomblade';
+    state.player.stress = state.player.stress || 0;
+    state.player.maxStress = 100;
+    state.player.resolveState = state.player.resolveState || null; // 'TRANSCENDENT' | 'AFFLICTED'
+    state.player.isParrying = false;
+    state.player.parryTimer = 0;
+    state.player.riposteReady = 0;
+    state.player.bloodRiteCooldown = 0;
+
+    this.cursor = 0;
+    this.prevKeys = {};
+    this.audioCtx = null;
+    this.classes = [
+      { id: 'doomblade', name: 'Doomblade Paladin', str: 16, dex: 11, con: 15, arc: 8, wpn: 'Colossal Zweihänder', color: '#eab308', rite: 'Holy Aegis Nova' },
+      { id: 'warlock', name: 'Acid Warlock', str: 8, dex: 12, con: 10, arc: 17, wpn: 'Verdigris Hex-Cane', color: '#10b981', rite: 'Caustic Rupture' },
+      { id: 'stalker', name: 'Grave-Stalker', str: 11, dex: 17, con: 12, arc: 10, wpn: 'Dual Kris Blades', color: '#a855f7', rite: 'Shadow Step Cleave' },
+      { id: 'flagellant', name: 'Crypt Flagellant', str: 14, dex: 10, con: 16, arc: 11, wpn: 'Barbed Blood-Whip', color: '#dc2626', rite: 'Martyrdom Frenzy' }
+    ];
+
+    if (!state.player.classSelected) state.paused = true;
+  },
+
+  playSfx: function(freq, type, dur, gain) {
+    try {
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if (!this.audioCtx && AC) this.audioCtx = new AC();
+      if (!this.audioCtx) return;
+      var o = this.audioCtx.createOscillator(), g = this.audioCtx.createGain();
+      o.type = type || 'sawtooth';
+      o.frequency.setValueAtTime(Math.min(freq, 640), this.audioCtx.currentTime);
+      g.gain.setValueAtTime(gain || 0.05, this.audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.0001, this.audioCtx.currentTime + dur);
+      o.connect(g); g.connect(this.audioCtx.destination);
+      o.start(); o.stop(this.audioCtx.currentTime + dur);
+    } catch (e) {}
+  },
+
+  applyClass: function(state, cls) {
+    state.player.classId = cls.id;
+    state.player.weapon = cls.wpn;
+    state.stats.attributes = { STR: cls.str, DEX: cls.dex, CON: cls.con, ARC: cls.arc };
+    state.stats.characterClass = cls.name;
+    state.player.classSelected = true;
+    state.paused = false;
+    this.playSfx(220, 'square', 0.45, 0.06);
+  },
+
+  update: function(dt, state) {
+    var p = state.player, k = state.keys || {}, pk = this.prevKeys;
+
+    // Character Selection Modal Controller
+    if (!p.classSelected) {
+      if ((k.left && !pk.left) || (k.digit1 && this.cursor !== 0)) this.cursor = (this.cursor + 3) % 4;
+      if ((k.right && !pk.right) || (k.digit2 && this.cursor !== 1)) this.cursor = (this.cursor + 1) % 4;
+      if (k.digit3) this.cursor = 2;
+      if (k.digit4) this.cursor = 3;
+      if ((k.jump && !pk.jump) || (k.action && !pk.action)) {
+        this.applyClass(state, this.classes[this.cursor]);
+      }
+      this.prevKeys = Object.assign({}, k);
+      return;
+    }
+
+    if (state.paused) return;
+
+    // Torch Light & Stress/Resolve Progression
+    state.world.torch = Math.max(0, state.world.torch - 0.75 * dt);
+    p.torchLevel = state.world.torch / 100;
+    if (state.world.torch < 30) {
+      p.stress = Math.min(100, p.stress + (30 - state.world.torch) * 0.08 * dt);
+    }
+    if (p.stress >= 100 && !p.resolveState) {
+      var attr = state.stats.attributes || { CON: 10, ARC: 10 };
+      var roll = Math.floor(Math.random() * 100) + 1 + (attr.CON || 10) + (attr.ARC || 10);
+      if (roll >= 65) {
+        p.resolveState = 'TRANSCENDENT';
+        state.world.torch = 100;
+        (state.world.floatingTexts || (state.world.floatingTexts = [])).push({ text: 'DOOM TRANSCENDENCE!', x: p.x, y: p.y - 28, color: '#eab308', timer: 2.0 });
+        this.playSfx(520, 'triangle', 0.6, 0.06);
+      } else {
+        p.resolveState = 'AFFLICTED';
+        (state.world.floatingTexts || (state.world.floatingTexts = [])).push({ text: 'ABYSSAL HALLUCINATIONS', x: p.x, y: p.y - 28, color: '#a855f7', timer: 2.0 });
+        this.playSfx(110, 'sawtooth', 0.8, 0.06);
+      }
+    }
+
+    // Shield-Parry & Blood-Rite Input Interception (Shift/E)
+    var moving = Math.abs(p.vx || 0) > 10 || Math.abs(p.vy || 0) > 10;
+    if (k.action && !pk.action) {
+      if (!moving && p.parryTimer <= 0) {
+        // Stationary parry initiation
+        p.isParrying = true;
+        p.parryTimer = 0.18;
+        this.playSfx(480, 'triangle', 0.08, 0.05);
+      } else if (!moving && p.bloodRiteCooldown <= 0 && p.health > 1) {
+        // Blood-Rite execution at sacrifice of 1 HP
+        p.health = Math.max(1, p.health - 1);
+        p.bloodRiteCooldown = 6.0;
+        this.triggerBloodRite(state);
+      }
+    }
+
+    if (p.parryTimer > 0) {
+      p.parryTimer -= dt;
+      if (p.parryTimer <= 0) p.isParrying = false;
+    }
+    if (p.riposteReady > 0) p.riposteReady -= dt;
+    if (p.bloodRiteCooldown > 0) p.bloodRiteCooldown -= dt;
+
+    // Check Enemy Attack Clashes against active Shield-Parry Window
+    var enemies = state.world.enemies || [];
+    for (var i = 0; i < enemies.length; i++) {
+      var e = enemies[i];
+      var dist = Math.hypot(e.x - p.x, e.y - p.y);
+      if (p.isParrying && dist < 38) {
+        p.isParrying = false;
+        p.parryTimer = 0;
+        p.riposteReady = 0.8;
+        e.poise = 0;
+        e.staggerTimer = 1.2;
+        state.world.cameraShake = 8;
+        this.playSfx(580, 'square', 0.25, 0.06); // Anvil Clang
+        for (var sp = 0; sp < 14; sp++) {
+          var ang = Math.random() * Math.PI * 2;
+          (state.world.particles || (state.world.particles = [])).push({
+            x: (p.x + e.x) / 2, y: (p.y + e.y) / 2,
+            vx: Math.cos(ang) * 120, vy: Math.sin(ang) * 120,
+            timer: 0.35, color: '#f59e0b', size: 3
+          });
+        }
+        (state.world.floatingTexts || (state.world.floatingTexts = [])).push({ text: 'RIPOSTE OPEN!', x: e.x, y: e.y - 18, color: '#f59e0b', timer: 1.0 });
+      }
+    }
+
+    // Enhanced Class Attack Patterns on Weapon Swing
+    if (k.jump && !pk.jump && p.stamina >= 18) {
+      this.executeClassAttack(state);
+    }
+    this.prevKeys = Object.assign({}, k);
+  },
+
+  triggerBloodRite: function(state) {
+    var p = state.player;
+    state.world.cameraShake = 12;
+    this.playSfx(140, 'sawtooth', 0.45, 0.06);
+    var enemies = state.world.enemies || [];
+    enemies.forEach(function(e) {
+      if (Math.hypot(e.x - p.x, e.y - p.y) < 130) {
+        e.hp -= 24;
+        e.staggerTimer = 0.8;
+      }
+    });
+    for (var i = 0; i < 28; i++) {
+      var a = (i / 28) * Math.PI * 2;
+      (state.world.particles || (state.world.particles = [])).push({
+        x: p.x, y: p.y,
+        vx: Math.cos(a) * 160, vy: Math.sin(a) * 160,
+        timer: 0.45, color: '#dc2626', size: 4
+      });
+    }
+    (state.world.floatingTexts || (state.world.floatingTexts = [])).push({ text: 'BLOOD RITE', x: p.x, y: p.y - 24, color: '#dc2626', timer: 1.2 });
+  },
+
+  executeClassAttack: function(state) {
+    var p = state.player, cid = p.classId, dmgMult = (p.riposteReady > 0) ? 3.0 : 1.0;
+    if (p.resolveState === 'TRANSCENDENT') dmgMult *= 1.35;
+    var enemies = state.world.enemies || [];
+
+    enemies.forEach(function(e) {
+      var dx = e.x - p.x, dy = e.y - p.y, dist = Math.hypot(dx, dy);
+      var angleTo = Math.atan2(dy, dx), diff = Math.abs(angleTo - (p.facingAngle || 0));
+      if (diff > Math.PI) diff = 2 * Math.PI - diff;
+
+      var inHitbox = false;
+      if (cid === 'doomblade' && dist < 62 && diff < 1.1) inHitbox = true; // 120-deg wide cleave
+      else if (cid === 'warlock' && dist < 95 && diff < 0.4) inHitbox = true; // piercing spear line
+      else if (cid === 'stalker' && dist < 45 && diff < 0.7) inHitbox = true; // rapid dual thrust
+      else if (cid === 'flagellant' && dist < 74 && diff < 0.8) inHitbox = true; // whiplash cone
+
+      if (inHitbox) {
+        var dmg = Math.floor(18 * dmgMult);
+        e.hp -= dmg;
+        e.poise = Math.max(0, (e.poise || 10) - 15);
+        (state.world.floatingTexts || (state.world.floatingTexts = [])).push({ text: (dmgMult > 1 ? 'CRIT ' : '') + dmg, x: e.x, y: e.y - 12, color: dmgMult > 1 ? '#f59e0b' : '#ffffff', timer: 0.8 });
+      }
+    });
+    if (p.riposteReady > 0) p.riposteReady = 0;
+  },
+
+  drawPixelIcon: function(ctx, x, y, idx) {
+    var palette = ['#eab308', '#10b981', '#a855f7', '#dc2626'];
+    ctx.fillStyle = palette[idx % 4];
+    for (var r = 0; r < 6; r++) {
+      for (var c = 0; c < 6; c++) {
+        if (((r + c + idx) % 2 === 0) || (r === 2 || c === 3)) {
+          ctx.fillRect(x + c * 4, y + r * 4, 3, 3);
+          ctx.fillRect(x + (11 - c) * 4, y + r * 4, 3, 3); // symmetrical 12x12
+        }
+      }
+    }
+  },
+
+  render: function(ctx, state) {
+    ctx.save();
+    var p = state.player;
+
+    // Diegetic Visuals: Parry Shield Flash & Riposte Aura
+    if (p && p.isParrying) {
+      ctx.strokeStyle = '#f59e0b';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 24, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    if (p && p.riposteReady > 0) {
+      ctx.strokeStyle = '#dc2626';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 30, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    // Sub-Top Left Reserved Dock: Stress & Class Level
+    ctx.fillStyle = 'rgba(7, 5, 10, 0.85)';
+    ctx.fillRect(16, 48, 180, 34);
+    ctx.strokeStyle = '#292524';
+    ctx.strokeRect(16, 48, 180, 34);
+
+    ctx.fillStyle = '#a8a29e';
+    ctx.font = '9px monospace';
+    ctx.fillText('STRESS // RESOLVE (' + (p.resolveState || 'STEADY') + ')', 22, 60);
+
+    ctx.fillStyle = '#1c1917';
+    ctx.fillRect(22, 66, 168, 10);
+    ctx.fillStyle = (p.stress || 0) > 75 ? '#dc2626' : '#a855f7';
+    ctx.fillRect(22, 66, Math.min(168, (p.stress || 0) * 1.68), 10);
+
+    // Illustrated OSR Character Select Modal
+    if (!p.classSelected) {
+      ctx.fillStyle = 'rgba(7, 5, 10, 0.92)';
+      ctx.fillRect(0, 0, 800, 600);
+      ctx.strokeStyle = '#78350f';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(70, 40, 660, 520);
+
+      ctx.fillStyle = '#d97706';
+      ctx.font = '16px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('--- CHOOSE THY ACCURSED LINEAGE ---', 400, 78);
+      ctx.font = '10px monospace';
+      ctx.fillStyle = '#a8a29e';
+      ctx.fillText('[A / D / ARROWS] TO CYCLE LINEAGE  |  [SPACE / SHIFT] TO AWAKEN', 400, 98);
+
+      for (var i = 0; i < this.classes.length; i++) {
+        var cls = this.classes[i], cx = 110 + i * 148, cy = 130;
+        var isSel = (i === this.cursor);
+        ctx.fillStyle = isSel ? 'rgba(217, 119, 6, 0.15)' : 'rgba(28, 25, 23, 0.8)';
+        ctx.fillRect(cx, cy, 136, 390);
+        ctx.strokeStyle = isSel ? '#f59e0b' : '#44403c';
+        ctx.strokeRect(cx, cy, 136, 390);
+
+        this.drawPixelIcon(ctx, cx + 44, cy + 18, i);
+
+        ctx.fillStyle = isSel ? '#fef08a' : '#d6d3d1';
+        ctx.font = '11px monospace';
+        ctx.fillText(cls.name, cx + 68, cy + 86);
+
+        ctx.font = '9px monospace';
+        ctx.fillStyle = '#94a3b8';
+        ctx.fillText(cls.wpn, cx + 68, cy + 104);
+
+        var stats = [{ k: 'STR', v: cls.str }, { k: 'DEX', v: cls.dex }, { k: 'CON', v: cls.con }, { k: 'ARC', v: cls.arc }];
+        ctx.textAlign = 'left';
+        for (var s = 0; s < stats.length; s++) {
+          var sy = cy + 140 + s * 34;
+          ctx.fillStyle = '#a8a29e';
+          ctx.fillText(stats[s].k + ' ' + stats[s].v, cx + 12, sy);
+          ctx.fillStyle = '#0f172a';
+          ctx.fillRect(cx + 12, sy + 6, 112, 8);
+          ctx.fillStyle = cls.color;
+          ctx.fillRect(cx + 12, sy + 6, Math.min(112, (stats[s].v / 18) * 112), 8);
+        }
+
+        ctx.fillStyle = '#fbbf24';
+        ctx.font = '9px monospace';
+        ctx.fillText('RITE: ' + cls.rite, cx + 12, cy + 300);
+        ctx.textAlign = 'center';
+      }
+    }
+    ctx.restore();
+  }
+});
