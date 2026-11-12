@@ -8,7 +8,7 @@
     * { box-sizing: border-box; }
     body {
       margin: 0;
-      background: #060911;
+      background: #05070f;
       overflow: hidden;
       display: flex;
       justify-content: center;
@@ -24,7 +24,7 @@
       border: 2px solid #334155;
       border-radius: 6px;
       box-shadow: 0 0 50px rgba(0, 0, 0, 0.95), 0 0 15px rgba(56, 189, 248, 0.15);
-      background: #0f172a;
+      background: #090d16;
       overflow: hidden;
     }
     canvas { display: block; width: 800px; height: 600px; }
@@ -46,7 +46,11 @@
 
   <script>
   // =========================================================================
-  // PROJECT AETHELGARD: UNIVERSAL MICROKERNEL & 2-CANVAS Z-LAYER COMPOSITOR
+  // PROJECT AETHELGARD: UNIVERSAL MICROKERNEL v3.0
+  // - 2-Canvas Z-Layer Modal Compositor (_baseCanvas + _modalCanvas)
+  // - Shared-Reference Array Aliasing (lasers/bullets, obstacles/asteroids)
+  // - Bidirectional Health/Shields/Wipeouts Sync & Velocity Clamping
+  // - Automatic Screen-Shake Damping & HUD Float Rounding
   // =========================================================================
   window.__STUDIO_ERRORS__ = [];
   window.__COMPAT_REPORT__ = { warnings: [], activeOwnerModal: null, modulesLoaded: [] };
@@ -56,7 +60,6 @@
     return false;
   };
 
-  // Offscreen Modal Layer Canvas (Guarantees Modals ALWAYS render on top of all world/gate layers)
   const _baseCanvas = document.getElementById('gameCanvas');
   const _baseCtx = _baseCanvas.getContext('2d');
   const _modalCanvas = document.createElement('canvas');
@@ -67,81 +70,68 @@
   let _currentModName = '';
   let _inModalPass = false;
   let _modalOwnerThisFrame = 'BOOT_HOLD';
-  let _v2HudShiftActive = false;
 
-  // Smart Context Proxy: Routes modal draw calls to topmost layer, blocks duplicate modals,
-  // forces opaque modal backdrops, and shifts v0.2.0 top-left HUD below v0.1.0 SPEED bar.
+  const MODAL_KEYWORDS = [
+    'SELECT ', 'CHOOSE ', 'UPGRADE', 'DRAFT', 'REFUGE', 'SHELTER',
+    'LEVEL UP', 'GAME OVER', 'OBITUARY', 'VICTORY', 'LEADERBOARD', 'TERMINATED'
+  ];
+
   const _smartCtx = new Proxy(_baseCtx, {
     get(target, prop) {
-      const activeTarget = _inModalPass ? _modalCtx : target;
+      const activeTarget = _inModalPass === true ? _modalCtx : target;
 
       if (prop === 'fillRect' || prop === 'strokeRect') {
         return function(x, y, w, h) {
-          // Detect full-screen or centered modal overlay (width >= 350, height >= 170)
-          if (x >= 30 && y >= 30 && w >= 340 && w <= 750 && h >= 160 && h <= 540 && _currentModName !== 'Milestone_v0_1_0') {
+          if (x >= 25 && y >= 25 && w >= 340 && w <= 750 && h >= 160 && h <= 540 && _currentModName !== 'Milestone_v0_1_0') {
             if (_modalOwnerThisFrame && _modalOwnerThisFrame !== _currentModName) {
-              // Another module already owns the modal layer this frame; suppress competing modal!
               _inModalPass = 'SUPPRESSED';
               return;
             }
             if (!_modalOwnerThisFrame) {
               _modalOwnerThisFrame = _currentModName;
               _inModalPass = true;
-              // Sync font/alignment state to modalCtx and draw an opaque curtain over playfield
               _modalCtx.font = target.font;
               _modalCtx.textAlign = target.textAlign;
               _modalCtx.textBaseline = target.textBaseline;
-              _modalCtx.fillStyle = 'rgba(7, 11, 20, 0.96)';
-              _modalCtx.fillRect(0, 42, 800, 558);
+              _modalCtx.fillStyle = 'rgba(6, 9, 18, 0.94)';
+              _modalCtx.fillRect(0, 36, 800, 564);
             }
-            // Force solid opacity on modal containers so underlying text never bleeds through
             if (prop === 'fillRect' && typeof _modalCtx.fillStyle === 'string' && _modalCtx.fillStyle.startsWith('rgba')) {
               _modalCtx.fillStyle = '#0f172a';
             }
             return _modalCtx[prop](x, y, w, h);
           }
-
           if (_inModalPass === 'SUPPRESSED') return;
-
-          // Shift v0.2.0 Top-Left Level/XP HUD box down by +42px so it sits cleanly below SPEED
-          if (false) {
-            _v2HudShiftActive = true;
-            return target[prop](x, y + 42, w, h);
-          }
-
           return activeTarget[prop](x, y, w, h);
         };
       }
 
       if (prop === 'fillText' || prop === 'strokeText') {
         return function(text, x, y, maxWidth) {
+          if (_inModalPass === 'SUPPRESSED') return;
           if (typeof text === 'string') {
             if (text.includes('.')) {
               text = text.replace(/(\d+)\.(\d{2,})/g, (m, a, b) => a + (y < 40 ? '' : '.' + b.slice(0, 1)));
             }
-            // Detect Menu/Modal Screens by Header Text even if drawn as 4 separate pilot cards!
-            if (
-              _currentModName !== 'Milestone_v0_1_0' &&
-              (text.includes('SELECT PILOT') || text.includes('HYPER-MOD') || text.includes('SELECT UPGRADE') ||
-               text.includes('GAME OVER') || text.includes('OBITUARY') || text.includes('VICTORY') || text.includes('SYNTH-RANK'))
-            ) {
-              if (!_modalOwnerThisFrame) {
-                _modalOwnerThisFrame = _currentModName;
-                _inModalPass = true;
-                _modalCtx.font = target.font;
-                _modalCtx.textAlign = target.textAlign;
-                _modalCtx.textBaseline = target.textBaseline;
-                _modalCtx.fillStyle = 'rgba(5, 2, 13, 0.94)';
-                _modalCtx.fillRect(0, 36, 800, 564);
+            if (_currentModName !== 'Milestone_v0_1_0' && y < 180) {
+              const upper = text.toUpperCase();
+              for (let k = 0; k < MODAL_KEYWORDS.length; k++) {
+                if (upper.includes(MODAL_KEYWORDS[k])) {
+                  if (!_modalOwnerThisFrame) {
+                    _modalOwnerThisFrame = _currentModName;
+                    _inModalPass = true;
+                    _modalCtx.font = target.font;
+                    _modalCtx.textAlign = target.textAlign;
+                    _modalCtx.textBaseline = target.textBaseline;
+                    _modalCtx.fillStyle = 'rgba(6, 9, 18, 0.94)';
+                    _modalCtx.fillRect(0, 36, 800, 564);
+                  }
+                  break;
+                }
               }
             }
           }
-          if (_inModalPass === 'SUPPRESSED') return;
-          const dest = _inModalPass ? _modalCtx : target;
-          // Shift v0.2.0 Top-Left Level/XP text down by +42px
-          if (false) {
-            return maxWidth !== undefined ? dest[prop](text, x, y + 42, maxWidth) : dest[prop](text, x, y + 42);
-          }
+          const dest = _inModalPass === true ? _modalCtx : target;
           return maxWidth !== undefined ? dest[prop](text, x, y, maxWidth) : dest[prop](text, x, y);
         };
       }
@@ -156,6 +146,17 @@
     }
   });
 
+  // Shared Array References (Eliminates cross-milestone array naming drift!)
+  const _sharedProjectiles = [];
+  const _sharedHazards = [];
+  const _sharedEntities = [];
+  const _sharedParticles = [];
+  const _sharedFloatingTexts = [];
+  const _sharedGates = [];
+  const _sharedLoot = [];
+  const _sharedRooms = [];
+  const _sharedProps = [];
+
   window.StudioEngine = {
     canvas: _baseCanvas,
     ctx: _smartCtx,
@@ -165,14 +166,17 @@
 
     state: {
       running: true,
-      paused: true, // Start paused on Frame 0 so Class Select is peaceful!
+      paused: true,
+      gameOver: false,
+      modal: null,
       tick: 0,
       dt: 0.016,
       score: 0,
       player: {
-        x: 400, y: 220, vx: 0, vy: 0, width: 24, height: 32,
-        angle: 0, z: 0, vz: 0, isAirborne: false,
-        state: 'IDLE', health: 3, maxHealth: 3, wipeouts: 0, cooldown: 0
+        x: 400, y: 300, vx: 0, vy: 0, width: 24, height: 24,
+        angle: -Math.PI / 2, z: 0, vz: 0, isAirborne: false,
+        state: 'IDLE', health: 3, maxHealth: 3, shields: 3, maxShields: 3,
+        wipeouts: 0, invuln: 0, cooldown: 0, maxSpeed: 320
       },
       stats: {
         level: 1, xp: 0, nextLevelXp: 100, unspentPoints: 0, combo: 1,
@@ -183,16 +187,25 @@
         items: [], relics: [], traits: [], currency: 0, pendingDraft: null
       },
       world: {
-        distance: 0, speed: 0, cameraX: 0, cameraY: 0, cameraShake: 0,
-        biome: 'DEFAULT', entities: [], obstacles: [], gates: [], slalomGates: [],
-        particles: [], floatingTexts: [], skiTracks: [], speedLines: [], hazards: []
+        wave: 1, distance: 0, distanceMeters: 0, speed: 0,
+        cameraX: 0, cameraY: 0, cameraShake: 0, hitStop: 0, beatPulse: 0,
+        biome: 'DEFAULT',
+        lasers: _sharedProjectiles, bullets: _sharedProjectiles, projectiles: _sharedProjectiles,
+        asteroids: _sharedHazards, rocks: _sharedHazards, obstacles: _sharedHazards, hazards: _sharedHazards,
+        entities: _sharedEntities, enemies: _sharedEntities,
+        particles: _sharedParticles,
+        floatingTexts: _sharedFloatingTexts,
+        gates: _sharedGates, slalomGates: _sharedGates, doors: _sharedGates,
+        loot: _sharedLoot, items: _sharedLoot, drops: _sharedLoot,
+        rooms: _sharedRooms, tiles: _sharedRooms,
+        props: _sharedProps, shrines: _sharedProps, chests: _sharedProps, quests: []
       },
       keys: {
         up: false, down: false, left: false, right: false,
-        jump: false, action: false, map: false,
+        jump: false, space: false, action: false, shift: false, map: false,
         digit1: false, digit2: false, digit3: false, digit4: false
       },
-      pointer: { x: 0, y: 0, clicked: false }
+      pointer: { x: 400, y: 300, clicked: false }
     },
 
     on: function(eventName, callback) {
@@ -202,12 +215,8 @@
     emit: function(eventName, payload) {
       const listeners = this.events[eventName] || [];
       for (let i = 0; i < listeners.length; i++) {
-        try {
-          // If a modal is suppressed, do not let background modals steal key events
-          listeners[i](payload, this.state);
-        } catch (e) {
-          window.__STUDIO_ERRORS__.push({ source: 'event:' + eventName, msg: e.message });
-        }
+        try { listeners[i](payload, this.state); }
+        catch (e) { window.__STUDIO_ERRORS__.push({ source: 'event:' + eventName, msg: e.message }); }
       }
     },
 
@@ -228,13 +237,15 @@
     }
   };
 
-  window.StudioEngine.state.level = window.StudioEngine.state.world;
-  window.StudioEngine.state.obstacles = window.StudioEngine.state.world.obstacles;
-  window.StudioEngine.state.gates = window.StudioEngine.state.world.gates;
-  window.StudioEngine.state.slalomGates = window.StudioEngine.state.world.slalomGates;
-  window.StudioEngine.state.particles = window.StudioEngine.state.world.particles;
-  window.StudioEngine.state.floatingTexts = window.StudioEngine.state.world.floatingTexts;
-  window.__GAME_STATE__ = window.StudioEngine.state;
+  const _st = window.StudioEngine.state;
+  _st.level = _st.world;
+  _st.lasers = _sharedProjectiles;
+  _st.bullets = _sharedProjectiles;
+  _st.obstacles = _sharedHazards;
+  _st.asteroids = _sharedHazards;
+  _st.particles = _sharedParticles;
+  _st.floatingTexts = _sharedFloatingTexts;
+  window.__GAME_STATE__ = _st;
 
   const KEY_MAP = {
     ArrowUp: 'up', KeyW: 'up',
@@ -245,184 +256,34 @@
     KeyM: 'map', Digit1: 'digit1', Digit2: 'digit2', Digit3: 'digit3', Digit4: 'digit4'
   };
   window.addEventListener('keydown', e => {
-    const engine = window.StudioEngine;
-    const state = engine.state;
-    if (state.gameOver) {
-      if (e.code === 'Space' || e.code === 'Enter' || e.code === 'KeyC') {
-        const switchPilot = (e.code === 'KeyC');
-        state.gameOver = false;
-        state.modal = null;
-        state.score = 0;
-        if (state.stats) state.stats.combo = 1;
-        engine._lockedWave = 1;
-        engine._waveClearTimer = 0;
-        if (state.world) {
-          state.world.wave = 1;
-          if (Array.isArray(state.world.asteroids)) state.world.asteroids.length = 0;
-          if (Array.isArray(state.world.enemies)) state.world.enemies.length = 0;
-          if (Array.isArray(state.world.enemyBullets)) state.world.enemyBullets.length = 0;
-          if (Array.isArray(state.world.lasers)) state.world.lasers.length = 0;
-          if (state.world.boss) { state.world.boss.active = false; state.world.boss.defeated = false; }
-        }
-        if (state.player) {
-          state.player.x = 400; state.player.y = 300;
-          state.player.vx = 0; state.player.vy = 0;
-          state.player.shields = 3; state.player.health = 3;
-          state.player.invuln = 2.0;
-          engine._prevShields = 3;
-        }
-        // Re-init wave 1 asteroids via Milestone_v0_1_0 if available
-        const m1 = engine.modules['Milestone_v0_1_0'];
-        if (m1 && typeof m1.spawnWave === 'function') m1.spawnWave(state, 1);
-        else if (m1 && typeof m1.init === 'function') m1.init(state, engine);
-
-        const m2 = engine.modules['Milestone_v0_2_0'];
-        if (switchPilot && m2) {
-          m2.menuActive = true;
-          state.paused = true;
-        } else {
-          state.paused = false;
-        }
-      }
-      return;
-    }
-
     const k = KEY_MAP[e.code];
-    if (k) window.StudioEngine.state.keys[k] = true;
+    if (k) {
+      _st.keys[k] = true;
+      if (k === 'jump') _st.keys.space = true;
+      if (k === 'action') _st.keys.shift = true;
+    }
     window.StudioEngine.emit('KEYDOWN', { code: e.code, key: e.key });
   });
   window.addEventListener('keyup', e => {
     const k = KEY_MAP[e.code];
-    if (k) window.StudioEngine.state.keys[k] = false;
+    if (k) {
+      _st.keys[k] = false;
+      if (k === 'jump') _st.keys.space = false;
+      if (k === 'action') _st.keys.shift = false;
+    }
     window.StudioEngine.emit('KEYUP', { code: e.code, key: e.key });
   });
   _baseCanvas.addEventListener('mousemove', e => {
     const rect = _baseCanvas.getBoundingClientRect();
-    window.StudioEngine.state.pointer.x = e.clientX - rect.left;
-    window.StudioEngine.state.pointer.y = e.clientY - rect.top;
+    _st.pointer.x = e.clientX - rect.left;
+    _st.pointer.y = e.clientY - rect.top;
   });
-  _baseCanvas.addEventListener('mousedown', e => {
-    window.StudioEngine.state.pointer.clicked = true;
-    window.StudioEngine.emit('POINTER_DOWN', {
-      x: window.StudioEngine.state.pointer.x,
-      y: window.StudioEngine.state.pointer.y
-    });
+  _baseCanvas.addEventListener('mousedown', () => {
+    _st.pointer.clicked = true;
+    window.StudioEngine.emit('POINTER_DOWN', { x: _st.pointer.x, y: _st.pointer.y });
   });
-  window.addEventListener('mouseup', () => {
-    window.StudioEngine.state.pointer.clicked = false;
-  });
+  window.addEventListener('mouseup', () => { _st.pointer.clicked = false; });
 
-
-  // Master 128-BPM Neo-80s Synthwave & Chiptune Sequencer Bus (Guaranteed Pulsing Soundtrack)
-  window.__SYNTH_BUS__ = {
-    ctx: null,
-    noiseBuf: null,
-    step: 0,
-    stepTimer: 0,
-    stepDur: (60 / 128) / 4, // 128 BPM 16th note (~0.1172s)
-    bassNotes: [73.42, 73.42, 146.83, 73.42, 87.31, 87.31, 98.00, 110.00, 73.42, 146.83, 130.81, 110.00, 98.00, 87.31, 73.42, 65.41],
-    leadNotes: [293.66, 0, 349.23, 392.00, 440.00, 0, 523.25, 440.00, 392.00, 349.23, 293.66, 0, 349.23, 440.00, 587.33, 523.25],
-    unlock: function() {
-      if (!this.ctx) {
-        const AC = window.AudioContext || window.webkitAudioContext;
-        if (!AC) return;
-        this.ctx = new AC();
-        const sr = this.ctx.sampleRate;
-        this.noiseBuf = this.ctx.createBuffer(1, sr * 0.2, sr);
-        const d = this.noiseBuf.getChannelData(0);
-        for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
-      }
-      if (this.ctx && this.ctx.state === 'suspended') {
-        this.ctx.resume();
-      }
-    },
-    tick: function(dt, state) {
-      if (!state.world) return;
-      state.world.beatPulse = Math.max(0, (state.world.beatPulse || 0) - dt * 3.8);
-      this.stepTimer += dt;
-      if (this.stepTimer < this.stepDur) return;
-      this.stepTimer -= this.stepDur;
-      const s = this.step;
-      this.step = (this.step + 1) % 16;
-
-      // Always pulse the visual beat clock on every quarter note (even before audio unlock!)
-      if (s % 4 === 0) {
-        state.world.beatPulse = 1.0;
-      }
-      if (!this.ctx || this.ctx.state !== 'running') return;
-      const now = this.ctx.currentTime;
-      const isPaused = Boolean(state.paused);
-
-      // 1. 4-on-the-Floor Punchy Synth Kick (Steps 0, 4, 8, 12)
-      if (s % 4 === 0) {
-        const osc = this.ctx.createOscillator();
-        const g = this.ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(145, now);
-        osc.frequency.exponentialRampToValueAtTime(36, now + 0.13);
-        g.gain.setValueAtTime(isPaused ? 0.12 : 0.24, now);
-        g.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
-        osc.connect(g); g.connect(this.ctx.destination);
-        osc.start(now); osc.stop(now + 0.14);
-      }
-
-      // 2. Driving Lowpass Sawtooth Synthwave Bassline (Every 16th note)
-      const bf = this.bassNotes[s];
-      if (bf) {
-        const osc = this.ctx.createOscillator();
-        const flt = this.ctx.createBiquadFilter();
-        const g = this.ctx.createGain();
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(bf, now);
-        flt.type = 'lowpass';
-        const comboBoost = Math.min(900, ((state.stats && state.stats.combo) || 1) * 85);
-        flt.frequency.setValueAtTime(isPaused ? 320 : 480 + comboBoost, now);
-        flt.Q.setValueAtTime(4.0, now);
-        g.gain.setValueAtTime(isPaused ? 0.04 : 0.085, now);
-        g.gain.exponentialRampToValueAtTime(0.001, now + 0.10);
-        osc.connect(flt); flt.connect(g); g.connect(this.ctx.destination);
-        osc.start(now); osc.stop(now + 0.105);
-      }
-
-      if (isPaused) return;
-
-      // 3. Crispy Noise Snare (Steps 4, 12) & Off-Beat Hi-Hat (Steps 2, 6, 10, 14)
-      if ((s % 8 === 4 || s % 4 === 2) && this.noiseBuf) {
-        const isSnare = (s % 8 === 4);
-        const src = this.ctx.createBufferSource();
-        src.buffer = this.noiseBuf;
-        const flt = this.ctx.createBiquadFilter();
-        flt.type = 'highpass';
-        flt.frequency.setValueAtTime(isSnare ? 1100 : 5800, now);
-        const g = this.ctx.createGain();
-        const dur = isSnare ? 0.11 : 0.04;
-        g.gain.setValueAtTime(isSnare ? 0.09 : 0.035, now);
-        g.gain.exponentialRampToValueAtTime(0.001, now + dur);
-        src.connect(flt); flt.connect(g); g.connect(this.ctx.destination);
-        src.start(now); src.stop(now + dur);
-      }
-
-      // 4. Melodic Chiptune Arpeggio Lead (Unmutes during active combat!)
-      const lf = this.leadNotes[s];
-      if (lf && ((state.stats && state.stats.combo >= 1.2) || s % 2 === 0)) {
-        const osc = this.ctx.createOscillator();
-        const flt = this.ctx.createBiquadFilter();
-        const g = this.ctx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(lf, now);
-        flt.type = 'lowpass';
-        flt.frequency.setValueAtTime(1600, now);
-        g.gain.setValueAtTime(0.055, now);
-        g.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
-        osc.connect(flt); flt.connect(g); g.connect(this.ctx.destination);
-        osc.start(now); osc.stop(now + 0.095);
-      }
-    }
-  };
-  window.addEventListener('keydown', () => window.__SYNTH_BUS__.unlock());
-  window.addEventListener('mousedown', () => window.__SYNTH_BUS__.unlock());
-
-  // Main Microkernel Loop with Modal-First Update Lock & 2-Canvas Z-Compositing
   (function runMicrokernel() {
     let lastTime = performance.now();
     function tick(now) {
@@ -432,136 +293,57 @@
       const state = engine.state;
       state.dt = dt;
       state.tick++;
+
       if (typeof state.score === 'number') state.score = Math.floor(state.score);
       if (state.stats && typeof state.stats.combo === 'number') {
         state.stats.combo = Math.round(state.stats.combo * 10) / 10;
       }
-      // 1. Clean Shield & Health Synchronization (Zero Invincibility Revert Bug!)
-      if (state.player) {
-        const p = state.player;
-        if (typeof p.maxShields !== 'number') p.maxShields = 3;
-        if (typeof p.shields !== 'number') p.shields = 3;
-        if (typeof p.health !== 'number') p.health = p.shields;
-        if (typeof engine._prevShields !== 'number') engine._prevShields = p.shields;
 
-        // If either shields or health dropped this frame, commit the damage and grant 1.2s i-frames
-        const currentMin = Math.min(p.shields, p.health);
-        if (currentMin < engine._prevShields) {
-          p.shields = Math.max(0, currentMin);
-          p.health = p.shields;
-          p.invuln = Math.max(p.invuln || 0, 1.2);
-          if (state.world) state.world.cameraShake = Math.max(state.world.cameraShake || 0, 12);
-          engine._prevShields = p.shields;
-          engine.emit('PLAYER_DAMAGED', { shields: p.shields });
-        } else if (Math.max(p.shields, p.health) > engine._prevShields) {
-          // Shield pickup or new run reset
-          const restored = Math.min(p.maxShields, Math.max(p.shields, p.health));
-          p.shields = restored;
-          p.health = restored;
-          engine._prevShields = restored;
-        }
-
-        // Clamp ship velocity so overlapping thruster/recoil/dash forces NEVER launch the player uncontrollably
-        const spd = Math.hypot(p.vx || 0, p.vy || 0);
-        const maxSpd = 310;
-        if (spd > maxSpd) {
-          p.vx = (p.vx / spd) * maxSpd;
-          p.vy = (p.vy / spd) * maxSpd;
-        }
-      }
-
-      // 2. True Wave-Clear Progression & Guaranteed Game Over Controller
-      if (state.player && state.world) {
-        const p = state.player, w = state.world;
-        const v2Mod = engine.modules['Milestone_v0_2_0'];
-        const inPilotMenu = Boolean(v2Mod && v2Mod.menuActive);
-
-        // Detect 0 Shields -> Trigger Guaranteed Arcade Game Over Modal!
-        if (!inPilotMenu && !state.gameOver && typeof p.shields === 'number' && p.shields <= 0) {
-          state.gameOver = true;
-          state.paused = true;
-          state.modal = 'RUN_SUMMARY';
-          const sc = Math.floor(state.score || 0);
-          const wv = w.wave || 1;
-          const rank = sc >= 25000 ? 'S-RANK // NEON DEITY' : (sc >= 14000 ? 'A-RANK // HYPER ACE' : (sc >= 6000 ? 'B-RANK // VOID RUNNER' : 'C-RANK // STAR DRIFTER'));
-          const pilotName = (p.pilot && p.pilot.name) || 'VEX // VIPER';
-          if (!window.__ARCADE_BOARD__) {
-            window.__ARCADE_BOARD__ = [
-              { name: 'VEX // DEVOLVER', score: 28500, wave: 6 },
-              { name: 'KAZE // RONIN', score: 19200, wave: 5 },
-              { name: 'NYX // PHANTOM', score: 12400, wave: 4 },
-              { name: 'BASS // TITAN', score: 7800, wave: 3 }
-            ];
-          }
-          window.__LAST_RUN__ = { score: sc, wave: wv, rank: rank, pilot: pilotName };
-          window.__ARCADE_BOARD__.push({ name: 'YOU (' + pilotName.split(' ')[0] + ')', score: sc, wave: wv });
-          window.__ARCADE_BOARD__.sort((a, b) => b.score - a.score);
-          window.__ARCADE_BOARD__ = window.__ARCADE_BOARD__.slice(0, 5);
-        }
-
-        // Lock Wave Number to True Wave-Clear Sequencing (Prevent v0.1.0 from jumping waves before clear)
-        if (!state.paused && !state.gameOver) {
-          if (typeof engine._lockedWave !== 'number') engine._lockedWave = 1;
-          const rocks = w.asteroids || w.rocks || [];
-          const enemies = w.enemies || [];
-          // If wave still has active asteroids or enemies, hold wave at _lockedWave
-          if (rocks.length > 0 || enemies.length > 0) {
-            w.wave = engine._lockedWave;
-            engine._waveClearTimer = 0;
-          } else {
-            // All asteroids & enemies cleared! Brief 1.8s breather before advancing by +1 wave
-            engine._waveClearTimer = (engine._waveClearTimer || 0) + dt;
-            if (engine._waveClearTimer >= 1.6) {
-              engine._waveClearTimer = 0;
-              engine._lockedWave++;
-              w.wave = engine._lockedWave;
-              const waveTitles = {
-                2: 'WAVE 2 // SINGULARITY & PLASMA HAZARD SECTOR',
-                3: 'WAVE 3 // SYNTH-HUNTER SQUADRON AMBUSH',
-                4: 'WAVE 4 // HYPERVOID BULLET-HELL GAUNTLET',
-                5: '!! WAVE 5 // WARNING: OMEGA-SYNTH LEVIATHAN !!'
-              };
-              (w.floatingTexts || (w.floatingTexts = [])).push({
-                text: waveTitles[w.wave] || ('WAVE ' + w.wave + ' // ENGAGE'),
-                x: 400, y: 150, color: w.wave === 5 ? '#ff007f' : '#00f3ff', life: 2.8
-              });
-              engine.emit('WAVE_ADVANCED', { wave: w.wave });
-            } else {
-              w.wave = engine._lockedWave;
-            }
-          }
-        }
-      }
-
-      // Preserve plugin-controlled state.paused (e.g. Pilot Select or Draft Modal)
       if (_modalOwnerThisFrame && _modalOwnerThisFrame !== 'BOOT_HOLD') {
         state.paused = true;
       } else if (_modalOwnerThisFrame === 'BOOT_HOLD') {
         _modalOwnerThisFrame = null;
       }
 
-      // Canonical Arcade Control Stabilizer: S/Down acts as smooth Inertial Retro-Brake in zero-G
-      if (!state.paused && state.player && state.keys && state.keys.down) {
-        state.player.vx = (state.player.vx || 0) * Math.pow(0.08, dt);
-        state.player.vy = (state.player.vy || 0) * Math.pow(0.08, dt);
+      // Bidirectional Health <-> Shields Sync & Velocity Clamping
+      if (state.player) {
+        const p = state.player;
+        if (typeof engine._prevHealth !== 'number') engine._prevHealth = 3;
+        const curMin = Math.min(
+          typeof p.health === 'number' ? p.health : 3,
+          typeof p.shields === 'number' ? p.shields : 3
+        );
+        if (curMin < engine._prevHealth) {
+          p.health = Math.max(0, curMin);
+          p.shields = p.health;
+          p.invuln = Math.max(p.invuln || 0, 1.2);
+          engine._prevHealth = p.health;
+          engine.emit('PLAYER_DAMAGED', { health: p.health, shields: p.shields });
+        } else if (Math.max(p.health || 0, p.shields || 0) > engine._prevHealth) {
+          const restored = Math.max(p.health || 0, p.shields || 0);
+          p.health = restored;
+          p.shields = restored;
+          engine._prevHealth = restored;
+        }
+        const spd = Math.hypot(p.vx || 0, p.vy || 0);
+        const maxSpd = p.maxSpeed || 320;
+        if (spd > maxSpd) {
+          p.vx = (p.vx / spd) * maxSpd;
+          p.vy = (p.vy / spd) * maxSpd;
+        }
       }
 
-      // Master 128-BPM Synthwave Beat Clock & Procedural Sequencer Bus (Guarantees pulsing soundtrack!)
-      if (window.__SYNTH_BUS__) {
-        window.__SYNTH_BUS__.tick(dt, state);
+      // Screen-Shake Damping
+      if (state.world && typeof state.world.cameraShake === 'number' && state.world.cameraShake > 0) {
+        state.world.cameraShake *= (state.keys && state.keys.jump) ? 0.85 : Math.pow(0.01, dt);
+        if (state.world.cameraShake < 0.25) state.world.cameraShake = 0;
       }
 
-      // 1. Update Phase: Run v0.2.0+ feature/modal controllers FIRST so pause locks apply before v0.1.0 physics
+      // 1. Update Phase
       for (let i = 0; i < engine.hooks.update.length; i++) {
         const h = engine.hooks.update[i];
-        // Never advance v0.1.0 downhill skiing while paused or while a modal is on screen!
-        if (h.name === 'Milestone_v0_1_0' && (state.paused || _modalOwnerThisFrame)) {
-          continue;
-        }
-        // If another module owns an active modal, pause competing feature updates
-        if (_modalOwnerThisFrame && h.name !== _modalOwnerThisFrame && h.name !== 'Milestone_v0_1_0') {
-          continue;
-        }
+        if (h.name === 'Milestone_v0_1_0' && (state.paused || _modalOwnerThisFrame)) continue;
+        if (_modalOwnerThisFrame && h.name !== _modalOwnerThisFrame && h.name !== 'Milestone_v0_1_0') continue;
         try { h.fn(dt, state, engine); }
         catch (e) {
           if (window.__STUDIO_ERRORS__.length < 10) {
@@ -570,97 +352,38 @@
         }
       }
 
-      // 2. Render Phase: World & HUDs draw to _baseCtx; any active Modal is captured onto _modalCtx
+      // 2. Render Phase (2-Canvas Z-Compositor)
       _modalCtx.clearRect(0, 0, 800, 600);
       _modalOwnerThisFrame = null;
 
       if (engine.hooks.render.length === 0) {
-        _baseCtx.fillStyle = '#0f172a';
+        _baseCtx.fillStyle = '#090d16';
         _baseCtx.fillRect(0, 0, 800, 600);
         _baseCtx.fillStyle = '#38bdf8';
         _baseCtx.font = 'bold 20px monospace';
         _baseCtx.textAlign = 'center';
-        _baseCtx.fillText('AETHELGARD UNIVERSAL MICROKERNEL ONLINE', 400, 280);
+        _baseCtx.fillText('AETHELGARD UNIVERSAL MICROKERNEL v3.0 ONLINE', 400, 280);
       } else {
         for (let i = 0; i < engine.hooks.render.length; i++) {
           const h = engine.hooks.render[i];
           _currentModName = h.name;
           _inModalPass = false;
-          _v2HudShiftActive = false;
-
           _baseCtx.save();
           _modalCtx.save();
           _baseCtx.textAlign = 'left';
           _baseCtx.textBaseline = 'alphabetic';
           _baseCtx.globalAlpha = 1.0;
           _baseCtx.shadowBlur = 0;
-
           try { h.fn(_smartCtx, state, engine); }
           catch (e) {
             if (window.__STUDIO_ERRORS__.length < 10) {
               window.__STUDIO_ERRORS__.push({ source: h.name + '.render', msg: e.message });
             }
           }
-
           _modalCtx.restore();
           _baseCtx.restore();
         }
 
-        // Render Guaranteed Arcade Game Over & Leaderboard Modal if shields reached 0
-        if (state.gameOver && window.__LAST_RUN__) {
-          _modalOwnerThisFrame = 'StudioEngine_GameOver';
-          const run = window.__LAST_RUN__;
-          const board = window.__ARCADE_BOARD__ || [];
-          _modalCtx.save();
-          _modalCtx.fillStyle = 'rgba(5, 2, 13, 0.95)';
-          _modalCtx.fillRect(0, 36, 800, 564);
-
-          _modalCtx.strokeStyle = '#ff007f';
-          _modalCtx.lineWidth = 3;
-          _modalCtx.shadowBlur = 18;
-          _modalCtx.shadowColor = '#ff007f';
-          _modalCtx.strokeRect(130, 76, 540, 450);
-          _modalCtx.shadowBlur = 0;
-
-          _modalCtx.textAlign = 'center';
-          _modalCtx.fillStyle = '#ff007f';
-          _modalCtx.font = 'bold 26px monospace';
-          _modalCtx.fillText('// HULL BREACH: SIGNAL LOST //', 400, 122);
-
-          _modalCtx.fillStyle = '#00f3ff';
-          _modalCtx.font = 'bold 16px monospace';
-          _modalCtx.fillText(run.rank, 400, 156);
-
-          _modalCtx.fillStyle = '#e2e8f0';
-          _modalCtx.font = '14px monospace';
-          _modalCtx.fillText(`PILOT: ${run.pilot}   |   SCORE: ${run.score}   |   WAVE: ${run.wave}`, 400, 188);
-
-          _modalCtx.fillStyle = '#ffea00';
-          _modalCtx.font = 'bold 15px monospace';
-          _modalCtx.fillText('--- HYPERVOID TOP ACE LEADERBOARD ---', 400, 232);
-
-          _modalCtx.font = '14px monospace';
-          for (let i = 0; i < board.length; i++) {
-            const row = board[i];
-            const ry = 264 + i * 28;
-            _modalCtx.fillStyle = row.name.startsWith('YOU') ? '#39ff14' : '#94a3b8';
-            _modalCtx.textAlign = 'left';
-            _modalCtx.fillText(`${i + 1}. ${row.name}`, 190, ry);
-            _modalCtx.textAlign = 'right';
-            _modalCtx.fillText(`W${row.wave}  //  ${row.score} PTS`, 610, ry);
-          }
-
-          _modalCtx.textAlign = 'center';
-          _modalCtx.fillStyle = '#39ff14';
-          _modalCtx.font = 'bold 15px monospace';
-          _modalCtx.fillText('[SPACE / ENTER] RELAUNCH IMMEDIATELY', 400, 448);
-          _modalCtx.fillStyle = '#00f3ff';
-          _modalCtx.font = 'bold 14px monospace';
-          _modalCtx.fillText('[PRESS C] RETURN TO PILOT SELECT ROSTER', 400, 480);
-          _modalCtx.restore();
-        }
-
-        // Composite the topmost Modal Canvas over the base canvas LAST & auto-sync state.paused
         if (_modalOwnerThisFrame) {
           _baseCtx.drawImage(_modalCanvas, 0, 0);
           window.__COMPAT_REPORT__.activeOwnerModal = _modalOwnerThisFrame;
