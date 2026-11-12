@@ -72,7 +72,7 @@
   let _modalOwnerThisFrame = 'BOOT_HOLD';
 
   const MODAL_KEYWORDS = [
-    'SELECT ', 'CHOOSE ', 'CONTENDER', 'CONFIG', 'PROTOCOL', 'VERDICT', 'ARBITER', 'UPGRADE', 'DRAFT', 'REFUGE', 'SHELTER',
+    'SELECT ', 'CHOOSE ', 'CONTENDER', 'CONFIG', 'PROTOCOL', 'VERDICT', 'UPGRADE', 'DRAFT', 'REFUGE', 'SHELTER',
     'CHARACTER', 'CLASS', 'VESSEL', 'DELVER', 'CHRONICLE', 'EPITAPH', 'LEVEL UP', 'GAME OVER', 'OBITUARY', 'VICTORY', 'LEADERBOARD', 'TERMINATED'
   ];
 
@@ -113,7 +113,7 @@
             if (text.includes('.')) {
               text = text.replace(/(\d+)\.(\d{2,})/g, (m, a, b) => a + (y < 40 ? '' : '.' + b.slice(0, 1)));
             }
-            if (_currentModName !== 'Milestone_v0_1_0' && y < 180) {
+            if (_currentModName !== 'Milestone_v0_1_0' && y > 44 && y < 180) {
               const upper = text.toUpperCase();
               for (let k = 0; k < MODAL_KEYWORDS.length; k++) {
                 if (upper.includes(MODAL_KEYWORDS[k])) {
@@ -443,5 +443,6 @@
   <script src="js/milestone_v0_1_0.js"></script>
   <script src="js/milestone_v0_2_0.js"></script>
   <script src="js/milestone_v0_3_0.js"></script>
+  <script src="js/milestone_v0_4_0.js"></script>
 </body>
 </html>

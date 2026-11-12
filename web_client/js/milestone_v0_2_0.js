@@ -1,256 +1,249 @@
-// Cohesive Milestone Plugin: v0.2.0
-// Cohesive Milestone Plugin: v0.2.0 - Contender Configuration, Ghost Sigils, Threat Threads & 3-Tier Arbiter AI
+// Cohesive Milestone Plugin: v0.2.0 (Contender Configuration Modal, 3-Tier Minimax Oracle AI & Threat Telemetry)
 window.StudioEngine.registerModule("Milestone_v0_2_0", {
   init: function(state, engine) {
-    state.config = state.config || { open: true, palette: 0, firstTurn: 'PLAYER', tier: 2, roundCount: 0 };
-    state.grid = state.grid || Array(9).fill(0);
-    state.activeContender = state.activeContender || 1;
-    state.arbiterTier = state.config.tier;
-    state.roundOver = false;
-    state.world = state.world || {};
-    state.world.time = 0;
-    this.triads = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-    this.palettes = [
-      { p1: '#00f0ff', p2: '#ffd700', name: 'CYAN // AUREATE' },
-      { p1: '#ff0055', p2: '#7000ff', name: 'NEON // VOID' }
-    ];
-    this.aiTimer = 0;
-    this.prevKey = {};
+    this.configOpen = true;
+    state.paused = true;
+    state.modal = "CONFIG";
 
-    engine.on("CONFIG_COMMITTED", (payload, st) => {
-      st.arbiterTier = st.config.tier;
-      st.activeContender = st.config.firstTurn === 'ALTERNATING' 
-        ? (st.config.roundCount % 2 === 0 ? 1 : 2) 
-        : (st.config.firstTurn === 'PLAYER' ? 1 : 2);
-      st.stats.phase = st.activeContender === 1 ? 'PLAYER_TURN' : 'AI_THINKING';
-      this.syncGrid(st);
+    engine.on("KEYDOWN", (ev) => {
+      const lat = state.world && state.world.lattice;
+      if (!lat) return;
+
+      // Allow pressing [KeyC] during gameplay to re-open the Sacred Lattice Architecture modal
+      if (!this.configOpen && ev.code === "KeyC") {
+        this.configOpen = true;
+        state.paused = true;
+        state.modal = "CONFIG";
+        return;
+      }
+
+      if (!this.configOpen) return;
+
+      if (ev.code === "Digit1") lat.aiTier = 1;
+      else if (ev.code === "Digit2") lat.aiTier = 2;
+      else if (ev.code === "Digit3") lat.aiTier = 3;
+      else if (ev.code === "ShiftLeft" || ev.code === "ShiftRight" || ev.code === "KeyE") {
+        lat.paletteIdx = (lat.paletteIdx + 1) % lat.palettes.length;
+      } else if (ev.code === "KeyS" || ev.code === "ArrowDown") {
+        const modes = ["PLAYER", "ARBITER", "ALTERNATE"];
+        lat.openingMode = modes[(modes.indexOf(lat.openingMode) + 1) % modes.length];
+      } else if (ev.code === "Space" || ev.code === "Enter") {
+        this.closeConfig(state, engine);
+      }
+    });
+
+    engine.on("POINTER_DOWN", (pt) => {
+      if (!this.configOpen) return;
+      // Clicking the COMMENCE DUEL button (or anywhere inside the modal button region) starts immediately
+      if (pt.x >= 250 && pt.x <= 550 && pt.y >= 410 && pt.y <= 475) {
+        this.closeConfig(state, engine);
+      }
     });
   },
 
-  syncGrid: function(st) {
-    if (st.stats && st.stats.grid) {
+  closeConfig: function(state, engine) {
+    this.configOpen = false;
+    state.paused = false;
+    state.modal = null;
+    const m1 = engine.modules["Milestone_v0_1_0"];
+    if (m1 && state.world.lattice) {
+      state.world.lattice.bout = 0;
+      m1.resetBout(state, engine);
+    }
+  },
+
+  // 3-Tier Synthetic Arbiter AI (Called directly by Milestone_v0_1_0 when aiTimer reaches 0)
+  computeArbiterMove: function(lat) {
+    const b = lat.board;
+    const empty = [];
+    for (let i = 0; i < 9; i++) if (b[i] === null) empty.push(i);
+    if (empty.length === 0) return -1;
+
+    // Tier I: Opportunist (Takes immediate win if available, otherwise random vacant sector)
+    const winMove = this._findTwoInRow(b, "O");
+    if (winMove !== -1) return winMove;
+    if (lat.aiTier === 1) {
+      return empty[Math.floor(Math.random() * empty.length)];
+    }
+
+    // Tier II: Tactical Blocker (Blocks opponent 2-in-a-row threats, prefers center/corners)
+    const blockMove = this._findTwoInRow(b, "X");
+    if (blockMove !== -1) return blockMove;
+    if (lat.aiTier === 2) {
+      if (b[4] === null && Math.random() < 0.7) return 4;
+      return empty[Math.floor(Math.random() * empty.length)];
+    }
+
+    // Tier III: Perfect Minimax Oracle
+    let bestScore = -999, bestMove = empty[0];
+    for (let i = 0; i < empty.length; i++) {
+      const idx = empty[i];
+      b[idx] = "O";
+      const score = this._minimax(b, 0, false);
+      b[idx] = null;
+      if (score > bestScore) {
+        bestScore = score;
+        bestMove = idx;
+      }
+    }
+    return bestMove;
+  },
+
+  _findTwoInRow: function(b, sym) {
+    const triads = [
+      [0,1,2],[3,4,5],[6,7,8],
+      [0,3,6],[1,4,7],[2,5,8],
+      [0,4,8],[2,4,6]
+    ];
+    for (let i = 0; i < triads.length; i++) {
+      const [x, y, z] = triads[i];
+      const vals = [b[x], b[y], b[z]];
+      if (vals.filter(v => v === sym).length === 2 && vals.includes(null)) {
+        if (b[x] === null) return x;
+        if (b[y] === null) return y;
+        if (b[z] === null) return z;
+      }
+    }
+    return -1;
+  },
+
+  _checkWinnerRaw: function(b) {
+    const triads = [
+      [0,1,2],[3,4,5],[6,7,8],
+      [0,3,6],[1,4,7],[2,5,8],
+      [0,4,8],[2,4,6]
+    ];
+    for (let i = 0; i < triads.length; i++) {
+      const [x, y, z] = triads[i];
+      if (b[x] && b[x] === b[y] && b[x] === b[z]) return b[x];
+    }
+    return b.every(c => c !== null) ? "DRAW" : null;
+  },
+
+  _minimax: function(b, depth, isMaximizing) {
+    const res = this._checkWinnerRaw(b);
+    if (res === "O") return 10 - depth;
+    if (res === "X") return depth - 10;
+    if (res === "DRAW") return 0;
+
+    if (isMaximizing) {
+      let best = -999;
       for (let i = 0; i < 9; i++) {
-        const val = st.stats.grid[i];
-        st.grid[i] = val === 'BLADES' ? 1 : (val === 'RING' ? 2 : 0);
-      }
-    }
-  },
-
-  checkWin: function(g, p) {
-    return this.triads.some(t => t.every(idx => g[idx] === p));
-  },
-
-  minimax: function(g, depth, isMax) {
-    if (this.checkWin(g, 2)) return 10 - depth;
-    if (this.checkWin(g, 1)) return depth - 10;
-    const empties = g.map((v, i) => v === 0 ? i : null).filter(v => v !== null);
-    if (!empties.length) return 0;
-
-    let best = isMax ? -999 : 999;
-    for (let idx of empties) {
-      g[idx] = isMax ? 2 : 1;
-      const score = this.minimax(g, depth + 1, !isMax);
-      g[idx] = 0;
-      best = isMax ? Math.max(best, score) : Math.min(best, score);
-    }
-    return best;
-  },
-
-  findThreat: function(g, contender) {
-    for (let t of this.triads) {
-      const owned = t.filter(i => g[i] === contender).length;
-      const empty = t.find(i => g[i] === 0);
-      if (owned === 2 && empty !== undefined) return empty;
-    }
-    return null;
-  },
-
-  getArbiterChoice: function(st) {
-    const g = [...st.grid];
-    const empties = g.map((v, i) => v === 0 ? i : null).filter(v => v !== null);
-    if (!empties.length) return null;
-
-    if (st.arbiterTier === 1) {
-      if (Math.random() > 0.4) {
-        const pMoves = g.map((v, i) => v === 1 ? i : null).filter(v => v !== null);
-        const adj = empties.filter(e => pMoves.some(p => Math.abs((p % 3) - (e % 3)) <= 1 && Math.abs(Math.floor(p / 3) - Math.floor(e / 3)) <= 1));
-        if (adj.length) return adj[Math.floor(Math.random() * adj.length)];
-      }
-      return empties[Math.floor(Math.random() * empties.length)];
-    }
-
-    if (st.arbiterTier === 2) {
-      const winMove = this.findThreat(g, 2);
-      if (winMove !== null) return winMove;
-      const blockMove = this.findThreat(g, 1);
-      if (blockMove !== null) return blockMove;
-      if (g[4] === 0) return 4;
-      const corners = [0, 2, 6, 8].filter(c => g[c] === 0);
-      if (corners.length) return corners[Math.floor(Math.random() * corners.length)];
-      return empties[Math.floor(Math.random() * empties.length)];
-    }
-
-    let bestScore = -999, bestIdx = empties[0];
-    for (let idx of empties) {
-      g[idx] = 2;
-      const s = this.minimax(g, 0, false);
-      g[idx] = 0;
-      if (s > bestScore) { bestScore = s; bestIdx = idx; }
-    }
-    return bestIdx;
-  },
-
-  update: function(dt, state, engine) {
-    state.world.time = (state.world.time || 0) + dt * 1000;
-    this.syncGrid(state);
-    state.roundOver = !!(state.stats && state.stats.winner) || state.grid.every(v => v !== 0);
-
-    const keys = state.keys || {};
-    const ptr = state.pointer || {};
-
-    if (state.config.open) {
-      state.paused = true;
-      if (keys.digit1 && !this.prevKey.digit1) state.config.tier = 1;
-      if (keys.digit2 && !this.prevKey.digit2) state.config.tier = 2;
-      if (keys.digit3 && !this.prevKey.digit3) state.config.tier = 3;
-      if ((keys.action && !this.prevKey.action)) state.config.palette = (state.config.palette + 1) % 2;
-      if (keys.down && !this.prevKey.down) {
-        state.config.firstTurn = state.config.firstTurn === 'PLAYER' ? 'ARBITER' : (state.config.firstTurn === 'ARBITER' ? 'ALTERNATING' : 'PLAYER');
-      }
-      if ((keys.jump && !this.prevKey.jump) || (ptr.clicked && ptr.x >= 280 && ptr.x <= 520 && ptr.y >= 430 && ptr.y <= 465)) {
-        state.config.open = false;
-        state.paused = false;
-        engine.emit("CONFIG_COMMITTED", state.config);
-      }
-      this.prevKey = { ...keys };
-      return;
-    }
-
-    if (state.roundOver) {
-      if (keys.jump && !this.prevKey.jump) state.config.roundCount++;
-      this.prevKey = { ...keys };
-      return;
-    }
-
-    // Arbiter autonomous deliberation
-    if (state.activeContender === 2) {
-      this.aiTimer += dt;
-      if (this.aiTimer >= 0.35) {
-        const choice = this.getArbiterChoice(state);
-        if (choice !== null) {
-          state.grid[choice] = 2;
-          state.stats.grid[choice] = 'RING';
-          engine.emit("CELL_INSCRIBED", { cellIndex: choice, type: 'RING' });
-          state.activeContender = 1;
-          state.stats.phase = 'PLAYER_TURN';
+        if (b[i] === null) {
+          b[i] = "O";
+          best = Math.max(best, this._minimax(b, depth + 1, false));
+          b[i] = null;
         }
-        this.aiTimer = 0;
       }
+      return best;
     } else {
-      this.aiTimer = 0;
-      // Mirror human inscription to v0.2.0 blackboard
+      let best = 999;
       for (let i = 0; i < 9; i++) {
-        if (state.stats.grid[i] === 'BLADES' && state.grid[i] === 0) {
-          state.grid[i] = 1;
-          state.activeContender = 2;
-          state.stats.phase = 'AI_THINKING';
+        if (b[i] === null) {
+          b[i] = "X";
+          best = Math.min(best, this._minimax(b, depth + 1, true));
+          b[i] = null;
         }
       }
+      return best;
     }
-    this.prevKey = { ...keys };
   },
 
-  render: function(ctx, state) {
-    const pal = this.palettes[state.config.palette];
-    const mx = 220, my = 130, cs = 120;
-    const t = state.world.time * 0.001;
+  update: function(dt, state) {
+    if (this.configOpen) {
+      state.paused = true;
+    }
+  },
 
-    ctx.save();
-    // 1. Diegetic Threat Threads (Collinear Vectors with 2/3 filled)
-    if (!state.config.open && !state.roundOver) {
-      for (let tr of this.triads) {
-        for (let c of [1, 2]) {
-          const owned = tr.filter(i => state.grid[i] === c).length;
-          const open = tr.find(i => state.grid[i] === 0);
-          if (owned === 2 && open !== undefined) {
-            const r1 = Math.floor(tr[0] / 3), c1 = tr[0] % 3;
-            const r2 = Math.floor(tr[2] / 3), c2 = tr[2] % 3;
-            const x1 = mx + c1 * cs + 60, y1 = my + r1 * cs + 60;
-            const x2 = mx + c2 * cs + 60, y2 = my + r2 * cs + 60;
-            ctx.save();
-            ctx.strokeStyle = c === 1 ? pal.p1 : pal.p2;
-            ctx.lineWidth = 2 + 1.5 * Math.sin(state.world.time * 0.01);
-            ctx.setLineDash([8, 6]);
-            ctx.lineDashOffset = -state.world.time * 0.05;
-            ctx.shadowColor = ctx.strokeStyle;
-            ctx.shadowBlur = 10;
-            ctx.beginPath();
-            ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
-            ctx.stroke();
-            ctx.restore();
-          }
-        }
+  render: function(ctx, state, engine) {
+    const lat = state.world && state.world.lattice;
+    if (!lat) return;
+    const pal = lat.palettes[lat.paletteIdx] || lat.palettes[0];
+    const m1 = engine.modules["Milestone_v0_1_0"];
+
+    // 1. Render Pre-Series Contender Configuration Modal if Open
+    if (this.configOpen) {
+      ctx.save();
+      ctx.fillStyle = "#090d18";
+      ctx.fillRect(215, 118, 370, 375);
+      ctx.strokeStyle = "#f43f5e";
+      ctx.lineWidth = 2.5;
+      ctx.strokeRect(215, 118, 370, 375);
+
+      ctx.textAlign = "center";
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "bold 16px monospace";
+      ctx.fillText("SACRED LATTICE ARCHITECTURE", 400, 158);
+
+      ctx.fillStyle = "#94a3b8";
+      ctx.font = "12px monospace";
+      ctx.fillText("[1-3] COGNITIVE ARBITER TIER", 400, 196);
+
+      const tiers = ["1. I: Opportunist", "2. II: Tactical Blocker", "3. III: Minimax Oracle"];
+      for (let i = 0; i < 3; i++) {
+        const active = (lat.aiTier === i + 1);
+        ctx.fillStyle = active ? "#f43f5e" : "#64748b";
+        ctx.font = active ? "bold 12px monospace" : "12px monospace";
+        ctx.fillText(tiers[i], 400, 220 + i * 22);
       }
 
-      // 2. Translucent Ghost Sigil Hover
-      const px = state.pointer.x - mx, py = state.pointer.y - my;
-      if (state.activeContender === 1 && px >= 0 && px < 360 && py >= 0 && py < 360) {
-        const col = Math.floor(px / cs), row = Math.floor(py / cs);
-        const idx = col + row * 3;
-        if (state.grid[idx] === 0) {
-          const gx = mx + col * cs + 60, gy = my + row * cs + 60;
-          const alpha = 0.35 + 0.15 * Math.sin(t * 6);
-          ctx.save();
-          ctx.globalAlpha = alpha;
-          ctx.strokeStyle = pal.p1;
-          ctx.lineWidth = 3;
-          ctx.beginPath();
-          ctx.moveTo(gx - 26, gy - 26); ctx.lineTo(gx + 26, gy + 26);
-          ctx.moveTo(gx + 26, gy - 26); ctx.lineTo(gx - 26, gy + 26);
-          ctx.stroke();
-          ctx.restore();
-        }
+      ctx.fillStyle = "#94a3b8";
+      ctx.font = "12px monospace";
+      ctx.fillText("[SHIFT/E] PALETTE", 400, 304);
+      ctx.fillStyle = "#a855f7";
+      ctx.font = "bold 12px monospace";
+      ctx.fillText(`CREST THEME: ${pal.name}`, 400, 326);
+
+      ctx.fillStyle = "#94a3b8";
+      ctx.font = "12px monospace";
+      ctx.fillText("[S/DOWN] TEMPORAL ORDER", 400, 362);
+      ctx.fillStyle = "#f8fafc";
+      ctx.font = "bold 12px monospace";
+      ctx.fillText(`OPENING: ${lat.openingMode}`, 400, 384);
+
+      ctx.fillStyle = "#f43f5e";
+      ctx.fillRect(280, 416, 240, 38);
+      ctx.fillStyle = "#090d18";
+      ctx.font = "bold 12px monospace";
+      ctx.fillText("COMMENCE DUEL [SPACE]", 400, 440);
+      ctx.restore();
+      return;
+    }
+
+    if (!m1) return;
+    ctx.save();
+
+    // 2. Render Pulsing Collinear Threat-Threads (Whenever 2 of 3 sectors in a triad match!)
+    const b = lat.board;
+    const pulse = 0.35 + Math.sin(performance.now() * 0.008) * 0.2;
+    for (let i = 0; i < m1.TRIADS.length; i++) {
+      const [x, y, z] = m1.TRIADS[i];
+      const vals = [b[x], b[y], b[z]];
+      const xCount = vals.filter(v => v === "X").length;
+      const oCount = vals.filter(v => v === "O").length;
+      if ((xCount === 2 || oCount === 2) && vals.includes(null)) {
+        const p1 = m1.getSectorCenter(x), p2 = m1.getSectorCenter(z);
+        ctx.strokeStyle = xCount === 2 ? pal.xCol : pal.oCol;
+        ctx.globalAlpha = pulse;
+        ctx.lineWidth = 2;
+        ctx.setLineDash([6, 6]);
+        ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
+        ctx.setLineDash([]);
       }
     }
 
-    // 3. Pre-series Configuration Modal Overlay
-    if (state.config.open) {
-      ctx.fillStyle = 'rgba(7, 9, 19, 0.94)';
-      ctx.fillRect(mx - 10, my - 10, 380, 380);
-      ctx.strokeStyle = pal.p1;
-      ctx.lineWidth = 2;
-      ctx.strokeRect(mx - 10, my - 10, 380, 380);
-
-      ctx.textAlign = 'center';
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 15px monospace';
-      ctx.fillText('SACRED LATTICE ARCHITECTURE', 400, 160);
-
-      ctx.font = '11px monospace';
-      ctx.fillStyle = '#8e99ac';
-      ctx.fillText('[1-3] COGNITIVE ARBITER TIER', 400, 195);
-      const tiers = ['I: Opportunist', 'II: Tactical Blocker', 'III: Minimax Oracle'];
-      tiers.forEach((name, i) => {
-        ctx.fillStyle = state.config.tier === (i + 1) ? pal.p1 : '#495267';
-        ctx.fillText(`${i + 1}. ${name}`, 400, 218 + i * 20);
-      });
-
-      ctx.fillStyle = '#8e99ac';
-      ctx.fillText('[SHIFT/E] PALETTE', 400, 295);
-      ctx.fillStyle = pal.p2;
-      ctx.fillText(`CREST THEME: ${pal.name}`, 400, 315);
-
-      ctx.fillStyle = '#8e99ac';
-      ctx.fillText('[S/DOWN] TEMPORAL ORDER', 400, 350);
-      ctx.fillStyle = '#ffffff';
-      ctx.fillText(`OPENING: ${state.config.firstTurn}`, 400, 370);
-
-      // Lock In Button
-      ctx.fillStyle = pal.p1;
-      ctx.fillRect(280, 420, 240, 36);
-      ctx.fillStyle = '#070913';
-      ctx.font = 'bold 12px monospace';
-      ctx.fillText('COMMENCE DUEL [SPACE]', 400, 443);
+    // 3. Render Translucent Ghost-Sigil Hover Preview inside Vacant Cursor Sector
+    if (lat.phase === "PLAYER_TURN" && lat.cursor >= 0 && lat.board[lat.cursor] === null) {
+      const c = m1.getSectorCenter(lat.cursor);
+      ctx.translate(c.x, c.y);
+      ctx.strokeStyle = pal.xCol;
+      ctx.globalAlpha = 0.25;
+      ctx.lineWidth = 3.5;
+      const r = 30;
+      ctx.beginPath();
+      ctx.moveTo(-r, -r); ctx.lineTo(r, r);
+      ctx.moveTo(r, -r); ctx.lineTo(-r, r);
+      ctx.stroke();
     }
 
     ctx.restore();

@@ -1,319 +1,413 @@
-// Cohesive Milestone Plugin: v0.1.0
+// Cohesive Milestone Plugin: v0.1.0 (The Ninefold Matrix, Zero-Lag Input & Collinear Triad Arbiter)
 window.StudioEngine.registerModule("Milestone_v0_1_0", {
   init: function(state, engine) {
-    state.world = state.world || {};
-    state.stats = state.stats || {};
-    state.pointer = state.pointer || { x: 400, y: 300, clicked: false };
-    state.keys = state.keys || {};
-    state.score = state.score || 0;
-
-    state.world.matrix = { x: 220, y: 130, size: 360, cellSize: 120, selectedIndex: 4 };
-    state.world.inscriptions = [];
-    state.world.particles = [];
-    state.world.floatingTexts = [];
-    state.world.cameraShake = 0;
-
-    state.stats.grid = Array(9).fill(null);
-    state.stats.phase = 'PLAYER_TURN';
-    state.stats.winner = null;
-    state.stats.winVector = null;
-    state.stats.aiTimer = 0;
-    state.stats.roundsPlayed = 0;
-    state.stats.initiatorWins = 0;
-    state.stats.arbiterWins = 0;
-
-    this.lines = [
-      [0, 1, 2], [3, 4, 5], [6, 7, 8],
-      [0, 3, 6], [1, 4, 7], [2, 5, 8],
-      [0, 4, 8], [2, 4, 6]
+    const w = state.world;
+    this.TRIADS = [
+      [0, 1, 2], [3, 4, 5], [6, 7, 8], // 3 Horizontal Ranks
+      [0, 3, 6], [1, 4, 7], [2, 5, 8], // 3 Vertical Files
+      [0, 4, 8], [2, 4, 6]             // 2 Main Diagonals
     ];
-    this.prevKey = {};
-    this.actx = null;
 
-    engine.on("CELL_INSCRIBED", (payload, st) => {
-      const idx = payload.cellIndex;
-      const type = payload.type;
-      (st.world.inscriptions || (st.world.inscriptions = [])).push({ cellIndex: idx, type: type, progress: 0 });
-      const row = Math.floor(idx / 3), col = idx % 3;
-      const cx = st.world.matrix.x + col * 120 + 60;
-      const cy = st.world.matrix.y + row * 120 + 60;
-      const color = type === 'BLADES' ? '#00f0ff' : '#ffd700';
+    w.lattice = {
+      board: Array(9).fill(null),      // 'X' (Initiator Blades) or 'O' (Arbiter Rings)
+      cellAnim: Array(9).fill(0),
+      moveOrder: { X: [], O: [] },     // Tracks placement order for v0.4.0 Ephemeral Decay
+      phase: "PLAYER_TURN",            // 'PLAYER_TURN' | 'AI_THINKING' | 'ROUND_OVER'
+      winner: null,                    // 'X' | 'O' | 'DRAW'
+      winTriad: null,
+      winBeamProg: 0,
+      cursor: 4,
+      hovered: -1,
+      aiTimer: 0,
+      aiTier: 2,                       // 1: Opportunist, 2: Tactical Blocker, 3: Minimax Oracle
+      openingMode: "PLAYER",           // 'PLAYER' | 'ARBITER' | 'ALTERNATE'
+      paletteIdx: 0,
+      palettes: [
+        { name: "NEON // VOID", xCol: "#00f3ff", oCol: "#facc15", gridCol: "#00f3ff" },
+        { name: "CRIMSON // GOLD", xCol: "#f43f5e", oCol: "#eab308", gridCol: "#f43f5e" },
+        { name: "EMERALD // VIOLET", xCol: "#10b981", oCol: "#a855f7", gridCol: "#10b981" }
+      ],
+      playerWins: 0,
+      arbiterWins: 0,
+      deadlocks: 0,
+      bout: 1,
+      streak: 0,
+      turnTimer: 12.0,
+      maxTurnTimer: 12.0,
+      blitzEnabled: true,
+      ephemeralMode: false
+    };
 
-      for (let i = 0; i < 24; i++) {
-        const theta = (Math.PI * 2 * i) / 24 + (Math.random() - 0.5) * 0.4;
-        const spd = 60 + Math.random() * 140;
-        (st.world.particles || (st.world.particles = [])).push({
-          x: cx, y: cy, vx: Math.cos(theta) * spd, vy: Math.sin(theta) * spd,
-          life: 0.6 + Math.random() * 0.3, maxLife: 0.9, color: color, size: 2 + Math.random() * 2
-        });
+    w.particles = w.particles || [];
+
+    // Direct, Zero-Lag Keyboard & Mouse Handlers
+    engine.on("KEYDOWN", (ev) => {
+      if (state.paused || state.modal) return;
+      const lat = state.world.lattice;
+      if (!lat) return;
+
+      if (lat.phase === "ROUND_OVER") {
+        if (ev.code === "Space" || ev.code === "Enter") {
+          this.resetBout(state, engine);
+        }
+        return;
       }
-      st.world.cameraShake = 4.5;
-      this.playTone(type === 'BLADES' ? 360 : 280, 0.05, 'triangle', 0.14);
+
+      if (lat.phase !== "PLAYER_TURN") return;
+
+      const r = Math.floor(lat.cursor / 3), c = lat.cursor % 3;
+      if (ev.code === "ArrowUp" || ev.code === "KeyW") lat.cursor = ((r + 2) % 3) * 3 + c;
+      else if (ev.code === "ArrowDown" || ev.code === "KeyS") lat.cursor = ((r + 1) % 3) * 3 + c;
+      else if (ev.code === "ArrowLeft" || ev.code === "KeyA") lat.cursor = r * 3 + ((c + 2) % 3);
+      else if (ev.code === "ArrowRight" || ev.code === "KeyD") lat.cursor = r * 3 + ((c + 1) % 3);
+      else if (ev.code === "Space" || ev.code === "Enter") {
+        this.claimSector(state, engine, lat.cursor, "X");
+      }
+    });
+
+    engine.on("POINTER_DOWN", (pt) => {
+      if (state.paused || state.modal) return;
+      const lat = state.world.lattice;
+      if (!lat) return;
+
+      if (lat.phase === "ROUND_OVER") {
+        this.resetBout(state, engine);
+        return;
+      }
+      if (lat.phase === "PLAYER_TURN") {
+        const idx = this.getSectorAtPoint(pt.x, pt.y);
+        if (idx !== -1) {
+          lat.cursor = idx;
+          this.claimSector(state, engine, idx, "X");
+        }
+      }
     });
   },
 
-  playTone: function(freq, gainVal, type, dur) {
-    try {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if (!this.actx && AudioCtx) this.actx = new AudioCtx();
-      if (!this.actx) return;
-      if (this.actx.state === 'suspended') this.actx.resume();
-      const osc = this.actx.createOscillator();
-      const g = this.actx.createGain();
-      osc.type = type || 'sine';
-      osc.frequency.setValueAtTime(freq, this.actx.currentTime);
-      g.gain.setValueAtTime(Math.min(gainVal, 0.06), this.actx.currentTime);
-      g.gain.exponentialRampToValueAtTime(0.0001, this.actx.currentTime + dur);
-      osc.connect(g);
-      g.connect(this.actx.destination);
-      osc.start();
-      osc.stop(this.actx.currentTime + dur);
-    } catch (_) {}
+  getSectorAtPoint: function(px, py) {
+    const gx = 220, gy = 130, size = 360, cell = 120;
+    if (px < gx || px >= gx + size || py < gy || py >= gy + size) return -1;
+    const col = Math.floor((px - gx) / cell);
+    const row = Math.floor((py - gy) / cell);
+    return row * 3 + col;
   },
 
-  checkTerminal: function(state) {
-    const g = state.stats.grid;
-    for (let l of this.lines) {
-      const [a, b, c] = l;
-      if (g[a] && g[a] === g[b] && g[a] === g[c]) {
-        state.stats.winner = g[a];
-        state.stats.winVector = l;
-        state.stats.phase = 'ROUND_OVER';
-        if (g[a] === 'BLADES') { state.stats.initiatorWins++; state.score += 100; }
-        else { state.stats.arbiterWins++; }
-        this.playTone(g[a] === 'BLADES' ? 520 : 220, 0.06, 'sawtooth', 0.35);
+  getSectorCenter: function(idx) {
+    const col = idx % 3, row = Math.floor(idx / 3);
+    return { x: 220 + col * 120 + 60, y: 130 + row * 120 + 60 };
+  },
+
+  claimSector: function(state, engine, idx, symbol) {
+    const lat = state.world.lattice;
+    if (!lat || idx < 0 || idx > 8 || lat.board[idx] !== null || lat.phase === "ROUND_OVER") return false;
+
+    // Ephemeral Protocol (v0.4.0): If contender already has 3 active sigils, dissolve the oldest one!
+    const queue = lat.moveOrder[symbol];
+    if (lat.ephemeralMode && queue.length >= 3) {
+      const oldestIdx = queue.shift();
+      lat.board[oldestIdx] = null;
+      lat.cellAnim[oldestIdx] = 0;
+      const oldPos = this.getSectorCenter(oldestIdx);
+      for (let k = 0; k < 14; k++) {
+        const a = (k / 14) * Math.PI * 2;
+        state.world.particles.push({
+          x: oldPos.x, y: oldPos.y,
+          vx: Math.cos(a) * 110, vy: Math.sin(a) * 110,
+          color: "#94a3b8", life: 0.45
+        });
+      }
+    }
+
+    lat.board[idx] = symbol;
+    lat.cellAnim[idx] = 0.01;
+    queue.push(idx);
+
+    const center = this.getSectorCenter(idx);
+    const pal = lat.palettes[lat.paletteIdx] || lat.palettes[0];
+    const col = symbol === "X" ? pal.xCol : pal.oCol;
+    for (let i = 0; i < 16; i++) {
+      const a = (i / 16) * Math.PI * 2;
+      const spd = 70 + Math.random() * 110;
+      state.world.particles.push({
+        x: center.x, y: center.y,
+        vx: Math.cos(a) * spd, vy: Math.sin(a) * spd,
+        color: col, life: 0.42
+      });
+    }
+
+    engine.emit("SECTOR_INSCRIBED", { index: idx, symbol: symbol, x: center.x, y: center.y });
+
+    // Immediately evaluate Win or 9-Sector Deadlock BEFORE switching turns!
+    if (this.evaluateBoard(state, engine)) {
+      return true;
+    }
+
+    if (symbol === "X") {
+      // Award speed bonus if placed quickly
+      const timeBonus = Math.floor(Math.max(0, lat.turnTimer) * 25);
+      state.score = (state.score || 0) + 100 + timeBonus;
+      lat.phase = "AI_THINKING";
+      lat.aiTimer = 0.34;
+    } else {
+      lat.phase = "PLAYER_TURN";
+      lat.turnTimer = lat.maxTurnTimer;
+    }
+    return true;
+  },
+
+  evaluateBoard: function(state, engine) {
+    const lat = state.world.lattice;
+    const b = lat.board;
+
+    for (let i = 0; i < this.TRIADS.length; i++) {
+      const [a, c, d] = this.TRIADS[i];
+      if (b[a] && b[a] === b[c] && b[a] === b[d]) {
+        lat.phase = "ROUND_OVER";
+        lat.winner = b[a];
+        lat.winTriad = [a, c, d];
+        lat.winBeamProg = 0.01;
+        if (b[a] === "X") {
+          lat.playerWins++;
+          lat.streak++;
+          state.score = (state.score || 0) + 1000 * Math.max(1, lat.streak);
+        } else {
+          lat.arbiterWins++;
+          lat.streak = 0;
+        }
+        engine.emit("BOUT_CONCLUDED", { winner: b[a], triad: [a, c, d] });
         return true;
       }
     }
-    if (g.every(c => c !== null)) {
-      state.stats.winner = 'DEADLOCK';
-      state.stats.winVector = null;
-      state.stats.phase = 'ROUND_OVER';
-      this.playTone(180, 0.04, 'sine', 0.25);
+
+    // Check 9-Sector Equilibrium Deadlock
+    if (b.every(cell => cell !== null)) {
+      lat.phase = "ROUND_OVER";
+      lat.winner = "DRAW";
+      lat.winTriad = null;
+      lat.deadlocks++;
+      state.score = (state.score || 0) + 250;
+      engine.emit("BOUT_CONCLUDED", { winner: "DRAW", triad: null });
       return true;
     }
+
     return false;
   },
 
-  resetBout: function(state) {
-    state.stats.grid.fill(null);
-    state.stats.winner = null;
-    state.stats.winVector = null;
-    state.stats.phase = 'PLAYER_TURN';
-    state.stats.aiTimer = 0;
-    state.stats.roundsPlayed++;
-    state.world.inscriptions = [];
-    this.playTone(440, 0.05, 'triangle', 0.1);
+  resetBout: function(state, engine) {
+    const lat = state.world.lattice;
+    lat.board.fill(null);
+    lat.cellAnim.fill(0);
+    lat.moveOrder = { X: [], O: [] };
+    lat.winner = null;
+    lat.winTriad = null;
+    lat.winBeamProg = 0;
+    lat.bout++;
+    lat.turnTimer = lat.maxTurnTimer;
+
+    const arbiterStarts = (lat.openingMode === "ARBITER") || (lat.openingMode === "ALTERNATE" && (lat.bout % 2 === 0));
+    if (arbiterStarts) {
+      lat.phase = "AI_THINKING";
+      lat.aiTimer = 0.40;
+    } else {
+      lat.phase = "PLAYER_TURN";
+    }
+    engine.emit("BOUT_RESET", { bout: lat.bout });
   },
 
   update: function(dt, state, engine) {
-    const mat = state.world.matrix;
-    const k = state.keys, pk = this.prevKey;
+    if (!state.running || state.paused || state.modal) return;
+    const lat = state.world.lattice;
+    if (!lat) return;
 
-    if (state.pointer.x >= mat.x && state.pointer.x <= mat.x + mat.size &&
-        state.pointer.y >= mat.y && state.pointer.y <= mat.y + mat.size) {
-      const col = Math.min(2, Math.floor((state.pointer.x - mat.x) / mat.cellSize));
-      const row = Math.min(2, Math.floor((state.pointer.y - mat.y) / mat.cellSize));
-      mat.selectedIndex = row * 3 + col;
-    } else {
-      let r = Math.floor(mat.selectedIndex / 3);
-      let c = mat.selectedIndex % 3;
-      if ((k.left && !pk.left)) c = (c + 2) % 3;
-      if ((k.right && !pk.right)) c = (c + 1) % 3;
-      if ((k.up && !pk.up)) r = (r + 2) % 3;
-      if ((k.down && !pk.down)) r = (r + 1) % 3;
-      mat.selectedIndex = r * 3 + c;
+    // Hover tracking
+    const hIdx = this.getSectorAtPoint(state.pointer.x, state.pointer.y);
+    lat.hovered = hIdx;
+    if (hIdx !== -1 && lat.phase === "PLAYER_TURN") {
+      lat.cursor = hIdx;
     }
 
-    const clickTrigger = (k.jump && !pk.jump) || state.pointer.clicked;
-    if (state.pointer.clicked) state.pointer.clicked = false;
+    // Animate inscribed sigils & winning triad beam
+    for (let i = 0; i < 9; i++) {
+      if (lat.board[i] !== null && lat.cellAnim[i] < 1) {
+        lat.cellAnim[i] = Math.min(1, lat.cellAnim[i] + dt * 6.5);
+      }
+    }
+    if (lat.phase === "ROUND_OVER" && lat.winTriad && lat.winBeamProg < 1) {
+      lat.winBeamProg = Math.min(1, lat.winBeamProg + dt * 4.5);
+    }
 
-    if (state.stats.phase === 'ROUND_OVER') {
-      if (clickTrigger) this.resetBout(state);
-    } else if (state.stats.phase === 'PLAYER_TURN') {
-      if (clickTrigger && state.stats.grid[mat.selectedIndex] === null) {
-        state.stats.grid[mat.selectedIndex] = 'BLADES';
-        engine.emit("CELL_INSCRIBED", { cellIndex: mat.selectedIndex, type: 'BLADES' });
-        if (!this.checkTerminal(state)) {
-          state.stats.phase = 'AI_THINKING';
-          state.stats.aiTimer = 0.35;
+    // AI Turn Execution (Delegates to v0.2.0 Minimax Oracle if registered, else fallback)
+    if (lat.phase === "AI_THINKING") {
+      lat.aiTimer -= dt;
+      if (lat.aiTimer <= 0) {
+        const m2 = engine.modules["Milestone_v0_2_0"];
+        let chosen = -1;
+        if (m2 && typeof m2.computeArbiterMove === "function") {
+          chosen = m2.computeArbiterMove(lat);
+        } else {
+          const empty = [];
+          for (let i = 0; i < 9; i++) if (!lat.board[i]) empty.push(i);
+          if (empty.length > 0) chosen = empty[Math.floor(Math.random() * empty.length)];
+        }
+        if (chosen !== -1 && lat.board[chosen] === null) {
+          this.claimSector(state, engine, chosen, "O");
+        } else {
+          this.evaluateBoard(state, engine);
         }
       }
-    } else if (state.stats.phase === 'AI_THINKING') {
-      state.stats.aiTimer -= dt;
-      if (state.stats.aiTimer <= 0) {
-        const bestMove = this.computeArbiterMove(state.stats.grid);
-        if (bestMove !== -1) {
-          state.stats.grid[bestMove] = 'RINGS';
-          engine.emit("CELL_INSCRIBED", { cellIndex: bestMove, type: 'RINGS' });
-          if (!this.checkTerminal(state)) state.stats.phase = 'PLAYER_TURN';
-        }
-      }
     }
 
-    for (let ins of state.world.inscriptions) {
-      if (ins.progress < 1) ins.progress = Math.min(1, ins.progress + dt * 3.8);
+    // Update particles
+    const pts = state.world.particles || [];
+    for (let i = pts.length - 1; i >= 0; i--) {
+      pts[i].x += pts[i].vx * dt;
+      pts[i].y += pts[i].vy * dt;
+      pts[i].life -= dt;
+      if (pts[i].life <= 0) pts.splice(i, 1);
     }
-    for (let i = state.world.particles.length - 1; i >= 0; i--) {
-      const p = state.world.particles[i];
-      p.x += p.vx * dt; p.y += p.vy * dt;
-      p.vx *= 0.92; p.vy *= 0.92;
-      p.life -= dt;
-      if (p.life <= 0) state.world.particles.splice(i, 1);
-    }
-    if (state.world.cameraShake > 0) state.world.cameraShake = Math.max(0, state.world.cameraShake - dt * 14);
-
-    this.prevKey = { up: !!k.up, down: !!k.down, left: !!k.left, right: !!k.right, jump: !!k.jump };
-  },
-
-  computeArbiterMove: function(grid) {
-    for (let l of this.lines) {
-      const [a, b, c] = l;
-      const vals = [grid[a], grid[b], grid[c]];
-      if (vals.filter(v => v === 'RINGS').length === 2 && vals.includes(null)) {
-        return l[vals.indexOf(null)];
-      }
-    }
-    for (let l of this.lines) {
-      const [a, b, c] = l;
-      const vals = [grid[a], grid[b], grid[c]];
-      if (vals.filter(v => v === 'BLADES').length === 2 && vals.includes(null)) {
-        return l[vals.indexOf(null)];
-      }
-    }
-    if (grid[4] === null) return 4;
-    const corners = [0, 2, 6, 8].filter(i => grid[i] === null);
-    if (corners.length > 0) return corners[Math.floor(Math.random() * corners.length)];
-    const empties = grid.map((v, i) => v === null ? i : null).filter(v => v !== null);
-    return empties.length > 0 ? empties[Math.floor(Math.random() * empties.length)] : -1;
   },
 
   render: function(ctx, state) {
-    const t = (state.tick || 0) * 0.016;
+    const lat = state.world.lattice;
+    if (!lat) return;
+    const pal = lat.palettes[lat.paletteIdx] || lat.palettes[0];
+
     ctx.save();
-    ctx.fillStyle = '#070913';
+    // 1. Deep Astral Observatory Background
+    ctx.fillStyle = "#060811";
     ctx.fillRect(0, 0, 800, 600);
 
-    ctx.save();
-    if (state.world.cameraShake > 0) {
-      const ox = (Math.random() - 0.5) * state.world.cameraShake * 2;
-      const oy = (Math.random() - 0.5) * state.world.cameraShake * 2;
-      ctx.translate(ox, oy);
+    // 2. Single Top Status Ribbon (y: 0..36)
+    ctx.fillStyle = "#090d1a";
+    ctx.fillRect(0, 0, 800, 36);
+    ctx.strokeStyle = "#1e293b";
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(0, 36); ctx.lineTo(800, 36); ctx.stroke();
+
+    ctx.font = "bold 12px monospace";
+    ctx.textAlign = "left";
+    ctx.fillStyle = pal.xCol;
+    ctx.fillText(`TRINITAS // INITIATOR [${lat.playerWins}]`, 24, 23);
+    ctx.fillStyle = "#94a3b8";
+    ctx.fillText(`DEADLOCKS [${lat.deadlocks}]`, 235, 23);
+    ctx.fillStyle = pal.oCol;
+    ctx.fillText(`SYNTHETIC ARBITER [${lat.arbiterWins}]`, 365, 23);
+    ctx.fillStyle = "#e2e8f0";
+    ctx.fillText(`SCORE: ${state.score || 0}`, 575, 23);
+    ctx.textAlign = "right";
+    ctx.fillText(`BOUT: ${lat.bout}`, 776, 23);
+
+    // 3. Render Outer Matrix Frame & Glowing Bisecting Dividers
+    const gx = 220, gy = 130, size = 360, cell = 120;
+    ctx.strokeStyle = "#1e293b";
+    ctx.lineWidth = 3;
+    ctx.strokeRect(gx - 6, gy - 6, size + 12, size + 12);
+
+    // Active Cursor / Hover Highlight
+    if (lat.phase === "PLAYER_TURN" && lat.cursor >= 0 && lat.cursor < 9) {
+      const cx = gx + (lat.cursor % 3) * cell;
+      const cy = gy + Math.floor(lat.cursor / 3) * cell;
+      ctx.strokeStyle = "rgba(250, 204, 21, 0.45)";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(cx + 6, cy + 6, cell - 12, cell - 12);
     }
 
-    const mat = state.world.matrix;
-    const gGrad = ctx.createRadialGradient(400, 310, 10, 400, 310, 240);
-    gGrad.addColorStop(0, 'rgba(0, 240, 255, 0.05)');
-    gGrad.addColorStop(1, 'rgba(7, 9, 19, 0)');
-    ctx.fillStyle = gGrad;
-    ctx.fillRect(mat.x - 40, mat.y - 40, mat.size + 80, mat.size + 80);
-
-    ctx.lineWidth = 3;
-    ctx.strokeStyle = '#1a233a';
-    ctx.strokeRect(mat.x, mat.y, mat.size, mat.size);
-
-    ctx.shadowBlur = 14;
-    ctx.shadowColor = '#00f0ff';
-    ctx.strokeStyle = 'rgba(0, 240, 255, 0.8)';
+    // Glowing Ninefold Dividers
+    ctx.save();
+    ctx.strokeStyle = pal.gridCol;
+    ctx.shadowBlur = 12;
+    ctx.shadowColor = pal.gridCol;
     ctx.lineWidth = 2.5;
     ctx.beginPath();
-    ctx.moveTo(mat.x + 120, mat.y + 6); ctx.lineTo(mat.x + 120, mat.y + mat.size - 6);
-    ctx.moveTo(mat.x + 240, mat.y + 6); ctx.lineTo(mat.x + 240, mat.y + mat.size - 6);
-    ctx.moveTo(mat.x + 6, mat.y + 120); ctx.lineTo(mat.x + mat.size - 6, mat.y + 120);
-    ctx.moveTo(mat.x + 6, mat.y + 240); ctx.lineTo(mat.x + mat.size - 6, mat.y + 240);
+    ctx.moveTo(gx + cell, gy + 8); ctx.lineTo(gx + cell, gy + size - 8);
+    ctx.moveTo(gx + cell * 2, gy + 8); ctx.lineTo(gx + cell * 2, gy + size - 8);
+    ctx.moveTo(gx + 8, gy + cell); ctx.lineTo(gx + size - 8, gy + cell);
+    ctx.moveTo(gx + 8, gy + cell * 2); ctx.lineTo(gx + size - 8, gy + cell * 2);
     ctx.stroke();
-    ctx.shadowBlur = 0;
+    ctx.restore();
 
-    const sRow = Math.floor(mat.selectedIndex / 3), sCol = mat.selectedIndex % 3;
-    const hx = mat.x + sCol * 120, hy = mat.y + sRow * 120;
-    ctx.fillStyle = state.stats.phase === 'PLAYER_TURN' ? 'rgba(0, 240, 255, 0.08)' : 'rgba(255, 215, 0, 0.05)';
-    ctx.fillRect(hx + 4, hy + 4, 112, 112);
-    ctx.strokeStyle = state.stats.phase === 'PLAYER_TURN' ? 'rgba(0, 240, 255, 0.4)' : 'rgba(255, 215, 0, 0.3)';
-    ctx.lineWidth = 1.5;
-    ctx.strokeRect(hx + 6, hy + 6, 108, 108);
+    // 4. Render Inscribed Geometric Sigils (Blades 'X' & Concentric Rings 'O')
+    for (let i = 0; i < 9; i++) {
+      const sym = lat.board[i];
+      if (!sym) continue;
+      const prog = lat.cellAnim[i] || 1;
+      const center = this.getSectorCenter(i);
 
-    for (let ins of state.world.inscriptions) {
-      const idx = ins.cellIndex;
-      const r = Math.floor(idx / 3), c = idx % 3;
-      const cx = mat.x + c * 120 + 60, cy = mat.y + r * 120 + 60;
-      const p = Math.min(1, Math.max(0, ins.progress));
-
-      if (ins.type === 'BLADES') {
-        ctx.shadowBlur = 12; ctx.shadowColor = '#00f0ff';
-        ctx.strokeStyle = '#00f0ff'; ctx.lineWidth = 4; ctx.lineCap = 'round';
+      ctx.save();
+      ctx.translate(center.x, center.y);
+      ctx.scale(prog, prog);
+      if (sym === "X") {
+        ctx.strokeStyle = pal.xCol;
+        ctx.shadowBlur = 16;
+        ctx.shadowColor = pal.xCol;
+        ctx.lineWidth = 5;
+        ctx.lineCap = "round";
+        const r = 34;
         ctx.beginPath();
-        const arm = 34 * p;
-        ctx.moveTo(cx - arm, cy - arm); ctx.lineTo(cx + arm, cy + arm);
-        if (p > 0.4) {
-          const arm2 = 34 * ((p - 0.4) / 0.6);
-          ctx.moveTo(cx + arm2, cy - arm2); ctx.lineTo(cx - arm2, cy + arm2);
-        }
+        ctx.moveTo(-r, -r); ctx.lineTo(r, r);
+        ctx.moveTo(r, -r); ctx.lineTo(-r, r);
         ctx.stroke();
       } else {
-        ctx.shadowBlur = 12; ctx.shadowColor = '#ffd700';
-        ctx.strokeStyle = '#ffd700'; ctx.lineWidth = 4;
-        ctx.beginPath();
-        ctx.arc(cx, cy, 32, -Math.PI / 2, -Math.PI / 2 + p * Math.PI * 2);
-        ctx.stroke();
-        if (p > 0.6) {
-          ctx.beginPath();
-          ctx.arc(cx, cy, 14, 0, Math.PI * 2);
-          ctx.stroke();
-        }
+        ctx.strokeStyle = pal.oCol;
+        ctx.shadowBlur = 16;
+        ctx.shadowColor = pal.oCol;
+        ctx.lineWidth = 4.5;
+        ctx.beginPath(); ctx.arc(0, 0, 36, 0, Math.PI * 2); ctx.stroke();
+        ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.arc(0, 0, 16, 0, Math.PI * 2); ctx.stroke();
       }
-      ctx.shadowBlur = 0;
-    }
-
-    if (state.stats.winVector) {
-      const [i1, , i3] = state.stats.winVector;
-      const c1x = mat.x + (i1 % 3) * 120 + 60, c1y = mat.y + Math.floor(i1 / 3) * 120 + 60;
-      const c3x = mat.x + (i3 % 3) * 120 + 60, c3y = mat.y + Math.floor(i3 / 3) * 120 + 60;
-      const glow = 0.8 + 0.2 * Math.sin(t * 12);
-      ctx.save();
-      ctx.strokeStyle = state.stats.winner === 'BLADES' ? `rgba(0, 240, 255, ${glow})` : `rgba(255, 215, 0, ${glow})`;
-      ctx.shadowColor = state.stats.winner === 'BLADES' ? '#00f0ff' : '#ffd700';
-      ctx.shadowBlur = 18; ctx.lineWidth = 6; ctx.lineCap = 'round';
-      ctx.beginPath(); ctx.moveTo(c1x, c1y); ctx.lineTo(c3x, c3y); ctx.stroke();
-      ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2.5; ctx.stroke();
       ctx.restore();
     }
 
-    for (let p of state.world.particles) {
-      ctx.fillStyle = p.color;
-      ctx.globalAlpha = Math.max(0, p.life / p.maxLife);
-      ctx.fillRect(p.x - p.size / 2, p.y - p.size / 2, p.size, p.size);
+    // 5. Render Harmonic Triad Laser Lock on Victory
+    if (lat.phase === "ROUND_OVER" && lat.winTriad) {
+      const pStart = this.getSectorCenter(lat.winTriad[0]);
+      const pEnd = this.getSectorCenter(lat.winTriad[2]);
+      const curX = pStart.x + (pEnd.x - pStart.x) * lat.winBeamProg;
+      const curY = pStart.y + (pEnd.y - pStart.y) * lat.winBeamProg;
+      const beamCol = lat.winner === "X" ? pal.xCol : pal.oCol;
+
+      ctx.save();
+      ctx.strokeStyle = beamCol;
+      ctx.shadowBlur = 22;
+      ctx.shadowColor = beamCol;
+      ctx.lineWidth = 7;
+      ctx.lineCap = "round";
+      ctx.beginPath(); ctx.moveTo(pStart.x, pStart.y); ctx.lineTo(curX, curY); ctx.stroke();
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.moveTo(pStart.x, pStart.y); ctx.lineTo(curX, curY); ctx.stroke();
+      ctx.restore();
     }
-    ctx.globalAlpha = 1.0;
-    ctx.restore();
 
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.fillStyle = 'rgba(7, 9, 19, 0.9)';
-    ctx.fillRect(0, 0, 800, 42);
-    ctx.strokeStyle = 'rgba(0, 240, 255, 0.3)';
-    ctx.beginPath(); ctx.moveTo(0, 42); ctx.lineTo(800, 42); ctx.stroke();
+    // 6. Particles & Bottom Status Prompt
+    const pts = state.world.particles || [];
+    for (let i = 0; i < pts.length; i++) {
+      ctx.fillStyle = pts[i].color;
+      ctx.fillRect(pts[i].x - 2, pts[i].y - 2, 4, 4);
+    }
 
-    ctx.font = '600 13px "Courier New", monospace';
-    ctx.fillStyle = '#00f0ff';
-    ctx.fillText(`TRINITAS // INITIATOR [${state.stats.initiatorWins}]`, 20, 26);
-    ctx.fillStyle = '#ffd700';
-    ctx.fillText(`SYNTHETIC ARBITER [${state.stats.arbiterWins}]`, 240, 26);
-    ctx.fillStyle = '#8a99ad';
-    ctx.fillText(`SCORE: ${Math.floor(state.score)}`, 490, 26);
-    ctx.fillText(`BOUT: ${state.stats.roundsPlayed + 1}`, 690, 26);
-
-    ctx.font = '600 14px "Courier New", monospace';
-    ctx.textAlign = 'center';
-    if (state.stats.phase === 'PLAYER_TURN') {
-      ctx.fillStyle = '#00f0ff';
-      ctx.fillText("INITIATOR'S DOMINION // SELECT VACANT SECTOR [SPACE / CLICK]", 400, 530);
-    } else if (state.stats.phase === 'AI_THINKING') {
-      ctx.fillStyle = '#ffd700';
-      ctx.fillText("ARBITER SYNTHESIZING TRIAD TOPOLOGY...", 400, 530);
+    ctx.font = "bold 13px monospace";
+    ctx.textAlign = "center";
+    if (lat.phase === "ROUND_OVER") {
+      if (lat.winner === "X") {
+        ctx.fillStyle = pal.xCol;
+        ctx.fillText("BLADES DOMINATE THE LATTICE // PRESS [SPACE] OR CLICK TO RE-ENGAGE", 400, 536);
+      } else if (lat.winner === "O") {
+        ctx.fillStyle = pal.oCol;
+        ctx.fillText("RINGS DOMINATE THE LATTICE // PRESS [SPACE] OR CLICK TO RE-ENGAGE", 400, 536);
+      } else {
+        ctx.fillStyle = "#e2e8f0";
+        ctx.fillText("EQUILIBRIUM DEADLOCK DETECTED // PRESS [SPACE] OR CLICK TO RE-ENGAGE", 400, 536);
+      }
+    } else if (lat.phase === "AI_THINKING") {
+      ctx.fillStyle = pal.oCol;
+      ctx.fillText("ARBITER SYNTHESIZING TRIAD TOPOLOGY...", 400, 536);
     } else {
-      ctx.fillStyle = state.stats.winner === 'DEADLOCK' ? '#ffffff' : (state.stats.winner === 'BLADES' ? '#00f0ff' : '#ffd700');
-      const banner = state.stats.winner === 'DEADLOCK' ? "EQUILIBRIUM DEADLOCK DETECTED" : `${state.stats.winner} DOMINATE THE LATTICE`;
-      ctx.fillText(`${banner} // PRESS [SPACE] TO RE-ENGAGE`, 400, 530);
+      ctx.fillStyle = "#94a3b8";
+      ctx.fillText("INITIATOR'S DOMINION // CLICK SECTOR OR [WASD + SPACE] TO INSCRIBE   |   [C] CONFIG", 400, 536);
     }
+
     ctx.restore();
   }
 });
