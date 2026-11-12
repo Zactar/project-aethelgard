@@ -170,15 +170,19 @@ window.StudioEngine.registerModule("Milestone_v0_3_0", {
     if (this.roomSeeded === key) return;
     this.roomSeeded = key;
 
-    w.oilPuddles = [
-      { x: 290, y: 240, r: 42, burning: 0 },
-      { x: 510, y: 380, r: 44, burning: 0 }
-    ];
-    w.cauldrons = [{ x: 400, y: 155, used: false }];
+    const role = w.roomRole || "ENTRY_HALL";
+    // Only spawn Oil Slicks & Cauldrons in ALCHEMY_CISTERN or SEISMIC_FAULT rooms (keeps other rooms uncluttered!)
+    w.oilPuddles = (role === "ALCHEMY_CISTERN")
+      ? [{ x: 320, y: 270, r: 36, burning: 0 }]
+      : [];
+    w.cauldrons = (role === "ALCHEMY_CISTERN")
+      ? [{ x: 480, y: 270, used: false }]
+      : [];
     w.loot = [];
-    // Spawn 2 guaranteed distinct behavioral artifacts in the starting room so player can test builds immediately!
-    this.spawnArtifactDrop(state, 310, 360);
-    this.spawnArtifactDrop(state, 490, 360);
+    // Spawn 1 focal artifact in ENTRY_HALL or RELIQUARY_VAULT (plus enemy drops on kill)
+    if (role === "ENTRY_HALL" || role === "RELIQUARY_VAULT") {
+      this.spawnArtifactDrop(state, 400, 355);
+    }
   },
 
   tryWorldInteraction: function(state) {
@@ -435,7 +439,7 @@ window.StudioEngine.registerModule("Milestone_v0_3_0", {
     }
 
     // 5. Render Diablo-Style 3D Faceted Artifact Crystals, Vertical Light Beams & Rich Lore Tooltips
-    let closestItem = null, minDist = 48;
+    let closestItem = null, minDist = 48; w.activeTooltip = null;
     for (let i = 0; i < (w.loot || []).length; i++) {
       const it = w.loot[i];
       // Vertical Diablo Rarity Light Pillar
@@ -455,6 +459,7 @@ window.StudioEngine.registerModule("Milestone_v0_3_0", {
       if (d < minDist) { minDist = d; closestItem = it; }
     }
 
+    w.activeTooltip = closestItem;
     if (closestItem) {
       const tx = Math.max(155, Math.min(645, closestItem.x));
       const ty = Math.max(95, closestItem.y - 72);

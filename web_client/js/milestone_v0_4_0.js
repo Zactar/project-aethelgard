@@ -43,21 +43,17 @@ window.StudioEngine.registerModule("Milestone_v0_4_0", {
     if (this.roomPopulated === key) return;
     this.roomPopulated = key;
 
-    // 1. Faction Blood-Altar & Fallen OSR Delver Lore Corpse
-    w.altar = {
-      x: 400, y: 215, r: 22,
-      state: w.quest.alignment, // UNSWORN, CONSECRATED, DEFILED
-      used: false
-    };
-    w.corpse = {
-      x: 215, y: 435, looted: false,
-      inscription: "RUNIC ETCHING: 'Strike Phalanx shields from the flank, or parry their lunge.'"
-    };
-
-    // 2. Subtle Dark-Crimson Ichor Fissures (Compact r=28 pools, NEVER giant circles covering the room!)
-    w.ichorPools = w.quest.alignment === "DEFILED"
-      ? [{ x: 230, y: 230, r: 28 }, { x: 570, y: 410, r: 28 }]
-      : [{ x: 560, y: 230, r: 24 }];
+    const role = w.roomRole || "ENTRY_HALL";
+    // Only spawn the Blood-Altar in ALTAR_SANCTUM rooms, and the Lore Corpse in OSSUARY_PASSAGE rooms!
+    w.altar = (role === "ALTAR_SANCTUM")
+      ? { x: 400, y: 255, r: 22, state: w.quest.alignment, used: false }
+      : null;
+    w.corpse = (role === "OSSUARY_PASSAGE")
+      ? { x: 310, y: 360, looted: false, inscription: "RUNIC ETCHING: 'Strike Phalanx shields from the flank, or parry their lunge.'" }
+      : null;
+    w.ichorPools = (role === "ALTAR_SANCTUM" && w.quest.alignment === "DEFILED")
+      ? [{ x: 280, y: 340, r: 24 }]
+      : [];
 
     // 3. Upgrade Room Enemies into Distinct Monster Ecology (Phalanx, Necromancer, Fungoid Horror)
     const enemies = w.enemies || [];
@@ -181,11 +177,11 @@ window.StudioEngine.registerModule("Milestone_v0_4_0", {
     ctx.save();
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     if (w.quest) {
-      ctx.textAlign = "right";
+      ctx.textAlign = "left";
       ctx.font = "bold 11px monospace";
       ctx.fillStyle = w.quest.completed ? "#10b981" : "#eab308";
       const qStatus = w.quest.completed ? "COMPLETED" : `[${w.quest.progress}/${w.quest.target}]`;
-      ctx.fillText(`⚔ OSR QUEST: ${w.quest.title} ${qStatus}  |  PACT: ${w.quest.alignment}`, 788, 52);
+      ctx.fillText(`⚔ OSR QUEST: ${w.quest.title} ${qStatus}  |  PACT: ${w.quest.alignment}`, 14, 52);
     }
     ctx.restore();
   }

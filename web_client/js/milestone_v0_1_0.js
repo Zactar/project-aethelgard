@@ -296,87 +296,175 @@ drawArticulatedDelver: function(ctx, p, t) {
     this.loadRoom(state, 0, 0);
   },
 
+  _edgeOpen: function(x1, y1, x2, y2) {
+    // Origin (0,0) always connects North, East, West so player has 3 initial paths
+    if ((x1 === 0 && y1 === 0) || (x2 === 0 && y2 === 0)) {
+      const ox = x1 === 0 && y1 === 0 ? x2 : x1;
+      const oy = x1 === 0 && y1 === 0 ? y2 : y1;
+      if (oy === 1 && ox === 0) return false; // South wall sealed at start for dramatic throne backdrop
+      return true;
+    }
+    const ax = Math.min(x1, x2), ay = Math.min(y1, y2);
+    const bx = Math.max(x1, x2), by = Math.max(y1, y2);
+    const h = this._seedHash(ax * 31 + bx, ay * 37 + by, 77);
+    if (h > 0.34) return true;
+    // Guarantee every room has at least 2 open doors (no unreachable islands)
+    return ((Math.abs(ax + ay) % 2) === 0);
+  },
+
+  _getRoomDoors: function(rx, ry) {
+    const d = {
+      N: this._edgeOpen(rx, ry, rx, ry - 1),
+      S: this._edgeOpen(rx, ry, rx, ry + 1),
+      W: this._edgeOpen(rx, ry, rx - 1, ry),
+      E: this._edgeOpen(rx, ry, rx + 1, ry)
+    };
+    if (!d.N && !d.S && !d.W && !d.E) { d.N = true; d.E = true; }
+    return d;
+  },
   _seedHash: function(rx, ry, salt) {
     const n = Math.sin(rx * 127.1 + ry * 311.7 + salt * 74.7) * 43758.5453;
     return n - Math.floor(n);
   },
 
-  loadRoom: function(state, rx, ry) {
-    const w = state.world;
+  loadRoom: function(state, rx, ry, entryDir) {
+    const w = state.world, p = state.player;
     const key = `${rx},${ry}`;
     w.currentRoom = { x: rx, y: ry };
+    w.visitedRooms = w.visitedRooms || {};
 
     if (!w.rooms[key]) {
-      const archetypeIdx = Math.floor(this._seedHash(rx, ry, 1) * 5);
-      const archetypes = [
-        { name: "PILLARED OSSUARY", floor: "#120e1a", wall: "#2d233d", accent: "#a855f7" },
-        { name: "VERDIGRIS CISTERN", floor: "#0b1513", wall: "#1d3530", accent: "#10b981" },
-        { name: "BLOOD SANCTUM", floor: "#170b10", wall: "#3d1a24", accent: "#dc2626" },
-        { name: "DOOM CATACOMB", floor: "#14110d", wall: "#362d20", accent: "#eab308" },
-        { name: "OBSIDIAN HALL", floor: "#0e0c16", wall: "#252136", accent: "#f59e0b" }
-      ];
-      const arch = archetypes[archetypeIdx];
+      const doors = this._getRoomDoors(rx, ry);
+      if (entryDir && !doors[entryDir]) doors[entryDir] = true;
 
-      const braziers = [
-        { x: 135, y: 125, lit: true, r: 14 },
-        { x: 665, y: 125, lit: true, r: 14 },
-        { x: 135, y: 495, lit: this._seedHash(rx, ry, 2) > 0.2, r: 14 },
-        { x: 665, y: 495, lit: this._seedHash(rx, ry, 3) > 0.2, r: 14 }
-      ];
+      // Determine Room Role (1 focal gameplay theme per room -> zero clutter!)
+      const roles = ["ENTRY_HALL", "ALTAR_SANCTUM", "ALCHEMY_CISTERN", "SEISMIC_FAULT", "RELIQUARY_VAULT", "OSSUARY_PASSAGE"];
+      const roleIdx = (rx === 0 && ry === 0) ? 0 : (1 + Math.floor(this._seedHash(rx, ry, 5) * (roles.length - 1)));
+      const role = roles[roleIdx];
 
+      // Determine Room Shape & Architectural Footprint (7 distinct shapes & sizes!)
+      let shape = "CRUCIFORM";
+      if (rx === 0 && ry === 0) shape = "CRUCIFORM";
+      else if (!doors.N && !doors.S && doors.E && doors.W) shape = "CORRIDOR_EW";
+      else if (doors.N && doors.S && !doors.E && !doors.W) shape = "CORRIDOR_NS";
+      else {
+        const shapePool = ["CRUCIFORM", "CORRIDOR_EW", "CORRIDOR_NS", "L_CHAMBER", "CHASM_BRIDGE", "COMPACT_VAULT", "BASTION_HALL"];
+        shape = shapePool[Math.floor(this._seedHash(rx, ry, 9) * shapePool.length)];
+        // Ensure corridor shapes don't block open doors
+        if (shape === "CORRIDOR_EW" && (doors.N || doors.S)) shape = "CHASM_BRIDGE";
+        if (shape === "CORRIDOR_NS" && (doors.E || doors.W)) shape = "CRUCIFORM";
+      }
+
+      const themes = {
+        ENTRY_HALL:      { name: "OBSIDIAN VESTIBULE", floor: "#110d18", wall: "#2b223a", accent: "#eab308" },
+        ALTAR_SANCTUM:   { name: "BLOOD-ALTAR SANCTUM", floor: "#160a0f", wall: "#3d1822", accent: "#dc2626" },
+        ALCHEMY_CISTERN: { name: "VERDIGRIS CISTERN", floor: "#0a1412", wall: "#1b332e", accent: "#10b981" },
+        SEISMIC_FAULT:   { name: "TECTONIC FAULT CRYPT", floor: "#13100d", wall: "#332a1e", accent: "#f97316" },
+        RELIQUARY_VAULT: { name: "SUNKEN RELIQUARY", floor: "#120e1c", wall: "#2f2447", accent: "#a855f7" },
+        OSSUARY_PASSAGE: { name: "CATACOMB GALLERY", floor: "#0e0c14", wall: "#252033", accent: "#94a3b8" }
+      };
+      const arch = themes[role] || themes.OSSUARY_PASSAGE;
+
+      // Build Extruded Interior Wall Bastions & Chasms that physically reshape the room!
       const pillars = [];
-      if (archetypeIdx === 0 || archetypeIdx === 4) {
-        pillars.push({ x: 245, y: 205, w: 38, h: 38 }, { x: 517, y: 205, w: 38, h: 38 });
-        pillars.push({ x: 245, y: 385, w: 38, h: 38 }, { x: 517, y: 385, w: 38, h: 38 });
-      } else if (archetypeIdx === 2) {
-        pillars.push({ x: 374, y: 284, w: 52, h: 52, isAltar: true });
-      } else if (archetypeIdx === 3) {
-        pillars.push({ x: 295, y: 230, w: 42, h: 42 }, { x: 465, y: 365, w: 42, h: 42 });
-      }
+      const chasms = [];
+      let bounds = { minX: 66, maxX: 734, minY: 84, maxY: 546 };
 
-      const acidPools = [];
-      if (archetypeIdx === 1) {
-        acidPools.push({ x: 240, y: 260, r: 46 }, { x: 560, y: 360, r: 50 });
-      }
-
-      const bonePiles = [];
-      for (let i = 0; i < 4; i++) {
-        const bx = 155 + this._seedHash(rx, ry, 10 + i) * 490;
-        const by = 145 + this._seedHash(rx, ry, 20 + i) * 330;
-        if (Math.hypot(bx - 400, by - 310) > 80) {
-          bonePiles.push({ x: bx, y: by, hp: 1, r: 14 });
+      if (shape === "CRUCIFORM") {
+        // 4 massive corner stone bastions forming a Gothic Cross floorplan
+        pillars.push(
+          { x: 60, y: 76, w: 155, h: 115, isWall: true },
+          { x: 585, y: 76, w: 155, h: 115, isWall: true },
+          { x: 60, y: 435, w: 155, h: 115, isWall: true },
+          { x: 585, y: 435, w: 155, h: 115, isWall: true }
+        );
+      } else if (shape === "CORRIDOR_EW") {
+        // Narrow East-West Catacomb Tunnel
+        bounds = { minX: 66, maxX: 734, minY: 205, maxY: 425 };
+        pillars.push(
+          { x: 60, y: 76, w: 680, h: 115, isWall: true },
+          { x: 60, y: 440, w: 680, h: 110, isWall: true }
+        );
+      } else if (shape === "CORRIDOR_NS") {
+        // Narrow North-South Ossuary Gallery
+        bounds = { minX: 245, maxX: 555, minY: 84, maxY: 546 };
+        pillars.push(
+          { x: 60, y: 76, w: 170, h: 474, isWall: true },
+          { x: 570, y: 76, w: 170, h: 474, isWall: true }
+        );
+      } else if (shape === "L_CHAMBER") {
+        // Asymmetric L-Shaped Crypt (one giant quadrant walled off + 1 counterweight pillar)
+        const quad = Math.floor(this._seedHash(rx, ry, 14) * 2);
+        if (quad === 0) {
+          pillars.push({ x: 60, y: 76, w: 250, h: 170, isWall: true }, { x: 520, y: 380, w: 42, h: 42 });
+        } else {
+          pillars.push({ x: 490, y: 76, w: 250, h: 170, isWall: true }, { x: 240, y: 380, w: 42, h: 42 });
         }
+      } else if (shape === "CHASM_BRIDGE") {
+        // Twin Abyssal Chasms framing a central narrow stone bridge
+        chasms.push({ x: 165, y: 120, w: 165, h: 145 }, { x: 470, y: 365, w: 165, h: 145 });
+        pillars.push({ x: 165, y: 120, w: 165, h: 145, isChasm: true }, { x: 470, y: 365, w: 165, h: 145, isChasm: true });
+      } else if (shape === "COMPACT_VAULT") {
+        // Smaller, intimate sunken chamber with thick perimeter masonry
+        pillars.push(
+          { x: 60, y: 76, w: 110, h: 175, isWall: true },
+          { x: 60, y: 375, w: 110, h: 175, isWall: true },
+          { x: 630, y: 76, w: 110, h: 175, isWall: true },
+          { x: 630, y: 375, w: 110, h: 175, isWall: true }
+        );
+      } else if (shape === "BASTION_HALL") {
+        // Central colonnade pillars
+        pillars.push({ x: 270, y: 215, w: 38, h: 38 }, { x: 492, y: 215, w: 38, h: 38 });
+        pillars.push({ x: 270, y: 385, w: 38, h: 38 }, { x: 492, y: 385, w: 38, h: 38 });
       }
 
+      // Place only 2 atmospheric braziers matching the room geometry
+      const braziers = shape === "CORRIDOR_EW"
+        ? [{ x: 220, y: 225, lit: true, r: 12 }, { x: 580, y: 405, lit: true, r: 12 }]
+        : (shape === "CORRIDOR_NS"
+          ? [{ x: 275, y: 180, lit: true, r: 12 }, { x: 525, y: 440, lit: true, r: 12 }]
+          : [{ x: 245, y: 155, lit: true, r: 12 }, { x: 555, y: 465, lit: this._seedHash(rx, ry, 3) > 0.2, r: 12 }]);
+
+      // Sparse bone piles (0–2 max so floor stays clean!)
+      const bonePiles = [];
+      if (role === "OSSUARY_PASSAGE" || role === "ENTRY_HALL") {
+        bonePiles.push({ x: 320, y: 380, hp: 1, r: 13 }, { x: 480, y: 250, hp: 1, r: 13 });
+      }
+
+      // Spawn 1–3 enemies inside valid walkable central space
       const enemies = [];
-      const isStart = (rx === 0 && ry === 0);
-      const count = isStart ? 2 : 3 + (Math.abs(rx) + Math.abs(ry)) % 3;
+      const count = (rx === 0 && ry === 0) ? 2 : (role === "RELIQUARY_VAULT" ? 1 : 2 + (Math.abs(rx + ry) % 2));
       for (let i = 0; i < count; i++) {
-        const ex = 165 + this._seedHash(rx, ry, 30 + i) * 470;
-        const ey = 145 + this._seedHash(rx, ry, 40 + i) * 330;
-        if (Math.hypot(ex - 400, ey - 310) < 95) continue;
+        const ang = (i / count) * Math.PI * 2 + this._seedHash(rx, ry, 30 + i);
+        const ex = 400 + Math.cos(ang) * 115;
+        const ey = 315 + Math.sin(ang) * 75;
         const kind = (i % 2 === 0) ? "SKELETON" : "SLIME";
         enemies.push({
-          type: kind,
-          x: ex, y: ey, vx: 0, vy: 0,
+          type: kind, x: ex, y: ey, vx: 0, vy: 0,
           r: kind === "SKELETON" ? 15 : 17,
-          hp: kind === "SKELETON" ? 45 : 35,
-          maxHp: kind === "SKELETON" ? 45 : 35,
-          speed: kind === "SKELETON" ? 72 : 52,
-          stagger: 0, color: kind === "SKELETON" ? "#cbd5e1" : "#10b981"
+          hp: kind === "SKELETON" ? 45 : 35, maxHp: kind === "SKELETON" ? 45 : 35,
+          speed: kind === "SKELETON" ? 72 : 52, stagger: 0, color: "#cbd5e1"
         });
       }
 
-      w.rooms[key] = { rx, ry, arch, braziers, pillars, acidPools, bonePiles, enemies, bloodStains: [] };
+      w.rooms[key] = {
+        rx, ry, role, shape, doors, bounds, arch, braziers, pillars, chasms,
+        acidPools: role === "ALCHEMY_CISTERN" ? [{ x: 400, y: 315, r: 44 }] : [],
+        bonePiles, enemies, bloodStains: []
+      };
     }
 
     const room = w.rooms[key];
+    w.visitedRooms[key] = { rx, ry, shape: room.shape, role: room.role, doors: room.doors };
     w.braziers = room.braziers;
     w.pillars = room.pillars;
     w.bonePiles = room.bonePiles;
     w.enemies = room.enemies;
     w.bloodStains = room.bloodStains;
     w.roomName = room.arch.name;
+    w.roomRole = room.role;
+    w.roomShape = room.shape;
+    w.roomDoors = room.doors;
     w.depth = 1 + Math.floor((Math.abs(rx) + Math.abs(ry)) / 2);
   },
 
@@ -441,23 +529,31 @@ drawArticulatedDelver: function(ctx, p, t) {
     p.x += p.vx * dt;
     p.y += p.vy * dt;
 
+    // AABB Collision against Rectangular Wall Bastions, Chasms & Pillars
     for (let i = 0; i < (w.pillars || []).length; i++) {
       const pl = w.pillars[i];
-      const cx = pl.x + pl.w / 2, cy = pl.y + pl.h / 2;
-      const ox = p.x - cx, oy = p.y - cy;
-      const minDist = pl.w / 2 + 13;
-      if (Math.abs(ox) < minDist && Math.abs(oy) < minDist) {
-        if (Math.abs(ox) > Math.abs(oy)) p.x = cx + Math.sign(ox) * minDist;
-        else p.y = cy + Math.sign(oy) * minDist;
+      const pad = 12;
+      if (p.x > pl.x - pad && p.x < pl.x + pl.w + pad && p.y > pl.y - pad && p.y < pl.y + pl.h + pad) {
+        const dl = Math.abs(p.x - (pl.x - pad));
+        const dr = Math.abs((pl.x + pl.w + pad) - p.x);
+        const dtTop = Math.abs(p.y - (pl.y - pad));
+        const db = Math.abs((pl.y + pl.h + pad) - p.y);
+        const m = Math.min(dl, dr, dtTop, db);
+        if (m === dl) p.x = pl.x - pad;
+        else if (m === dr) p.x = pl.x + pl.w + pad;
+        else if (m === dtTop) p.y = pl.y - pad;
+        else p.y = pl.y + pl.h + pad;
       }
     }
 
+    // Maze Doorway Transitions (Only traverse if that direction has an open door in w.roomDoors!)
+    const doors = w.roomDoors || { N: true, S: true, E: true, W: true };
     const inHorizDoor = (p.y > 265 && p.y < 365);
     const inVertDoor = (p.x > 350 && p.x < 450);
-    if (p.x < 64 && inHorizDoor) { p.x = 724; this.loadRoom(state, w.currentRoom.x - 1, w.currentRoom.y); return; }
-    else if (p.x > 736 && inHorizDoor) { p.x = 76; this.loadRoom(state, w.currentRoom.x + 1, w.currentRoom.y); return; }
-    else if (p.y < 82 && inVertDoor) { p.y = 532; this.loadRoom(state, w.currentRoom.x, w.currentRoom.y - 1); return; }
-    else if (p.y > 548 && inVertDoor) { p.y = 94; this.loadRoom(state, w.currentRoom.x, w.currentRoom.y + 1); return; }
+    if (doors.W && p.x < 64 && inHorizDoor) { p.x = 720; p.y = 315; this.loadRoom(state, w.currentRoom.x - 1, w.currentRoom.y, "E"); return; }
+    else if (doors.E && p.x > 736 && inHorizDoor) { p.x = 80; p.y = 315; this.loadRoom(state, w.currentRoom.x + 1, w.currentRoom.y, "W"); return; }
+    else if (doors.N && p.y < 82 && inVertDoor) { p.x = 400; p.y = 530; this.loadRoom(state, w.currentRoom.x, w.currentRoom.y - 1, "S"); return; }
+    else if (doors.S && p.y > 548 && inVertDoor) { p.x = 400; p.y = 96; this.loadRoom(state, w.currentRoom.x, w.currentRoom.y + 1, "N"); return; }
 
     p.x = Math.max(66, Math.min(734, p.x));
     p.y = Math.max(84, Math.min(546, p.y));
@@ -617,52 +713,47 @@ drawArticulatedDelver: function(ctx, p, t) {
       }
     }
 
-    // Giant Etched Occult Ritual Sigil / Doomagram in the Center of the Chamber
-    ctx.save();
-    ctx.translate(400, 315);
-    ctx.rotate(performance.now() * 0.00015);
-    const sigilCol = room.arch.accent || "#dc2626";
-    ctx.strokeStyle = sigilCol;
-    ctx.globalAlpha = 0.22 + Math.sin(performance.now() * 0.003) * 0.06;
-    ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.arc(0, 0, 135, 0, Math.PI * 2); ctx.stroke();
-    ctx.beginPath(); ctx.arc(0, 0, 122, 0, Math.PI * 2); ctx.stroke();
-    // 5-Pointed Occult Star & Alchemical Triangles
-    ctx.beginPath();
-    for (let k = 0; k < 6; k++) {
-      const a = (k * 4 * Math.PI) / 5 - Math.PI / 2;
-      const sx = Math.cos(a) * 122, sy = Math.sin(a) * 122;
-      if (k === 0) ctx.moveTo(sx, sy); else ctx.lineTo(sx, sy);
+    // Etched Occult Ritual Sigil (Drawn ONLY in ALTAR_SANCTUM or RELIQUARY_VAULT rooms so floors vary!)
+    if (room.role === "ALTAR_SANCTUM" || room.role === "RELIQUARY_VAULT") {
+      ctx.save();
+      ctx.translate(400, 315);
+      ctx.rotate(performance.now() * 0.00015);
+      ctx.strokeStyle = room.arch.accent || "#dc2626";
+      ctx.globalAlpha = 0.24;
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(0, 0, 110, 0, Math.PI * 2); ctx.stroke();
+      ctx.beginPath();
+      for (let k = 0; k < 6; k++) {
+        const a = (k * 4 * Math.PI) / 5 - Math.PI / 2;
+        if (k === 0) ctx.moveTo(Math.cos(a) * 110, Math.sin(a) * 110);
+        else ctx.lineTo(Math.cos(a) * 110, Math.sin(a) * 110);
+      }
+      ctx.stroke();
+      ctx.restore();
     }
-    ctx.stroke();
-    ctx.restore();
 
-    // 2. Render Dynamic Ray-Cast Shadow Volumes Behind Pillars (From Player Torch!)
+    // 2. Render Dynamic Ray-Cast Shadow Volumes (Only for compact freestanding pillars, not giant wall blocks)
     for (let i = 0; i < (w.pillars || []).length; i++) {
       const pl = w.pillars[i];
+      if (pl.isWall || pl.isChasm) continue;
       const cx = pl.x + pl.w * 0.5, cy = pl.y + pl.h * 0.5;
       const ang = Math.atan2(cy - p.y, cx - p.x);
       const perp = ang + Math.PI * 0.5;
       const r = pl.w * 0.52;
-      const c1x = cx + Math.cos(perp) * r, c1y = cy + Math.sin(perp) * r;
-      const c2x = cx - Math.cos(perp) * r, c2y = cy - Math.sin(perp) * r;
-      const s1x = c1x + Math.cos(ang + 0.14) * 360, s1y = c1y + Math.sin(ang + 0.14) * 360;
-      const s2x = c2x + Math.cos(ang - 0.14) * 360, s2y = c2y + Math.sin(ang - 0.14) * 360;
-
-      ctx.fillStyle = "rgba(4, 2, 9, 0.52)";
+      ctx.fillStyle = "rgba(4, 2, 9, 0.50)";
       ctx.beginPath();
-      ctx.moveTo(c1x, c1y); ctx.lineTo(c2x, c2y);
-      ctx.lineTo(s2x, s2y); ctx.lineTo(s1x, s1y);
+      ctx.moveTo(cx + Math.cos(perp) * r, cy + Math.sin(perp) * r);
+      ctx.lineTo(cx - Math.cos(perp) * r, cy - Math.sin(perp) * r);
+      ctx.lineTo(cx - Math.cos(perp) * r + Math.cos(ang - 0.14) * 320, cy - Math.sin(perp) * r + Math.sin(ang - 0.14) * 320);
+      ctx.lineTo(cx + Math.cos(perp) * r + Math.cos(ang + 0.14) * 320, cy + Math.sin(perp) * r + Math.sin(ang + 0.14) * 320);
       ctx.closePath();
       ctx.fill();
     }
 
-    // Acid Pools & Blood Stains
     for (let i = 0; i < (room.acidPools || []).length; i++) {
       const ap = room.acidPools[i];
       const ag = ctx.createRadialGradient(ap.x, ap.y, 6, ap.x, ap.y, ap.r);
       ag.addColorStop(0, "rgba(52, 211, 153, 0.55)");
-      ag.addColorStop(0.7, "rgba(16, 185, 129, 0.28)");
       ag.addColorStop(1, "rgba(6, 78, 59, 0)");
       ctx.fillStyle = ag;
       ctx.beginPath(); ctx.arc(ap.x, ap.y, ap.r, 0, Math.PI * 2); ctx.fill();
@@ -673,24 +764,50 @@ drawArticulatedDelver: function(ctx, p, t) {
       ctx.beginPath(); ctx.arc(bs.x, bs.y, bs.r, 0, Math.PI * 2); ctx.fill();
     }
 
-    // 3. Render 2.5D Extruded Low-Poly Outer Dungeon Walls & Carved Archways
+    // 3. Render 2.5D Extruded Outer Walls & Maze Doorways (Sealed directions render as solid stone!)
     const wc = room.arch.wall || "#2d233d";
-    lp.drawExtrudedBox(ctx, 40, 52, 310, 24, 34, wc, "#0f172a", p.x, p.y);
-    lp.drawExtrudedBox(ctx, 450, 52, 310, 24, 34, wc, "#0f172a", p.x, p.y);
-    lp.drawExtrudedBox(ctx, 40, 550, 310, 24, 34, wc, "#0f172a", p.x, p.y);
-    lp.drawExtrudedBox(ctx, 450, 550, 310, 24, 34, wc, "#0f172a", p.x, p.y);
-    lp.drawExtrudedBox(ctx, 38, 76, 22, 189, 34, wc, "#0f172a", p.x, p.y);
-    lp.drawExtrudedBox(ctx, 38, 365, 22, 185, 34, wc, "#0f172a", p.x, p.y);
-    lp.drawExtrudedBox(ctx, 740, 76, 22, 189, 34, wc, "#0f172a", p.x, p.y);
-    lp.drawExtrudedBox(ctx, 740, 365, 22, 185, 34, wc, "#0f172a", p.x, p.y);
+    const doors = room.doors || { N: true, S: true, E: true, W: true };
+    if (doors.N) {
+      lp.drawExtrudedBox(ctx, 40, 52, 310, 24, 34, wc, "#09070e", p.x, p.y);
+      lp.drawExtrudedBox(ctx, 450, 52, 310, 24, 34, wc, "#09070e", p.x, p.y);
+      ctx.fillStyle = "rgba(245, 158, 11, 0.22)"; ctx.fillRect(352, 56, 96, 16);
+    } else {
+      lp.drawExtrudedBox(ctx, 40, 52, 720, 24, 34, wc, "#09070e", p.x, p.y);
+    }
+    if (doors.S) {
+      lp.drawExtrudedBox(ctx, 40, 550, 310, 24, 34, wc, "#09070e", p.x, p.y);
+      lp.drawExtrudedBox(ctx, 450, 550, 310, 24, 34, wc, "#09070e", p.x, p.y);
+      ctx.fillStyle = "rgba(245, 158, 11, 0.22)"; ctx.fillRect(352, 554, 96, 16);
+    } else {
+      lp.drawExtrudedBox(ctx, 40, 550, 720, 24, 34, wc, "#09070e", p.x, p.y);
+    }
+    if (doors.W) {
+      lp.drawExtrudedBox(ctx, 38, 76, 22, 189, 34, wc, "#09070e", p.x, p.y);
+      lp.drawExtrudedBox(ctx, 38, 365, 22, 185, 34, wc, "#09070e", p.x, p.y);
+      ctx.fillStyle = "rgba(245, 158, 11, 0.22)"; ctx.fillRect(42, 267, 16, 96);
+    } else {
+      lp.drawExtrudedBox(ctx, 38, 76, 22, 474, 34, wc, "#09070e", p.x, p.y);
+    }
+    if (doors.E) {
+      lp.drawExtrudedBox(ctx, 740, 76, 22, 189, 34, wc, "#09070e", p.x, p.y);
+      lp.drawExtrudedBox(ctx, 740, 365, 22, 185, 34, wc, "#09070e", p.x, p.y);
+      ctx.fillStyle = "rgba(245, 158, 11, 0.22)"; ctx.fillRect(742, 267, 16, 96);
+    } else {
+      lp.drawExtrudedBox(ctx, 740, 76, 22, 474, 34, wc, "#09070e", p.x, p.y);
+    }
 
-    // 4. Render 2.5D Extruded Low-Poly Pillars, Obelisks & Blood Altars
+    // 4. Render 2.5D Extruded Wall Bastions, Abyssal Chasms & Freestanding Columns
     for (let i = 0; i < (w.pillars || []).length; i++) {
       const pl = w.pillars[i];
-      const pColor = pl.isAltar ? "#7f1d1d" : wc;
-      lp.drawExtrudedBox(ctx, pl.x, pl.y, pl.w, pl.h, pl.isAltar ? 28 : 44, pColor, pl.isAltar ? "#ef4444" : "#1e293b", p.x, p.y);
-      if (pl.isAltar) {
-        lp.drawLowPolyPrism(ctx, pl.x + pl.w * 0.5, pl.y + pl.h * 0.5, 14, 28, 54, 4, "#dc2626", p.x, p.y, performance.now() * 0.002);
+      if (pl.isChasm) {
+        ctx.fillStyle = "#030206";
+        ctx.fillRect(pl.x, pl.y, pl.w, pl.h);
+        ctx.strokeStyle = "#334155";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(pl.x, pl.y, pl.w, pl.h);
+      } else {
+        const zH = pl.isWall ? 34 : 44;
+        lp.drawExtrudedBox(ctx, pl.x, pl.y, pl.w, pl.h, zH, wc, "#09070e", p.x, p.y);
       }
     }
 
@@ -859,5 +976,117 @@ drawArticulatedDelver: function(ctx, p, t) {
     ctx.textAlign = "right";
     ctx.fillText("[SPC]ATK [SHF/E]ACT", 792, 22);
     ctx.restore();
+
+    // 10. Darkened Cartographer's Parchment Inset Minimap (Reveals Procedural Maze & Room Shapes!)
+    if (!state.paused && !state.gameOver) {
+      ctx.save();
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      const mx = 656, my = 44, mw = 132, mh = 102;
+
+      // Aged Burnt-Umber Parchment Background & Ink Vignette
+      const pGrad = ctx.createRadialGradient(mx + mw * 0.5, my + mh * 0.5, 10, mx + mw * 0.5, my + mh * 0.5, 85);
+      pGrad.addColorStop(0, "rgba(42, 31, 21, 0.92)");
+      pGrad.addColorStop(1, "rgba(18, 13, 9, 0.96)");
+      ctx.fillStyle = pGrad;
+      ctx.fillRect(mx, my, mw, mh);
+
+      // Faint Cartographer Latitude/Longitude Ink Grid
+      ctx.strokeStyle = "rgba(180, 140, 85, 0.12)";
+      ctx.lineWidth = 1;
+      for (let gx = mx + 16; gx < mx + mw; gx += 16) {
+        ctx.beginPath(); ctx.moveTo(gx, my); ctx.lineTo(gx, my + mh); ctx.stroke();
+      }
+      for (let gy = my + 16; gy < my + mh; gy += 16) {
+        ctx.beginPath(); ctx.moveTo(mx, gy); ctx.lineTo(mx + mw, gy); ctx.stroke();
+      }
+
+      // Double-Rimmed Ornate Parchment Frame
+      ctx.strokeStyle = "#785832";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(mx, my, mw, mh);
+      ctx.strokeStyle = "rgba(217, 175, 110, 0.35)";
+      ctx.lineWidth = 1;
+      ctx.strokeRect(mx + 3, my + 3, mw - 6, mh - 6);
+
+      // Render Discovered Rooms & Unexplored Neighboring '?' Fog around Current Room
+      const curX = w.currentRoom.x, curY = w.currentRoom.y;
+      const centerX = mx + mw * 0.5, centerY = my + mh * 0.5 + 4;
+      const cellStep = 22;
+      const visited = w.visitedRooms || {};
+
+      for (let dy = -2; dy <= 2; dy++) {
+        for (let dx = -2; dx <= 2; dx++) {
+          const rx = curX + dx, ry = curY + dy;
+          const rKey = `${rx},${ry}`;
+          const vRoom = visited[rKey];
+          const cx = centerX + dx * cellStep;
+          const cy = centerY + dy * cellStep;
+          if (cx < mx + 12 || cx > mx + mw - 12 || cy < my + 18 || cy > my + mh - 10) continue;
+
+          if (vRoom) {
+            const isCur = (dx === 0 && dy === 0);
+            const d = vRoom.doors || {};
+            // Draw sepia ink doorway connectors
+            ctx.strokeStyle = "#a17c4b";
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            if (d.N) { ctx.moveTo(cx, cy - 5); ctx.lineTo(cx, cy - 11); }
+            if (d.S) { ctx.moveTo(cx, cy + 5); ctx.lineTo(cx, cy + 11); }
+            if (d.W) { ctx.moveTo(cx - 5, cy); ctx.lineTo(cx - 11, cy); }
+            if (d.E) { ctx.moveTo(cx + 5, cy); ctx.lineTo(cx + 11, cy); }
+            ctx.stroke();
+
+            // Draw miniature shape reflecting the room's actual footprint!
+            ctx.fillStyle = isCur ? "#eab308" : "#5c4328";
+            ctx.strokeStyle = isCur ? "#fef08a" : "#b89158";
+            ctx.lineWidth = 1;
+            const sh = vRoom.shape || "CRUCIFORM";
+            if (sh === "CORRIDOR_EW") {
+              ctx.fillRect(cx - 7, cy - 3, 14, 6); ctx.strokeRect(cx - 7, cy - 3, 14, 6);
+            } else if (sh === "CORRIDOR_NS") {
+              ctx.fillRect(cx - 3, cy - 7, 6, 14); ctx.strokeRect(cx - 3, cy - 7, 6, 14);
+            } else if (sh === "COMPACT_VAULT") {
+              ctx.fillRect(cx - 4, cy - 4, 8, 8); ctx.strokeRect(cx - 4, cy - 4, 8, 8);
+            } else if (sh === "L_CHAMBER") {
+              ctx.beginPath();
+              ctx.moveTo(cx - 6, cy - 6); ctx.lineTo(cx + 2, cy - 6); ctx.lineTo(cx + 2, cy);
+              ctx.lineTo(cx + 6, cy); ctx.lineTo(cx + 6, cy + 6); ctx.lineTo(cx - 6, cy + 6);
+              ctx.closePath(); ctx.fill(); ctx.stroke();
+            } else {
+              // Cruciform / Hall
+              ctx.fillRect(cx - 6, cy - 6, 12, 12); ctx.strokeRect(cx - 6, cy - 6, 12, 12);
+            }
+
+            // Player position dot inside current room
+            if (isCur) {
+              const pxOff = ((p.x - 400) / 340) * 4;
+              const pyOff = ((p.y - 315) / 230) * 4;
+              ctx.fillStyle = "#dc2626";
+              ctx.beginPath(); ctx.arc(cx + pxOff, cy + pyOff, 2.2, 0, Math.PI * 2); ctx.fill();
+            }
+          } else {
+            // Check if adjacent to a visited room via an open door -> draw faint '?' unexplored ink mark
+            const adjN = visited[`${rx},${ry - 1}`], adjS = visited[`${rx},${ry + 1}`];
+            const adjW = visited[`${rx - 1},${ry}`], adjE = visited[`${rx + 1},${ry}`];
+            if ((adjN && adjN.doors.S) || (adjS && adjS.doors.N) || (adjW && adjW.doors.E) || (adjE && adjE.doors.W)) {
+              ctx.strokeStyle = "rgba(161, 124, 75, 0.38)";
+              ctx.strokeRect(cx - 4, cy - 4, 8, 8);
+              ctx.fillStyle = "rgba(217, 175, 110, 0.55)";
+              ctx.font = "8px monospace";
+              ctx.textAlign = "center";
+              ctx.fillText("?", cx, cy + 3);
+            }
+          }
+        }
+      }
+
+      // Cartographer Header Label
+      ctx.fillStyle = "#d9af6e";
+      ctx.font = "bold 8.5px monospace";
+      ctx.textAlign = "left";
+      ctx.fillText(`CARTOGRAPHY [${curX},${curY}]`, mx + 6, my + 11);
+      ctx.restore();
+    }
+
   }
 });

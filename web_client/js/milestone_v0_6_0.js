@@ -1,6 +1,29 @@
 // Cohesive Milestone Plugin: v0.6.0
 // Cohesive Milestone Plugin: v0.6.0 (Black Bile Geo-Vents, Resonant Heavy Cleave Sparks & Crushing Vault Ceilings)
 window.StudioEngine.registerModule("Milestone_v0_6_0", {
+  _drawTopTooltip: function(ctx, state) {
+    const it = state.world && state.world.activeTooltip;
+    if (!it) return;
+    const tx = Math.max(155, Math.min(645, it.x));
+    const ty = Math.max(95, it.y - 72);
+    ctx.save();
+    ctx.fillStyle = "#09070f";
+    ctx.fillRect(tx - 145, ty - 42, 290, 64);
+    ctx.strokeStyle = it.color || "#eab308";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(tx - 145, ty - 42, 290, 64);
+    ctx.textAlign = "center";
+    ctx.fillStyle = it.color || "#eab308";
+    ctx.font = "bold 11px monospace";
+    ctx.fillText(`[${it.slot}] ${it.name}`, tx, ty - 24);
+    ctx.fillStyle = "#f8fafc";
+    ctx.font = "9.5px monospace";
+    ctx.fillText(it.powerDesc || "", tx, ty - 6);
+    ctx.fillStyle = "#eab308";
+    ctx.font = "bold 10px monospace";
+    ctx.fillText("[PRESS SHIFT / E] BIND ARTIFACT TO VESSEL", tx, ty + 12);
+    ctx.restore();
+  },
   init: function(state, engine) {
     const w = state.world;
     const p = state.player;
@@ -182,7 +205,7 @@ window.StudioEngine.registerModule("Milestone_v0_6_0", {
     }
   },
 
-  render: function(ctx, state, engine) {
+  render: function(ctx, state, engine) { if (state.paused || state.gameOver) return; if (state.world && state.world.roomRole && state.world.roomRole !== 'SEISMIC_FAULT' && state.world.roomRole !== 'BOSS') { this._drawTopTooltip(ctx, state); return; }
     if (state.paused) return;
     const w = state.world;
     const p = state.player;
