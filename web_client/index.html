@@ -259,6 +259,13 @@
       const state = engine.state;
       state.dt = dt;
       state.tick++;
+      // Synchronize v0.1.0 wipeouts with v0.5.0 player.health & world.distance
+      if (state.player) {
+        const maxH = state.player.maxHealth || 3;
+        if (typeof state.player.wipeouts === 'number') {
+          state.player.health = Math.max(0, maxH - state.player.wipeouts);
+        }
+      }
 
       // Automatically sync state.paused with whether a modal is currently active on screen
       state.paused = Boolean(_modalOwnerThisFrame);
@@ -354,5 +361,6 @@
   <script src="js/milestone_v0_3_0.js"></script>
   <script src="js/milestone_v0_4_0.js"></script>
   <script src="js/milestone_v0_5_0.js"></script>
+  <script src="js/milestone_v0_6_0.js"></script>
 </body>
 </html>

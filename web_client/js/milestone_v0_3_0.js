@@ -160,26 +160,26 @@ window.StudioEngine.registerModule("Milestone_v0_3_0", {
     // 2. Sub-Top Right HUD Zone (x: 520..784, y: 48..110)
     ctx.save();
     ctx.fillStyle = "rgba(15, 23, 42, 0.75)";
-    ctx.fillRect(520, 48, 264, 58);
-    ctx.strokeStyle = "#38bdf8"; ctx.strokeRect(520, 48, 264, 58);
+    ctx.fillRect(12, 536, 280, 52);
+    ctx.strokeStyle = "#38bdf8"; ctx.strokeRect(12, 536, 280, 52);
 
     const distToShelter = 500 - ((Math.floor(st.world.distance || (st.player.y / 8))) % 500);
     ctx.fillStyle = "#93c5fd"; ctx.font = "10px monospace";
-    ctx.fillText(`NEXT SHELTER: ${distToShelter}m`, 528, 62);
+    ctx.fillText(`NEXT SHELTER: ${distToShelter}m`, 22, 550);
 
     const slot = (st.inventory.activeSlots || [])[0];
     if (slot) {
       const cdPct = slot.cooldownRemaining > 0 ? (slot.cooldownRemaining / slot.cd) : 0;
       ctx.fillStyle = cdPct > 0 ? "#f87171" : "#4ade80";
-      ctx.fillText(`GADGET: ${slot.icon} ${slot.name} [KEY F]`, 528, 78);
+      ctx.fillText(`GADGET: ${slot.icon} ${slot.name} [KEY F]`, 22, 566);
       ctx.fillStyle = "#334155"; ctx.fillRect(528, 86, 120, 6);
       ctx.fillStyle = cdPct > 0 ? "#ef4444" : "#22c55e";
       ctx.fillRect(528, 86, Math.floor(120 * (1 - cdPct)), 6);
-      ctx.fillStyle = "#ffffff"; ctx.fillText(`${cdPct > 0 ? slot.cooldownRemaining.toFixed(1) + 's' : 'READY'}`, 656, 92);
+      ctx.fillStyle = "#ffffff"; ctx.fillText(`${cdPct > 0 ? slot.cooldownRemaining.toFixed(1) + 's' : 'READY'}`, 180, 580);
     } else {
-      ctx.fillStyle = "#64748b"; ctx.fillText(`GADGET: [EMPTY - REACH REFUGE]`, 528, 78);
+      ctx.fillStyle = "#64748b"; ctx.fillText(`GADGET: [EMPTY - REACH REFUGE]`, 22, 566);
     }
-    ctx.fillText(`RELICS: ${(st.inventory.items || []).length}`, 718, 62);
+    ctx.fillText(`RELICS: ${(st.inventory.items || []).length}`, 180, 550);
     ctx.restore();
 
     // 3. Checkpoint Item Draft Modal Overlay

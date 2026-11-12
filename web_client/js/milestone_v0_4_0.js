@@ -121,7 +121,7 @@ window.StudioEngine.registerModule("Milestone_v0_4_0", {
     ctx.fillStyle = "#fff"; ctx.font = "10px monospace";
     ctx.fillText(`BIOME: ${w.currentBiome || "Resort"}`, 530, 64);
     ctx.fillText(`RELICS: ${(st.inventory.equippedRelics || []).length} | GRIP: ${(p.carveGrip || 1).toFixed(2)}x`, 530, 80);
-    ctx.fillText(`NEXT 500m: ${350 - (Math.floor(w.distance || 0) % 500)}m`, 530, 96);
+    ctx.fillText(`NEXT 500m: ${500 - (Math.floor(w.distance || 0) % 500)}m`, 530, 96);
 
     // 500m Checkpoint Tri-Draft Modal Overlay
     if (st.inventory.activeDraft) {
