@@ -1,0 +1,326 @@
+// Cohesive Milestone Plugin: v0.6.0
+// Cohesive Milestone Plugin: v0.6.0 - Quantum Singularity Pylons, Phasic Blink Dash & Prismatic Tessellation
+window.StudioEngine.registerModule("Milestone_v0_6_0", {
+  init: function(state, engine) {
+    state.world = state.world || {};
+    state.world.pylons = [];
+    state.world.phaseWake = [];
+    state.world.shockwaves = [];
+    state.world.shatters = [];
+    state.player = state.player || {};
+    state.player.dashCooldown = 0;
+    state.player.dashTimer = 0;
+    state.player.isDashing = false;
+    this.lastAction = false;
+    this.prevAsteroidCount = 0;
+  },
+
+  spawnPylons: function(state) {
+    if (state.world.pylons.length < 2 && (state.world.wave || 1) >= 2) {
+      const sides = [
+        { x: 180 + Math.random() * 80, y: 160 + Math.random() * 280 },
+        { x: 540 + Math.random() * 80, y: 160 + Math.random() * 280 }
+      ];
+      while (state.world.pylons.length < 2) {
+        const pt = sides[state.world.pylons.length];
+        (state.world.pylons || (state.world.pylons = [])).push({
+          x: pt.x, y: pt.y, radius: 28, hp: 120, maxHp: 120, charge: 0,
+          pullRadius: 180, spinAngle: 0, coreHue: 160
+        });
+      }
+    }
+  },
+
+  playSynthTone: function(state, f1, f2, dur, gVal) {
+    try {
+      const a = (state.audio && state.audio.ctx) || (window.AudioContext ? new window.AudioContext() : null);
+      if (!a) return;
+      if (a.state === 'suspended') a.resume();
+      const osc = a.createOscillator(), g = a.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(f1, a.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(f2, a.currentTime + dur);
+      g.gain.setValueAtTime(gVal || 0.05, a.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, a.currentTime + dur);
+      osc.connect(g); g.connect(a.destination);
+      osc.start(); osc.stop(a.currentTime + dur);
+    } catch (_) {}
+  },
+
+  update: function(dt, state, engine) {
+    if (state.paused || !state.running) return;
+    const p = state.player, w = state.world;
+    if (!p || !w) return;
+
+    this.spawnPylons(state);
+
+    // --- PHASIC BLINK DASH & WAKE ---
+    if (p.dashCooldown > 0) p.dashCooldown -= dt * 60;
+    const actionKey = !!(state.keys && (state.keys.action || state.keys.Shift || state.keys.KeyE));
+    if (actionKey && !this.lastAction && p.dashCooldown <= 0) {
+      p.isDashing = true;
+      p.dashTimer = 14;
+      p.dashCooldown = 75;
+      p.invuln = Math.max(p.invuln || 0, 0.45);
+      const moveAngle = (Math.abs(p.vx) > 0.05 || Math.abs(p.vy) > 0.05) ? Math.atan2(p.vy, p.vx) : p.angle;
+      p.vx = Math.cos(moveAngle) * 16;
+      p.vy = Math.sin(moveAngle) * 16;
+      this.playSynthTone(state, 540, 110, 0.18, 0.06);
+      if (w.floatingTexts) (w.floatingTexts || (w.floatingTexts = [])).push({ x: p.x, y: p.y - 18, text: "PHASE BLINK", color: "#00f3ff", life: 35 });
+    }
+    this.lastAction = actionKey;
+
+    if (p.isDashing) {
+      const prevX = p.x, prevY = p.y;
+      p.x += p.vx * dt * 25;
+      p.y += p.vy * dt * 25;
+      p.dashTimer -= dt * 60;
+      (w.phaseWake || (w.phaseWake = [])).push({
+        x1: prevX, y1: prevY, x2: p.x, y2: p.y, life: 30, maxLife: 30, color: '#00f3ff'
+      });
+      if (p.dashTimer <= 0) p.isDashing = false;
+    }
+
+    // Process Phase Wake Collisions vs Enemies
+    const wakes = w.phaseWake || [];
+    for (let i = wakes.length - 1; i >= 0; i--) {
+      const wk = wakes[i];
+      wk.life -= dt * 60;
+      if (wk.life <= 0) { wakes.splice(i, 1); continue; }
+      (w.hunters || w.enemies || []).forEach(en => {
+        if (!en || en.hp <= 0) return;
+        const midX = (wk.x1 + wk.x2) * 0.5, midY = (wk.y1 + wk.y2) * 0.5;
+        const d = Math.hypot(en.x - midX, en.y - midY);
+        if (d < (en.radius || 18) + 16) {
+          en.hp -= 85 * dt * 4;
+          const kx = en.x - midX, ky = en.y - midY, kn = Math.hypot(kx, ky) || 1;
+          en.x += (kx / kn) * 6; en.y += (ky / kn) * 6;
+          w.cameraShake = Math.max(w.cameraShake || 0, 4);
+          if (w.particles) {
+            for (let k = 0; k < 3; k++) {
+              (w.particles || (w.particles = [])).push({
+                x: en.x, y: en.y, vx: (Math.random() - 0.5) * 120, vy: (Math.random() - 0.5) * 120,
+                life: 0.35, maxLife: 0.35, color: '#00f3ff', r: 2.5
+              });
+            }
+          }
+        }
+      });
+    }
+
+    // --- QUANTUM SINGULARITY PYLONS ---
+    const pylons = w.pylons || [];
+    const lasers = w.lasers || [];
+    for (let i = pylons.length - 1; i >= 0; i--) {
+      const py = pylons[i];
+      py.spinAngle += dt * 3.5;
+
+      // Projectile Gravitational Lensing
+      lasers.forEach(proj => {
+        const dx = py.x - proj.x, dy = py.y - proj.y;
+        const d = Math.hypot(dx, dy);
+        if (d > 0 && d < py.pullRadius) {
+          const pullForce = 8.5 * (1 - d / py.pullRadius);
+          const spinForce = 5.0 * (1 - d / py.pullRadius);
+          proj.vx = (proj.vx || 0) + ((dx / d) * pullForce + (-dy / d) * spinForce) * dt * 45;
+          proj.vy = (proj.vy || 0) + ((dy / d) * pullForce + (dx / d) * spinForce) * dt * 45;
+          const spd = Math.hypot(proj.vx, proj.vy);
+          if (spd > 0) {
+            const nSpd = Math.min(spd * 1.03, 18);
+            proj.vx = (proj.vx / spd) * nSpd;
+            proj.vy = (proj.vy / spd) * nSpd;
+          }
+          proj.color = '#39ff14';
+        }
+        // Projectile Strike on Pylon
+        if (d < py.radius + 6) {
+          proj.life = 0;
+          py.charge += 14;
+          w.cameraShake = Math.max(w.cameraShake || 0, 2);
+        }
+      });
+
+      // Pylon Overload Implosion
+      if (py.charge >= py.maxHp) {
+        this.playSynthTone(state, 120, 40, 0.45, 0.08);
+        w.cameraShake = Math.max(w.cameraShake || 0, 16);
+        state.score = (state.score || 0) + 800;
+        state.stats.combo = Math.min((state.stats.combo || 1) + 0.4, 9.9);
+        (w.shockwaves || (w.shockwaves = [])).push({
+          x: py.x, y: py.y, radius: 0, maxRadius: 220, speed: 9, intensity: 1.6, color: '#39ff14'
+        });
+        // Clear nearby asteroid & enemy hulls
+        (w.asteroids || []).forEach(ast => {
+          if (Math.hypot(ast.x - py.x, ast.y - py.y) < 220) ast.hp = 0;
+        });
+        (w.hunters || w.enemies || []).forEach(en => {
+          if (Math.hypot(en.x - py.x, en.y - py.y) < 220) en.hp = 0;
+        });
+        if (w.floatingTexts) (w.floatingTexts || (w.floatingTexts = [])).push({ x: py.x, y: py.y, text: "SINGULARITY COLLAPSE!", color: "#39ff14", life: 45 });
+        pylons.splice(i, 1);
+      }
+    }
+
+    // --- DETECT ASTEROID SHATTERS & SPAWN TESSELLATION ---
+    const currAsteroids = (w.asteroids || []).filter(a => a.hp > 0).length;
+    if (this.prevAsteroidCount > currAsteroids) {
+      const destroyed = (w.asteroids || []).filter(a => a.hp <= 0);
+      destroyed.forEach(ast => {
+        (w.shockwaves || (w.shockwaves = [])).push({
+          x: ast.x, y: ast.y, radius: 0, maxRadius: 160, speed: 7, intensity: 1.0, color: '#ff007f'
+        });
+        const numFrags = 14;
+        for (let k = 0; k < numFrags; k++) {
+          const ang = (k / numFrags) * Math.PI * 2 + Math.random() * 0.4;
+          const spd = 60 + Math.random() * 140;
+          (w.shatters || (w.shatters = [])).push({
+            x: ast.x, y: ast.y,
+            vx: Math.cos(ang) * spd, vy: Math.sin(ang) * spd,
+            rot: Math.random() * Math.PI, vRot: (Math.random() - 0.5) * 8,
+            size: 4 + Math.random() * 7, life: 0.65, maxLife: 0.65,
+            color: k % 2 === 0 ? '#ff007f' : '#00f3ff'
+          });
+        }
+      });
+    }
+    this.prevAsteroidCount = (w.asteroids || []).filter(a => a.hp > 0).length;
+
+    // Update Shockwaves
+    const sws = w.shockwaves || [];
+    for (let i = sws.length - 1; i >= 0; i--) {
+      sws[i].radius += sws[i].speed * dt * 60;
+      sws[i].intensity *= Math.pow(0.94, dt * 60);
+      if (sws[i].radius >= sws[i].maxRadius || sws[i].intensity < 0.05) sws.splice(i, 1);
+    }
+
+    // Update Shatter Polygons
+    const shats = w.shatters || [];
+    for (let i = shats.length - 1; i >= 0; i--) {
+      const sh = shats[i];
+      sh.x += sh.vx * dt; sh.y += sh.vy * dt;
+      sh.vx *= Math.pow(0.92, dt * 60); sh.vy *= Math.pow(0.92, dt * 60);
+      sh.rot += sh.vRot * dt;
+      sh.life -= dt;
+      if (sh.life <= 0) shats.splice(i, 1);
+    }
+  },
+
+  render: function(ctx, state, engine) {
+    if (state.paused || !state.running) return;
+    const w = state.world, p = state.player;
+    if (!w || !p) return;
+
+    ctx.save();
+
+    // 1. Diegetic Singularity Pylons
+    (w.pylons || []).forEach(py => {
+      ctx.save();
+      ctx.translate(py.x, py.y);
+      // Gravitational Pull Perimeter
+      ctx.strokeStyle = 'rgba(57, 255, 20, 0.15)';
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([4, 6]);
+      ctx.beginPath();
+      ctx.arc(0, 0, py.pullRadius, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Rotating Outer Monolith Segments
+      ctx.rotate(py.spinAngle);
+      ctx.strokeStyle = '#39ff14';
+      ctx.shadowColor = '#39ff14';
+      ctx.shadowBlur = 12;
+      ctx.lineWidth = 2.5;
+      for (let s = 0; s < 3; s++) {
+        ctx.beginPath();
+        ctx.arc(0, 0, py.radius, (s * Math.PI * 2) / 3, (s * Math.PI * 2) / 3 + 1.2);
+        ctx.stroke();
+      }
+
+      // Overload Core
+      const chargePct = Math.min(py.charge / py.maxHp, 1.0);
+      ctx.fillStyle = chargePct > 0.8 ? '#ffffff' : '#39ff14';
+      ctx.beginPath();
+      ctx.arc(0, 0, 8 + chargePct * 12, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Inverted Inner Diamond
+      ctx.rotate(-py.spinAngle * 2.2);
+      ctx.strokeStyle = '#00f3ff';
+      ctx.strokeRect(-10, -10, 20, 20);
+      ctx.restore();
+    });
+
+    // 2. Phasic Blade Wake Ribbon
+    (w.phaseWake || []).forEach(wk => {
+      const alpha = (wk.life / wk.maxLife).toFixed(2);
+      ctx.save();
+      ctx.strokeStyle = 'rgba(0, 243, 255, ' + alpha + ')';
+      ctx.shadowColor = '#00f3ff';
+      ctx.shadowBlur = 10;
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(wk.x1, wk.y1);
+      ctx.lineTo(wk.x2, wk.y2);
+      ctx.stroke();
+      ctx.restore();
+    });
+
+    // 3. High-Velocity Chromatic Ghosting Trail
+    const spd = Math.hypot(p.vx || 0, p.vy || 0);
+    if (spd > 7) {
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      for (let i = 1; i <= 3; i++) {
+        const ox = p.x - (p.vx || 0) * i * 1.6;
+        const oy = p.y - (p.vy || 0) * i * 1.6;
+        ctx.save();
+        ctx.translate(ox, oy);
+        ctx.rotate(p.angle);
+        ctx.strokeStyle = i % 2 === 0 ? 'rgba(255, 0, 127, 0.35)' : 'rgba(0, 243, 255, 0.35)';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(14, 0); ctx.lineTo(-12, -9); ctx.lineTo(-6, 0); ctx.lineTo(-12, 9);
+        ctx.closePath();
+        ctx.stroke();
+        ctx.restore();
+      }
+      ctx.restore();
+    }
+
+    // 4. Prismatic Tessellation Shatter Polygons
+    (w.shatters || []).forEach(sh => {
+      const alpha = Math.max(sh.life / sh.maxLife, 0);
+      ctx.save();
+      ctx.translate(sh.x, sh.y);
+      ctx.rotate(sh.rot);
+      ctx.fillStyle = sh.color;
+      ctx.shadowColor = sh.color;
+      ctx.shadowBlur = 6;
+      ctx.globalAlpha = alpha;
+      ctx.beginPath();
+      ctx.moveTo(0, -sh.size);
+      ctx.lineTo(sh.size * 0.9, sh.size * 0.7);
+      ctx.lineTo(-sh.size * 0.9, sh.size * 0.7);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    });
+
+    // 5. Radial Compression Shockwaves
+    (w.shockwaves || []).forEach(sw => {
+      ctx.save();
+      ctx.strokeStyle = sw.color;
+      ctx.shadowColor = sw.color;
+      ctx.shadowBlur = 14;
+      ctx.lineWidth = 2.5 * sw.intensity;
+      ctx.globalAlpha = Math.min(sw.intensity, 1.0);
+      ctx.beginPath();
+      ctx.arc(sw.x, sw.y, sw.radius, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+    });
+
+    ctx.restore();
+  }
+});

@@ -117,7 +117,7 @@
         return function(text, x, y, maxWidth) {
           if (typeof text === 'string') {
             if (text.includes('.')) {
-              text = text.replace(/(\d+)\.(\d{2,})/g, (m, a, b) => y < 40 && text.includes('SCORE') ? a : a + '.' + b.slice(0, 1));
+              text = text.replace(/(\d+)\.(\d{2,})/g, (m, a, b) => a + (y < 40 ? '' : '.' + b.slice(0, 1)));
             }
             // Detect Menu/Modal Screens by Header Text even if drawn as 4 separate pilot cards!
             if (
@@ -245,6 +245,48 @@
     KeyM: 'map', Digit1: 'digit1', Digit2: 'digit2', Digit3: 'digit3', Digit4: 'digit4'
   };
   window.addEventListener('keydown', e => {
+    const engine = window.StudioEngine;
+    const state = engine.state;
+    if (state.gameOver) {
+      if (e.code === 'Space' || e.code === 'Enter' || e.code === 'KeyC') {
+        const switchPilot = (e.code === 'KeyC');
+        state.gameOver = false;
+        state.modal = null;
+        state.score = 0;
+        if (state.stats) state.stats.combo = 1;
+        engine._lockedWave = 1;
+        engine._waveClearTimer = 0;
+        if (state.world) {
+          state.world.wave = 1;
+          if (Array.isArray(state.world.asteroids)) state.world.asteroids.length = 0;
+          if (Array.isArray(state.world.enemies)) state.world.enemies.length = 0;
+          if (Array.isArray(state.world.enemyBullets)) state.world.enemyBullets.length = 0;
+          if (Array.isArray(state.world.lasers)) state.world.lasers.length = 0;
+          if (state.world.boss) { state.world.boss.active = false; state.world.boss.defeated = false; }
+        }
+        if (state.player) {
+          state.player.x = 400; state.player.y = 300;
+          state.player.vx = 0; state.player.vy = 0;
+          state.player.shields = 3; state.player.health = 3;
+          state.player.invuln = 2.0;
+          engine._prevShields = 3;
+        }
+        // Re-init wave 1 asteroids via Milestone_v0_1_0 if available
+        const m1 = engine.modules['Milestone_v0_1_0'];
+        if (m1 && typeof m1.spawnWave === 'function') m1.spawnWave(state, 1);
+        else if (m1 && typeof m1.init === 'function') m1.init(state, engine);
+
+        const m2 = engine.modules['Milestone_v0_2_0'];
+        if (switchPilot && m2) {
+          m2.menuActive = true;
+          state.paused = true;
+        } else {
+          state.paused = false;
+        }
+      }
+      return;
+    }
+
     const k = KEY_MAP[e.code];
     if (k) window.StudioEngine.state.keys[k] = true;
     window.StudioEngine.emit('KEYDOWN', { code: e.code, key: e.key });
@@ -394,21 +436,100 @@
       if (state.stats && typeof state.stats.combo === 'number') {
         state.stats.combo = Math.round(state.stats.combo * 10) / 10;
       }
-      // Synchronize v0.1.0 wipeouts, live distanceMeters, and auto-emit PLAYER_WIPEOUT
-      if (state.world) {
-        const rawDist = state.world.distance || 0;
-        state.world.distanceMeters = rawDist > 2500 ? Math.floor(rawDist / 10) : Math.floor(rawDist);
-      }
+      // 1. Clean Shield & Health Synchronization (Zero Invincibility Revert Bug!)
       if (state.player) {
-        const maxH = state.player.maxHealth || 3;
-        const curW = state.player.wipeouts || 0;
-        state.player.health = Math.max(0, maxH - curW);
-        if (typeof engine._lastWipeouts !== 'number') engine._lastWipeouts = 0;
-        if (curW > engine._lastWipeouts) {
-          engine._lastWipeouts = curW;
-          engine.emit('PLAYER_WIPEOUT', { wipeouts: curW, health: state.player.health });
-        } else if (curW < engine._lastWipeouts) {
-          engine._lastWipeouts = curW;
+        const p = state.player;
+        if (typeof p.maxShields !== 'number') p.maxShields = 3;
+        if (typeof p.shields !== 'number') p.shields = 3;
+        if (typeof p.health !== 'number') p.health = p.shields;
+        if (typeof engine._prevShields !== 'number') engine._prevShields = p.shields;
+
+        // If either shields or health dropped this frame, commit the damage and grant 1.2s i-frames
+        const currentMin = Math.min(p.shields, p.health);
+        if (currentMin < engine._prevShields) {
+          p.shields = Math.max(0, currentMin);
+          p.health = p.shields;
+          p.invuln = Math.max(p.invuln || 0, 1.2);
+          if (state.world) state.world.cameraShake = Math.max(state.world.cameraShake || 0, 12);
+          engine._prevShields = p.shields;
+          engine.emit('PLAYER_DAMAGED', { shields: p.shields });
+        } else if (Math.max(p.shields, p.health) > engine._prevShields) {
+          // Shield pickup or new run reset
+          const restored = Math.min(p.maxShields, Math.max(p.shields, p.health));
+          p.shields = restored;
+          p.health = restored;
+          engine._prevShields = restored;
+        }
+
+        // Clamp ship velocity so overlapping thruster/recoil/dash forces NEVER launch the player uncontrollably
+        const spd = Math.hypot(p.vx || 0, p.vy || 0);
+        const maxSpd = 310;
+        if (spd > maxSpd) {
+          p.vx = (p.vx / spd) * maxSpd;
+          p.vy = (p.vy / spd) * maxSpd;
+        }
+      }
+
+      // 2. True Wave-Clear Progression & Guaranteed Game Over Controller
+      if (state.player && state.world) {
+        const p = state.player, w = state.world;
+        const v2Mod = engine.modules['Milestone_v0_2_0'];
+        const inPilotMenu = Boolean(v2Mod && v2Mod.menuActive);
+
+        // Detect 0 Shields -> Trigger Guaranteed Arcade Game Over Modal!
+        if (!inPilotMenu && !state.gameOver && typeof p.shields === 'number' && p.shields <= 0) {
+          state.gameOver = true;
+          state.paused = true;
+          state.modal = 'RUN_SUMMARY';
+          const sc = Math.floor(state.score || 0);
+          const wv = w.wave || 1;
+          const rank = sc >= 25000 ? 'S-RANK // NEON DEITY' : (sc >= 14000 ? 'A-RANK // HYPER ACE' : (sc >= 6000 ? 'B-RANK // VOID RUNNER' : 'C-RANK // STAR DRIFTER'));
+          const pilotName = (p.pilot && p.pilot.name) || 'VEX // VIPER';
+          if (!window.__ARCADE_BOARD__) {
+            window.__ARCADE_BOARD__ = [
+              { name: 'VEX // DEVOLVER', score: 28500, wave: 6 },
+              { name: 'KAZE // RONIN', score: 19200, wave: 5 },
+              { name: 'NYX // PHANTOM', score: 12400, wave: 4 },
+              { name: 'BASS // TITAN', score: 7800, wave: 3 }
+            ];
+          }
+          window.__LAST_RUN__ = { score: sc, wave: wv, rank: rank, pilot: pilotName };
+          window.__ARCADE_BOARD__.push({ name: 'YOU (' + pilotName.split(' ')[0] + ')', score: sc, wave: wv });
+          window.__ARCADE_BOARD__.sort((a, b) => b.score - a.score);
+          window.__ARCADE_BOARD__ = window.__ARCADE_BOARD__.slice(0, 5);
+        }
+
+        // Lock Wave Number to True Wave-Clear Sequencing (Prevent v0.1.0 from jumping waves before clear)
+        if (!state.paused && !state.gameOver) {
+          if (typeof engine._lockedWave !== 'number') engine._lockedWave = 1;
+          const rocks = w.asteroids || w.rocks || [];
+          const enemies = w.enemies || [];
+          // If wave still has active asteroids or enemies, hold wave at _lockedWave
+          if (rocks.length > 0 || enemies.length > 0) {
+            w.wave = engine._lockedWave;
+            engine._waveClearTimer = 0;
+          } else {
+            // All asteroids & enemies cleared! Brief 1.8s breather before advancing by +1 wave
+            engine._waveClearTimer = (engine._waveClearTimer || 0) + dt;
+            if (engine._waveClearTimer >= 1.6) {
+              engine._waveClearTimer = 0;
+              engine._lockedWave++;
+              w.wave = engine._lockedWave;
+              const waveTitles = {
+                2: 'WAVE 2 // SINGULARITY & PLASMA HAZARD SECTOR',
+                3: 'WAVE 3 // SYNTH-HUNTER SQUADRON AMBUSH',
+                4: 'WAVE 4 // HYPERVOID BULLET-HELL GAUNTLET',
+                5: '!! WAVE 5 // WARNING: OMEGA-SYNTH LEVIATHAN !!'
+              };
+              (w.floatingTexts || (w.floatingTexts = [])).push({
+                text: waveTitles[w.wave] || ('WAVE ' + w.wave + ' // ENGAGE'),
+                x: 400, y: 150, color: w.wave === 5 ? '#ff007f' : '#00f3ff', life: 2.8
+              });
+              engine.emit('WAVE_ADVANCED', { wave: w.wave });
+            } else {
+              w.wave = engine._lockedWave;
+            }
+          }
         }
       }
 
@@ -431,7 +552,7 @@
       }
 
       // 1. Update Phase: Run v0.2.0+ feature/modal controllers FIRST so pause locks apply before v0.1.0 physics
-      for (let i = engine.hooks.update.length - 1; i >= 0; i--) {
+      for (let i = 0; i < engine.hooks.update.length; i++) {
         const h = engine.hooks.update[i];
         // Never advance v0.1.0 downhill skiing while paused or while a modal is on screen!
         if (h.name === 'Milestone_v0_1_0' && (state.paused || _modalOwnerThisFrame)) {
@@ -485,12 +606,68 @@
           _baseCtx.restore();
         }
 
-        // Composite the topmost Modal Canvas over the base canvas LAST
+        // Render Guaranteed Arcade Game Over & Leaderboard Modal if shields reached 0
+        if (state.gameOver && window.__LAST_RUN__) {
+          _modalOwnerThisFrame = 'StudioEngine_GameOver';
+          const run = window.__LAST_RUN__;
+          const board = window.__ARCADE_BOARD__ || [];
+          _modalCtx.save();
+          _modalCtx.fillStyle = 'rgba(5, 2, 13, 0.95)';
+          _modalCtx.fillRect(0, 36, 800, 564);
+
+          _modalCtx.strokeStyle = '#ff007f';
+          _modalCtx.lineWidth = 3;
+          _modalCtx.shadowBlur = 18;
+          _modalCtx.shadowColor = '#ff007f';
+          _modalCtx.strokeRect(130, 76, 540, 450);
+          _modalCtx.shadowBlur = 0;
+
+          _modalCtx.textAlign = 'center';
+          _modalCtx.fillStyle = '#ff007f';
+          _modalCtx.font = 'bold 26px monospace';
+          _modalCtx.fillText('// HULL BREACH: SIGNAL LOST //', 400, 122);
+
+          _modalCtx.fillStyle = '#00f3ff';
+          _modalCtx.font = 'bold 16px monospace';
+          _modalCtx.fillText(run.rank, 400, 156);
+
+          _modalCtx.fillStyle = '#e2e8f0';
+          _modalCtx.font = '14px monospace';
+          _modalCtx.fillText(`PILOT: ${run.pilot}   |   SCORE: ${run.score}   |   WAVE: ${run.wave}`, 400, 188);
+
+          _modalCtx.fillStyle = '#ffea00';
+          _modalCtx.font = 'bold 15px monospace';
+          _modalCtx.fillText('--- HYPERVOID TOP ACE LEADERBOARD ---', 400, 232);
+
+          _modalCtx.font = '14px monospace';
+          for (let i = 0; i < board.length; i++) {
+            const row = board[i];
+            const ry = 264 + i * 28;
+            _modalCtx.fillStyle = row.name.startsWith('YOU') ? '#39ff14' : '#94a3b8';
+            _modalCtx.textAlign = 'left';
+            _modalCtx.fillText(`${i + 1}. ${row.name}`, 190, ry);
+            _modalCtx.textAlign = 'right';
+            _modalCtx.fillText(`W${row.wave}  //  ${row.score} PTS`, 610, ry);
+          }
+
+          _modalCtx.textAlign = 'center';
+          _modalCtx.fillStyle = '#39ff14';
+          _modalCtx.font = 'bold 15px monospace';
+          _modalCtx.fillText('[SPACE / ENTER] RELAUNCH IMMEDIATELY', 400, 448);
+          _modalCtx.fillStyle = '#00f3ff';
+          _modalCtx.font = 'bold 14px monospace';
+          _modalCtx.fillText('[PRESS C] RETURN TO PILOT SELECT ROSTER', 400, 480);
+          _modalCtx.restore();
+        }
+
+        // Composite the topmost Modal Canvas over the base canvas LAST & auto-sync state.paused
         if (_modalOwnerThisFrame) {
           _baseCtx.drawImage(_modalCanvas, 0, 0);
           window.__COMPAT_REPORT__.activeOwnerModal = _modalOwnerThisFrame;
+          state.paused = true;
         } else {
           window.__COMPAT_REPORT__.activeOwnerModal = null;
+          state.paused = false;
         }
       }
 

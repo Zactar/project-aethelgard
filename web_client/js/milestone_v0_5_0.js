@@ -23,9 +23,9 @@ window.StudioEngine.registerModule("Milestone_v0_5_0", {
 
     // Spawn OMEGA-SYNTH LEVIATHAN Boss
     state.world.boss = {
-      active: true, phase: 1, x: 400, y: 150, angle: 0, rotSpeed: 0.008,
+      active: false, phase: 1, x: 400, y: 150, angle: 0, rotSpeed: 0.008,
       hp: 6000, maxHp: 6000, radius: 72, beamAngle: 0, beamActive: false, attackTimer: 0,
-      turrets: [0, 1, 2, 3].map(i => ({ hp: 500, maxHp: 500, relAngle: (i * Math.PI) / 2, dist: 88, active: true }))
+      turrets: [0, 1, 2, 3].map(i => ({ hp: 500, maxHp: 500, relAngle: (i * Math.PI) / 2, dist: 88, active: false }))
     };
 
     // Helper: Reset Entire Run
@@ -40,9 +40,9 @@ window.StudioEngine.registerModule("Milestone_v0_5_0", {
       };
       s.world.asteroids = []; s.world.enemyLasers = []; s.world.particles = []; s.world.floatingTexts = [];
       s.world.boss = {
-        active: true, phase: 1, x: 400, y: 150, angle: 0, rotSpeed: 0.008,
+        active: false, phase: 1, x: 400, y: 150, angle: 0, rotSpeed: 0.008,
         hp: 6000, maxHp: 6000, radius: 72, beamAngle: 0, beamActive: false, attackTimer: 0,
-        turrets: [0, 1, 2, 3].map(i => ({ hp: 500, maxHp: 500, relAngle: (i * Math.PI) / 2, dist: 88, active: true }))
+        turrets: [0, 1, 2, 3].map(i => ({ hp: 500, maxHp: 500, relAngle: (i * Math.PI) / 2, dist: 88, active: false }))
       };
     };
   },
@@ -84,6 +84,11 @@ window.StudioEngine.registerModule("Milestone_v0_5_0", {
 
     // Modal Pause Guard
     if (state.paused) return;
+    if (state.world && state.world.boss && ((state.world.wave || 1) < 5)) {
+      state.world.boss.active = false;
+    } else if (state.world && state.world.boss && (state.world.wave || 1) >= 5 && !state.world.boss.defeated && !state.world.boss.active) {
+      state.world.boss.active = true;
+    }
 
     // Detect Player Wipeout -> Run Summary
     if (p && ((p.shields !== undefined && p.shields <= 0 && p.hp <= 0) || (p.hp !== undefined && p.hp <= 0))) {

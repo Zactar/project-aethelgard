@@ -48,7 +48,7 @@ window.StudioEngine.registerModule("Milestone_v0_4_0", {
   },
 
   update: function(dt, state, engine) {
-    if (!state.running || state.paused) return;
+    if (!state.running || state.paused || ((state.world && state.world.wave) || 1) < 2) return;
     const w = state.world, p = state.player, dir = state.director;
 
     // Handle Player Dash Input (Space / Shift / Action)
@@ -60,7 +60,7 @@ window.StudioEngine.registerModule("Milestone_v0_4_0", {
       p.dashing = false;
     }
 
-    if ((state.keys.shift || state.keys.action || state.keys.jump) && p.dashCd <= 0 && !p.dashing) {
+    if ((state.keys.shift || state.keys.action || state.keys.jump) && false) {
       p.dashing = true;
       p.dashTimer = 0.22;
       p.dashCd = 0.85;
@@ -297,7 +297,7 @@ window.StudioEngine.registerModule("Milestone_v0_4_0", {
     }
   },
 
-  render: function(ctx, state, engine) {
+  render: function(ctx, state, engine) { if (state.paused || ((state.world && state.world.wave) || 1) < 2) return;
     ctx.save();
     const w = state.world, dir = state.director;
 

@@ -74,11 +74,11 @@ window.StudioEngine.registerModule("Milestone_v0_1_0", {
 
     // Weapon Fire
     p.fireCooldown -= dt;
-    if ((keys.jump || keys.space || keys.action) && p.fireCooldown <= 0) {
+    if ((keys.jump || keys.space) && p.fireCooldown <= 0) {
       p.fireCooldown = 0.14;
       const lx = p.x + Math.cos(p.angle) * 16, ly = p.y + Math.sin(p.angle) * 16;
       (w.lasers || (w.lasers = [])).push({ x: lx, y: ly, vx: Math.cos(p.angle) * 650 + p.vx * 0.3, vy: Math.sin(p.angle) * 650 + p.vy * 0.3, life: 1.1 });
-      p.vx -= Math.cos(p.angle) * 38; p.vy -= Math.sin(p.angle) * 38;
+       
       this.playSynth(780, 'sawtooth', 0.08, 0.12);
     }
 
@@ -121,7 +121,7 @@ window.StudioEngine.registerModule("Milestone_v0_1_0", {
       }
       // Asteroid vs Ship
       if (w.asteroids[i] && p.invuln <= 0 && Math.hypot(a.x - p.x, a.y - p.y) < a.r + 10) {
-        p.shields--; p.invuln = 1.5; w.cameraShake = 14; w.hitStop = 0.06;
+        p.shields = Math.max(0, (p.shields || 0) - 1); p.invuln = 1.5; w.cameraShake = 14; w.hitStop = 0.06;
         this.playSynth(90, 'sawtooth', 0.35, 0.3);
         if (p.shields <= 0) { p.shields = 0; state.running = false; }
       }
