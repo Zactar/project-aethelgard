@@ -1,0 +1,1693 @@
+127.0.0.1 - - [31/Oct/2026 04:05:54] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2026 04:05:55] "GET /game_runtime_manifest.json?t=1793419553401 HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2026 04:05:55] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 04:05:55] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 04:06:04] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 04:06:04] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 04:06:04] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 04:06:04] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 04:06:08] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2026 04:06:08] "GET /game_runtime_manifest.json?t=1793419566905 HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2026 04:06:09] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 04:06:09] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 04:06:12] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 04:06:12] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 04:06:12] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 04:06:12] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 04:06:13] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 04:06:13] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 04:06:13] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 04:06:13] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 04:15:21] "GET /game_runtime_manifest.json?t=1793420119535 HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2026 04:15:27] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 04:15:27] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 04:15:27] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 04:15:27] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 04:15:28] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 04:15:28] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 04:15:28] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 04:15:28] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 04:15:40] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2026 04:15:40] "GET /game_runtime_manifest.json HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2026 04:15:41] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 04:15:41] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 04:24:29] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2026 04:25:12] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2026 04:25:13] "GET /game_runtime_manifest.json HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2026 04:25:17] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 04:25:17] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 04:25:18] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 04:25:18] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 04:36:27] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2026 04:37:12] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2026 04:37:12] "GET /game_runtime_manifest.json HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2026 04:37:13] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 04:37:13] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 04:37:16] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 04:37:16] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 04:37:16] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 04:37:16] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 04:49:45] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2026 04:50:26] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2026 04:50:27] "GET /game_runtime_manifest.json HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2026 04:50:29] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 04:50:29] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 04:50:33] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2026 04:50:34] "GET /game_runtime_manifest.json HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2026 04:50:35] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 04:50:35] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 04:50:37] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 04:50:37] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 04:50:37] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 04:50:37] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 05:00:47] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2026 05:00:52] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2026 05:01:36] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2026 05:01:36] "GET /game_runtime_manifest.json HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2026 05:01:37] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 05:01:37] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 05:01:39] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 05:01:39] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 05:01:39] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 05:01:39] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 05:14:26] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2026 05:14:32] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2026 05:15:16] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2026 05:15:17] "GET /game_runtime_manifest.json HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2026 05:15:19] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 05:15:19] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 05:15:22] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 05:15:22] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 05:15:22] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 05:15:22] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 06:18:15] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2026 06:18:15] "GET /game_runtime_manifest.json HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2026 06:18:17] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 06:18:17] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 06:18:19] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 06:18:19] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 06:18:20] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 06:18:20] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 06:19:00] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2026 06:19:03] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2026 06:19:42] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2026 06:19:43] "GET /game_runtime_manifest.json HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2026 06:19:44] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 06:19:44] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 06:19:48] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 06:19:48] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 06:19:49] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 06:19:49] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 06:29:00] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2026 06:29:01] "GET /game_runtime_manifest.json HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2026 06:29:01] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 06:29:01] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 06:29:06] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 06:29:06] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 06:29:06] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 06:29:06] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 06:33:16] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2026 06:35:43] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2026 06:36:43] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2026 06:36:44] "GET /game_runtime_manifest.json HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2026 06:36:45] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 06:36:45] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 06:36:47] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 06:36:47] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 06:36:47] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 06:36:47] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 06:36:48] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 06:36:48] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [31/Oct/2026 06:36:48] code 404, message File not found
+127.0.0.1 - - [31/Oct/2026 06:36:48] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 13:33:41] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 13:33:44] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 13:44:51] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 13:48:24] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 13:49:25] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 13:49:25] "GET /game_runtime_manifest.json HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 13:49:30] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 13:49:30] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 13:49:30] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 13:49:30] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 13:49:30] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 13:49:30] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 13:49:31] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 13:49:31] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 13:49:33] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 13:49:33] "GET /game_runtime_manifest.json HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 13:49:34] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 13:49:34] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 13:49:44] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 13:49:44] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 13:49:44] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 13:49:44] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 13:57:02] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 13:57:03] "GET /game_runtime_manifest.json HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 13:57:05] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 13:57:05] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 13:57:07] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 13:57:07] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 13:57:07] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 13:57:07] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 13:58:02] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 13:58:03] "GET /game_runtime_manifest.json HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 13:58:04] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 13:58:04] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 13:58:06] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 13:58:06] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 13:58:06] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 13:58:06] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 14:03:05] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 14:03:52] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 14:03:53] "GET /game_runtime_manifest.json HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 14:03:54] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 14:03:54] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 14:03:56] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 14:03:56] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 14:03:56] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 14:03:56] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 14:04:01] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 14:04:01] "GET /game_runtime_manifest.json HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 14:04:02] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 14:04:02] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 14:04:05] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 14:04:05] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 14:04:05] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 14:04:05] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 14:04:05] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 14:04:05] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 14:04:05] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 14:04:05] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 14:21:25] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 14:22:00] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 14:22:01] "GET /game_runtime_manifest.json HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 14:22:02] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 14:22:02] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 14:22:03] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 14:22:03] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 14:22:03] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 14:22:03] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 14:50:35] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 14:50:38] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 14:51:27] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 14:51:28] "GET /game_runtime_manifest.json HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 14:51:31] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 14:51:31] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 14:51:33] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 14:51:33] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 14:51:33] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 14:51:33] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 15:07:09] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 15:07:38] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 15:07:39] "GET /game_runtime_manifest.json HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 15:07:40] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 15:07:40] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 15:07:47] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 15:07:47] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 15:07:47] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 15:07:47] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 15:07:47] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 15:07:47] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 15:07:47] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 15:07:47] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 15:30:44] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 15:31:32] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 15:31:33] "GET /game_runtime_manifest.json HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 15:31:34] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 15:31:34] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 15:31:37] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 15:31:37] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 15:31:38] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 15:31:38] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 15:45:31] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 15:45:36] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 15:46:41] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 15:46:42] "GET /game_runtime_manifest.json HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 15:46:42] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 15:46:42] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 15:46:44] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 15:46:44] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 15:46:44] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 15:46:44] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 17:47:46] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 17:47:53] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 17:47:54] "GET /game_runtime_manifest.json HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 17:47:55] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 17:47:55] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 17:48:01] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 17:48:05] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 17:48:05] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 17:48:05] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 17:48:05] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 17:59:39] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 17:59:45] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 18:18:24] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 18:19:56] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 18:19:57] "GET /game_runtime_manifest.json HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 18:19:58] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 18:19:58] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 18:20:00] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 18:20:00] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 18:20:00] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 18:20:00] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 18:25:07] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 18:25:08] "GET /game_runtime_manifest.json HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 18:25:09] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 18:25:09] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 18:25:10] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 18:25:10] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 18:25:11] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 18:25:11] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 18:26:38] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 18:26:40] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 18:26:43] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 18:42:09] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 18:42:10] "GET /game_runtime_manifest.json HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 18:42:11] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 18:42:11] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 18:42:14] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 18:42:14] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 18:42:15] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 18:42:15] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 18:52:37] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 18:52:38] "GET /game_runtime_manifest.json HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 18:52:39] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 18:52:39] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 18:52:40] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 18:52:40] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 18:52:41] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 18:52:41] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 18:53:43] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 18:53:44] "GET /game_runtime_manifest.json HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 18:53:44] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 18:53:44] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 18:53:47] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 18:53:47] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 18:53:47] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 18:53:47] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 18:53:47] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 18:53:47] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 18:53:48] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 18:53:48] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 19:01:53] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 19:01:56] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 19:01:59] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 19:02:59] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 19:03:00] "GET /game_runtime_manifest.json HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 19:03:01] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 19:03:01] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 19:03:02] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 19:03:02] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 19:03:03] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 19:03:03] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 19:10:41] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 19:11:52] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 19:11:53] "GET /game_runtime_manifest.json HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 19:11:55] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 19:11:55] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 19:11:57] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 19:11:57] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 19:11:57] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 19:11:57] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 19:20:28] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 19:22:25] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 19:24:22] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 19:24:23] "GET /game_runtime_manifest.json HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 19:24:24] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 19:24:24] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 19:24:28] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 19:24:28] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 19:24:28] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 19:24:28] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 19:35:48] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 19:35:58] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 19:37:02] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 19:37:03] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 19:37:03] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 19:37:16] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 19:37:17] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 19:37:17] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 20:05:01] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 20:05:57] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 20:05:58] "GET /game_runtime_manifest.json HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 20:05:59] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 20:05:59] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 20:06:02] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 20:06:02] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 20:06:02] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 20:06:02] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 20:36:58] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 20:49:18] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 20:50:15] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 20:50:16] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 20:50:16] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 20:56:22] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 20:57:13] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 20:57:14] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 20:57:14] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 21:06:50] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 21:11:56] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 21:11:58] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 21:11:58] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 21:13:04] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 21:13:05] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 21:13:05] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 21:18:10] code 400, message Bad request version ("O\\x14\\x00\\x00\\x84\\x003\\x009\\x005\\x00/À,À0\\x00£\\x00\\x9fÌ©Ì¨ÌªÀ¯À\\xadÀ£À\\x9fÀ+À/\\x00¢\\x00\\x9eÀ®À¬À¢À\\x9eÀ$À(\\x00k\\x00jÀsÀw\\x00Ä\\x00ÃÀ#À'\\x00g\\x00@ÀrÀv\\x00¾\\x00½À")
+127.0.0.1 - - [01/Nov/2026 21:18:10] "\x16\x03\x01\x00÷\x01\x00\x00ó\x03\x03\x85@¿;¸\x15¢ú\x90\x07­ßÐ&lì\\\x92\x01\x1cmã\x9e_ØAò\x83\x89\x1eO\x14\x00\x00\x84\x003\x009\x005\x00/À,À0\x00£\x00\x9fÌ©Ì¨ÌªÀ¯À­À£À\x9fÀ+À/\x00¢\x00\x9eÀ®À¬À¢À\x9eÀ$À(\x00k\x00jÀsÀw\x00Ä\x00ÃÀ#À'\x00g\x00@ÀrÀv\x00¾\x00½À" 400 -
+127.0.0.1 - - [01/Nov/2026 21:18:10] "HEAD / HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 21:18:10] code 400, message Bad request version ('þÿþþ\\x00c\\x00e\\x00\\x11\\x00r\\x00\\x13\\x00s\\x002\\x00@\\x00¢\\x00t\\x008\\x00j\\x00£ÀBÀVÀCÀW\\x00D\\x00½À\\x80\\x00\\x87\\x00ÃÀ\\x81\\x00\\x12\\x00f\\x00\\x99\\x00\\x8f\\x00\\x90\\x00²À¦\\x00ª\\x00\\x91\\x00³À§\\x00«ÀfÀlÀgÀmÀ\\x96À\\x90À\\x97À\\x91Ì\\xad\\x00-\\x00´\\x00µ\\x00\\x8e\\x00\\x14\\x00w\\x00\\x16\\x00x\\x003\\x00gÀ\\x9eÀ¢\\x00\\x9e\\x00y\\x009\\x00k\\x01\\x00\\x00\\x16\\x00')
+127.0.0.1 - - [01/Nov/2026 21:18:10] "\x16\x03\x02\x00Ã\x01\x00\x00¿\x03\x02jç¬\x92\x19?\x8f¥J\x10£ª\x06ó\x80\x0f\x03©E¡¥\x8dà¥\x1eFåÕÖÆ;!\x00\x00\x80\x00\x1d\x00\x1cþÿþþ\x00c\x00e\x00\x11\x00r\x00\x13\x00s\x002\x00@\x00¢\x00t\x008\x00j\x00£ÀBÀVÀCÀW\x00D\x00½À\x80\x00\x87\x00ÃÀ\x81\x00\x12\x00f\x00\x99\x00\x8f\x00\x90\x00²À¦\x00ª\x00\x91\x00³À§\x00«ÀfÀlÀgÀmÀ\x96À\x90À\x97À\x91Ì­\x00-\x00´\x00µ\x00\x8e\x00\x14\x00w\x00\x16\x00x\x003\x00gÀ\x9eÀ¢\x00\x9e\x00y\x009\x00k\x01\x00\x00\x16\x00" 400 -
+127.0.0.1 - - [01/Nov/2026 21:18:10] code 400, message Bad HTTP/0.9 request type ('\\x16\\x03\\x01\\x00W\\x01\\x00\\x00S\\x03\\x03jç¬\\x92\\x0f-\\x80W\\x15')
+127.0.0.1 - - [01/Nov/2026 21:18:10] "\x16\x03\x01\x00W\x01\x00\x00S\x03\x03jç¬\x92\x0f-\x80W\x15\x1e2.\x86ÅÎç\x16+\x8fä¢È\x81,´ÉzfÇ\x1b¸¡\x00\x00" 400 -
+127.0.0.1 - - [01/Nov/2026 21:18:10] code 400, message Bad HTTP/0.9 request type ('\\x16\\x03\\x03\\x00\\x8c\\x01\\x00\\x00\\x88\\x03\\x03jç¬\\x92\\x9bV}\\x16\\x84Ñö«\\x1aÍ')
+127.0.0.1 - - [01/Nov/2026 21:18:10] "\x16\x03\x03\x00\x8c\x01\x00\x00\x88\x03\x03jç¬\x92\x9bV}\x16\x84Ñö«\x1aÍ \x9ePÙ\x9cá\x84EÎ8n\\\x12}YÛÑ\x91\x00\x00\x1a\x13\x05\x13\x04\x13\x01\x13\x02\x13\x03À´Àµ\x00Ç\x00ÆÀ²À°À³À±\x01\x00\x00E\x00" 400 -
+127.0.0.1 - - [01/Nov/2026 21:18:10] code 400, message Bad request version ('þÿþþ\\x00c\\x00e\\x00\\x11\\x00r\\x00\\x13\\x00s\\x002\\x00@\\x00¢\\x00t\\x008\\x00j\\x00£ÀBÀVÀCÀW\\x00D\\x00½À\\x80\\x00\\x87\\x00ÃÀ\\x81\\x00\\x12\\x00f\\x00\\x99\\x00\\x8f\\x00\\x90\\x00²À¦\\x00ª\\x00\\x91\\x00³À§\\x00«ÀfÀlÀgÀmÀ\\x96À\\x90À\\x97À\\x91Ì\\xad\\x00-\\x00´\\x00µ\\x00\\x8e\\x00\\x14\\x00w\\x00\\x16\\x00x\\x003\\x00gÀ\\x9eÀ¢\\x00\\x9e\\x00y\\x009\\x00k\\x01\\x00\\x006\\x00')
+127.0.0.1 - - [01/Nov/2026 21:18:10] "\x16\x03\x03\x00ã\x01\x00\x00ß\x03\x03jç¬\x92\x0e_"®÷\x9ew×\x8b)¿0pÿ³\x94y¯\x8f;\x12\x13¾Q!\x12I\x05\x00\x00\x80\x00\x1d\x00\x1cþÿþþ\x00c\x00e\x00\x11\x00r\x00\x13\x00s\x002\x00@\x00¢\x00t\x008\x00j\x00£ÀBÀVÀCÀW\x00D\x00½À\x80\x00\x87\x00ÃÀ\x81\x00\x12\x00f\x00\x99\x00\x8f\x00\x90\x00²À¦\x00ª\x00\x91\x00³À§\x00«ÀfÀlÀgÀmÀ\x96À\x90À\x97À\x91Ì­\x00-\x00´\x00µ\x00\x8e\x00\x14\x00w\x00\x16\x00x\x003\x00gÀ\x9eÀ¢\x00\x9e\x00y\x009\x00k\x01\x00\x006\x00" 400 -
+127.0.0.1 - - [01/Nov/2026 21:18:10] code 400, message Bad request version ('þÿþþ\\x00c\\x00e\\x00\\x11\\x00r\\x00\\x13\\x00s\\x002\\x00@\\x00¢\\x00t\\x008\\x00j\\x00£ÀBÀVÀCÀW\\x00D\\x00½À\\x80\\x00\\x87\\x00ÃÀ\\x81\\x00\\x12\\x00f\\x00\\x99\\x00\\x8f\\x00\\x90\\x00²À¦\\x00ª\\x00\\x91\\x00³À§\\x00«ÀfÀlÀgÀmÀ\\x96À\\x90À\\x97À\\x91Ì\\xad\\x00-\\x00´\\x00µ\\x00\\x8e\\x00\\x14\\x00w\\x00\\x16\\x00x\\x003\\x00gÀ\\x9eÀ¢\\x00\\x9e\\x00y\\x009\\x00k\\x01\\x00\\x00\\x16\\x00')
+127.0.0.1 - - [01/Nov/2026 21:18:10] "\x16\x03\x01\x00Ã\x01\x00\x00¿\x03\x01jç¬\x92\x94\x1c\x93\x867öìTS2¾ó#\x0fØ\x88\x8fR/j\x05\x09"ä>*¸\x04\x00\x00\x80\x00\x1d\x00\x1cþÿþþ\x00c\x00e\x00\x11\x00r\x00\x13\x00s\x002\x00@\x00¢\x00t\x008\x00j\x00£ÀBÀVÀCÀW\x00D\x00½À\x80\x00\x87\x00ÃÀ\x81\x00\x12\x00f\x00\x99\x00\x8f\x00\x90\x00²À¦\x00ª\x00\x91\x00³À§\x00«ÀfÀlÀgÀmÀ\x96À\x90À\x97À\x91Ì­\x00-\x00´\x00µ\x00\x8e\x00\x14\x00w\x00\x16\x00x\x003\x00gÀ\x9eÀ¢\x00\x9e\x00y\x009\x00k\x01\x00\x00\x16\x00" 400 -
+127.0.0.1 - - [01/Nov/2026 21:18:10] code 400, message Bad request version ('\\x00/\\x00')
+127.0.0.1 - - [01/Nov/2026 21:18:10] "\x16\x03\x00\x00i\x01\x00\x00e\x03\x03U\x1c§ärandom1random2random3random4\x00\x00\x0c\x00/\x00" 400 -
+127.0.0.1 - - [01/Nov/2026 21:18:10] code 400, message Bad request version ('\\x007\\x00i\\x00¡À@ÀTÀAÀU\\x00C\\x00¼À~\\x00\\x86\\x00ÂÀ\\x7f\\x00\\x0f\\x00\\x98\\x00\\x19\\x00\\x17\\x00\\x1b\\x004\\x00l\\x00¦\\x00:\\x01\\x00\\x00\\x16\\x00')
+127.0.0.1 - - [01/Nov/2026 21:18:10] code 400, message Bad request version ('\\x007\\x00i\\x00¡À@ÀTÀAÀU\\x00C\\x00¼À~\\x00\\x86\\x00ÂÀ\\x7f\\x00\\x0f\\x00\\x98\\x00\\x19\\x00\\x17\\x00\\x1b\\x004\\x00l\\x00¦\\x00:\\x01\\x00\\x00\\x16\\x00')
+127.0.0.1 - - [01/Nov/2026 21:18:10] "\x16\x03\x01\x00Ã\x01\x00\x00¿\x03\x01jç¬\x92b¬ÞDò\x83\x02ìèÇz\x08Ào«í°or\x92ÎMN¢ua\x8f\x96\x00\x00\x80À\x9fÀ£\x00\x9fÀDÀRÀEÀS\x00E\x00¾À|\x00\x88\x00ÄÀ}ÌªÌ\x15\x00\x15\x00\x9a\x00\x0b\x00\x0d\x000\x00>\x00¤\x006\x00h\x00¥À>ÀXÀ?ÀY\x00B\x00»À\x82\x00\x85\x00ÁÀ\x83\x00\x0c\x00\x97\x00\x0e\x00\x10\x001\x00?\x00 \x007\x00i\x00¡À@ÀTÀAÀU\x00C\x00¼À~\x00\x86\x00ÂÀ\x7f\x00\x0f\x00\x98\x00\x19\x00\x17\x00\x1b\x004\x00l\x00¦\x00:\x01\x00\x00\x16\x00" 400 -
+127.0.0.1 - - [01/Nov/2026 21:18:10] code 400, message Bad request version ('\\x007\\x00i\\x00¡À@ÀTÀAÀU\\x00C\\x00¼À~\\x00\\x86\\x00ÂÀ\\x7f\\x00\\x0f\\x00\\x98\\x00\\x19\\x00\\x17\\x00\\x1b\\x004\\x00l\\x00¦\\x00:\\x01\\x00\\x006\\x00')
+127.0.0.1 - - [01/Nov/2026 21:18:10] "\x16\x03\x02\x00Ã\x01\x00\x00¿\x03\x02jç¬\x92Ó­QA\x9dy\x818w«\\¨Þµþ\x7fö|®öY\x91\x94#¯ü\x15w\x00\x00\x80À\x9fÀ£\x00\x9fÀDÀRÀEÀS\x00E\x00¾À|\x00\x88\x00ÄÀ}ÌªÌ\x15\x00\x15\x00\x9a\x00\x0b\x00\x0d\x000\x00>\x00¤\x006\x00h\x00¥À>ÀXÀ?ÀY\x00B\x00»À\x82\x00\x85\x00ÁÀ\x83\x00\x0c\x00\x97\x00\x0e\x00\x10\x001\x00?\x00 \x007\x00i\x00¡À@ÀTÀAÀU\x00C\x00¼À~\x00\x86\x00ÂÀ\x7f\x00\x0f\x00\x98\x00\x19\x00\x17\x00\x1b\x004\x00l\x00¦\x00:\x01\x00\x00\x16\x00" 400 -
+127.0.0.1 - - [01/Nov/2026 21:18:10] "\x16\x03\x03\x00ã\x01\x00\x00ß\x03\x03jç¬\x92±î´Ê%¥Óãªi¡ÈOeO\x8dW\x86\x12Ñ³Ä\x1d¾hú\x1b8\x00\x00\x80À\x9fÀ£\x00\x9fÀDÀRÀEÀS\x00E\x00¾À|\x00\x88\x00ÄÀ}ÌªÌ\x15\x00\x15\x00\x9a\x00\x0b\x00\x0d\x000\x00>\x00¤\x006\x00h\x00¥À>ÀXÀ?ÀY\x00B\x00»À\x82\x00\x85\x00ÁÀ\x83\x00\x0c\x00\x97\x00\x0e\x00\x10\x001\x00?\x00 \x007\x00i\x00¡À@ÀTÀAÀU\x00C\x00¼À~\x00\x86\x00ÂÀ\x7f\x00\x0f\x00\x98\x00\x19\x00\x17\x00\x1b\x004\x00l\x00¦\x00:\x01\x00\x006\x00" 400 -
+127.0.0.1 - - [01/Nov/2026 21:18:10] code 400, message Bad request version ('À#À¬À®À+À')
+127.0.0.1 - - [01/Nov/2026 21:18:10] code 400, message Bad request version ('À#À¬À®À+À')
+127.0.0.1 - - [01/Nov/2026 21:18:10] code 400, message Bad request syntax ('\\x16\\x03\\x02\\x00Ã\\x01\\x00\\x00¿\\x03\\x02jç¬\\x92ñ*}\\x05Ü]\\x0eÂÂ')
+127.0.0.1 - - [01/Nov/2026 21:18:10] "\x16\x03\x02\x00Ã\x01\x00\x00¿\x03\x02jç¬\x92ñ*}\x05Ü]\x0eÂÂ" 400 -
+127.0.0.1 - - [01/Nov/2026 21:18:10] "\x16\x03\x01\x00Ã\x01\x00\x00¿\x03\x01jç¬\x92\x9f\x9aB³^4Ô\x8e\x0f\x00"¼\x00»xÌGhïQ 3\x0c\x13¶&#i\x00\x00\x80\x00m\x00§ÀFÀZÀGÀ[\x00F\x00¿À\x84\x00\x89\x00ÅÀ\x85\x00\x1a\x00\x18\x00\x9bÀ²À°À³À±À\x08À\x09À#À¬À®À+À" 400 -
+127.0.0.1 - - [01/Nov/2026 21:18:10] "\x16\x03\x03\x00ã\x01\x00\x00ß\x03\x03jç¬\x92åiç¼Ô\x81\x8c_6\x89\x8cê£\x1d\x90'©Åê[ôW\x13\x02Q}\x06\x02\x00\x00\x80\x00m\x00§ÀFÀZÀGÀ[\x00F\x00¿À\x84\x00\x89\x00ÅÀ\x85\x00\x1a\x00\x18\x00\x9bÀ²À°À³À±À\x08À\x09À#À¬À®À+À" 400 -
+127.0.0.1 - - [01/Nov/2026 21:18:10] code 400, message Bad request version ('\\x00[\\x00\\\\\\x00WÀ\\x17\\x00ZÀ\\x18À\\x19\\x01\\x00\\x00\\x16\\x00')
+127.0.0.1 - - [01/Nov/2026 21:18:10] code 400, message Bad request version ('\\x00[\\x00\\\\\\x00WÀ\\x17\\x00ZÀ\\x18À\\x19\\x01\\x00\\x006\\x00')
+127.0.0.1 - - [01/Nov/2026 21:18:10] code 400, message Bad request syntax ('\\x16\\x03\\x01\\x00Ã\\x01\\x00\\x00¿\\x03\\x01jç¬\\x92;¨ñ(2')
+127.0.0.1 - - [01/Nov/2026 21:18:10] "\x16\x03\x01\x00Ã\x01\x00\x00¿\x03\x01jç¬\x92;¨ñ(2" 400 -
+127.0.0.1 - - [01/Nov/2026 21:18:10] "\x16\x03\x03\x00ã\x01\x00\x00ß\x03\x03jç¬\x92þ Û×7Ãzà\x04¬íÝ¬Ý\x17\x80\x0f^C$D+G\x17X\x83&u\x00\x00\x80À\x14À(À0ÀLÀ`ÀMÀaÀvÀ\x8aÀwÀ\x8bÌ¨Ì\x13À\x10À\x11À\x03\x00JÀ\x04\x00KÀ%À-À\x05\x00LÀ&À.ÀJÀ^ÀKÀ_ÀtÀ\x88ÀuÀ\x89\x00IÀ\x01\x00GÀ\x02\x00H\x00N\x00MÀ\x0dÀ\x0eÀ)À1À\x0fÀ*À2ÀNÀbÀOÀcÀxÀ\x8cÀyÀ\x8dÀ\x0bÀ\x0c\x00[\x00\\\x00WÀ\x17\x00ZÀ\x18À\x19\x01\x00\x006\x00" 400 -
+127.0.0.1 - - [01/Nov/2026 21:18:10] "\x16\x03\x02\x00Ã\x01\x00\x00¿\x03\x02jç¬\x92\x15w\x91Ü\x07þ\x11£_\x1b\x1e'm\x84D=[Ûü¿\x02:\x00ú[Í\x93\x06\x00\x00\x80À\x14À(À0ÀLÀ`ÀMÀaÀvÀ\x8aÀwÀ\x8bÌ¨Ì\x13À\x10À\x11À\x03\x00JÀ\x04\x00KÀ%À-À\x05\x00LÀ&À.ÀJÀ^ÀKÀ_ÀtÀ\x88ÀuÀ\x89\x00IÀ\x01\x00GÀ\x02\x00H\x00N\x00MÀ\x0dÀ\x0eÀ)À1À\x0fÀ*À2ÀNÀbÀOÀcÀxÀ\x8cÀyÀ\x8dÀ\x0bÀ\x0c\x00[\x00\\\x00WÀ\x17\x00ZÀ\x18À\x19\x01\x00\x00\x16\x00" 400 -
+127.0.0.1 - - [01/Nov/2026 21:18:11] code 400, message Bad request version ('\\x00\\x00ÀªÀ«\\x00\\x8b\\x00\\x8c\\x00®À¤À¨\\x00¨\\x00\\x8d\\x00¯À¥À©\\x00©ÀdÀjÀeÀkÀ\\x94À\\x8eÀ\\x95À\\x8fÌ«\\x00,\\x00°\\x00±\\x00\\x8a\\x00b\\x00a\\x00`\\x00d\\x00\\x08\\x00\\x06\\x00\\x03\\x01\\x00\\x00\\x16\\x00')
+127.0.0.1 - - [01/Nov/2026 21:18:11] code 400, message Bad request version ('\\x00\\x00ÀªÀ«\\x00\\x8b\\x00\\x8c\\x00®À¤À¨\\x00¨\\x00\\x8d\\x00¯À¥À©\\x00©ÀdÀjÀeÀkÀ\\x94À\\x8eÀ\\x95À\\x8fÌ«\\x00,\\x00°\\x00±\\x00\\x8a\\x00b\\x00a\\x00`\\x00d\\x00\\x08\\x00\\x06\\x00\\x03\\x01\\x00\\x006\\x00')
+127.0.0.1 - - [01/Nov/2026 21:18:11] "\x16\x03\x02\x00Ã\x01\x00\x00¿\x03\x02jç¬\x93Ð¨\x904ÿx³(Òb}´xè6,\x85\x0fZëØ\x06Ëå\x14ò¿X\x00\x00\x80\x00YÀ\x15À\x16\x00X\x00O\x00R\x00Q\x00P\x00S\x00V\x00U\x00T\x00\x81\x00\x83\x00\x80\x00\x82\x00)\x00&\x00*\x00'\x00+\x00(\x00#\x00\x1f\x00"\x00\x1e\x00%\x00!\x00$\x00 \x00\x00ÀªÀ«\x00\x8b\x00\x8c\x00®À¤À¨\x00¨\x00\x8d\x00¯À¥À©\x00©ÀdÀjÀeÀkÀ\x94À\x8eÀ\x95À\x8fÌ«\x00,\x00°\x00±\x00\x8a\x00b\x00a\x00`\x00d\x00\x08\x00\x06\x00\x03\x01\x00\x00\x16\x00" 400 -
+127.0.0.1 - - [01/Nov/2026 21:18:11] "\x16\x03\x03\x00ã\x01\x00\x00ß\x03\x03jç¬\x93gòY2ã-\x16}}±\x9fl¹4æV\x88"ó°Mù\x0b\x98ÓKÔÁ\x00\x00\x80\x00YÀ\x15À\x16\x00X\x00O\x00R\x00Q\x00P\x00S\x00V\x00U\x00T\x00\x81\x00\x83\x00\x80\x00\x82\x00)\x00&\x00*\x00'\x00+\x00(\x00#\x00\x1f\x00"\x00\x1e\x00%\x00!\x00$\x00 \x00\x00ÀªÀ«\x00\x8b\x00\x8c\x00®À¤À¨\x00¨\x00\x8d\x00¯À¥À©\x00©ÀdÀjÀeÀkÀ\x94À\x8eÀ\x95À\x8fÌ«\x00,\x00°\x00±\x00\x8a\x00b\x00a\x00`\x00d\x00\x08\x00\x06\x00\x03\x01\x00\x006\x00" 400 -
+127.0.0.1 - - [01/Nov/2026 21:18:11] code 400, message Bad request version ('\\x00\\x00ÀªÀ«\\x00\\x8b\\x00\\x8c\\x00®À¤À¨\\x00¨\\x00\\x8d\\x00¯À¥À©\\x00©ÀdÀjÀeÀkÀ\\x94À\\x8eÀ\\x95À\\x8fÌ«\\x00,\\x00°\\x00±\\x00\\x8a\\x00b\\x00a\\x00`\\x00d\\x00\\x08\\x00\\x06\\x00\\x03\\x01\\x00\\x00\\x16\\x00')
+127.0.0.1 - - [01/Nov/2026 21:18:11] "\x16\x03\x01\x00Ã\x01\x00\x00¿\x03\x01jç¬\x93t{MÖ\x85KíÁØ\x8f\x11L1ßW\x8b\x04\x1fÈ:oºÏèü\x87~®\x00\x00\x80\x00YÀ\x15À\x16\x00X\x00O\x00R\x00Q\x00P\x00S\x00V\x00U\x00T\x00\x81\x00\x83\x00\x80\x00\x82\x00)\x00&\x00*\x00'\x00+\x00(\x00#\x00\x1f\x00"\x00\x1e\x00%\x00!\x00$\x00 \x00\x00ÀªÀ«\x00\x8b\x00\x8c\x00®À¤À¨\x00¨\x00\x8d\x00¯À¥À©\x00©ÀdÀjÀeÀkÀ\x94À\x8eÀ\x95À\x8fÌ«\x00,\x00°\x00±\x00\x8a\x00b\x00a\x00`\x00d\x00\x08\x00\x06\x00\x03\x01\x00\x00\x16\x00" 400 -
+127.0.0.1 - - [01/Nov/2026 21:18:11] code 400, message Bad request syntax ('\\x16\\x03\\x02\\x00½\\x01\\x00\\x00¹\\x03\\x02jç¬\\x93¨RÃûU±Ù¨ëñyaÒÝ)1\\x84F¶\\x91À\\x8bí_ÉØ\\x067\\x00\\x00z\\x00\\x93\\x00\\x94\\x00¶\\x00¬\\x00\\x95\\x00·\\x00\\xadÀhÀnÀiÀoÀ\\x98À\\x92À\\x99À\\x93Ì®\\x00.\\x00¸\\x00¹\\x00\\x92\\x00|\\x00')
+127.0.0.1 - - [01/Nov/2026 21:18:11] code 400, message Bad HTTP/0.9 request type ('\\x16\\x03\\x03\\x00Ý\\x01\\x00\\x00Ù\\x03\\x03jç¬\\x93Hú&\\x8cã]\\x7f^³QÂýÀ\\x18)\\x88×\\x11ßg\\x84ãì\\x00H')
+127.0.0.1 - - [01/Nov/2026 21:18:11] "\x16\x03\x02\x00½\x01\x00\x00¹\x03\x02jç¬\x93¨RÃûU±Ù¨ëñyaÒÝ)1\x84F¶\x91À\x8bí_ÉØ\x067\x00\x00z\x00\x93\x00\x94\x00¶\x00¬\x00\x95\x00·\x00­ÀhÀnÀiÀoÀ\x98À\x92À\x99À\x93Ì®\x00.\x00¸\x00¹\x00\x92\x00|\x00" 400 -
+127.0.0.1 - - [01/Nov/2026 21:18:11] "\x16\x03\x03\x00Ý\x01\x00\x00Ù\x03\x03jç¬\x93Hú&\x8cã]\x7f^³QÂýÀ\x18)\x88×\x11ßg\x84ãì\x00H\x09Îª\x00\x00z\x00\x93\x00\x94\x00¶\x00¬\x00\x95\x00·\x00­ÀhÀnÀiÀoÀ\x98À\x92À\x99À\x93Ì®\x00.\x00¸\x00¹\x00\x92\x00|\x00" 400 -
+127.0.0.1 - - [01/Nov/2026 21:18:11] code 400, message Bad HTTP/0.9 request type ('\\x16\\x03\\x01\\x00½\\x01\\x00\\x00¹\\x03\\x01jç¬\\x93A?^³H')
+127.0.0.1 - - [01/Nov/2026 21:18:11] "\x16\x03\x01\x00½\x01\x00\x00¹\x03\x01jç¬\x93A?^³H\x85mf\x97²V\x91î#l\x9d\x192F\x0f÷YÞØP¸Rò\x00\x00z\x00\x93\x00\x94\x00¶\x00¬\x00\x95\x00·\x00­ÀhÀnÀiÀoÀ\x98À\x92À\x99À\x93Ì®\x00.\x00¸\x00¹\x00\x92\x00|\x00" 400 -
+127.0.0.1 - - [01/Nov/2026 21:18:15] code 400, message Bad request version ('þÿþþ\\x00c\\x00e\\x00\\x11\\x00r\\x00\\x13\\x00s\\x002\\x00@\\x00¢\\x00t\\x008\\x00j\\x00£ÀBÀVÀCÀW\\x00D\\x00½À\\x80\\x00\\x87\\x00ÃÀ\\x81\\x00\\x12\\x00f\\x00\\x99\\x00\\x8f\\x00\\x90\\x00²À¦\\x00ª\\x00\\x91\\x00³À§\\x00«ÀfÀlÀgÀmÀ\\x96À\\x90À\\x97À\\x91Ì\\xad\\x00-\\x00´\\x00µ\\x00\\x8e\\x00\\x14\\x00w\\x00\\x16\\x00x\\x003\\x00gÀ\\x9eÀ¢\\x00\\x9e\\x00y\\x009\\x00k\\x01\\x00')
+127.0.0.1 - - [01/Nov/2026 21:18:15] "\x16\x03\x00\x00«\x01\x00\x00§\x03\x00jç¬\x92yzZÅ^@Ñ\x16n_=\x83¼S?\x99JÁ(J<Î\x88ú\x84\x97SÉ\x00\x00\x80\x00\x1d\x00\x1cþÿþþ\x00c\x00e\x00\x11\x00r\x00\x13\x00s\x002\x00@\x00¢\x00t\x008\x00j\x00£ÀBÀVÀCÀW\x00D\x00½À\x80\x00\x87\x00ÃÀ\x81\x00\x12\x00f\x00\x99\x00\x8f\x00\x90\x00²À¦\x00ª\x00\x91\x00³À§\x00«ÀfÀlÀgÀmÀ\x96À\x90À\x97À\x91Ì­\x00-\x00´\x00µ\x00\x8e\x00\x14\x00w\x00\x16\x00x\x003\x00gÀ\x9eÀ¢\x00\x9e\x00y\x009\x00k\x01\x00" 400 -
+127.0.0.1 - - [01/Nov/2026 21:18:20] code 400, message Bad request version ('\\x007\\x00i\\x00¡À@ÀTÀAÀU\\x00C\\x00¼À~\\x00\\x86\\x00ÂÀ\\x7f\\x00\\x0f\\x00\\x98\\x00\\x19\\x00\\x17\\x00\\x1b\\x004\\x00l\\x00¦\\x00:\\x01\\x00')
+127.0.0.1 - - [01/Nov/2026 21:18:20] "\x16\x03\x00\x00«\x01\x00\x00§\x03\x00jç¬\x97\x8dð><G\x8fÂv\x16âm\x8aÉÛ}ã\x9c\x7fÐb8§\\Õ\x12\x8feË\x00\x00\x80À\x9fÀ£\x00\x9fÀDÀRÀEÀS\x00E\x00¾À|\x00\x88\x00ÄÀ}ÌªÌ\x15\x00\x15\x00\x9a\x00\x0b\x00\x0d\x000\x00>\x00¤\x006\x00h\x00¥À>ÀXÀ?ÀY\x00B\x00»À\x82\x00\x85\x00ÁÀ\x83\x00\x0c\x00\x97\x00\x0e\x00\x10\x001\x00?\x00 \x007\x00i\x00¡À@ÀTÀAÀU\x00C\x00¼À~\x00\x86\x00ÂÀ\x7f\x00\x0f\x00\x98\x00\x19\x00\x17\x00\x1b\x004\x00l\x00¦\x00:\x01\x00" 400 -
+127.0.0.1 - - [01/Nov/2026 21:18:20] code 400, message Bad request version ('À#À¬À®À+À')
+127.0.0.1 - - [01/Nov/2026 21:18:20] "\x16\x03\x00\x00«\x01\x00\x00§\x03\x00jç¬\x9clý9>;ïùHÑ\x8dêu\x8b®\x0eüî\x99e$\x06NnÛåÖ(Ý\x00\x00\x80\x00m\x00§ÀFÀZÀGÀ[\x00F\x00¿À\x84\x00\x89\x00ÅÀ\x85\x00\x1a\x00\x18\x00\x9bÀ²À°À³À±À\x08À\x09À#À¬À®À+À" 400 -
+127.0.0.1 - - [01/Nov/2026 21:18:25] code 400, message Bad request version ('\\x00[\\x00\\\\\\x00WÀ\\x17\\x00ZÀ\\x18À\\x19\\x01\\x00')
+127.0.0.1 - - [01/Nov/2026 21:18:25] "\x16\x03\x00\x00«\x01\x00\x00§\x03\x00jç¬\x9c[>^|íú­m×öW\x10/\x8d\x12SP\x06S3Ä\x17TèÕø\x93a\x00\x00\x80À\x14À(À0ÀLÀ`ÀMÀaÀvÀ\x8aÀwÀ\x8bÌ¨Ì\x13À\x10À\x11À\x03\x00JÀ\x04\x00KÀ%À-À\x05\x00LÀ&À.ÀJÀ^ÀKÀ_ÀtÀ\x88ÀuÀ\x89\x00IÀ\x01\x00GÀ\x02\x00H\x00N\x00MÀ\x0dÀ\x0eÀ)À1À\x0fÀ*À2ÀNÀbÀOÀcÀxÀ\x8cÀyÀ\x8dÀ\x0bÀ\x0c\x00[\x00\\\x00WÀ\x17\x00ZÀ\x18À\x19\x01\x00" 400 -
+127.0.0.1 - - [01/Nov/2026 21:18:30] code 400, message Bad request version ('\\x00\\x00ÀªÀ«\\x00\\x8b\\x00\\x8c\\x00®À¤À¨\\x00¨\\x00\\x8d\\x00¯À¥À©\\x00©ÀdÀjÀeÀkÀ\\x94À\\x8eÀ\\x95À\\x8fÌ«\\x00,\\x00°\\x00±\\x00\\x8a\\x00b\\x00a\\x00`\\x00d\\x00\\x08\\x00\\x06\\x00\\x03\\x01\\x00')
+127.0.0.1 - - [01/Nov/2026 21:18:30] "\x16\x03\x00\x00«\x01\x00\x00§\x03\x00jç¬¡\x82`ï¼\x98%®Ï\x7f\x02\x14Jo\x86ÑÌ\x82÷}A\x07\x90§?.M\x9ac\x00\x00\x80\x00YÀ\x15À\x16\x00X\x00O\x00R\x00Q\x00P\x00S\x00V\x00U\x00T\x00\x81\x00\x83\x00\x80\x00\x82\x00)\x00&\x00*\x00'\x00+\x00(\x00#\x00\x1f\x00"\x00\x1e\x00%\x00!\x00$\x00 \x00\x00ÀªÀ«\x00\x8b\x00\x8c\x00®À¤À¨\x00¨\x00\x8d\x00¯À¥À©\x00©ÀdÀjÀeÀkÀ\x94À\x8eÀ\x95À\x8fÌ«\x00,\x00°\x00±\x00\x8a\x00b\x00a\x00`\x00d\x00\x08\x00\x06\x00\x03\x01\x00" 400 -
+127.0.0.1 - - [01/Nov/2026 21:18:30] code 400, message Bad request syntax ('\\x16\\x03\\x00\\x00¥\\x01\\x00\\x00¡\\x03\\x00jç¬¦®\\x1bÀ¢\\x9eP\\x1aL¬>\\x12u2£us±<hå9Ñ\\x15\\x97\\x83±dq\\x00\\x00z\\x00\\x93\\x00\\x94\\x00¶\\x00¬\\x00\\x95\\x00·\\x00\\xadÀhÀnÀiÀoÀ\\x98À\\x92À\\x99À\\x93Ì®\\x00.\\x00¸\\x00¹\\x00\\x92\\x00|\\x00')
+127.0.0.1 - - [01/Nov/2026 21:18:30] "\x16\x03\x00\x00¥\x01\x00\x00¡\x03\x00jç¬¦®\x1bÀ¢\x9eP\x1aL¬>\x12u2£us±<hå9Ñ\x15\x97\x83±dq\x00\x00z\x00\x93\x00\x94\x00¶\x00¬\x00\x95\x00·\x00­ÀhÀnÀiÀoÀ\x98À\x92À\x99À\x93Ì®\x00.\x00¸\x00¹\x00\x92\x00|\x00" 400 -
+127.0.0.1 - - [01/Nov/2026 21:23:18] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 21:28:48] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 21:28:50] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 21:28:50] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 21:32:22] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 21:32:23] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 21:32:23] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 21:44:17] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 21:45:13] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 21:45:15] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 21:45:15] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 22:00:43] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 22:01:22] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 22:01:23] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 22:01:23] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 22:04:09] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 22:04:49] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 22:04:50] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 22:04:50] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 22:18:09] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 22:19:10] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 22:19:11] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 22:19:11] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [01/Nov/2026 22:23:56] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 22:24:01] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 22:25:27] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [01/Nov/2026 22:25:28] code 404, message File not found
+127.0.0.1 - - [01/Nov/2026 22:25:28] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [03/Nov/2026 06:14:02] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [03/Nov/2026 06:25:50] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [03/Nov/2026 06:26:55] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [03/Nov/2026 06:26:56] code 404, message File not found
+127.0.0.1 - - [03/Nov/2026 06:26:56] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [03/Nov/2026 06:48:24] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [03/Nov/2026 06:48:26] code 404, message File not found
+127.0.0.1 - - [03/Nov/2026 06:48:26] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [03/Nov/2026 06:53:10] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [03/Nov/2026 07:04:37] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [03/Nov/2026 07:05:39] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [03/Nov/2026 07:05:40] code 404, message File not found
+127.0.0.1 - - [03/Nov/2026 07:05:40] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [03/Nov/2026 07:06:25] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [03/Nov/2026 07:07:11] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [03/Nov/2026 07:07:12] code 404, message File not found
+127.0.0.1 - - [03/Nov/2026 07:07:12] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [03/Nov/2026 07:15:10] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [03/Nov/2026 07:15:30] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [03/Nov/2026 07:15:32] code 404, message File not found
+127.0.0.1 - - [03/Nov/2026 07:15:32] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [03/Nov/2026 07:15:35] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [03/Nov/2026 07:15:36] code 404, message File not found
+127.0.0.1 - - [03/Nov/2026 07:15:36] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [03/Nov/2026 07:23:16] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [03/Nov/2026 07:23:42] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [03/Nov/2026 07:23:44] code 404, message File not found
+127.0.0.1 - - [03/Nov/2026 07:23:44] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [03/Nov/2026 07:23:46] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [03/Nov/2026 07:23:47] code 404, message File not found
+127.0.0.1 - - [03/Nov/2026 07:23:47] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [03/Nov/2026 07:24:03] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [03/Nov/2026 07:24:04] code 404, message File not found
+127.0.0.1 - - [03/Nov/2026 07:24:04] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [03/Nov/2026 07:29:03] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [03/Nov/2026 07:29:04] code 404, message File not found
+127.0.0.1 - - [03/Nov/2026 07:29:04] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [03/Nov/2026 07:35:43] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [03/Nov/2026 07:37:09] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [03/Nov/2026 07:37:56] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [03/Nov/2026 07:37:58] code 404, message File not found
+127.0.0.1 - - [03/Nov/2026 07:37:58] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [03/Nov/2026 07:47:35] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [03/Nov/2026 07:47:36] code 404, message File not found
+127.0.0.1 - - [03/Nov/2026 07:47:36] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [03/Nov/2026 07:48:47] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [03/Nov/2026 07:48:48] code 404, message File not found
+127.0.0.1 - - [03/Nov/2026 07:48:48] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [03/Nov/2026 07:53:00] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [03/Nov/2026 07:58:52] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [03/Nov/2026 07:59:53] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [03/Nov/2026 08:03:44] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [03/Nov/2026 08:04:13] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [03/Nov/2026 08:04:14] code 404, message File not found
+127.0.0.1 - - [03/Nov/2026 08:04:14] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [11/Nov/2026 16:48:14] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [11/Nov/2026 16:48:53] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [11/Nov/2026 16:49:02] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [11/Nov/2026 16:49:03] code 404, message File not found
+127.0.0.1 - - [11/Nov/2026 16:49:03] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [11/Nov/2026 17:02:53] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [11/Nov/2026 17:02:54] code 404, message File not found
+127.0.0.1 - - [11/Nov/2026 17:02:54] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [11/Nov/2026 17:08:46] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [11/Nov/2026 17:08:57] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [11/Nov/2026 17:08:58] code 404, message File not found
+127.0.0.1 - - [11/Nov/2026 17:08:58] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [11/Nov/2026 17:54:20] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [11/Nov/2026 17:54:28] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [11/Nov/2026 17:55:23] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [11/Nov/2026 17:55:25] code 404, message File not found
+127.0.0.1 - - [11/Nov/2026 17:55:25] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [11/Nov/2026 18:16:06] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [11/Nov/2026 18:16:07] code 404, message File not found
+127.0.0.1 - - [11/Nov/2026 18:16:07] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [11/Nov/2026 18:22:07] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [11/Nov/2026 18:27:04] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [11/Nov/2026 18:27:06] code 404, message File not found
+127.0.0.1 - - [11/Nov/2026 18:27:06] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [11/Nov/2026 18:27:08] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [11/Nov/2026 18:27:09] code 404, message File not found
+127.0.0.1 - - [11/Nov/2026 18:27:09] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [11/Nov/2026 19:11:49] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [11/Nov/2026 19:11:50] code 404, message File not found
+127.0.0.1 - - [11/Nov/2026 19:11:50] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [11/Nov/2026 19:11:53] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [11/Nov/2026 19:11:54] code 404, message File not found
+127.0.0.1 - - [11/Nov/2026 19:11:54] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [11/Nov/2026 19:17:08] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [11/Nov/2026 19:17:10] code 404, message File not found
+127.0.0.1 - - [11/Nov/2026 19:17:10] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [11/Nov/2026 19:29:15] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [11/Nov/2026 19:29:16] code 404, message File not found
+127.0.0.1 - - [11/Nov/2026 19:29:16] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [11/Nov/2026 19:34:41] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [11/Nov/2026 19:34:43] code 404, message File not found
+127.0.0.1 - - [11/Nov/2026 19:34:43] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [11/Nov/2026 19:36:09] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [11/Nov/2026 19:36:10] code 404, message File not found
+127.0.0.1 - - [11/Nov/2026 19:36:10] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [11/Nov/2026 19:40:25] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [11/Nov/2026 19:40:37] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [11/Nov/2026 19:40:39] code 404, message File not found
+127.0.0.1 - - [11/Nov/2026 19:40:39] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [11/Nov/2026 19:41:10] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [11/Nov/2026 19:41:11] code 404, message File not found
+127.0.0.1 - - [11/Nov/2026 19:41:11] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [11/Nov/2026 19:50:52] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [11/Nov/2026 19:52:39] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [11/Nov/2026 19:52:40] code 404, message File not found
+127.0.0.1 - - [11/Nov/2026 19:52:40] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [11/Nov/2026 20:00:02] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [11/Nov/2026 20:00:03] code 404, message File not found
+127.0.0.1 - - [11/Nov/2026 20:00:03] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [11/Nov/2026 20:01:20] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [11/Nov/2026 20:01:45] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [11/Nov/2026 20:01:46] code 404, message File not found
+127.0.0.1 - - [11/Nov/2026 20:01:46] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [11/Nov/2026 21:18:54] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [11/Nov/2026 21:19:32] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [11/Nov/2026 21:19:33] code 404, message File not found
+127.0.0.1 - - [11/Nov/2026 21:19:33] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [11/Nov/2026 21:19:48] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [11/Nov/2026 21:19:49] code 404, message File not found
+127.0.0.1 - - [11/Nov/2026 21:19:49] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [11/Nov/2026 21:28:54] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [11/Nov/2026 21:29:21] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [11/Nov/2026 21:29:23] code 404, message File not found
+127.0.0.1 - - [11/Nov/2026 21:29:23] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [11/Nov/2026 21:33:03] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [11/Nov/2026 21:33:04] code 404, message File not found
+127.0.0.1 - - [11/Nov/2026 21:33:04] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [11/Nov/2026 21:46:34] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [11/Nov/2026 21:46:49] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [11/Nov/2026 21:46:50] code 404, message File not found
+127.0.0.1 - - [11/Nov/2026 21:46:50] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [11/Nov/2026 22:06:49] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [11/Nov/2026 22:13:13] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [11/Nov/2026 22:13:15] code 404, message File not found
+127.0.0.1 - - [11/Nov/2026 22:13:15] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [11/Nov/2026 22:13:36] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [11/Nov/2026 22:13:37] code 404, message File not found
+127.0.0.1 - - [11/Nov/2026 22:13:37] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [11/Nov/2026 22:52:55] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [11/Nov/2026 22:54:40] code 404, message File not found
+127.0.0.1 - - [11/Nov/2026 22:54:40] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [11/Nov/2026 22:54:42] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [11/Nov/2026 23:02:49] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [11/Nov/2026 23:02:50] code 404, message File not found
+127.0.0.1 - - [11/Nov/2026 23:02:50] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [11/Nov/2026 23:25:07] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [11/Nov/2026 23:26:16] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [11/Nov/2026 23:26:17] code 404, message File not found
+127.0.0.1 - - [11/Nov/2026 23:26:17] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [11/Nov/2026 23:35:02] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [11/Nov/2026 23:35:02] "GET /js/mod_RFC_20261111_669891.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Nov/2026 23:35:02] "GET /js/mod_RFC_20261111_A760D1.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Nov/2026 23:35:02] "GET /js/mod_RFC_20261111_6BAC24.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Nov/2026 23:35:03] code 404, message File not found
+127.0.0.1 - - [11/Nov/2026 23:35:03] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 00:20:07] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 00:20:08] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 00:20:08] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 00:26:18] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 00:26:19] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 00:26:20] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 00:26:20] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 00:26:48] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 00:26:48] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 00:51:20] code 400, message Bad request version ("|$Ò|Á\\x89Ù¡\\x10\\\\\\x00\\x00\\x84\\x003\\x009\\x005\\x00/À,À0\\x00£\\x00\\x9fÌ©Ì¨ÌªÀ¯À\\xadÀ£À\\x9fÀ+À/\\x00¢\\x00\\x9eÀ®À¬À¢À\\x9eÀ$À(\\x00k\\x00jÀsÀw\\x00Ä\\x00ÃÀ#À'\\x00g\\x00@ÀrÀv\\x00¾\\x00½À")
+127.0.0.1 - - [12/Nov/2026 00:51:20] "\x16\x03\x01\x00÷\x01\x00\x00ó\x03\x031³ÍÑ9;3Â\x97\x0c~%#F\x90~Sä\x84\x0dt\x0d|$Ò|Á\x89Ù¡\x10\\\x00\x00\x84\x003\x009\x005\x00/À,À0\x00£\x00\x9fÌ©Ì¨ÌªÀ¯À­À£À\x9fÀ+À/\x00¢\x00\x9eÀ®À¬À¢À\x9eÀ$À(\x00k\x00jÀsÀw\x00Ä\x00ÃÀ#À'\x00g\x00@ÀrÀv\x00¾\x00½À" 400 -
+127.0.0.1 - - [12/Nov/2026 00:51:20] "HEAD / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 00:51:20] code 400, message Bad request version ('þÿþþ\\x00c\\x00e\\x00\\x11\\x00r\\x00\\x13\\x00s\\x002\\x00@\\x00¢\\x00t\\x008\\x00j\\x00£ÀBÀVÀCÀW\\x00D\\x00½À\\x80\\x00\\x87\\x00ÃÀ\\x81\\x00\\x12\\x00f\\x00\\x99\\x00\\x8f\\x00\\x90\\x00²À¦\\x00ª\\x00\\x91\\x00³À§\\x00«ÀfÀlÀgÀmÀ\\x96À\\x90À\\x97À\\x91Ì\\xad\\x00-\\x00´\\x00µ\\x00\\x8e\\x00\\x14\\x00w\\x00\\x16\\x00x\\x003\\x00gÀ\\x9eÀ¢\\x00\\x9e\\x00y\\x009\\x00k\\x01\\x00\\x00\\x16\\x00')
+127.0.0.1 - - [12/Nov/2026 00:51:20] code 400, message Bad request version ('þÿþþ\\x00c\\x00e\\x00\\x11\\x00r\\x00\\x13\\x00s\\x002\\x00@\\x00¢\\x00t\\x008\\x00j\\x00£ÀBÀVÀCÀW\\x00D\\x00½À\\x80\\x00\\x87\\x00ÃÀ\\x81\\x00\\x12\\x00f\\x00\\x99\\x00\\x8f\\x00\\x90\\x00²À¦\\x00ª\\x00\\x91\\x00³À§\\x00«ÀfÀlÀgÀmÀ\\x96À\\x90À\\x97À\\x91Ì\\xad\\x00-\\x00´\\x00µ\\x00\\x8e\\x00\\x14\\x00w\\x00\\x16\\x00x\\x003\\x00gÀ\\x9eÀ¢\\x00\\x9e\\x00y\\x009\\x00k\\x01\\x00\\x00\\x16\\x00')
+127.0.0.1 - - [12/Nov/2026 00:51:20] code 400, message Bad HTTP/0.9 request type ('\\x16\\x03\\x03\\x00\\x8c\\x01\\x00\\x00\\x88\\x03\\x03jõ')
+127.0.0.1 - - [12/Nov/2026 00:51:20] "\x16\x03\x03\x00\x8c\x01\x00\x00\x88\x03\x03jõ\x0d\x88º\x90gþ\x95\x93@Ü©Ó\x9a\x80\x18«0\x8a\x83·\x12²\x86LòÍe\\åÅ\x00\x00\x1a\x13\x05\x13\x04\x13\x01\x13\x02\x13\x03À´Àµ\x00Ç\x00ÆÀ²À°À³À±\x01\x00\x00E\x00" 400 -
+127.0.0.1 - - [12/Nov/2026 00:51:20] code 400, message Bad request version ('\\x18\\x00\\x00')
+127.0.0.1 - - [12/Nov/2026 00:51:20] "\x16\x03\x01\x00W\x01\x00\x00S\x03\x03jõ\x0d\x88K5y¼"\x0dö\x0bNN\x8dtñÄ?\x01\x9f\x92Ëýl\x91Ì\x92âÚ\x85\x18\x00\x00" 400 -
+127.0.0.1 - - [12/Nov/2026 00:51:20] "\x16\x03\x02\x00Ã\x01\x00\x00¿\x03\x02jõ\x0d\x88ÁZ\x88Èxj=õr Ó\x8f\x00\x0f@ÑZ´l\x7fÍ\x92\x906ð\x1e/E\x00\x00\x80\x00\x1d\x00\x1cþÿþþ\x00c\x00e\x00\x11\x00r\x00\x13\x00s\x002\x00@\x00¢\x00t\x008\x00j\x00£ÀBÀVÀCÀW\x00D\x00½À\x80\x00\x87\x00ÃÀ\x81\x00\x12\x00f\x00\x99\x00\x8f\x00\x90\x00²À¦\x00ª\x00\x91\x00³À§\x00«ÀfÀlÀgÀmÀ\x96À\x90À\x97À\x91Ì­\x00-\x00´\x00µ\x00\x8e\x00\x14\x00w\x00\x16\x00x\x003\x00gÀ\x9eÀ¢\x00\x9e\x00y\x009\x00k\x01\x00\x00\x16\x00" 400 -
+127.0.0.1 - - [12/Nov/2026 00:51:20] "\x16\x03\x01\x00Ã\x01\x00\x00¿\x03\x01jõ\x0d\x88^FU\x00^Ë\x86dx\x8d3d\x9dS\x8a\x990­ûòKß¿Wbðãq\x00\x00\x80\x00\x1d\x00\x1cþÿþþ\x00c\x00e\x00\x11\x00r\x00\x13\x00s\x002\x00@\x00¢\x00t\x008\x00j\x00£ÀBÀVÀCÀW\x00D\x00½À\x80\x00\x87\x00ÃÀ\x81\x00\x12\x00f\x00\x99\x00\x8f\x00\x90\x00²À¦\x00ª\x00\x91\x00³À§\x00«ÀfÀlÀgÀmÀ\x96À\x90À\x97À\x91Ì­\x00-\x00´\x00µ\x00\x8e\x00\x14\x00w\x00\x16\x00x\x003\x00gÀ\x9eÀ¢\x00\x9e\x00y\x009\x00k\x01\x00\x00\x16\x00" 400 -
+127.0.0.1 - - [12/Nov/2026 00:51:20] code 400, message Bad request version ('þÿþþ\\x00c\\x00e\\x00\\x11\\x00r\\x00\\x13\\x00s\\x002\\x00@\\x00¢\\x00t\\x008\\x00j\\x00£ÀBÀVÀCÀW\\x00D\\x00½À\\x80\\x00\\x87\\x00ÃÀ\\x81\\x00\\x12\\x00f\\x00\\x99\\x00\\x8f\\x00\\x90\\x00²À¦\\x00ª\\x00\\x91\\x00³À§\\x00«ÀfÀlÀgÀmÀ\\x96À\\x90À\\x97À\\x91Ì\\xad\\x00-\\x00´\\x00µ\\x00\\x8e\\x00\\x14\\x00w\\x00\\x16\\x00x\\x003\\x00gÀ\\x9eÀ¢\\x00\\x9e\\x00y\\x009\\x00k\\x01\\x00\\x006\\x00')
+127.0.0.1 - - [12/Nov/2026 00:51:20] "\x16\x03\x03\x00ã\x01\x00\x00ß\x03\x03jõ\x0d\x88¢F<yíGPQF\x1ac\x1b\x86\x81\x0eÌ¿\x91¼ì@)¦\x89¹ÅX\x88\x00\x00\x80\x00\x1d\x00\x1cþÿþþ\x00c\x00e\x00\x11\x00r\x00\x13\x00s\x002\x00@\x00¢\x00t\x008\x00j\x00£ÀBÀVÀCÀW\x00D\x00½À\x80\x00\x87\x00ÃÀ\x81\x00\x12\x00f\x00\x99\x00\x8f\x00\x90\x00²À¦\x00ª\x00\x91\x00³À§\x00«ÀfÀlÀgÀmÀ\x96À\x90À\x97À\x91Ì­\x00-\x00´\x00µ\x00\x8e\x00\x14\x00w\x00\x16\x00x\x003\x00gÀ\x9eÀ¢\x00\x9e\x00y\x009\x00k\x01\x00\x006\x00" 400 -
+127.0.0.1 - - [12/Nov/2026 00:51:20] code 400, message Bad HTTP/0.9 request type ('\\x16\\x03\\x01\\x00Ã\\x01\\x00\\x00¿\\x03\\x01jõ')
+127.0.0.1 - - [12/Nov/2026 00:51:20] "\x16\x03\x01\x00Ã\x01\x00\x00¿\x03\x01jõ\x0d\x88\x17§ÿe\x95\x88VU§ä\x16\x12·8ûÅE\x13\x02ÇQ" 400 -
+127.0.0.1 - - [12/Nov/2026 00:51:20] code 400, message Bad request version ('\\x00/\\x00')
+127.0.0.1 - - [12/Nov/2026 00:51:20] "\x16\x03\x00\x00i\x01\x00\x00e\x03\x03U\x1c§ärandom1random2random3random4\x00\x00\x0c\x00/\x00" 400 -
+127.0.0.1 - - [12/Nov/2026 00:51:20] code 400, message Bad request version ('\\x007\\x00i\\x00¡À@ÀTÀAÀU\\x00C\\x00¼À~\\x00\\x86\\x00ÂÀ\\x7f\\x00\\x0f\\x00\\x98\\x00\\x19\\x00\\x17\\x00\\x1b\\x004\\x00l\\x00¦\\x00:\\x01\\x00\\x006\\x00')
+127.0.0.1 - - [12/Nov/2026 00:51:20] code 400, message Bad request version ('\\x007\\x00i\\x00¡À@ÀTÀAÀU\\x00C\\x00¼À~\\x00\\x86\\x00ÂÀ\\x7f\\x00\\x0f\\x00\\x98\\x00\\x19\\x00\\x17\\x00\\x1b\\x004\\x00l\\x00¦\\x00:\\x01\\x00\\x00\\x16\\x00')
+127.0.0.1 - - [12/Nov/2026 00:51:20] "\x16\x03\x02\x00Ã\x01\x00\x00¿\x03\x02jõ\x0d\x88\x1aJ\x01LÇ\x9d§>»\x05*Ä¡³W;aéCû§ã½\x08\x98\x1du`\x00\x00\x80À\x9fÀ£\x00\x9fÀDÀRÀEÀS\x00E\x00¾À|\x00\x88\x00ÄÀ}ÌªÌ\x15\x00\x15\x00\x9a\x00\x0b\x00\x0d\x000\x00>\x00¤\x006\x00h\x00¥À>ÀXÀ?ÀY\x00B\x00»À\x82\x00\x85\x00ÁÀ\x83\x00\x0c\x00\x97\x00\x0e\x00\x10\x001\x00?\x00 \x007\x00i\x00¡À@ÀTÀAÀU\x00C\x00¼À~\x00\x86\x00ÂÀ\x7f\x00\x0f\x00\x98\x00\x19\x00\x17\x00\x1b\x004\x00l\x00¦\x00:\x01\x00\x00\x16\x00" 400 -
+127.0.0.1 - - [12/Nov/2026 00:51:20] "\x16\x03\x03\x00ã\x01\x00\x00ß\x03\x03jõ\x0d\x88t\x8f\x99y\x02²«~ÐÊÞû\x05\x7fÅ¦]ã\x13\x82C>µ\x0b\x9dR;C\x00\x00\x80À\x9fÀ£\x00\x9fÀDÀRÀEÀS\x00E\x00¾À|\x00\x88\x00ÄÀ}ÌªÌ\x15\x00\x15\x00\x9a\x00\x0b\x00\x0d\x000\x00>\x00¤\x006\x00h\x00¥À>ÀXÀ?ÀY\x00B\x00»À\x82\x00\x85\x00ÁÀ\x83\x00\x0c\x00\x97\x00\x0e\x00\x10\x001\x00?\x00 \x007\x00i\x00¡À@ÀTÀAÀU\x00C\x00¼À~\x00\x86\x00ÂÀ\x7f\x00\x0f\x00\x98\x00\x19\x00\x17\x00\x1b\x004\x00l\x00¦\x00:\x01\x00\x006\x00" 400 -
+127.0.0.1 - - [12/Nov/2026 00:51:21] code 400, message Bad request version ('À#À¬À®À+À')
+127.0.0.1 - - [12/Nov/2026 00:51:21] code 400, message Bad request version ('À#À¬À®À+À')
+127.0.0.1 - - [12/Nov/2026 00:51:21] "\x16\x03\x01\x00Ã\x01\x00\x00¿\x03\x01jõ\x0d\x89MËhuNº\x80ÿ\x9bÑ\x86þ\\ZR\x90V\x04Ì·\x1fË\x8b0´\x14¾\x13\x00\x00\x80\x00m\x00§ÀFÀZÀGÀ[\x00F\x00¿À\x84\x00\x89\x00ÅÀ\x85\x00\x1a\x00\x18\x00\x9bÀ²À°À³À±À\x08À\x09À#À¬À®À+À" 400 -
+127.0.0.1 - - [12/Nov/2026 00:51:21] "\x16\x03\x02\x00Ã\x01\x00\x00¿\x03\x02jõ\x0d\x890§¡jn½ü\x147ðOZ\x0f¯o\x8d)\x94³^m\x07\x85´}È\x00\x0f\x00\x00\x80\x00m\x00§ÀFÀZÀGÀ[\x00F\x00¿À\x84\x00\x89\x00ÅÀ\x85\x00\x1a\x00\x18\x00\x9bÀ²À°À³À±À\x08À\x09À#À¬À®À+À" 400 -
+127.0.0.1 - - [12/Nov/2026 00:51:21] code 400, message Bad request version ('À#À¬À®À+À')
+127.0.0.1 - - [12/Nov/2026 00:51:21] "\x16\x03\x03\x00ã\x01\x00\x00ß\x03\x03jõ\x0d\x89\x9b\x16K[\x8dX9Úgg\x9f\x19\x0f\x04 \x88\x0d1îL\x05\x08\x97\x90·sîÁ\x00\x00\x80\x00m\x00§ÀFÀZÀGÀ[\x00F\x00¿À\x84\x00\x89\x00ÅÀ\x85\x00\x1a\x00\x18\x00\x9bÀ²À°À³À±À\x08À\x09À#À¬À®À+À" 400 -
+127.0.0.1 - - [12/Nov/2026 00:51:21] code 400, message Bad request version ('\\x00[\\x00\\\\\\x00WÀ\\x17\\x00ZÀ\\x18À\\x19\\x01\\x00\\x00\\x16\\x00')
+127.0.0.1 - - [12/Nov/2026 00:51:21] code 400, message Bad request version ('\\x00[\\x00\\\\\\x00WÀ\\x17\\x00ZÀ\\x18À\\x19\\x01\\x00\\x00\\x16\\x00')
+127.0.0.1 - - [12/Nov/2026 00:51:21] "\x16\x03\x01\x00Ã\x01\x00\x00¿\x03\x01jõ\x0d\x89\x807\x82\x8fÏ\x01\x9e\x87¢z\x08\x13\x17"\\\x1b´T,\x9b\x13;m¹&¼{ð\x00\x00\x80À\x14À(À0ÀLÀ`ÀMÀaÀvÀ\x8aÀwÀ\x8bÌ¨Ì\x13À\x10À\x11À\x03\x00JÀ\x04\x00KÀ%À-À\x05\x00LÀ&À.ÀJÀ^ÀKÀ_ÀtÀ\x88ÀuÀ\x89\x00IÀ\x01\x00GÀ\x02\x00H\x00N\x00MÀ\x0dÀ\x0eÀ)À1À\x0fÀ*À2ÀNÀbÀOÀcÀxÀ\x8cÀyÀ\x8dÀ\x0bÀ\x0c\x00[\x00\\\x00WÀ\x17\x00ZÀ\x18À\x19\x01\x00\x00\x16\x00" 400 -
+127.0.0.1 - - [12/Nov/2026 00:51:21] "\x16\x03\x02\x00Ã\x01\x00\x00¿\x03\x02jõ\x0d\x89C=\x1eÃÒ\x97\x9aø\x09\x83\x9b8¢ÄZ\x07\x8aYI [\x07Å3Í§l\x15\x00\x00\x80À\x14À(À0ÀLÀ`ÀMÀaÀvÀ\x8aÀwÀ\x8bÌ¨Ì\x13À\x10À\x11À\x03\x00JÀ\x04\x00KÀ%À-À\x05\x00LÀ&À.ÀJÀ^ÀKÀ_ÀtÀ\x88ÀuÀ\x89\x00IÀ\x01\x00GÀ\x02\x00H\x00N\x00MÀ\x0dÀ\x0eÀ)À1À\x0fÀ*À2ÀNÀbÀOÀcÀxÀ\x8cÀyÀ\x8dÀ\x0bÀ\x0c\x00[\x00\\\x00WÀ\x17\x00ZÀ\x18À\x19\x01\x00\x00\x16\x00" 400 -
+127.0.0.1 - - [12/Nov/2026 00:51:21] code 400, message Bad HTTP/0.9 request type ('\\x16\\x03\\x03\\x00ã\\x01\\x00\\x00ß\\x03\\x03jõ')
+127.0.0.1 - - [12/Nov/2026 00:51:21] "\x16\x03\x03\x00ã\x01\x00\x00ß\x03\x03jõ\x0d\x89\x15á¤\x89\x0f\x07\x80©\x17>Úá¾Vû?~õ\x9c»\x8f&\x04N®ºÍ" 400 -
+127.0.0.1 - - [12/Nov/2026 00:51:21] code 400, message Bad request version ('o´\\x00ï')
+127.0.0.1 - - [12/Nov/2026 00:51:21] code 400, message Bad request version ('\\x00\\x00ÀªÀ«\\x00\\x8b\\x00\\x8c\\x00®À¤À¨\\x00¨\\x00\\x8d\\x00¯À¥À©\\x00©ÀdÀjÀeÀkÀ\\x94À\\x8eÀ\\x95À\\x8fÌ«\\x00,\\x00°\\x00±\\x00\\x8a\\x00b\\x00a\\x00`\\x00d\\x00\\x08\\x00\\x06\\x00\\x03\\x01\\x00\\x00\\x16\\x00')
+127.0.0.1 - - [12/Nov/2026 00:51:21] "\x16\x03\x01\x00Ã\x01\x00\x00¿\x03\x01jõ\x0d\x89\x9eº\x11j\x0co´\x00ï" 400 -
+127.0.0.1 - - [12/Nov/2026 00:51:21] "\x16\x03\x02\x00Ã\x01\x00\x00¿\x03\x02jõ\x0d\x89»wø\x91§J#\x80\x92w»n\x19W|Âº\x8eS\x0døÿoÖ±\x9b\x1a\\\x00\x00\x80\x00YÀ\x15À\x16\x00X\x00O\x00R\x00Q\x00P\x00S\x00V\x00U\x00T\x00\x81\x00\x83\x00\x80\x00\x82\x00)\x00&\x00*\x00'\x00+\x00(\x00#\x00\x1f\x00"\x00\x1e\x00%\x00!\x00$\x00 \x00\x00ÀªÀ«\x00\x8b\x00\x8c\x00®À¤À¨\x00¨\x00\x8d\x00¯À¥À©\x00©ÀdÀjÀeÀkÀ\x94À\x8eÀ\x95À\x8fÌ«\x00,\x00°\x00±\x00\x8a\x00b\x00a\x00`\x00d\x00\x08\x00\x06\x00\x03\x01\x00\x00\x16\x00" 400 -
+127.0.0.1 - - [12/Nov/2026 00:51:21] code 400, message Bad request version ('\\x00\\x00ÀªÀ«\\x00\\x8b\\x00\\x8c\\x00®À¤À¨\\x00¨\\x00\\x8d\\x00¯À¥À©\\x00©ÀdÀjÀeÀkÀ\\x94À\\x8eÀ\\x95À\\x8fÌ«\\x00,\\x00°\\x00±\\x00\\x8a\\x00b\\x00a\\x00`\\x00d\\x00\\x08\\x00\\x06\\x00\\x03\\x01\\x00\\x006\\x00')
+127.0.0.1 - - [12/Nov/2026 00:51:21] "\x16\x03\x03\x00ã\x01\x00\x00ß\x03\x03jõ\x0d\x89¤r\x01-ÅÖø}\x02¨\x1e\x89\x8aér£Þ)\x00i;\x7f9m÷\x10¬´\x00\x00\x80\x00YÀ\x15À\x16\x00X\x00O\x00R\x00Q\x00P\x00S\x00V\x00U\x00T\x00\x81\x00\x83\x00\x80\x00\x82\x00)\x00&\x00*\x00'\x00+\x00(\x00#\x00\x1f\x00"\x00\x1e\x00%\x00!\x00$\x00 \x00\x00ÀªÀ«\x00\x8b\x00\x8c\x00®À¤À¨\x00¨\x00\x8d\x00¯À¥À©\x00©ÀdÀjÀeÀkÀ\x94À\x8eÀ\x95À\x8fÌ«\x00,\x00°\x00±\x00\x8a\x00b\x00a\x00`\x00d\x00\x08\x00\x06\x00\x03\x01\x00\x006\x00" 400 -
+127.0.0.1 - - [12/Nov/2026 00:51:21] code 400, message Bad request version ('(gE\\x1a\\x15\\x80_½¡\\x18ü\\x9b-K4õ\\x00\\x00z\\x00\\x93\\x00\\x94\\x00¶\\x00¬\\x00\\x95\\x00·\\x00\\xadÀhÀnÀiÀoÀ\\x98À\\x92À\\x99À\\x93Ì®\\x00.\\x00¸\\x00¹\\x00\\x92\\x00|\\x00')
+127.0.0.1 - - [12/Nov/2026 00:51:21] code 400, message Bad request version ('Ø4ÀÍ¢E»\\x01[H`ì4¥Á\\x00\\x00z\\x00\\x93\\x00\\x94\\x00¶\\x00¬\\x00\\x95\\x00·\\x00\\xadÀhÀnÀiÀoÀ\\x98À\\x92À\\x99À\\x93Ì®\\x00.\\x00¸\\x00¹\\x00\\x92\\x00|\\x00')
+127.0.0.1 - - [12/Nov/2026 00:51:21] "\x16\x03\x03\x00Ý\x01\x00\x00Ù\x03\x03jõ\x0d\x89Ä\x0fp\x11äòø\x09ÿý\x07!\x1fØ4ÀÍ¢E»\x01[H`ì4¥Á\x00\x00z\x00\x93\x00\x94\x00¶\x00¬\x00\x95\x00·\x00­ÀhÀnÀiÀoÀ\x98À\x92À\x99À\x93Ì®\x00.\x00¸\x00¹\x00\x92\x00|\x00" 400 -
+127.0.0.1 - - [12/Nov/2026 00:51:21] "\x16\x03\x01\x00½\x01\x00\x00¹\x03\x01jõ\x0d\x89Oîva[ösi]ì*\x0b(gE\x1a\x15\x80_½¡\x18ü\x9b-K4õ\x00\x00z\x00\x93\x00\x94\x00¶\x00¬\x00\x95\x00·\x00­ÀhÀnÀiÀoÀ\x98À\x92À\x99À\x93Ì®\x00.\x00¸\x00¹\x00\x92\x00|\x00" 400 -
+127.0.0.1 - - [12/Nov/2026 00:51:21] code 400, message Bad HTTP/0.9 request type ('\\x16\\x03\\x02\\x00½\\x01\\x00\\x00¹\\x03\\x02jõ')
+127.0.0.1 - - [12/Nov/2026 00:51:21] "\x16\x03\x02\x00½\x01\x00\x00¹\x03\x02jõ\x0d\x89àr4\x88BÂ"" 400 -
+127.0.0.1 - - [12/Nov/2026 00:51:25] code 400, message Bad request version ('þÿþþ\\x00c\\x00e\\x00\\x11\\x00r\\x00\\x13\\x00s\\x002\\x00@\\x00¢\\x00t\\x008\\x00j\\x00£ÀBÀVÀCÀW\\x00D\\x00½À\\x80\\x00\\x87\\x00ÃÀ\\x81\\x00\\x12\\x00f\\x00\\x99\\x00\\x8f\\x00\\x90\\x00²À¦\\x00ª\\x00\\x91\\x00³À§\\x00«ÀfÀlÀgÀmÀ\\x96À\\x90À\\x97À\\x91Ì\\xad\\x00-\\x00´\\x00µ\\x00\\x8e\\x00\\x14\\x00w\\x00\\x16\\x00x\\x003\\x00gÀ\\x9eÀ¢\\x00\\x9e\\x00y\\x009\\x00k\\x01\\x00')
+127.0.0.1 - - [12/Nov/2026 00:51:25] "\x16\x03\x00\x00«\x01\x00\x00§\x03\x00jõ\x0d\x88í\x81ÐÕÔýI¤\x82yµ4´:Ýï\x1aÄG2±­Ö4Ú[!h\x00\x00\x80\x00\x1d\x00\x1cþÿþþ\x00c\x00e\x00\x11\x00r\x00\x13\x00s\x002\x00@\x00¢\x00t\x008\x00j\x00£ÀBÀVÀCÀW\x00D\x00½À\x80\x00\x87\x00ÃÀ\x81\x00\x12\x00f\x00\x99\x00\x8f\x00\x90\x00²À¦\x00ª\x00\x91\x00³À§\x00«ÀfÀlÀgÀmÀ\x96À\x90À\x97À\x91Ì­\x00-\x00´\x00µ\x00\x8e\x00\x14\x00w\x00\x16\x00x\x003\x00gÀ\x9eÀ¢\x00\x9e\x00y\x009\x00k\x01\x00" 400 -
+127.0.0.1 - - [12/Nov/2026 00:51:31] code 400, message Bad request version ('\\x007\\x00i\\x00¡À@ÀTÀAÀU\\x00C\\x00¼À~\\x00\\x86\\x00ÂÀ\\x7f\\x00\\x0f\\x00\\x98\\x00\\x19\\x00\\x17\\x00\\x1b\\x004\\x00l\\x00¦\\x00:\\x01\\x00')
+127.0.0.1 - - [12/Nov/2026 00:51:31] "\x16\x03\x00\x00«\x01\x00\x00§\x03\x00jõ\x0d\x8d ~ v²üáïÐ\x9dX\x071MgWÆj\x9f\x1aHô]íÍà\x03ø\x00\x00\x80À\x9fÀ£\x00\x9fÀDÀRÀEÀS\x00E\x00¾À|\x00\x88\x00ÄÀ}ÌªÌ\x15\x00\x15\x00\x9a\x00\x0b\x00\x0d\x000\x00>\x00¤\x006\x00h\x00¥À>ÀXÀ?ÀY\x00B\x00»À\x82\x00\x85\x00ÁÀ\x83\x00\x0c\x00\x97\x00\x0e\x00\x10\x001\x00?\x00 \x007\x00i\x00¡À@ÀTÀAÀU\x00C\x00¼À~\x00\x86\x00ÂÀ\x7f\x00\x0f\x00\x98\x00\x19\x00\x17\x00\x1b\x004\x00l\x00¦\x00:\x01\x00" 400 -
+127.0.0.1 - - [12/Nov/2026 00:51:31] code 400, message Bad request version ('À#À¬À®À+À')
+127.0.0.1 - - [12/Nov/2026 00:51:31] "\x16\x03\x00\x00«\x01\x00\x00§\x03\x00jõ\x0d\x93\x80\x0eã¿«¤à\x09ìOè\x94\x8cw8¢÷,JM\x84\x82Ù\x80ÕúL|\x00\x00\x80\x00m\x00§ÀFÀZÀGÀ[\x00F\x00¿À\x84\x00\x89\x00ÅÀ\x85\x00\x1a\x00\x18\x00\x9bÀ²À°À³À±À\x08À\x09À#À¬À®À+À" 400 -
+127.0.0.1 - - [12/Nov/2026 00:51:36] code 400, message Bad request version ('\\x00[\\x00\\\\\\x00WÀ\\x17\\x00ZÀ\\x18À\\x19\\x01\\x00')
+127.0.0.1 - - [12/Nov/2026 00:51:36] "\x16\x03\x00\x00«\x01\x00\x00§\x03\x00jõ\x0d\x93F\x0b%Ißb\x93\x8d9\x9fe\x99\x0fú{\x92²½Ç§C\x88CT¶te\x11\x00\x00\x80À\x14À(À0ÀLÀ`ÀMÀaÀvÀ\x8aÀwÀ\x8bÌ¨Ì\x13À\x10À\x11À\x03\x00JÀ\x04\x00KÀ%À-À\x05\x00LÀ&À.ÀJÀ^ÀKÀ_ÀtÀ\x88ÀuÀ\x89\x00IÀ\x01\x00GÀ\x02\x00H\x00N\x00MÀ\x0dÀ\x0eÀ)À1À\x0fÀ*À2ÀNÀbÀOÀcÀxÀ\x8cÀyÀ\x8dÀ\x0bÀ\x0c\x00[\x00\\\x00WÀ\x17\x00ZÀ\x18À\x19\x01\x00" 400 -
+127.0.0.1 - - [12/Nov/2026 00:51:41] code 400, message Bad request version ('\\x00\\x00ÀªÀ«\\x00\\x8b\\x00\\x8c\\x00®À¤À¨\\x00¨\\x00\\x8d\\x00¯À¥À©\\x00©ÀdÀjÀeÀkÀ\\x94À\\x8eÀ\\x95À\\x8fÌ«\\x00,\\x00°\\x00±\\x00\\x8a\\x00b\\x00a\\x00`\\x00d\\x00\\x08\\x00\\x06\\x00\\x03\\x01\\x00')
+127.0.0.1 - - [12/Nov/2026 00:51:41] "\x16\x03\x00\x00«\x01\x00\x00§\x03\x00jõ\x0d\x98.&pÈ39ÉÎ\x81TÚ¥²6b\x97J\x1eÙSZf\x7fÓº&Áª\x00\x00\x80\x00YÀ\x15À\x16\x00X\x00O\x00R\x00Q\x00P\x00S\x00V\x00U\x00T\x00\x81\x00\x83\x00\x80\x00\x82\x00)\x00&\x00*\x00'\x00+\x00(\x00#\x00\x1f\x00"\x00\x1e\x00%\x00!\x00$\x00 \x00\x00ÀªÀ«\x00\x8b\x00\x8c\x00®À¤À¨\x00¨\x00\x8d\x00¯À¥À©\x00©ÀdÀjÀeÀkÀ\x94À\x8eÀ\x95À\x8fÌ«\x00,\x00°\x00±\x00\x8a\x00b\x00a\x00`\x00d\x00\x08\x00\x06\x00\x03\x01\x00" 400 -
+127.0.0.1 - - [12/Nov/2026 00:51:41] code 400, message Bad request version ('v¯ÒhAD\\x0fæú¥>±\\x00Òm\\x8e\\x8bî0\\x00\\x00z\\x00\\x93\\x00\\x94\\x00¶\\x00¬\\x00\\x95\\x00·\\x00\\xadÀhÀnÀiÀoÀ\\x98À\\x92À\\x99À\\x93Ì®\\x00.\\x00¸\\x00¹\\x00\\x92\\x00|\\x00')
+127.0.0.1 - - [12/Nov/2026 00:51:41] "\x16\x03\x00\x00¥\x01\x00\x00¡\x03\x00jõ\x0d\x9d\x0b¢âñ\x94%{Ö\x1cv¯ÒhAD\x0fæú¥>±\x00Òm\x8e\x8bî0\x00\x00z\x00\x93\x00\x94\x00¶\x00¬\x00\x95\x00·\x00­ÀhÀnÀiÀoÀ\x98À\x92À\x99À\x93Ì®\x00.\x00¸\x00¹\x00\x92\x00|\x00" 400 -
+127.0.0.1 - - [12/Nov/2026 01:29:42] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 01:29:42] "GET /js/milestone_v0_1_0.js HTTP/1.1" 304 -
+127.0.0.1 - - [12/Nov/2026 01:29:43] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 01:29:43] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 01:35:57] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 01:35:58] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 01:35:58] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 02:02:25] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 02:02:26] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 02:02:26] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 02:02:32] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 02:02:33] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 02:02:33] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 02:09:51] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 02:10:59] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 02:11:00] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 02:11:01] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 02:11:01] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 02:21:46] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 02:21:47] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 02:21:48] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 02:21:48] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 02:22:59] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 02:22:59] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 02:23:00] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 02:23:00] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 02:26:15] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 02:27:19] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 02:27:19] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 02:27:19] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 02:27:21] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 02:27:21] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 02:31:13] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 02:31:44] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 02:31:45] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 02:31:45] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 02:31:46] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 02:31:46] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 02:36:47] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 02:37:34] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 02:37:35] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 02:37:35] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 02:37:36] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 02:37:36] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 02:38:42] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 02:38:43] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 02:38:43] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 02:38:44] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 02:38:44] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 02:46:38] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 02:47:15] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 02:47:16] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 02:47:16] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 02:47:17] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 02:47:17] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 02:56:05] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 02:56:06] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 02:56:06] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 02:56:07] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 02:56:07] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 02:57:03] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 02:57:04] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 02:57:04] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 02:57:05] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 02:57:05] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 03:09:42] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 03:10:31] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 03:10:55] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 03:10:56] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 03:10:56] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 03:10:56] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 03:10:57] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 03:10:57] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 03:16:30] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 03:17:01] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 03:17:02] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 03:17:02] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 03:17:02] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 03:17:02] "GET /js/milestone_v0_4_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 03:17:03] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 03:17:03] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 03:30:03] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 03:30:23] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 03:30:24] "GET /js/milestone_v0_4_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 03:30:24] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 03:30:24] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 03:30:24] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 03:30:25] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 03:30:25] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 03:33:16] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 03:33:17] "GET /js/milestone_v0_4_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 03:33:17] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 03:33:17] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 03:33:17] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 03:33:18] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 03:33:18] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 03:33:33] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 03:33:33] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 03:33:33] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 03:33:33] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 03:33:33] "GET /js/milestone_v0_4_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 03:33:34] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 03:33:34] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 03:40:39] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 03:40:59] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 03:41:00] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 03:41:00] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 03:41:00] "GET /js/milestone_v0_4_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 03:41:00] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 03:41:01] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 03:41:01] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 03:52:46] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 03:52:55] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 03:52:55] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 03:52:55] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 03:52:55] "GET /js/milestone_v0_4_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 03:52:55] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 03:52:57] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 03:52:57] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 03:55:34] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 03:57:04] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 03:57:05] "GET /js/milestone_v0_5_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 03:57:05] "GET /js/milestone_v0_4_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 03:57:05] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 03:57:05] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 03:57:05] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 03:57:06] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 03:57:06] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 03:57:06] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 03:57:06] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 03:57:07] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 03:57:07] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 04:07:48] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 04:08:41] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 04:16:08] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 04:16:09] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 04:16:09] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 04:16:09] "GET /js/milestone_v0_5_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 04:16:09] "GET /js/milestone_v0_4_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 04:16:09] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 04:16:10] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 04:16:10] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 04:16:11] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 04:16:11] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 04:16:11] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 04:16:11] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 04:18:31] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 04:18:59] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 04:19:00] "GET /js/milestone_v0_4_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 04:19:00] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 04:19:00] "GET /js/milestone_v0_5_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 04:19:00] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 04:19:00] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 04:19:01] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 04:19:01] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 04:19:08] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 04:19:08] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 04:19:08] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 04:19:08] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 04:21:07] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 04:21:07] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 04:21:07] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 04:21:07] "GET /js/milestone_v0_5_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 04:21:07] "GET /js/milestone_v0_4_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 04:21:07] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 04:21:08] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 04:21:08] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 04:21:08] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 04:21:08] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 04:21:09] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 04:21:09] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 04:27:15] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 04:27:40] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 04:27:41] "GET /js/milestone_v0_6_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 04:27:41] "GET /js/milestone_v0_4_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 04:27:41] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 04:27:41] "GET /js/milestone_v0_5_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 04:27:41] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 04:27:41] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 04:27:42] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 04:27:42] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 04:27:43] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 04:27:43] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 04:27:43] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 04:27:43] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 04:40:12] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 04:40:41] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 04:40:41] "GET /js/milestone_v0_6_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 04:40:41] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 04:40:41] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 04:40:41] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 04:40:41] "GET /js/milestone_v0_5_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 04:40:41] "GET /js/milestone_v0_4_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 04:40:42] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 04:40:42] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 04:40:45] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 04:40:45] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 04:40:45] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 04:40:45] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 04:40:45] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 04:40:45] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 04:40:46] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 04:40:46] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 04:56:34] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 04:57:04] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 04:57:05] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 04:57:05] "GET /js/milestone_v0_7_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 04:57:05] "GET /js/milestone_v0_5_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 04:57:05] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 04:57:05] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 04:57:05] "GET /js/milestone_v0_4_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 04:57:05] "GET /js/milestone_v0_6_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 04:57:06] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 04:57:06] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 04:57:07] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 04:57:07] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 04:57:07] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 04:57:07] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 04:57:49] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 04:57:49] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 04:57:49] "GET /js/milestone_v0_4_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 04:57:49] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 04:57:49] "GET /js/milestone_v0_7_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 04:57:49] "GET /js/milestone_v0_6_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 04:57:49] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 04:57:49] "GET /js/milestone_v0_5_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 04:57:50] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 04:57:50] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 04:57:51] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 04:57:51] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 04:57:51] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 04:57:51] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 05:40:53] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 05:41:43] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 05:41:44] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 05:41:45] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 05:41:45] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 05:41:49] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 05:41:49] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 05:41:49] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 05:41:49] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 05:48:47] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 05:49:02] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 05:49:02] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 05:49:02] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 05:49:07] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 05:49:07] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 05:49:16] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 05:49:16] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 05:49:16] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 05:49:16] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 05:51:12] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 05:51:12] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 05:51:12] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 05:51:13] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 05:51:13] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 05:51:16] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 05:51:16] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 05:51:17] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 05:51:17] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 05:51:17] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 05:51:17] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 05:51:17] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 05:51:17] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 05:51:38] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 05:51:39] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 05:51:39] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 05:51:40] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 05:51:40] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 06:02:32] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:03:18] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 06:03:18] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 06:03:18] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:03:18] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:03:18] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:03:18] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:03:20] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 06:03:20] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 06:03:21] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 06:03:21] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 06:03:21] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 06:03:21] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 06:21:15] code 400, message Bad request version ("ºi\\x18S\\x7fjA1\\x8e\\x0e\\x8b\\x0ee\\x00\\x00\\x84\\x003\\x009\\x005\\x00/À,À0\\x00£\\x00\\x9fÌ©Ì¨ÌªÀ¯À\\xadÀ£À\\x9fÀ+À/\\x00¢\\x00\\x9eÀ®À¬À¢À\\x9eÀ$À(\\x00k\\x00jÀsÀw\\x00Ä\\x00ÃÀ#À'\\x00g\\x00@ÀrÀv\\x00¾\\x00½À")
+127.0.0.1 - - [12/Nov/2026 06:21:15] "\x16\x03\x01\x00÷\x01\x00\x00ó\x03\x03(û(åAB u¦*#Í\x12»øø\x1d@\x0bºi\x18S\x7fjA1\x8e\x0e\x8b\x0ee\x00\x00\x84\x003\x009\x005\x00/À,À0\x00£\x00\x9fÌ©Ì¨ÌªÀ¯À­À£À\x9fÀ+À/\x00¢\x00\x9eÀ®À¬À¢À\x9eÀ$À(\x00k\x00jÀsÀw\x00Ä\x00ÃÀ#À'\x00g\x00@ÀrÀv\x00¾\x00½À" 400 -
+127.0.0.1 - - [12/Nov/2026 06:21:15] "HEAD / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:21:15] code 400, message Bad HTTP/0.9 request type ('\\x16\\x03\\x03\\x00\\x8c\\x01\\x00\\x00\\x88\\x03\\x03jõZÛA\\x11àô5\\x84,@:£ôó!~\\x02Öiõ0¤eZF]Sp\\x17\\x16\\x00\\x00\\x1a\\x13\\x05\\x13\\x04\\x13\\x01\\x13\\x02\\x13\\x03À´Àµ\\x00Ç\\x00ÆÀ²À°À³À±\\x01\\x00\\x00E\\x00+\\x00\\x03\\x02\\x03\\x04\\x00')
+127.0.0.1 - - [12/Nov/2026 06:21:15] "\x16\x03\x03\x00\x8c\x01\x00\x00\x88\x03\x03jõZÛA\x11àô5\x84,@:£ôó!~\x02Öiõ0¤eZF]Sp\x17\x16\x00\x00\x1a\x13\x05\x13\x04\x13\x01\x13\x02\x13\x03À´Àµ\x00Ç\x00ÆÀ²À°À³À±\x01\x00\x00E\x00+\x00\x03\x02\x03\x04\x00\x0b\x00\x02\x01\x00\x00" 400 -
+127.0.0.1 - - [12/Nov/2026 06:21:15] code 400, message Bad HTTP/0.9 request type ('\\x16\\x03\\x02\\x00Ã\\x01\\x00\\x00¿\\x03\\x02jõZÛÅ.ç\\x98\\x8fc\\x818\\x91º8\\x08À\\x91û\\x9d\\x9a(')
+127.0.0.1 - - [12/Nov/2026 06:21:15] "\x16\x03\x02\x00Ã\x01\x00\x00¿\x03\x02jõZÛÅ.ç\x98\x8fc\x818\x91º8\x08À\x91û\x9d\x9a(\x1f\x92m>û\x13Ì\x97(" 400 -
+127.0.0.1 - - [12/Nov/2026 06:21:15] code 400, message Bad request version ('\\x00\\x02\\x01\\x00\\x00')
+127.0.0.1 - - [12/Nov/2026 06:21:15] "\x16\x03\x01\x00Ã\x01\x00\x00¿\x03\x01jõZÛn­ün¬\x1bY\x89\x0dlnwÆèdÛ¯\x8c£_rÙÐøb7Ia\x00\x00\x80\x00\x1d\x00\x1cþÿþþ\x00c\x00e\x00\x11\x00r\x00\x13\x00s\x002\x00@\x00¢\x00t\x008\x00j\x00£ÀBÀVÀCÀW\x00D\x00½À\x80\x00\x87\x00ÃÀ\x81\x00\x12\x00f\x00\x99\x00\x8f\x00\x90\x00²À¦\x00ª\x00\x91\x00³À§\x00«ÀfÀlÀgÀmÀ\x96À\x90À\x97À\x91Ì­\x00-\x00´\x00µ\x00\x8e\x00\x14\x00w\x00\x16\x00x\x003\x00gÀ\x9eÀ¢\x00\x9e\x00y\x009\x00k\x01\x00\x00\x16\x00\x0b\x00\x02\x01\x00\x00" 400 -
+127.0.0.1 - - [12/Nov/2026 06:21:15] code 400, message Bad request version ('\\x00\\x02\\x01\\x00\\x00')
+127.0.0.1 - - [12/Nov/2026 06:21:15] "\x16\x03\x03\x00ã\x01\x00\x00ß\x03\x03jõZÛnö<\x85Ã·÷%Ã\x1a\x19^HÕ\x05\x97\x02&àì\x1a\x7fR°\x94\x17a\x0f\x00\x00\x80\x00\x1d\x00\x1cþÿþþ\x00c\x00e\x00\x11\x00r\x00\x13\x00s\x002\x00@\x00¢\x00t\x008\x00j\x00£ÀBÀVÀCÀW\x00D\x00½À\x80\x00\x87\x00ÃÀ\x81\x00\x12\x00f\x00\x99\x00\x8f\x00\x90\x00²À¦\x00ª\x00\x91\x00³À§\x00«ÀfÀlÀgÀmÀ\x96À\x90À\x97À\x91Ì­\x00-\x00´\x00µ\x00\x8e\x00\x14\x00w\x00\x16\x00x\x003\x00gÀ\x9eÀ¢\x00\x9e\x00y\x009\x00k\x01\x00\x006\x00\x0b\x00\x02\x01\x00\x00" 400 -
+127.0.0.1 - - [12/Nov/2026 06:21:15] code 400, message Bad HTTP/0.9 request type ('\\x16\\x03\\x01\\x00W\\x01\\x00\\x00S\\x03\\x03jõZÛ\\x9a\\x010r\\x95Ê\\xadónìy\\x93\\x89*FÍÏ')
+127.0.0.1 - - [12/Nov/2026 06:21:15] "\x16\x03\x01\x00W\x01\x00\x00S\x03\x03jõZÛ\x9a\x010r\x95Ê­ónìy\x93\x89*FÍÏ\x85\x9b\x8bÖ\x8ddSñ«þY\x00\x00" 400 -
+127.0.0.1 - - [12/Nov/2026 06:21:15] code 400, message Bad request version ('\\x00\\x02\\x01\\x00\\x00')
+127.0.0.1 - - [12/Nov/2026 06:21:15] "\x16\x03\x02\x00Ã\x01\x00\x00¿\x03\x02jõZÛzÝdÙØz \x82*\x87\x9d\x9aÈòzæ\x16\x85yLº*<¯>l«º\x00\x00\x80À\x9fÀ£\x00\x9fÀDÀRÀEÀS\x00E\x00¾À|\x00\x88\x00ÄÀ}ÌªÌ\x15\x00\x15\x00\x9a\x00\x0b\x00\x0d\x000\x00>\x00¤\x006\x00h\x00¥À>ÀXÀ?ÀY\x00B\x00»À\x82\x00\x85\x00ÁÀ\x83\x00\x0c\x00\x97\x00\x0e\x00\x10\x001\x00?\x00 \x007\x00i\x00¡À@ÀTÀAÀU\x00C\x00¼À~\x00\x86\x00ÂÀ\x7f\x00\x0f\x00\x98\x00\x19\x00\x17\x00\x1b\x004\x00l\x00¦\x00:\x01\x00\x00\x16\x00\x0b\x00\x02\x01\x00\x00" 400 -
+127.0.0.1 - - [12/Nov/2026 06:21:15] code 400, message Bad request version ('\\x00\\x02\\x01\\x00\\x00')
+127.0.0.1 - - [12/Nov/2026 06:21:15] "\x16\x03\x03\x00ã\x01\x00\x00ß\x03\x03jõZÛ~bZOfU\x04ºßXm\x01%\x1dDýØ\x97\x9eÏ\x02Ðt\x87Éw¤X\x00\x00\x80À\x9fÀ£\x00\x9fÀDÀRÀEÀS\x00E\x00¾À|\x00\x88\x00ÄÀ}ÌªÌ\x15\x00\x15\x00\x9a\x00\x0b\x00\x0d\x000\x00>\x00¤\x006\x00h\x00¥À>ÀXÀ?ÀY\x00B\x00»À\x82\x00\x85\x00ÁÀ\x83\x00\x0c\x00\x97\x00\x0e\x00\x10\x001\x00?\x00 \x007\x00i\x00¡À@ÀTÀAÀU\x00C\x00¼À~\x00\x86\x00ÂÀ\x7f\x00\x0f\x00\x98\x00\x19\x00\x17\x00\x1b\x004\x00l\x00¦\x00:\x01\x00\x006\x00\x0b\x00\x02\x01\x00\x00" 400 -
+127.0.0.1 - - [12/Nov/2026 06:21:15] code 400, message Bad request syntax ('\\x16\\x03\\x01\\x00Ã\\x01\\x00\\x00¿\\x03\\x01jõZÛ\\x14kµû|\\x15a~¡ké`è¢')
+127.0.0.1 - - [12/Nov/2026 06:21:15] code 400, message Bad request version ('\\x00/\\x00')
+127.0.0.1 - - [12/Nov/2026 06:21:15] "\x16\x03\x00\x00i\x01\x00\x00e\x03\x03U\x1c§ärandom1random2random3random4\x00\x00\x0c\x00/\x00" 400 -
+127.0.0.1 - - [12/Nov/2026 06:21:15] "\x16\x03\x01\x00Ã\x01\x00\x00¿\x03\x01jõZÛ\x14kµû|\x15a~¡ké`è¢" 400 -
+127.0.0.1 - - [12/Nov/2026 06:21:15] code 400, message Bad request syntax ('\\x16\\x03\\x02\\x00Ã\\x01\\x00\\x00¿\\x03\\x02jõZÛø°(\\x8eùM\\x81-ÛZ')
+127.0.0.1 - - [12/Nov/2026 06:21:15] "\x16\x03\x02\x00Ã\x01\x00\x00¿\x03\x02jõZÛø°(\x8eùM\x81-ÛZ" 400 -
+127.0.0.1 - - [12/Nov/2026 06:21:15] code 400, message Bad request version ('À#À¬À®À+À')
+127.0.0.1 - - [12/Nov/2026 06:21:15] code 400, message Bad request version ('À#À¬À®À+À')
+127.0.0.1 - - [12/Nov/2026 06:21:15] "\x16\x03\x01\x00Ã\x01\x00\x00¿\x03\x01jõZÛ\x88\x9f\x00ýã=½G\x00Ñû»\x00Éë\x94\x8c\x14F¤­´ý«ë½oÑ\x00\x00\x80\x00m\x00§ÀFÀZÀGÀ[\x00F\x00¿À\x84\x00\x89\x00ÅÀ\x85\x00\x1a\x00\x18\x00\x9bÀ²À°À³À±À\x08À\x09À#À¬À®À+À" 400 -
+127.0.0.1 - - [12/Nov/2026 06:21:15] "\x16\x03\x03\x00ã\x01\x00\x00ß\x03\x03jõZÛú\x7f\x1dïîr{Ô\x11\x9bùFÓ\x02bè\x1cþÜQ\x194/Kÿ2?Í\x00\x00\x80\x00m\x00§ÀFÀZÀGÀ[\x00F\x00¿À\x84\x00\x89\x00ÅÀ\x85\x00\x1a\x00\x18\x00\x9bÀ²À°À³À±À\x08À\x09À#À¬À®À+À" 400 -
+127.0.0.1 - - [12/Nov/2026 06:21:15] code 400, message Bad request version ('\\x00\\x02\\x01\\x00\\x00')
+127.0.0.1 - - [12/Nov/2026 06:21:15] code 400, message Bad request version ('\\x00\\x02\\x01\\x00\\x00')
+127.0.0.1 - - [12/Nov/2026 06:21:15] "\x16\x03\x03\x00ã\x01\x00\x00ß\x03\x03jõZÛ\x82û³¨ï\x0cú}\x89¸Ý\x0epe­ÿ¸R\x09\x0c$\x02\x09y¦D,e\x00\x00\x80À\x14À(À0ÀLÀ`ÀMÀaÀvÀ\x8aÀwÀ\x8bÌ¨Ì\x13À\x10À\x11À\x03\x00JÀ\x04\x00KÀ%À-À\x05\x00LÀ&À.ÀJÀ^ÀKÀ_ÀtÀ\x88ÀuÀ\x89\x00IÀ\x01\x00GÀ\x02\x00H\x00N\x00MÀ\x0dÀ\x0eÀ)À1À\x0fÀ*À2ÀNÀbÀOÀcÀxÀ\x8cÀyÀ\x8dÀ\x0bÀ\x0c\x00[\x00\\\x00WÀ\x17\x00ZÀ\x18À\x19\x01\x00\x006\x00\x0b\x00\x02\x01\x00\x00" 400 -
+127.0.0.1 - - [12/Nov/2026 06:21:15] "\x16\x03\x02\x00Ã\x01\x00\x00¿\x03\x02jõZÛ\x9dÉ\x0f\x0d½qÿ*\x9bRr¹NÃ»+?\x1bt@ZUr\x1e<*ño\x00\x00\x80À\x14À(À0ÀLÀ`ÀMÀaÀvÀ\x8aÀwÀ\x8bÌ¨Ì\x13À\x10À\x11À\x03\x00JÀ\x04\x00KÀ%À-À\x05\x00LÀ&À.ÀJÀ^ÀKÀ_ÀtÀ\x88ÀuÀ\x89\x00IÀ\x01\x00GÀ\x02\x00H\x00N\x00MÀ\x0dÀ\x0eÀ)À1À\x0fÀ*À2ÀNÀbÀOÀcÀxÀ\x8cÀyÀ\x8dÀ\x0bÀ\x0c\x00[\x00\\\x00WÀ\x17\x00ZÀ\x18À\x19\x01\x00\x00\x16\x00\x0b\x00\x02\x01\x00\x00" 400 -
+127.0.0.1 - - [12/Nov/2026 06:21:15] code 400, message Bad request version ('\\x00\\x02\\x01\\x00\\x00')
+127.0.0.1 - - [12/Nov/2026 06:21:15] "\x16\x03\x01\x00Ã\x01\x00\x00¿\x03\x01jõZÛ\x12\x16f¨c4Ø\x12m¥2\x9eWý\x97\x8bz,rªñ$ì\x8bÁý\x96ö\x00\x00\x80À\x14À(À0ÀLÀ`ÀMÀaÀvÀ\x8aÀwÀ\x8bÌ¨Ì\x13À\x10À\x11À\x03\x00JÀ\x04\x00KÀ%À-À\x05\x00LÀ&À.ÀJÀ^ÀKÀ_ÀtÀ\x88ÀuÀ\x89\x00IÀ\x01\x00GÀ\x02\x00H\x00N\x00MÀ\x0dÀ\x0eÀ)À1À\x0fÀ*À2ÀNÀbÀOÀcÀxÀ\x8cÀyÀ\x8dÀ\x0bÀ\x0c\x00[\x00\\\x00WÀ\x17\x00ZÀ\x18À\x19\x01\x00\x00\x16\x00\x0b\x00\x02\x01\x00\x00" 400 -
+127.0.0.1 - - [12/Nov/2026 06:21:15] code 400, message Bad request version ('\\x00\\x02\\x01\\x00\\x00')
+127.0.0.1 - - [12/Nov/2026 06:21:15] code 400, message Bad request version ('\\x00\\x02\\x01\\x00\\x00')
+127.0.0.1 - - [12/Nov/2026 06:21:15] "\x16\x03\x01\x00Ã\x01\x00\x00¿\x03\x01jõZÛ^öpø8÷[\x01«C\x9b"£ßÔ8~HC olÈú«\x84&\x8c\x00\x00\x80\x00YÀ\x15À\x16\x00X\x00O\x00R\x00Q\x00P\x00S\x00V\x00U\x00T\x00\x81\x00\x83\x00\x80\x00\x82\x00)\x00&\x00*\x00'\x00+\x00(\x00#\x00\x1f\x00"\x00\x1e\x00%\x00!\x00$\x00 \x00\x00ÀªÀ«\x00\x8b\x00\x8c\x00®À¤À¨\x00¨\x00\x8d\x00¯À¥À©\x00©ÀdÀjÀeÀkÀ\x94À\x8eÀ\x95À\x8fÌ«\x00,\x00°\x00±\x00\x8a\x00b\x00a\x00`\x00d\x00\x08\x00\x06\x00\x03\x01\x00\x00\x16\x00\x0b\x00\x02\x01\x00\x00" 400 -
+127.0.0.1 - - [12/Nov/2026 06:21:15] "\x16\x03\x02\x00Ã\x01\x00\x00¿\x03\x02jõZÛ\x93\x04©R0\x1fÈbëº\x1e\x0cRr\x81Ì­¡²ä\x14s\x8dú3U¾Ê\x00\x00\x80\x00YÀ\x15À\x16\x00X\x00O\x00R\x00Q\x00P\x00S\x00V\x00U\x00T\x00\x81\x00\x83\x00\x80\x00\x82\x00)\x00&\x00*\x00'\x00+\x00(\x00#\x00\x1f\x00"\x00\x1e\x00%\x00!\x00$\x00 \x00\x00ÀªÀ«\x00\x8b\x00\x8c\x00®À¤À¨\x00¨\x00\x8d\x00¯À¥À©\x00©ÀdÀjÀeÀkÀ\x94À\x8eÀ\x95À\x8fÌ«\x00,\x00°\x00±\x00\x8a\x00b\x00a\x00`\x00d\x00\x08\x00\x06\x00\x03\x01\x00\x00\x16\x00\x0b\x00\x02\x01\x00\x00" 400 -
+127.0.0.1 - - [12/Nov/2026 06:21:15] code 400, message Bad request version ('\\x00\\x02\\x01\\x00\\x00')
+127.0.0.1 - - [12/Nov/2026 06:21:15] "\x16\x03\x03\x00ã\x01\x00\x00ß\x03\x03jõZÛPÁO\x9a\x14Y\x88>\\Ñ²ö\x85\x982ººóLÝE{âUâFSË\x00\x00\x80\x00YÀ\x15À\x16\x00X\x00O\x00R\x00Q\x00P\x00S\x00V\x00U\x00T\x00\x81\x00\x83\x00\x80\x00\x82\x00)\x00&\x00*\x00'\x00+\x00(\x00#\x00\x1f\x00"\x00\x1e\x00%\x00!\x00$\x00 \x00\x00ÀªÀ«\x00\x8b\x00\x8c\x00®À¤À¨\x00¨\x00\x8d\x00¯À¥À©\x00©ÀdÀjÀeÀkÀ\x94À\x8eÀ\x95À\x8fÌ«\x00,\x00°\x00±\x00\x8a\x00b\x00a\x00`\x00d\x00\x08\x00\x06\x00\x03\x01\x00\x006\x00\x0b\x00\x02\x01\x00\x00" 400 -
+127.0.0.1 - - [12/Nov/2026 06:21:15] code 400, message Bad request version ('0XFöÏ¾v\\x01¤ü\\x9d\\x87\\x00\\x00z\\x00\\x93\\x00\\x94\\x00¶\\x00¬\\x00\\x95\\x00·\\x00\\xadÀhÀnÀiÀoÀ\\x98À\\x92À\\x99À\\x93Ì®\\x00.\\x00¸\\x00¹\\x00\\x92\\x00|\\x00')
+127.0.0.1 - - [12/Nov/2026 06:21:15] "\x16\x03\x02\x00½\x01\x00\x00¹\x03\x02jõZÛÕ÷/Û%\x0fúa\x09iWf\x15\x12Ó\x090XFöÏ¾v\x01¤ü\x9d\x87\x00\x00z\x00\x93\x00\x94\x00¶\x00¬\x00\x95\x00·\x00­ÀhÀnÀiÀoÀ\x98À\x92À\x99À\x93Ì®\x00.\x00¸\x00¹\x00\x92\x00|\x00" 400 -
+127.0.0.1 - - [12/Nov/2026 06:21:15] code 400, message Bad HTTP/0.9 request type ('\\x16\\x03\\x03\\x00Ý\\x01\\x00\\x00Ù\\x03\\x03jõZÛ\\x8aßdl\\x83Z¥Ø\\x99B')
+127.0.0.1 - - [12/Nov/2026 06:21:15] "\x16\x03\x03\x00Ý\x01\x00\x00Ù\x03\x03jõZÛ\x8aßdl\x83Z¥Ø\x99B\x0bñ" 400 -
+127.0.0.1 - - [12/Nov/2026 06:21:15] code 400, message Bad request syntax ('\\x16\\x03\\x01\\x00½\\x01\\x00\\x00¹\\x03\\x01jõZÛS\\x10\\x8aÓÓ\\x1at\\x18ü\\x96\\x99!w\\x7fJ\\x80\\x92¯¢sÞ\\x8d·\\x84óØ\\x97S\\x00\\x00z\\x00\\x93\\x00\\x94\\x00¶\\x00¬\\x00\\x95\\x00·\\x00\\xadÀhÀnÀiÀoÀ\\x98À\\x92À\\x99À\\x93Ì®\\x00.\\x00¸\\x00¹\\x00\\x92\\x00|\\x00')
+127.0.0.1 - - [12/Nov/2026 06:21:15] "\x16\x03\x01\x00½\x01\x00\x00¹\x03\x01jõZÛS\x10\x8aÓÓ\x1at\x18ü\x96\x99!w\x7fJ\x80\x92¯¢sÞ\x8d·\x84óØ\x97S\x00\x00z\x00\x93\x00\x94\x00¶\x00¬\x00\x95\x00·\x00­ÀhÀnÀiÀoÀ\x98À\x92À\x99À\x93Ì®\x00.\x00¸\x00¹\x00\x92\x00|\x00" 400 -
+127.0.0.1 - - [12/Nov/2026 06:21:20] code 400, message Bad request version ('þÿþþ\\x00c\\x00e\\x00\\x11\\x00r\\x00\\x13\\x00s\\x002\\x00@\\x00¢\\x00t\\x008\\x00j\\x00£ÀBÀVÀCÀW\\x00D\\x00½À\\x80\\x00\\x87\\x00ÃÀ\\x81\\x00\\x12\\x00f\\x00\\x99\\x00\\x8f\\x00\\x90\\x00²À¦\\x00ª\\x00\\x91\\x00³À§\\x00«ÀfÀlÀgÀmÀ\\x96À\\x90À\\x97À\\x91Ì\\xad\\x00-\\x00´\\x00µ\\x00\\x8e\\x00\\x14\\x00w\\x00\\x16\\x00x\\x003\\x00gÀ\\x9eÀ¢\\x00\\x9e\\x00y\\x009\\x00k\\x01\\x00')
+127.0.0.1 - - [12/Nov/2026 06:21:20] "\x16\x03\x00\x00«\x01\x00\x00§\x03\x00jõZÛe°ÕrÇ\x04ÛÑo4èëA?¿ÃV~ÍÀK\x1bT¥\x86_\x0b¦\x00\x00\x80\x00\x1d\x00\x1cþÿþþ\x00c\x00e\x00\x11\x00r\x00\x13\x00s\x002\x00@\x00¢\x00t\x008\x00j\x00£ÀBÀVÀCÀW\x00D\x00½À\x80\x00\x87\x00ÃÀ\x81\x00\x12\x00f\x00\x99\x00\x8f\x00\x90\x00²À¦\x00ª\x00\x91\x00³À§\x00«ÀfÀlÀgÀmÀ\x96À\x90À\x97À\x91Ì­\x00-\x00´\x00µ\x00\x8e\x00\x14\x00w\x00\x16\x00x\x003\x00gÀ\x9eÀ¢\x00\x9e\x00y\x009\x00k\x01\x00" 400 -
+127.0.0.1 - - [12/Nov/2026 06:21:25] code 400, message Bad request version ('\\x007\\x00i\\x00¡À@ÀTÀAÀU\\x00C\\x00¼À~\\x00\\x86\\x00ÂÀ\\x7f\\x00\\x0f\\x00\\x98\\x00\\x19\\x00\\x17\\x00\\x1b\\x004\\x00l\\x00¦\\x00:\\x01\\x00')
+127.0.0.1 - - [12/Nov/2026 06:21:25] "\x16\x03\x00\x00«\x01\x00\x00§\x03\x00jõZà²à÷úÌ¼ü\x1bØ?®rb\x05©ÿÜ»óu¼\x12&eöìÉ¡\x00\x00\x80À\x9fÀ£\x00\x9fÀDÀRÀEÀS\x00E\x00¾À|\x00\x88\x00ÄÀ}ÌªÌ\x15\x00\x15\x00\x9a\x00\x0b\x00\x0d\x000\x00>\x00¤\x006\x00h\x00¥À>ÀXÀ?ÀY\x00B\x00»À\x82\x00\x85\x00ÁÀ\x83\x00\x0c\x00\x97\x00\x0e\x00\x10\x001\x00?\x00 \x007\x00i\x00¡À@ÀTÀAÀU\x00C\x00¼À~\x00\x86\x00ÂÀ\x7f\x00\x0f\x00\x98\x00\x19\x00\x17\x00\x1b\x004\x00l\x00¦\x00:\x01\x00" 400 -
+127.0.0.1 - - [12/Nov/2026 06:21:25] code 400, message Bad request version ('À#À¬À®À+À')
+127.0.0.1 - - [12/Nov/2026 06:21:25] "\x16\x03\x00\x00«\x01\x00\x00§\x03\x00jõZå5M4óß·Zv\x053¬Æ\\ìüñ:~wîcÁ²c.Úï¡\x00\x00\x80\x00m\x00§ÀFÀZÀGÀ[\x00F\x00¿À\x84\x00\x89\x00ÅÀ\x85\x00\x1a\x00\x18\x00\x9bÀ²À°À³À±À\x08À\x09À#À¬À®À+À" 400 -
+127.0.0.1 - - [12/Nov/2026 06:21:30] code 400, message Bad request version ('\\x00[\\x00\\\\\\x00WÀ\\x17\\x00ZÀ\\x18À\\x19\\x01\\x00')
+127.0.0.1 - - [12/Nov/2026 06:21:30] "\x16\x03\x00\x00«\x01\x00\x00§\x03\x00jõZåxVG¢|>®(ðW¡ù>\x85\x18²óØ\x02Å:\x90\x82\x07xb\x8bï\x00\x00\x80À\x14À(À0ÀLÀ`ÀMÀaÀvÀ\x8aÀwÀ\x8bÌ¨Ì\x13À\x10À\x11À\x03\x00JÀ\x04\x00KÀ%À-À\x05\x00LÀ&À.ÀJÀ^ÀKÀ_ÀtÀ\x88ÀuÀ\x89\x00IÀ\x01\x00GÀ\x02\x00H\x00N\x00MÀ\x0dÀ\x0eÀ)À1À\x0fÀ*À2ÀNÀbÀOÀcÀxÀ\x8cÀyÀ\x8dÀ\x0bÀ\x0c\x00[\x00\\\x00WÀ\x17\x00ZÀ\x18À\x19\x01\x00" 400 -
+127.0.0.1 - - [12/Nov/2026 06:21:35] code 400, message Bad request version ('\\x00\\x00ÀªÀ«\\x00\\x8b\\x00\\x8c\\x00®À¤À¨\\x00¨\\x00\\x8d\\x00¯À¥À©\\x00©ÀdÀjÀeÀkÀ\\x94À\\x8eÀ\\x95À\\x8fÌ«\\x00,\\x00°\\x00±\\x00\\x8a\\x00b\\x00a\\x00`\\x00d\\x00\\x08\\x00\\x06\\x00\\x03\\x01\\x00')
+127.0.0.1 - - [12/Nov/2026 06:21:35] "\x16\x03\x00\x00«\x01\x00\x00§\x03\x00jõZê\x13*Ì¿\x1da\x1b\x1dÂ×\x8cuÓ}ÀÍ\x129\x93U¶Ã\x97lÀh=ê\x00\x00\x80\x00YÀ\x15À\x16\x00X\x00O\x00R\x00Q\x00P\x00S\x00V\x00U\x00T\x00\x81\x00\x83\x00\x80\x00\x82\x00)\x00&\x00*\x00'\x00+\x00(\x00#\x00\x1f\x00"\x00\x1e\x00%\x00!\x00$\x00 \x00\x00ÀªÀ«\x00\x8b\x00\x8c\x00®À¤À¨\x00¨\x00\x8d\x00¯À¥À©\x00©ÀdÀjÀeÀkÀ\x94À\x8eÀ\x95À\x8fÌ«\x00,\x00°\x00±\x00\x8a\x00b\x00a\x00`\x00d\x00\x08\x00\x06\x00\x03\x01\x00" 400 -
+127.0.0.1 - - [12/Nov/2026 06:21:35] code 400, message Bad HTTP/0.9 request type ('\\x16\\x03\\x00\\x00¥\\x01\\x00\\x00¡\\x03\\x00jõZïû6\\x82Ò{âÛÐYõ\\x13wÓðc³C\\x933Tàs\\x19îm¾')
+127.0.0.1 - - [12/Nov/2026 06:21:35] "\x16\x03\x00\x00¥\x01\x00\x00¡\x03\x00jõZïû6\x82Ò{âÛÐYõ\x13wÓðc³C\x933Tàs\x19îm¾\x0b\x80\x00\x00z\x00\x93\x00\x94\x00¶\x00¬\x00\x95\x00·\x00­ÀhÀnÀiÀoÀ\x98À\x92À\x99À\x93Ì®\x00.\x00¸\x00¹\x00\x92\x00|\x00" 400 -
+127.0.0.1 - - [12/Nov/2026 06:23:04] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:24:26] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:24:26] "GET /js/milestone_v0_4_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:24:27] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:24:27] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:24:27] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:24:28] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 06:24:28] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 06:24:28] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 06:24:28] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 06:24:29] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 06:24:29] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 06:24:29] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 06:24:29] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 06:24:29] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 06:24:29] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 06:24:30] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 06:24:30] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 06:24:30] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 06:24:30] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 06:24:43] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:24:43] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:24:43] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:24:43] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:24:43] "GET /js/milestone_v0_4_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:24:44] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 06:24:44] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 06:24:44] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 06:24:44] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 06:24:44] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 06:24:44] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 06:25:19] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:25:20] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:25:20] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:25:20] "GET /js/milestone_v0_4_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:25:20] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:25:21] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 06:25:21] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 06:25:21] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 06:25:21] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 06:25:21] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 06:25:21] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 06:25:21] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 06:25:21] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 06:25:21] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 06:25:21] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 06:26:54] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:26:54] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:26:55] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:26:55] "GET /js/milestone_v0_4_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:26:55] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:26:55] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 06:26:55] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 06:27:03] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:27:03] "GET /js/milestone_v0_4_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:27:03] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:27:03] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:27:03] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:27:05] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 06:27:05] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 06:27:05] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 06:27:05] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 06:27:11] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:27:11] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:27:11] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:27:11] "GET /js/milestone_v0_4_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:27:11] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:27:12] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 06:27:12] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 06:27:12] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 06:27:12] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 06:27:13] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 06:27:13] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 06:27:13] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 06:27:13] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 06:27:13] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 06:27:13] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 06:27:58] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:27:58] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:27:58] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:27:58] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:27:59] "GET /js/milestone_v0_4_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:27:59] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 06:27:59] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 06:27:59] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 06:27:59] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 06:28:00] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 06:28:00] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 06:28:00] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 06:28:00] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 06:28:00] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 06:28:00] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 06:29:04] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:29:04] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:29:04] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:29:04] "GET /js/milestone_v0_4_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:29:04] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:29:05] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 06:29:05] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 06:29:05] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 06:29:05] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 06:29:06] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 06:29:06] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 06:47:25] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:48:17] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:49:13] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:49:14] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:49:14] "GET /js/milestone_v0_4_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:49:14] "GET /js/milestone_v0_5_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:49:14] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:49:14] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:49:15] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 06:49:15] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 06:49:16] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 06:49:16] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 06:49:16] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 06:49:16] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 06:49:20] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:49:21] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:49:21] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:49:21] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:49:21] "GET /js/milestone_v0_4_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:49:21] "GET /js/milestone_v0_5_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:49:21] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 06:49:21] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 06:49:21] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 06:49:21] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 06:49:22] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 06:49:22] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 06:49:25] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:49:25] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:49:25] "GET /js/milestone_v0_5_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:49:25] "GET /js/milestone_v0_4_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:49:25] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:49:25] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:49:26] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 06:49:26] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 06:49:26] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 06:49:26] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 06:49:26] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 06:49:26] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 06:52:00] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:52:01] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:52:01] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:52:01] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:52:01] "GET /js/milestone_v0_4_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:52:01] "GET /js/milestone_v0_5_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:52:02] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 06:52:02] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 06:52:02] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 06:52:02] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 06:52:02] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 06:52:02] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 06:57:46] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:58:31] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:58:32] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:58:32] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:58:32] "GET /js/milestone_v0_5_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:58:32] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:58:32] "GET /js/milestone_v0_4_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:58:33] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 06:58:33] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 06:58:33] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 06:58:33] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 06:58:33] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 06:58:33] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 06:58:34] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 06:58:34] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 06:58:34] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 06:58:34] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 06:59:57] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:59:57] "GET /js/milestone_v0_5_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:59:57] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:59:58] "GET /js/milestone_v0_4_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:59:58] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:59:58] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 06:59:59] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 06:59:59] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 06:59:59] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 06:59:59] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 06:59:59] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 06:59:59] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 07:00:15] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:00:15] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:00:15] "GET /js/milestone_v0_4_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:00:15] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:00:15] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:00:15] "GET /js/milestone_v0_5_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:00:16] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 07:00:16] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 07:00:17] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 07:00:17] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 07:00:17] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 07:00:17] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 07:00:17] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 07:00:17] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 07:00:17] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 07:00:17] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 07:11:15] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:11:51] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:11:51] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:11:52] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:11:52] "GET /js/milestone_v0_5_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:11:52] "GET /js/milestone_v0_4_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:11:52] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:11:53] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 07:11:53] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 07:11:55] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 07:11:55] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 07:11:55] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 07:11:55] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 07:14:25] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:14:26] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:14:26] "GET /js/milestone_v0_4_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:14:26] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:14:26] "GET /js/milestone_v0_5_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:14:26] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:14:27] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 07:14:27] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 07:14:29] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 07:14:29] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 07:14:29] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 07:14:29] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 07:28:02] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:28:50] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:28:50] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:28:50] "GET /js/milestone_v0_4_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:28:50] "GET /js/milestone_v0_5_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:28:50] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:28:50] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:28:52] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 07:28:52] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 07:28:52] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 07:28:52] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 07:28:52] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 07:28:52] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 07:30:09] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:30:09] "GET /js/milestone_v0_4_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:30:09] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:30:09] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:30:09] "GET /js/milestone_v0_5_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:30:10] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:30:10] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 07:30:10] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 07:30:12] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 07:30:12] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 07:30:12] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 07:30:12] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 07:37:44] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:37:45] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:37:45] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:37:45] "GET /js/milestone_v0_5_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:37:45] "GET /js/milestone_v0_4_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:37:45] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:37:46] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 07:37:46] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 07:37:46] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 07:37:46] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 07:37:47] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 07:37:47] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 07:43:45] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:43:46] "GET /js/milestone_v0_5_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:43:46] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:43:46] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:43:46] "GET /js/milestone_v0_4_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:43:46] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:43:47] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 07:43:47] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 07:43:48] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 07:43:48] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 07:43:49] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 07:43:49] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 07:46:11] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:46:21] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:46:22] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:46:22] "GET /js/milestone_v0_5_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:46:22] "GET /js/milestone_v0_4_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:46:22] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:46:22] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:46:23] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 07:46:23] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 07:46:23] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 07:46:23] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 07:46:24] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 07:46:24] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 07:46:24] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 07:46:24] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 07:46:24] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 07:46:24] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 07:57:13] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:58:44] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:58:45] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:58:45] "GET /js/milestone_v0_5_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:58:45] "GET /js/milestone_v0_6_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:58:45] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:58:45] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:58:45] "GET /js/milestone_v0_4_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 07:58:46] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 07:58:46] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 07:58:46] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 07:58:46] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 07:58:47] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 07:58:47] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 08:08:48] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 08:10:16] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 08:10:17] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 08:10:17] "GET /js/milestone_v0_5_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 08:10:17] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 08:10:17] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 08:10:17] "GET /js/milestone_v0_4_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 08:10:17] "GET /js/milestone_v0_6_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 08:10:18] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 08:10:18] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 08:10:18] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 08:10:18] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 08:10:19] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 08:10:19] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 08:36:53] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 09:03:17] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 09:06:28] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 09:06:29] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 09:06:30] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 09:06:30] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 09:06:37] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 09:06:37] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 09:06:38] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 09:06:38] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 09:12:13] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 09:13:00] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 09:13:00] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 09:13:01] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 09:13:02] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 09:13:02] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 09:13:11] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 09:13:11] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 09:13:11] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 09:13:11] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 09:23:05] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 09:23:06] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 09:23:06] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 09:23:07] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 09:23:07] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 09:23:10] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 09:23:10] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 09:23:10] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 09:23:10] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 09:23:13] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 09:23:13] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 09:23:13] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 09:23:14] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 09:23:14] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 09:33:07] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 09:33:53] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 09:34:34] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 09:34:34] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 09:34:35] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 09:34:35] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 09:34:35] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 09:34:35] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 09:34:35] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 09:34:35] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 09:34:37] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 09:34:37] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 09:34:37] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 09:34:37] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 09:34:37] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 09:34:37] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 09:40:14] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 09:40:15] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 09:40:15] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 09:40:15] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 09:40:16] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 09:40:16] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 09:40:16] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 09:40:16] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 09:40:16] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 09:40:16] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 09:58:23] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 09:59:24] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 10:00:11] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 10:00:11] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 10:00:12] "GET /js/milestone_v0_4_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 10:00:12] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 10:00:12] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 10:00:13] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 10:00:13] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 10:01:03] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 10:01:03] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 10:01:03] "GET /js/milestone_v0_4_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 10:01:03] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 10:01:03] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 10:01:04] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 10:01:04] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 10:02:54] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 10:02:54] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 10:02:55] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 10:02:55] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 10:22:36] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 10:23:31] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 10:23:56] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 10:23:56] "GET /js/milestone_v0_4_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 10:23:56] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 10:23:56] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 10:23:56] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 10:23:56] "GET /js/milestone_v0_5_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 10:23:58] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 10:23:58] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 10:23:59] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 10:23:59] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 10:24:00] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 10:24:00] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 10:24:00] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 10:24:00] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 10:24:00] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 10:24:00] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 10:47:37] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 10:48:26] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 10:49:45] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 10:49:46] "GET /js/milestone_v0_5_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 10:49:46] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 10:49:46] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 10:49:46] "GET /js/milestone_v0_4_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 10:49:46] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 10:49:46] "GET /js/milestone_v0_6_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 10:49:47] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 10:49:47] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 10:49:55] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 10:49:55] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 10:49:55] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 10:49:55] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 10:53:31] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 10:53:32] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 10:53:32] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 10:53:32] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 10:53:32] "GET /js/milestone_v0_4_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 10:53:32] "GET /js/milestone_v0_6_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 10:53:32] "GET /js/milestone_v0_5_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 10:53:34] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 10:53:34] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 10:53:35] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 10:53:35] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 10:53:35] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 10:53:35] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 11:08:38] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:09:04] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:09:05] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:09:05] "GET /js/milestone_v0_4_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:09:05] "GET /js/milestone_v0_5_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:09:05] "GET /js/milestone_v0_6_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:09:05] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:09:05] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:09:07] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 11:09:07] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 11:09:09] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 11:09:09] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 11:09:09] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 11:09:09] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 11:11:30] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:11:31] "GET /js/milestone_v0_5_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:11:32] "GET /js/milestone_v0_4_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:11:32] "GET /js/milestone_v0_6_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:11:32] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:11:32] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:11:32] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:11:33] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 11:11:33] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 11:11:35] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 11:11:35] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 11:11:35] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 11:11:35] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 11:13:30] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:13:31] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:13:31] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:13:31] "GET /js/milestone_v0_5_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:13:31] "GET /js/milestone_v0_6_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:13:31] "GET /js/milestone_v0_4_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:13:31] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:13:32] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 11:13:32] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 11:13:36] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 11:13:36] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 11:13:36] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 11:13:36] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 11:17:10] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:18:05] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:18:48] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:20:29] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:20:30] "GET /js/milestone_v0_8_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:20:30] "GET /js/milestone_v0_7_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:20:30] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:20:30] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:20:31] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:20:31] "GET /js/milestone_v0_6_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:20:31] "GET /js/milestone_v0_9_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:20:31] "GET /js/milestone_v0_4_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:20:31] "GET /js/milestone_v0_5_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:20:32] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 11:20:32] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 11:20:33] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 11:20:33] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 11:20:33] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 11:20:33] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 11:35:53] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:38:14] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:38:15] "GET /js/milestone_v0_9_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:38:15] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:38:15] "GET /js/milestone_v0_6_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:38:15] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:38:15] "GET /js/milestone_v0_8_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:38:15] "GET /js/milestone_v0_5_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:38:15] "GET /js/milestone_v0_7_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:38:15] "GET /js/milestone_v0_4_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:38:15] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:38:17] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 11:38:17] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 11:38:19] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 11:38:19] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 11:38:19] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 11:38:19] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 11:52:20] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:52:24] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:54:09] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:54:09] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:54:09] "GET /js/milestone_v0_5_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:54:09] "GET /js/milestone_v0_4_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:54:09] "GET /js/milestone_v1_0_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:54:09] "GET /js/milestone_v0_7_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:54:09] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:54:10] "GET /js/milestone_v0_8_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:54:10] "GET /js/milestone_v0_9_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:54:10] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:54:10] "GET /js/milestone_v0_6_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 11:54:11] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 11:54:11] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 11:54:42] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 11:54:42] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 11:54:42] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 11:54:42] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 12:07:29] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 12:08:04] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 12:08:05] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 12:08:06] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 12:08:06] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 12:08:16] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 12:08:16] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 12:08:16] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 12:08:16] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 12:08:16] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 12:08:16] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 12:08:17] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 12:08:17] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 12:18:30] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 12:19:01] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 12:19:33] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 12:19:33] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 12:19:33] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 12:19:33] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 12:19:35] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 12:19:35] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 12:20:16] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 12:20:16] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 12:20:16] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 12:20:16] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 12:21:32] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 12:21:32] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 12:21:32] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 12:21:32] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 12:21:33] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 12:21:33] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 12:21:37] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 12:21:37] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 12:21:38] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 12:21:38] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 12:50:14] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 12:50:45] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 12:50:46] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 12:50:46] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 12:50:46] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 12:50:47] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 12:50:47] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 12:51:18] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 12:51:18] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 12:51:18] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 12:51:18] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 12:52:45] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 12:52:46] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 12:52:46] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 12:52:46] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 12:52:47] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 12:52:47] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 12:52:56] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 12:52:56] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 12:52:56] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 12:52:56] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 12:53:25] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 12:53:25] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 12:53:25] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 12:53:25] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 12:53:26] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 12:53:26] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 12:53:39] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 12:53:39] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 12:53:39] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 12:53:39] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 12:53:39] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 12:53:39] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 12:53:40] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 12:53:40] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 12:57:09] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 12:57:48] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 12:58:29] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 12:59:26] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 12:59:27] "GET /js/milestone_v0_6_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 12:59:27] "GET /js/milestone_v0_4_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 12:59:27] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 12:59:27] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 12:59:27] "GET /js/milestone_v0_5_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 12:59:27] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 12:59:28] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 12:59:28] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 12:59:33] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 12:59:33] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 12:59:33] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 12:59:33] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 12:59:59] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 12:59:59] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 12:59:59] "GET /js/milestone_v0_4_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 12:59:59] "GET /js/milestone_v0_6_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 12:59:59] "GET /js/milestone_v0_5_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 12:59:59] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 12:59:59] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 13:00:00] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 13:00:00] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 13:00:12] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 13:00:12] "GET /js/milestone_v0_6_0.js HTTP/1.1" 304 -
+127.0.0.1 - - [12/Nov/2026 13:00:15] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 13:00:15] "GET /js/milestone_v0_6_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 13:00:15] "GET /js/milestone_v0_5_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 13:00:15] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 13:00:15] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 13:00:15] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 13:00:15] "GET /js/milestone_v0_4_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 13:00:16] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 13:00:16] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 13:00:21] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 13:00:21] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 13:00:21] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 13:00:21] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 13:00:25] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 13:00:26] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 13:00:26] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 13:00:26] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 13:00:26] "GET /js/milestone_v0_4_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 13:00:26] "GET /js/milestone_v0_5_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 13:00:26] "GET /js/milestone_v0_6_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 13:00:27] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 13:00:27] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 13:00:32] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 13:00:32] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 13:00:32] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 13:00:32] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 13:04:24] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 13:04:30] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 13:04:31] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 13:04:31] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 13:04:31] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 13:04:31] "GET /js/milestone_v0_5_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 13:04:31] "GET /js/milestone_v0_4_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 13:04:31] "GET /js/milestone_v0_6_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 13:04:32] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 13:04:32] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 13:04:36] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 13:04:36] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 13:04:36] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 13:04:36] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 13:06:26] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 13:06:27] "GET /js/milestone_v0_4_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 13:06:27] "GET /js/milestone_v0_3_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 13:06:27] "GET /js/milestone_v0_5_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 13:06:27] "GET /js/milestone_v0_6_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 13:06:27] "GET /js/milestone_v0_1_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 13:06:27] "GET /js/milestone_v0_2_0.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 13:06:28] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 13:06:28] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 13:06:36] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 13:06:36] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Nov/2026 13:06:36] code 404, message File not found
+127.0.0.1 - - [12/Nov/2026 13:06:36] "GET /favicon.ico HTTP/1.1" 404 -

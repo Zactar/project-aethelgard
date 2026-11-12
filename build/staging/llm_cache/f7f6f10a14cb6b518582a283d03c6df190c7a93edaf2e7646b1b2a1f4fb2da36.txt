@@ -1,0 +1,86 @@
+{
+  "rfcs": [
+    {
+      "index": 0,
+      "summary": "Implement the End-of-Series Grand Arbiter Verdict Modal with dynamic rank calculations, session ledger recording, and keyboard-driven lifecycle transitions.",
+      "technical_specification": "When `state.stats.seriesOver === true`, lock matrix input and render a high-contrast modal anchored at `(400, 310)`. Derive strategic score from efficiency ratio `E = (wins * 3 + deadlocks) / max(1, roundsPlayed * 3)`: assign `S-RANK: GRAND GEOMETER` for `E >= 0.85`, `A-RANK: CELESTIAL ARCHITECT` for `E >= 0.65`, `B-RANK: SECTOR ADEPT` for `E >= 0.45`, else `C-RANK: INITIATE`. Append record `{ wins, losses, deadlocks, rank, score: Math.round(E * 1000) }` into `state.stats.observatoryLedger` (capped to top 5 descending). If `state.keys['Space']`, trigger `SERIES_RESET` to clear grid and counters; if `state.keys['KeyC']`, toggle `state.stats.configOpen = true`.",
+      "acceptance_criteria": [
+        "Modal renders only when state.stats.seriesOver is true without obstructing underlying collinear vectors.",
+        "Pressing Space initiates a new series and resets bout tallies while preserving the top-5 ledger.",
+        "Strategic rank recalculates deterministically based on win/deadlock efficiency formula."
+      ],
+      "interface_contracts": {
+        "inputs": [
+          "state.stats.seriesOver",
+          "state.stats.wins",
+          "state.stats.losses",
+          "state.stats.deadlocks",
+          "state.keys.Space",
+          "state.keys.KeyC"
+        ],
+        "outputs": [
+          "state.stats.strategicRank",
+          "state.stats.observatoryLedger",
+          "state.stats.seriesOver",
+          "state.stats.configOpen"
+        ],
+        "events": [
+          "SERIES_RESET",
+          "CONFIG_OPEN"
+        ]
+      }
+    },
+    {
+      "index": 1,
+      "summary": "Generate a dynamic background astral starfield that connects won series vectors into luminous zodiac constellations and detonates into slow-motion shards upon series clinch.",
+      "technical_specification": "Maintain `state.world.constellationNodes` containing completed bout vector nodes `(x, y)` in observatory space. On every bout win, connect nodes using Catmull-Rom or linear interpolation with alpha pulsed by `Math.sin(state.world.time * 0.003) * 0.3 + 0.7`. Upon series clinch (`state.stats.seriesOver && state.stats.wins > state.stats.losses`), set `state.world.timeDilation = 0.25` for 180 frames and spawn 60 prismatic glass fragments in `state.world.shatterParticles` with velocity `v = (Math.random() * 4 + 2)` along radial angle `θ = Math.random() * Math.PI * 2` and angular spin `ω = (Math.random() - 0.5) * 0.1`.",
+      "acceptance_criteria": [
+        "Completed winning triads permanently append luminous connective constellation edges in the background layer.",
+        "Series clinch triggers a 0.25x slow-motion visual dilation paired with expanding prismatic shard particles.",
+        "Particles decay and clear automatically when SERIES_RESET is dispatched."
+      ],
+      "interface_contracts": {
+        "inputs": [
+          "state.world.time",
+          "state.stats.seriesOver",
+          "state.stats.lastWinningTriad",
+          "state.stats.wins"
+        ],
+        "outputs": [
+          "state.world.constellationNodes",
+          "state.world.shatterParticles",
+          "state.world.timeDilation"
+        ],
+        "events": [
+          "TRIAD_LOCKED",
+          "SERIES_CLINCHED"
+        ]
+      }
+    },
+    {
+      "index": 2,
+      "summary": "Evaluate sector occupancy distributions to project tactical Arbiter philosophical axioms across the modal's lower geometric border.",
+      "technical_specification": "Track positional placement metrics in `state.stats.sectorHistory`: calculate corner ratio `C = cornersChosen / totalPlacements`, center ratio `M = centerChosen / totalPlacements`, and fork activations `F = state.stats.forkCount`. At series end, assign `state.narrative.activeAxiom` by priority condition: if `F >= 2`, select 'THE DUAL WEFT: BIFURCATION PRECEDES INEVITABILITY'; else if `M >= 0.35`, select 'THE SOLAR AXIS: HE WHO BINDS THE CORE DIRECTS THE PERIPHERY'; else if `C >= 0.50`, select 'THE CARDINAL QUAD: THE BOUNDS DEFINE THE HARMONY'; else select 'THE DRIFTING VOID: TRANSCENDENCE THROUGH FLUID CONVERGENCE'. Render the selected text diegetically along modal base `y: 450` with gold opacity pulsing on `Math.sin(state.world.time * 0.005)`.",
+      "acceptance_criteria": [
+        "Axiom strictly evaluates tactical placement frequency (corners, center, forks) without generic random fallbacks.",
+        "Axiom renders within modal lower boundary without clipping leaderboard or control cues.",
+        "Text updates upon series evaluation and clears appropriately on SERIES_RESET."
+      ],
+      "interface_contracts": {
+        "inputs": [
+          "state.stats.sectorHistory",
+          "state.stats.forkCount",
+          "state.stats.seriesOver",
+          "state.world.time"
+        ],
+        "outputs": [
+          "state.narrative.activeAxiom",
+          "state.narrative.tacticalStyle"
+        ],
+        "events": [
+          "SERIES_OVER_EVALUATED"
+        ]
+      }
+    }
+  ]
+}

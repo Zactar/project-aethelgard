@@ -1,0 +1,49 @@
+{
+  "rfcs": [
+    {
+      "index": 0,
+      "summary": "Implement procedural tiered loot generation with prefix/suffix affix rolls that alter player weapon swing visuals, elemental damage, and drop ground entities with light beams.",
+      "technical_specification": "Initialize `state.world.droppedLoot = []` and `state.player.equipment = { weapon: null }`. On chest open or elite defeat, generate item with tier ('iron'|'verdigris'|'occult'|'doom'|'blood'), roll affix modifiers (`arcScale` 0.8-1.6, `colorHex`, `element` 'none'|'electric'|'acid'|'blood', `damageMult` 1.0-2.5). Dropped item objects store `{ id, x, y, tier, color, beamH: 0, beamMax: 64, itemData }`. In `update()`, animate `beamH = Math.min(beamMax, beamH + 4)`. Equipping replaces `state.player.equipment.weapon`, overriding `state.player.attackArcRadius = baseRadius * weapon.arcScale` and `state.player.attackArcColor = weapon.colorHex`.",
+      "acceptance_criteria": [
+        "Elites and iron chests instantiate drop entities with vertical light beams styled by rarity tier.",
+        "Equipping rolled items changes attack cleave polygon radius and color stroke in world space.",
+        "Prefix/suffix elemental properties trigger matching projectile or particle bursts on swing."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.world.elites", "state.world.chests", "state.player.x", "state.player.y"],
+        "outputs": ["state.world.droppedLoot", "state.player.equipment", "state.player.attackArcRadius", "state.player.attackArcColor"],
+        "events": ["LOOT_DROPPED", "ITEM_EQUIPPED"]
+      }
+    },
+    {
+      "index": 1,
+      "summary": "Architect immersive environmental kinematic hazards including kickable braziers, igniteable oil pools, wall dart traps, and interactive cauldrons.",
+      "technical_specification": "Maintain `state.world.interactives = []` containing `{ type, x, y, vx, vy, radius, state, timer }`. When `state.keys.action` triggers within radius 32 of brazier, set brazier `vx = Math.cos(state.player.angle) * 320`, `vy = Math.sin(state.player.angle) * 320`. In `update()`, step brazier position with friction 0.88. If brazier overlaps oil puddle (`dist < 28`), mutate oil type to 'fire_hazard', dealing 12 dmg/s and burning for 8s. Pressure plates trigger dart projectiles (`type: 'dart', vx, vy`) toward player when stepped on (`dist < 18`). Cauldrons brew random buff on action key press.",
+      "acceptance_criteria": [
+        "Kicking a brazier imparts directional velocity and ignites any oil puddles it collides with.",
+        "Stepping onto pressure plates immediately releases lethal wall dart projectiles.",
+        "Interactive alchemy cauldrons dispense instantaneous status alterations upon player activation."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.keys.action", "state.player.x", "state.player.y", "state.player.angle"],
+        "outputs": ["state.world.interactives", "state.world.projectiles", "state.player.buffs"],
+        "events": ["BRAZIER_KICKED", "OIL_IGNITED", "TRAP_TRIGGERED", "CAULDRON_USED"]
+      }
+    },
+    {
+      "index": 2,
+      "summary": "Deliver a 68-BPM Drop-C Stoner/Doom procedural Web Audio synth engine and diegetic Canvas 2D weapon comparison tooltips hovering over ground loot.",
+      "technical_specification": "Ensure a single `AudioContext` on `state.audio.ctx`. Synthesize 68-BPM loop using oscillator banks: Drop-C sub-bass (65.4Hz / 32.7Hz saw with LowPass 180Hz), waveshaper diode distortion node for fuzz drone, and noise-buffer war drums triggered every 4 beats. In `render()`, detect closest `droppedLoot` within 40px of player; render an in-world parchment comparison card at `loot.x, loot.y - 48` showing stat deltas (+/- DMG, Affix name) without obscuring the upper status ribbon (`y: 0..36`). Play metallic chime tone (`osc.frequency.setValueAtTime(880, t)`) on item drop.",
+      "acceptance_criteria": [
+        "Procedural 68-BPM Drop-C fuzz bass and rhythmic war drum sequence plays continuously without crackle or multiple audio context leaks.",
+        "Approaching ground loot renders an in-world comparative tooltip against equipped stats.",
+        "HUD ribbon region (y: 0..36) remains completely free of comparison overlays."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.player.x", "state.player.y", "state.player.equipment", "state.world.droppedLoot"],
+        "outputs": ["state.audio.ctx", "state.audio.nodes"],
+        "events": ["AUDIO_BEAT_TICK", "CHIME_PLAYED"]
+      }
+    }
+  ]
+}

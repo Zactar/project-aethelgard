@@ -1,0 +1,18 @@
+{
+  "codename": "Operation Avalanche Altar",
+  "theme": "Ascension Modifiers, Chalet Relic Transmutation & Ghost Runs",
+  "deliverables": [
+    {
+      "discipline": "Systems",
+      "title": "Glacial Ascension Heat System: Stackable pre-run mutators (e.g., Whiteout Blizzards, Twin Yetis, Black Ice) offering exponential XP and rare relic drop multipliers."
+    },
+    {
+      "discipline": "Gameplay",
+      "title": "Chalet Forge & Relic Transmutation: Mid-run shelter workbench allowing alpinists to fuse duplicate relics into mythic tiers or sacrifice health for cursed alpine charms."
+    },
+    {
+      "discipline": "Client",
+      "title": "Phantom Lineage Ghost Playback: Canvas-rendered visual ghost runs tracking the player's personal best downhill descent trajectory alongside CRT retro telemetry."
+    }
+  ]
+}

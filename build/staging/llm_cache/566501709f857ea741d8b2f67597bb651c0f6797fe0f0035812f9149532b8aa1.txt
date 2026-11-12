@@ -1,0 +1,17 @@
+{
+  "postmortem_summary": "While procedural Web Audio and diegetic phantom ghosts added strong alpine atmosphere, the project suffered from excessive HUD fillRect calls that cluttered player view instead of embedding feedback into the world. Moving forward, UI elements must give way to in-world telegraphs and strictly unified coordinate tracking.",
+  "key_mistakes_corrected": [
+    "54 HUD fillRect calls cluttering active descent -> Replace static stat banners with diegetic particle trails, ski spray, and audio cues.",
+    "Static fixed coordinate ramp spawns desynced from continuous downhill progression -> Anchor terrain features to dynamic world-stream offsets.",
+    "Decoupled audio initializations per milestone -> Establish a centralized procedural audio bus in core engine initialization."
+  ],
+  "updated_role_skill_cards": {
+    "Executive_Producer": "Enforce milestones centered on visceral, tactile player verbs. Reject deliverables relying on static text panels, duplicate stat readouts, or non-diegetic overlay rectangles.",
+    "Systems": "Build risk-reward mechanics that visibly transform kinematic variables like momentum, friction, and carve angles. Keep data catalogs compact through structured tuples under 25 lines.",
+    "Gameplay": "Guarantee instantaneous control response, clean finite-state machines, and distinct audio-visual impact frames. Tie every active ability directly to visible avatar animations and environmental deformation.",
+    "Level": "Generate continuous dynamic pacing by interweaving hazard clusters with reactive terrain like boost ramps and ice sheets. Keep world-space coordinates rigorously synchronized with player descent speed.",
+    "Client": "Limit screen UI to one minimal status ribbon. Ban secondary floating rectangles; convey stamina, speed, and threat proximity strictly through screen shake, vignette shifts, and procedural Web Audio.",
+    "Narrative": "Embed atmospheric lore seamlessly within run obituaries, environmental relics, and terrain motifs without interrupting downhill momentum or cluttering the primary play area.",
+    "Codebase_Engineer": "Preserve strict backward compatibility across milestone modules. Enforce unified coordinate transformations, respect engine pause states, and centralize shared resources like AudioContext and event hooks."
+  }
+}

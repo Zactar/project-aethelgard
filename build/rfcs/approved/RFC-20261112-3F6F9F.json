@@ -1,0 +1,69 @@
+{
+  "rfc_id": "RFC-20261112-3F6F9F",
+  "title": "Concise, atmospheric philosophical axioms from the Observatory Arbiter inscribed along the bottom border of the Verdict Modal reflecting the player's tactical style (Corner Dominance, Center Control, or Fork Mastery).",
+  "target_subsystem": "web_client/index.html",
+  "discipline": "Narrative",
+  "target_milestone": "v0.5.0",
+  "milestone_target": "v0.5.0",
+  "milestone_tag": "v0.5.0",
+  "author_role": "Creative Director & Narrative Lead (Flavor text, diegetic notifications, run summaries)",
+  "summary": "Evaluate sector occupancy distributions to project tactical Arbiter philosophical axioms across the modal's lower geometric border.",
+  "technical_specification": "Track positional placement metrics in `state.stats.sectorHistory`: calculate corner ratio `C = cornersChosen / totalPlacements`, center ratio `M = centerChosen / totalPlacements`, and fork activations `F = state.stats.forkCount`. At series end, assign `state.narrative.activeAxiom` by priority condition: if `F >= 2`, select 'THE DUAL WEFT: BIFURCATION PRECEDES INEVITABILITY'; else if `M >= 0.35`, select 'THE SOLAR AXIS: HE WHO BINDS THE CORE DIRECTS THE PERIPHERY'; else if `C >= 0.50`, select 'THE CARDINAL QUAD: THE BOUNDS DEFINE THE HARMONY'; else select 'THE DRIFTING VOID: TRANSCENDENCE THROUGH FLUID CONVERGENCE'. Render the selected text diegetically along modal base `y: 450` with gold opacity pulsing on `Math.sin(state.world.time * 0.005)`.",
+  "acceptance_criteria": [
+    "Axiom strictly evaluates tactical placement frequency (corners, center, forks) without generic random fallbacks.",
+    "Axiom renders within modal lower boundary without clipping leaderboard or control cues.",
+    "Text updates upon series evaluation and clears appropriately on SERIES_RESET."
+  ],
+  "interface_contracts": {
+    "inputs": [
+      "state.stats.sectorHistory",
+      "state.stats.forkCount",
+      "state.stats.seriesOver",
+      "state.world.time"
+    ],
+    "outputs": [
+      "state.narrative.activeAxiom",
+      "state.narrative.tacticalStyle"
+    ],
+    "events": [
+      "SERIES_OVER_EVALUATED"
+    ]
+  },
+  "pre_flight_passed": true,
+  "description": "[Narrative] Concise, atmospheric philosophical axioms from the Observatory Arbiter inscribed along the bottom border of the Verdict Modal reflecting the player's tactical style (Corner Dominance, Center Control, or Fork Mastery).\n\nSummary:\nEvaluate sector occupancy distributions to project tactical Arbiter philosophical axioms across the modal's lower geometric border.\n\nSpecification:\nTrack positional placement metrics in `state.stats.sectorHistory`: calculate corner ratio `C = cornersChosen / totalPlacements`, center ratio `M = centerChosen / totalPlacements`, and fork activations `F = state.stats.forkCount`. At series end, assign `state.narrative.activeAxiom` by priority condition: if `F >= 2`, select 'THE DUAL WEFT: BIFURCATION PRECEDES INEVITABILITY'; else if `M >= 0.35`, select 'THE SOLAR AXIS: HE WHO BINDS THE CORE DIRECTS THE PERIPHERY'; else if `C >= 0.50`, select 'THE CARDINAL QUAD: THE BOUNDS DEFINE THE HARMONY'; else select 'THE DRIFTING VOID: TRANSCENDENCE THROUGH FLUID CONVERGENCE'. Render the selected text diegetically along modal base `y: 450` with gold opacity pulsing on `Math.sin(state.world.time * 0.005)`.",
+  "submitted_by": "Creative Director & Narrative Lead (Flavor text, diegetic notifications, run summaries)",
+  "change_type": "NEW_QUEST",
+  "status": "PENDING_REVIEW",
+  "created_at": 1794488243.0989497,
+  "payload_diff": {
+    "title": "Concise, atmospheric philosophical axioms from the Observatory Arbiter inscribed along the bottom border of the Verdict Modal reflecting the player's tactical style (Corner Dominance, Center Control, or Fork Mastery).",
+    "discipline": "Narrative",
+    "target_subsystem": "web_client/index.html",
+    "target_milestone": "v0.5.0",
+    "milestone_tag": "v0.5.0",
+    "author_role": "Creative Director & Narrative Lead (Flavor text, diegetic notifications, run summaries)",
+    "summary": "Evaluate sector occupancy distributions to project tactical Arbiter philosophical axioms across the modal's lower geometric border.",
+    "technical_specification": "Track positional placement metrics in `state.stats.sectorHistory`: calculate corner ratio `C = cornersChosen / totalPlacements`, center ratio `M = centerChosen / totalPlacements`, and fork activations `F = state.stats.forkCount`. At series end, assign `state.narrative.activeAxiom` by priority condition: if `F >= 2`, select 'THE DUAL WEFT: BIFURCATION PRECEDES INEVITABILITY'; else if `M >= 0.35`, select 'THE SOLAR AXIS: HE WHO BINDS THE CORE DIRECTS THE PERIPHERY'; else if `C >= 0.50`, select 'THE CARDINAL QUAD: THE BOUNDS DEFINE THE HARMONY'; else select 'THE DRIFTING VOID: TRANSCENDENCE THROUGH FLUID CONVERGENCE'. Render the selected text diegetically along modal base `y: 450` with gold opacity pulsing on `Math.sin(state.world.time * 0.005)`.",
+    "acceptance_criteria": [
+      "Axiom strictly evaluates tactical placement frequency (corners, center, forks) without generic random fallbacks.",
+      "Axiom renders within modal lower boundary without clipping leaderboard or control cues.",
+      "Text updates upon series evaluation and clears appropriately on SERIES_RESET."
+    ],
+    "interface_contracts": {
+      "inputs": [
+        "state.stats.sectorHistory",
+        "state.stats.forkCount",
+        "state.stats.seriesOver",
+        "state.world.time"
+      ],
+      "outputs": [
+        "state.narrative.activeAxiom",
+        "state.narrative.tacticalStyle"
+      ],
+      "events": [
+        "SERIES_OVER_EVALUATED"
+      ]
+    },
+    "pre_flight_passed": true
+  }
+}

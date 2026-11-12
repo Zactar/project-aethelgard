@@ -1,0 +1,97 @@
+{
+  "rfc_id": "RFC-20261031-83B13D",
+  "title": "Curfew Line-of-Sight Cones & Watchman Bribe Interaction",
+  "timestamp": "2026-10-31T06:33:16.617773Z",
+  "milestone_tag": "v0.14.0",
+  "discipline": "Gameplay",
+  "target_subsystem": "services/agent_runtime/src/server.py",
+  "status": "STAGED_FOR_REVIEW",
+  "summary": "Calibrated radial line-of-sight vision cones and proximity interaction bitmasks.",
+  "proposed_changes": {
+    "interaction_layer": "InteractionLayer.INTERACTIVE",
+    "vision_cone_fov": 70.0,
+    "detection_envelope": "Radial field-of-view"
+  },
+  "retrospective_memory": {
+    "injected_friction_rules": [
+      "Raycasts and proximity queries must mask explicitly to InteractionLayer.INTERACTIVE and reject passive decor or static room boundary collision geometries."
+    ],
+    "adversarial_prompt_context": "HISTORICAL ADVERSARIAL AUDIT (Violations will trigger automatic RFC rejection):\n  * PREVENT REGRESSION: Raycasts and proximity queries must mask explicitly to InteractionLayer.INTERACTIVE and reject passive decor or static room boundary collision geometries.",
+    "pre_flight_audit": {
+      "passed": false,
+      "violations_detected": 1,
+      "reasons": [
+        "Violation of INC-20261023-GMP-03: Proximity interaction query lacks explicit filtering on 'InteractionLayer.INTERACTIVE'."
+      ]
+    }
+  },
+  "validation_verdict": {
+    "passes_preflight": false,
+    "reasons": [
+      "Violation of INC-20261023-GMP-03: Proximity interaction query lacks explicit filtering on 'InteractionLayer.INTERACTIVE'."
+    ]
+  },
+  "review_verdict": {
+    "rfc_id": "RFC-20261031-83B13D",
+    "timestamp": "2026-10-31T06:33:16.623969",
+    "status": "REJECTED",
+    "quorum_reached": false,
+    "total_votes": 6,
+    "approvals": 4,
+    "rejections": 2,
+    "vetoes_cast": 1,
+    "ballots": [
+      {
+        "reviewer": "Chaos QA",
+        "vote": "REJECT",
+        "critique": "Pre-flight validation failed. Proposal directly repeats recorded studio regressions.",
+        "friction_points": [
+          "Violation of INC-20261023-GMP-03: Proximity interaction query lacks explicit filtering on 'InteractionLayer.INTERACTIVE'."
+        ],
+        "veto": true
+      },
+      {
+        "reviewer": "Systems",
+        "vote": "APPROVE",
+        "critique": "Schema and bytecode evaluation constraints satisfied.",
+        "friction_points": [],
+        "veto": false
+      },
+      {
+        "reviewer": "Client",
+        "vote": "APPROVE",
+        "critique": "Complies with WebGL budget and scene-graph transform hierarchy.",
+        "friction_points": [],
+        "veto": false
+      },
+      {
+        "reviewer": "Level",
+        "vote": "APPROVE",
+        "critique": "AABB dimensions and socket clearance margins conform to spatial contracts.",
+        "friction_points": [],
+        "veto": false
+      },
+      {
+        "reviewer": "Gameplay",
+        "vote": "REQUEST_CHANGES",
+        "critique": "Unmasked raycasts risk proximity interception by static environmental hulls.",
+        "friction_points": [
+          "Interaction query missing InteractionLayer.INTERACTIVE bitmask."
+        ],
+        "veto": false
+      },
+      {
+        "reviewer": "Narrative",
+        "vote": "APPROVE",
+        "critique": "Thematic lore consistency maintained.",
+        "friction_points": [],
+        "veto": false
+      }
+    ],
+    "synthesis_summary": "Review Board Quorum FAILED: 4/6 approvals, 2 rejections, 1 vetoes.",
+    "actionable_directives": [
+      "[Chaos QA] Violation of INC-20261023-GMP-03: Proximity interaction query lacks explicit filtering on 'InteractionLayer.INTERACTIVE'.",
+      "[Gameplay] Interaction query missing InteractionLayer.INTERACTIVE bitmask."
+    ]
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "summary": "Implements discrete circular and OBB-based near-miss proximity detection for static mountain hazards, an XP accumulation pipeline feeding level thresholds, and an interactive Canvas 2D stat-allocation HUD overlay for baseline attributes (Agility, Balance, Moxie, Stamina, Luck).",
+  "technical_specification": "1. DELTA-TIME INTEGRATION & KINEMATICS PIPELINE:\n   - Frame step: dt_safe = Math.min((t_now - t_last) / 1000, 0.05).\n   - Skier position vector P = [p_x, p_y]^T integrated via semi-implicit Euler:\n     V_t = V_{t-1} + (F_gravity + F_carve + F_drag) * dt_safe / mass\n     P_t = P_{t-1} + V_t * dt_safe.\n\n2. COLLISION HULLS & NEAR-MISS PROXIMITY GEOMETRY:\n   - Hazard H_i defined by center C_i = [c_x, c_y]^T, solid bounding radius R_solid, and near-miss threshold shell R_miss = R_solid + delta_miss (default delta_miss = 36px).\n   - Skier represented as oriented bounding box (OBB) projected to circle of radius R_skier = 12px for coarse-phase spatial hash detection.\n   - Separation vector D_i = P - C_i; Euclidean distance d_i = ||D_i||_2.\n   - State tracking: Each hazard H_i maintains transient boolean flags { inside_zone: bool, triggered: bool, entered_solid: bool }.\n   - Near-miss logic: If (R_solid + R_skier) < d_i <= (R_miss + R_skier), set inside_zone = true. If inside_zone was true in frame t-1 and dot(V, D_i) > 0 (skier moving away), and !triggered and !entered_solid:\n     * Emit NEAR_MISS event.\n     * Mark triggered = true.\n     * Award XP: XP_gain = base_xp * (1.0 + (1.0 - (d_min - R_solid) / delta_miss)) * Moxie_multiplier.\n\n3. XP & LEVEL-UP PROGRESSION FORMULA:\n   - XP threshold for level L: Threshold(L) = floor(100 * (1.35 ^ (L - 1))).\n   - Current XP tracked via XP_current and XP_needed. When XP_current >= Threshold(L), trigger LEVEL_UP:\n     * Level increment: L = L + 1.\n     * Unallocated stat points: StatPoints = StatPoints + 1.\n     * Pause or slow-mo game loop (timeScale = 0.05) if auto-pause enabled, displaying Stat Allocation Bar HUD.\n\n4. STAT ALLOCATION BAR HUD (CANVAS 2D):\n   - Render bottom/mid HUD overlay when StatPoints > 0: 5 attribute nodes: Agility (carve rate), Balance (wipeout recovery/stability), Moxie (XP scalar & trick score), Stamina (boost pool), Luck (relic/gate frequency).\n   - Mouse hover & click regions mapped to screen-space canvas coordinates [x_k, y_k, w, h] with +/- spend buttons.\n   - Applying point immediately updates derived player parameters (e.g., carve friction tensor kappa_t, recovery frames tau_rec).",
+  "acceptance_criteria": [
+    "Near-miss triggers exactly once per hazard pass when distance satisfies (R_solid + R_skier) < d <= (R_miss + R_skier) and the skier diverges (dot(V, D) > 0) without colliding.",
+    "Colliding with R_solid invalidates the near-miss eligibility for that hazard instance permanently (entered_solid = true).",
+    "Delta-time step strictly enforces dt_safe = Math.min((t_now - t_last)/1000, 0.05) across physics updates.",
+    "Stat Allocation UI renders on Canvas 2D when StatPoints > 0, supporting mouse click interactions to increment attributes and decrement StatPoints.",
+    "Level progression strictly calculates thresholds via floor(100 * (1.35 ^ (L - 1))) and correctly rolls over surplus XP."
+  ],
+  "interface_contracts": {
+    "inputs": [
+      "dt_safe: number (clamped time delta in seconds)",
+      "skier: { x: number, y: number, vx: number, vy: number, radius: number, level: number, xp: number, statPoints: number, stats: { agility: number, balance: number, moxie: number, stamina: number, luck: number } }",
+      "hazards: Array<{ id: number, x: number, y: number, solidRadius: number, missRadius: number, triggered: boolean, enteredSolid: boolean, minDistance: number }>",
+      "pointerEvent: { canvasX: number, canvasY: number, isDown: boolean }"
+    ],
+    "outputs": [
+      "skier.xp: number (updated XP balance)",
+      "skier.level: number (updated current level)",
+      "skier.statPoints: number (remaining unallocated points)",
+      "skier.stats: object (mutated core attributes)",
+      "renderDrawList: Array<CanvasDrawCall>"
+    ],
+    "events": [
+      "onNearMiss(hazardId: number, distanceRatio: number, xpAwarded: number)",
+      "onLevelUp(newLevel: number, totalStatPoints: number)",
+      "onStatAllocated(statName: string, newValue: number)"
+    ]
+  }
+}

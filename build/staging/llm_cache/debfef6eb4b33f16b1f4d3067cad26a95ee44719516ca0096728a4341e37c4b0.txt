@@ -1,0 +1,18 @@
+{
+  "codename": "Operation Prism Surge",
+  "theme": "Resonance Hazards, Kinetic Tethering & Diegetic Overcharge",
+  "deliverables": [
+    {
+      "discipline": "Systems",
+      "title": "Prismatic Refraction Monoliths: Procedural crystalline vector hazards that deflect, split, and magnify both player laser volleys and enemy barrage beams across the arena, altering projectile trajectory and laser color based on entry angle."
+    },
+    {
+      "discipline": "Gameplay",
+      "title": "Kinetic Grapple Tether: Active movement verb allowing the pilot to latch an energy line onto shattered asteroid cores or elite hulls, slingshotting the ship into tight orbital swings while dragging chained debris into oncoming synth-hunter formations."
+    },
+    {
+      "discipline": "Client",
+      "title": "Diegetic Hull Resonance & Warp-Grid Overcharge: Direct visual feedback replacing secondary meters with pulsing ship-wing aura rings that flare to rhythmically telegraph tether cooldowns, paired with localized grid tears that physically bubble and buckle under high-velocity impacts."
+    }
+  ]
+}

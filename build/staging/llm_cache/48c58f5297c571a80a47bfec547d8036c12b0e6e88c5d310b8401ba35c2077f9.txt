@@ -1,0 +1,84 @@
+{
+  "rfcs": [
+    {
+      "index": 0,
+      "summary": "Architect the multi-phase Malakor boss encounter featuring arena boundary locks, sweeping scythe arcs, destructible bone-pillar cover, and radial eclipse shockwaves.",
+      "technical_specification": "In `state.world.boss`, track `phase` (1..3), `hp` (max 1200), `poise` (max 100), `stateTimer`, and `facing`. When player enters depth 5 throne room, lock portcullis gates at `y: 600`. Phase 1: Malakor performs sweeping scythe cleaves (radius 140px, angle sweep ±1.2 rad, deal 25 damage, stagger player). Phase 2 (<75% HP): Spawn 4 `bonePillars` at radial offsets (180px, 45° increments; 40 HP each) that block projectile/wave collision. Phase 3 (<35% HP): Cast `eclipseWaves` every 4.5s; concentric expanding rings (velocity 160px/s, thickness 24px) requiring player i-frame roll or pillar occlusion. When Malakor reaches 0 HP, trigger `BOSS_DEFEATED` and unlock ascension portal.",
+      "acceptance_criteria": [
+        "Portcullis gates snap closed and seal arena bounds upon Malakor aggro trigger.",
+        "Scythe hitbox performs angular sweep checking player distance and dodge i-frame status.",
+        "Destructible bone-pillars absorb eclipse waves and shatter with structural debris."
+      ],
+      "interface_contracts": {
+        "inputs": [
+          "state.player.x",
+          "state.player.y",
+          "state.player.isRolling",
+          "state.keys.jump"
+        ],
+        "outputs": [
+          "state.world.boss.hp",
+          "state.world.boss.phase",
+          "state.world.bonePillars",
+          "state.world.eclipseWaves"
+        ],
+        "events": [
+          "BOSS_PHASE_TRANSITION",
+          "BOSS_DEFEATED"
+        ]
+      }
+    },
+    {
+      "index": 1,
+      "summary": "Implement an illustrated OSR Chronicle Modal for run termination, rendering parchment epitaphs, loadout silhouettes, top-5 crypt legends, and restart bindings without HUD bleed.",
+      "technical_specification": "Listen for `PLAYER_DIED` and `BOSS_DEFEATED` to flag `state.chronicle.active = true` and lock player velocity. Render centered chiaroscuro parchment overlay (`x: 80, y: 44, w: 640, h: 512`) during post-entity render pass. Compute OSR Adventurer Rank via `rankIndex = Math.min(6, Math.floor(state.stats.gold / 300) + state.stats.depth)`. Draw equipped item icons, runic quest completions, and read/write local storage key `BC_CRYPT_LEGENDS` keeping top-5 entries sorted by depth and score. Intercept `[SPACE]` to wipe state and reset delve via `initDelve()`, or `[C]` to toggle class respec archetype.",
+      "acceptance_criteria": [
+        "Modal renders strictly on top Z-layer without occlusion from world entities or top ribbon.",
+        "Scores persist across browser refreshes in localStorage without schema corruption.",
+        "Spacebar triggers zero-leak clean restart restoring full health, stamina, and depth 1 state."
+      ],
+      "interface_contracts": {
+        "inputs": [
+          "state.player.hp",
+          "state.stats.gold",
+          "state.stats.depth",
+          "state.keys.jump",
+          "state.keys.respec"
+        ],
+        "outputs": [
+          "state.chronicle.active",
+          "state.chronicle.epitaph",
+          "state.chronicle.leaderboard"
+        ],
+        "events": [
+          "PLAYER_DIED",
+          "RESTART_DELVE"
+        ]
+      }
+    },
+    {
+      "index": 2,
+      "summary": "Synthesize boss phase-transition audiovisual spectacles including full-canvas eclipse desaturation, multi-hued glass shrapnel physics, and a dual-oscillator stoner-doom guitar solo.",
+      "technical_specification": "On `BOSS_PHASE_TRANSITION`, trigger camera shake (`intensity = 18`, decay 0.92) and set `state.fx.eclipseAlpha = 1.0`, fading over 1.8s. Spawn 48 stained-glass polygon shards with randomized planar velocities (`vx, vy = ±220px/s`), gravity (`600px/s²`), and emissive palette (`#a855f7`, `#dc2626`, `#f59e0b`). Audio: Route two Web Audio `OscillatorNode` instances (sawtooth + square) through a wave-shaper distortion curve (`curveAmount = 350`) and biquad resonant lowpass (`Q = 8, cutoff = 1200Hz`) to play a 4-bar pentatonic doom-minor victory/transition riff (D2-F2-G2-Ab2-G2-D2) without clicks.",
+      "acceptance_criteria": [
+        "Screen desaturation and glass fragments spawn synchronously upon phase step.",
+        "Web Audio nodes cleanly disconnect on sound completion to prevent leak accumulation.",
+        "Shard physics reflect bounce damping against throne room floor boundary (`y: 600`)."
+      ],
+      "interface_contracts": {
+        "inputs": [
+          "state.world.boss.phase",
+          "state.audioContext"
+        ],
+        "outputs": [
+          "state.fx.cameraShake",
+          "state.fx.particles",
+          "state.fx.eclipseAlpha"
+        ],
+        "events": [
+          "BOSS_PHASE_TRANSITION"
+        ]
+      }
+    }
+  ]
+}

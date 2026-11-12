@@ -1,0 +1,46 @@
+{
+  "rfcs": [
+    {
+      "index": 0,
+      "summary": "Procedural OSR quest generator tracking multi-node delve objectives with diegetic floor runes and interactive environmental corpses.",
+      "technical_specification": "Initializes `state.world.quest = { id, title, type, targetCount, currentCount, completed: false, loreInscriptions: [] }` on delve seed. Scatters etched floor runes and inspectable skeleton corpses across `state.world.loreNodes`. When `state.player` stands within `radius <= 36` of a node and triggers `state.keys.action` (`SHIFT`/`E`), queue a floating diegetic runic inscription text banner directly into world space particles (`state.world.textParticles.push({ x, y, text, ttl: 180, color: '#f59e0b' })`). Destroying quest-flagged entities increments `currentCount`; reaching `targetCount` sets `quest.completed = true` and dispatches `QUEST_OBJECTIVE_COMPLETED`.",
+      "acceptance_criteria": [
+        "Floor runes and fallen adventurer corpses render with decaying ambient glow and emit localized lore text on interaction without opening modal popups.",
+        "Completing quest objectives updates `state.world.quest.currentCount` and triggers a diegetic audio/visual ping on the single-ribbon HUD."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.player.x", "state.player.y", "state.keys.action"],
+        "outputs": ["state.world.quest", "state.world.textParticles", "state.world.loreNodes"],
+        "events": ["QUEST_OBJECTIVE_COMPLETED", "LORE_NODE_INSPECTED"]
+      }
+    },
+    {
+      "index": 1,
+      "summary": "Dynamic dungeon mutation system transforming floor tiles, environmental hazards, and vault doors based on player altar alignments.",
+      "technical_specification": "Tracks `state.world.alignment` ('DEFILED' | 'CONSECRATED' | 'NEUTRAL'). Interacting with Altars (`dist <= 40`, `state.keys.action`) applies a state mutation: 'DEFILED' floods room tiles (`tile.hazard = 'ICHOR'`, deals 4 DPS, slows speed by 35%), spawns elite `Void-Cultist` waves, and applies chromatic aberration; 'CONSECRATED' purges acid pools, blesses braziers to emit radiant aura (`lightRadius * 1.5`), and unlocks iron-barred Golden Reliquary vaults (`door.locked = false`). Room transitions run `mutateRoomLayout(room, state.world.alignment)` applying biome-specific hazard shifts.",
+      "acceptance_criteria": [
+        "Defiling an altar immediately floods local floor tiles with Crimson Ichor hazard layers and replaces ambient spawns with Void-Cultists.",
+        "Consecrating an altar unlocks Golden Reliquary Vault gates and enhances torchlight illumination radius across the current floor depth."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.player.x", "state.player.y", "state.keys.action", "state.world.currentRoom"],
+        "outputs": ["state.world.alignment", "state.world.rooms", "state.world.hazards"],
+        "events": ["ALTAR_DEFILED", "ALTAR_CONSECRATED", "ROOM_MUTATED"]
+      }
+    },
+    {
+      "index": 2,
+      "summary": "Tactical monster AI ecology featuring directional shield collision, telegraphed acid projectiles, necromantic bone revival, and mimic ambushes.",
+      "technical_specification": "Populates `state.world.monsters[]` with distinct behavioral archetypes. Phalanx Skeletons project a 120-degree frontal shield arc: incoming attacks where `dot(monster.facing, attackDir) < -0.3` are blocked (`poiseDamage * 0.2`, deflect particle); players must flank or parry. Fungoid Horrors maintain distance (`range: 120-180`) and launch acid globs (`vx, vy`, leaves 4s acid pool). Necromancers channel resurrective beams onto bone piles (`reviveTimer: 300`, interrupted by stagger/knockback). Mimic Chests lie dormant until interacted with or struck, executing an instantaneous unblockable bite lunge (`dist <= 32`, 25 damage, grab stun).",
+      "acceptance_criteria": [
+        "Phalanx skeletons nullify front-facing melee swings unless staggered or struck from behind their 120-degree guard arc.",
+        "Necromancers reliably resurrect inert bone piles after channeling unless interrupted, and mimics awaken instantly upon interaction or damage."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.player.x", "state.player.y", "state.player.attacking", "state.keys.jump"],
+        "outputs": ["state.world.monsters", "state.world.projectiles", "state.world.corpses"],
+        "events": ["MONSTER_BLOCKED", "CORPSE_RESURRECTED", "MIMIC_AMBUSH_TRIGGERED"]
+      }
+    }
+  ]
+}

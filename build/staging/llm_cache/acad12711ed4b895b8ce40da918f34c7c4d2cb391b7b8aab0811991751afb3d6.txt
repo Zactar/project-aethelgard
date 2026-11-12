@@ -1,0 +1,29 @@
+{
+  "summary": "Implements the v0.2.0 starting class selection screen within web_client/index.html, exposing the four archetypes (The Slalom Olympian, The Freestyle Daredevil, The Alpine Ranger, and The Frost Occultist). Defines explicit base stat blocks, deterministic stat curves, initial relic inventories, bitmask status immunity baselines, and complete UI-to-gameplay state transition contracts.",
+  "technical_specification": "1. CLASS SCHEMA DEFINITION:\nFour archetypes defined with 6 primary attributes: Acceleration (ACC, px/s^2), Top Speed (SPD, px/s), Agility (AGI, lateral responsiveness factor [0.5-2.0]), Balance (BAL, wipeout recovery frames and stagger threshold), Stamina (STM, resource pool for dash/tricks), and Moxie (MOX, XP multiplier and trick score scaling).\n\n- OLYMPIAN: { id: 'class_olympian', name: 'The Slalom Olympian', baseStats: { acc: 480, spd: 850, agi: 1.65, bal: 75, stm: 100, mox: 1.10 }, startingRelics: ['tuned_edges', 'gate_magnetism'], immunities: 0x0001 /* SLUSH_SLOW */ }\n- DAREDEVIL: { id: 'class_daredevil', name: 'The Freestyle Daredevil', baseStats: { acc: 420, spd: 800, agi: 1.25, bal: 60, stm: 160, mox: 1.60 }, startingRelics: ['twin_tip_skis', 'crash_padding'], immunities: 0x0002 /* AIR_STALL */ }\n- RANGER: { id: 'class_ranger', name: 'The Alpine Ranger', baseStats: { acc: 380, spd: 720, agi: 1.10, bal: 110, stm: 130, mox: 0.90 }, startingRelics: ['flare_gun', 'avalanche_cord'], immunities: 0x0004 /* BLIND_BLIZZARD */ }\n- OCCULTIST: { id: 'class_occultist', name: 'The Frost Occultist', baseStats: { acc: 340, spd: 900, agi: 0.95, bal: 45, stm: 80, mox: 2.00 }, startingRelics: ['yeti_effigy', 'blood_wax'], immunities: 0x0008 /* TERROR_STUN */ }\n\n2. MATHEMATICAL PROGRESSION & FORMULAS:\n- Kinematic Terminal Lateral Velocity: V_x(max) = SPD * 0.45 * AGI.\n- Carve Deceleration Drag: F_drag = 0.5 * rho * (V_y)^2 * (1.0 / AGI), applied during carving states.\n- Balance Recovery Duration: T_recovery(frames) = max(18, round(180 * (1.0 - (BAL / 200.0)))).\n- Level Scaling Stat Function: Stat(level) = BaseStat * (1.0 + (level - 1) * 0.065)^1.12.\n- XP Threshold Progression: XP_req(level) = floor(100 * (level)^1.85) for level >= 1.\n\n3. UI STATE MACHINE & RENDER PIPELINE:\n- State Enum: UI_STATE = { BOOT: 0, CLASS_SELECT: 1, GAMEPLAY_INIT: 2, ACTIVE_RUN: 3 }.\n- Selection Grid: 4 horizontal card nodes with focus index cursor [0..3]. Handled via Keyboard [A]/[D] or Left/Right Arrow keys, plus Mouse Click/Hover.\n- Canvas-rendered Shareware Aesthetic: Scanline pass (Y % 3 === 0, rgba(0,0,0,0.25)), high-contrast palette (#000000 base, #FFFFFF text, #00FFAA select highlight, #FF0055 accent).\n- Preview Render: Dynamic vector preview of skier archetype showing stance variations (tuck angle, ski color, aura) rendered directly in the selection viewport.\n\n4. INITIALIZATION CONTRACT:\nOn confirmation event (Enter/Space/PointerUp on selected card), invoke initializeRunState(selectedClassId), transition UI_STATE to GAMEPLAY_INIT, generate world seed via MurmurHash3, instantiate player entity with deep-copied stat ledger, seed Relic inventory array, and boot the physics tick loop at timestamp t_0.",
+  "acceptance_criteria": [
+    "Selection screen displays all 4 playable classes with distinct name, lore snippet, starting attributes, and visual silhouette preview.",
+    "Keyboard navigation (Arrow keys/A/D to navigate, Enter/Space to select) and mouse pointer interactions (hover to inspect, click to commit) are fully responsive and synchronous.",
+    "Selecting a class instantiates an Immutable Player State containing the exact base stat block, relics, and status immunities configured for that class.",
+    "Canvas 2D render loop preserves the 90s Shareware aesthetic: scanlines, pixelated font metrics, and high-contrast color scheme (#000000, #FFFFFF, #00FFAA, #FF0055).",
+    "No external dependencies, CSS frameworks, or external assets: all assets and icons are procedurally drawn on HTML5 Canvas."
+  ],
+  "interface_contracts": {
+    "inputs": [
+      "KeyboardEvent.code (ArrowLeft, ArrowRight, KeyA, KeyD, Enter, Space)",
+      "MouseEvent (mousemove, mousedown, mouseup) / PointerEvent",
+      "CanvasRenderingContext2D (ctx)",
+      "DOMHighResTimeStamp (timestamp)"
+    ],
+    "outputs": [
+      "gameState.player: { classId: string, level: 1, currentXP: 0, nextXP: 100, stats: PlayerStats, inventory: Relic[], immunities: number }",
+      "gameState.uiState: number (transitions from 1 to 2)",
+      "gameState.activeSeed: number (32-bit unsigned integer derived from class seed and performance.now())"
+    ],
+    "events": [
+      "onClassSelected(classId: string)",
+      "onClassHoverChanged(index: number)",
+      "initializeRunState(selectedClassId: string)"
+    ]
+  }
+}

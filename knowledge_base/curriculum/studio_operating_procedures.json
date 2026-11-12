@@ -1,0 +1,33 @@
+{
+    "curriculum_id": "CURR-OPS-02",
+    "title": "Studio Operating Procedures, Quality Engineering & Release Cadence",
+    "modules": [
+        {
+            "topic": "RFC-Driven Feature Architecture",
+            "core_principles": [
+                "No unreviewed code or assets enter production: every change begins as an RFC specifying discipline, diff, and acceptance criteria.",
+                "Pre-flight invariant checking prevents known historical bugs before review.",
+                "Multi-disciplinary quorum reviews ensure systems, narrative, level, client, and QA agree before deployment."
+            ],
+            "exemplar_case_studies": [
+                "Rust RFC Process",
+                "Chromium Blink Consensus",
+                "Valve Cabal System"
+            ],
+            "operational_rule": "Staged RFCs must achieve consensus quorum and pass automated heuristic checks before compilation."
+        },
+        {
+            "topic": "Semantic Release Versioning & Burndown Integrity",
+            "core_principles": [
+                "Semantic versioning (SemVer) increments must reflect the scope of change: Major (platform architecture), Minor (new district/economy/quest), Patch (self-healing/bugfix).",
+                "Zero Potemkin progress: deliverables can only be marked VERIFIED if physical on-disk artifacts exist and pass validation.",
+                "Automated release packaging archives release notes, compiles runtime manifests, and shifts the studio horizon forward."
+            ],
+            "exemplar_case_studies": [
+                "Epic Games Release Engine",
+                "Bungie Live Operations"
+            ],
+            "operational_rule": "Milestones only transition to VALIDATING and SHIPPED when all deliverables verify against live on-disk artifacts."
+        }
+    ]
+}

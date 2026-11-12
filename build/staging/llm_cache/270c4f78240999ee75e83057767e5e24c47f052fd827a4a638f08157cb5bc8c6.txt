@@ -1,0 +1,49 @@
+{
+  "rfcs": [
+    {
+      "index": 0,
+      "summary": "Implements dynamic localized environmental hazards modulating slope friction, visibility radius, and Yeti hunt urgency.",
+      "technical_specification": "Maintain `state.world.weather` with `{ type: 'CLEAR'|'BLIZZARD'|'WIND_SHEAR'|'AVALANCHE', intensity: 0..1.0, windVec: [vx, vy], fovRadius: px }`. At distance intervals of 300m, evaluate transition probabilities biased by altitude. In `BLIZZARD`, decrease `fovRadius` to 180px and reduce base snow friction `state.world.friction` by 35%. `WIND_SHEAR` applies crosswind vector `windVec[0]` directly to `state.player.vx`. `AVALANCHE` spawns a snowpack collapse wave moving downhill at $V_{wave} = state.player.vy \\times 1.25$; if within 120px of the crest, wipeout triggers. Environmental instability escalates Yeti hunt speed scalar `state.world.yetiAggression` proportionally: $1.0 + (intensity \\times 0.5)$.",
+      "acceptance_criteria": [
+        "state.world.weather updates state values and dynamically modifies player lateral drift and world friction.",
+        "state.world.yetiAggression scales Yeti downhill speed relative to active hazard intensity.",
+        "Avalanche wave crest triggers player wipeout state on collision unless player is airborne."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.player.distanceTraveled", "state.player.y", "state.player.isAirborne"],
+        "outputs": ["state.world.weather", "state.world.friction", "state.world.yetiAggression"],
+        "events": ["WEATHER_CHANGED", "AVALANCHE_TRIGGERED", "PLAYER_WIPEOUT"]
+      }
+    },
+    {
+      "index": 1,
+      "summary": "Establishes a mid-air trick state machine and rail grind system that fills Adrenaline to stagger the Yeti and boost XP multipliers.",
+      "technical_specification": "When `state.player.isAirborne` is true or `isGrinding` on fallen logs, listen for input combinations: [W] for Front Flip, [S] for Back Flip, [A]/[D] for Method/Tail Grabs. Each rotation tick increments `state.player.trickRotation` by $360 \\times dt$. Landing within $\\pm 25^{\\circ}$ angle completes the combo; landing outside triggers crash state `CRASHED`. Successful tricks award trick score and grant Adrenaline: `state.stats.adrenaline = Math.min(100, state.stats.adrenaline + trickValue)`. While `state.stats.adrenaline >= 80`, Yeti aggression is suppressed (`state.world.yetiStunTimer = 2.0s`) and `state.stats.xpMultiplier` scales up to $3.0\\times$ on slalom gate crossings.",
+      "acceptance_criteria": [
+        "Airborne directional inputs queue and resolve distinct trick IDs without locking base trajectory.",
+        "Landing with unsafe rotation angles sets player state to CRASHED and resets adrenaline to zero.",
+        "Reaching high adrenaline thresholds temporarily halts Yeti approach distance and multiplies slalom XP."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.keys.Space", "state.keys.ArrowUp", "state.keys.ArrowDown", "state.keys.ArrowLeft", "state.keys.ArrowRight", "state.player.isAirborne"],
+        "outputs": ["state.player.trickRotation", "state.player.currentCombo", "state.stats.adrenaline", "state.stats.xpMultiplier", "state.world.yetiStunTimer"],
+        "events": ["TRICK_COMPLETED", "TRICK_FAILED", "ADRENALINE_SURGE"]
+      }
+    },
+    {
+      "index": 2,
+      "summary": "Renders Canvas 2D wind/snow particle buffers, procedural frost vignettes, and an authentic 90s digital telemetry dashboard.",
+      "technical_specification": "Execute dual-buffer particle pass: 200 screen-space snow particles warped by `state.world.weather.windVec` and speed. If `state.world.weather.fovRadius < 400`, render a radial gradient mask with dithered alpha creating a frost-bitten blizzard vignette. UI HUD pass reads `state.player.distanceTraveled`, `state.player.vy`, and `state.stats.adrenaline` to render an LCD-styled digital telemetry box: 7-segment font inclinometer/speedometer, altimeter tape, and adrenaline surge bar. When `state.world.weather.type === 'AVALANCHE'`, draw a 4px high-contrast CRT screen shake offset and hazard warning chevron overlay at screen top.",
+      "acceptance_criteria": [
+        "Particles visually shear laterally in real-time matching state.world.weather.windVec.",
+        "Frost vignette radial cutoff matches state.world.weather.fovRadius dynamically.",
+        "Digital altimeter and inclinometer values render with zero external fonts or DOM elements."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.world.weather", "state.player.vy", "state.player.distanceTraveled", "state.stats.adrenaline"],
+        "outputs": ["state.render.cameraOffset", "state.render.viewportFov"],
+        "events": ["FRAME_RENDER_COMPLETE", "HUD_WARNING_FLASH"]
+      }
+    }
+  ]
+}

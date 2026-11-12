@@ -1,0 +1,16 @@
+{
+    "curriculum_id": "CURR-ROLE-SYS",
+    "discipline": "Systems",
+    "title": "Systemic Game Design, Economy Loops & Emergent Interactions",
+    "core_competencies": [
+        "Closed-loop economic balance: resources must never spawn infinitely without consuming an upstream commodity.",
+        "Emergent interactions: mechanics should function as generic verbs (Burn, Freeze, Wet, Electrify, Unlock, Bribe).",
+        "Dynamic price elasticity: Leontief input-output matrices where supply disruptions cascade across production chains.",
+        "Crafting as world interaction: crafting occurs physically at workstations (ovens, anvils, alembics), never inside detached menu abstractions."
+    ],
+    "anti_patterns": [
+        "Adding static currency faucets without sink mechanics.",
+        "Designing siloed features that do not interact with other game rules.",
+        "Spawning items via arbitrary probability tables instead of physical origin points."
+    ]
+}

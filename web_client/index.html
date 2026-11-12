@@ -90,10 +90,12 @@
             if (!_modalOwnerThisFrame) {
               _modalOwnerThisFrame = _currentModName;
               _inModalPass = true;
+              _modalCtx.globalAlpha = 1.0;
+              _modalCtx.shadowBlur = 0;
               _modalCtx.font = target.font;
               _modalCtx.textAlign = target.textAlign;
               _modalCtx.textBaseline = target.textBaseline;
-              _modalCtx.fillStyle = 'rgba(6, 9, 18, 0.94)';
+              _modalCtx.fillStyle = 'rgba(6, 9, 18, 0.96)';
               _modalCtx.fillRect(0, 36, 800, 564);
             }
             if (prop === 'fillRect' && typeof _modalCtx.fillStyle === 'string' && _modalCtx.fillStyle.startsWith('rgba')) {
@@ -136,6 +138,12 @@
         };
       }
 
+      if (prop === 'save' || prop === 'restore') {
+        return function() {
+          target[prop]();
+          _modalCtx[prop]();
+        };
+      }
       const val = activeTarget[prop];
       return typeof val === 'function' ? val.bind(activeTarget) : val;
     },
@@ -208,6 +216,16 @@
       pointer: { x: 400, y: 300, clicked: false }
     },
 
+    _spatialSlots: {},
+    claimSpatialSlot: function(roomKey, x, y, minRadius) {
+      const list = this._spatialSlots[roomKey] || (this._spatialSlots[roomKey] = []);
+      const r = minRadius || 48;
+      for (let i = 0; i < list.length; i++) {
+        if (Math.hypot(list[i].x - x, list[i].y - y) < list[i].r + r) return false;
+      }
+      list.push({ x: x, y: y, r: r });
+      return true;
+    },
     on: function(eventName, callback) {
       if (!this.events[eventName]) this.events[eventName] = [];
       this.events[eventName].push(callback);

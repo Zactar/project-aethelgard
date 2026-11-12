@@ -1,0 +1,8 @@
+[gd_scene format=3]
+
+[node name="district_sector_07" type="Node3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0, 0.0, -76.0)
+
+[node name="Floorplate" type="CSGBox3D" parent="."]
+size = Vector3(22.0, 0.4, 20.0)
+use_collision = true

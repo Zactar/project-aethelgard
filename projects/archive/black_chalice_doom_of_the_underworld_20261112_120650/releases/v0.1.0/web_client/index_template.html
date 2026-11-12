@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aethelgard Universal Game Runtime</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #05070f;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: 'Inter', 'Segoe UI', 'Courier New', monospace;
+      user-select: none;
+    }
+    #viewport-container {
+      position: relative;
+      width: 800px;
+      height: 600px;
+      border: 2px solid #334155;
+      border-radius: 6px;
+      box-shadow: 0 0 50px rgba(0, 0, 0, 0.95), 0 0 15px rgba(56, 189, 248, 0.15);
+      background: #090d16;
+      overflow: hidden;
+    }
+    canvas { display: block; width: 800px; height: 600px; }
+    #crt-overlay {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.08) 50%);
+      background-size: 100% 4px;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+  <div id="viewport-container">
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <div id="crt-overlay"></div>
+  </div>
+
+  <script>
+  // =========================================================================
+  // PROJECT AETHELGARD: UNIVERSAL MICROKERNEL v3.0
+  // - 2-Canvas Z-Layer Modal Compositor (_baseCanvas + _modalCanvas)
+  // - Shared-Reference Array Aliasing (lasers/bullets, obstacles/asteroids)
+  // - Bidirectional Health/Shields/Wipeouts Sync & Velocity Clamping
+  // - Automatic Screen-Shake Damping & HUD Float Rounding
+  // =========================================================================
+  window.__STUDIO_ERRORS__ = [];
+  window.__COMPAT_REPORT__ = { warnings: [], activeOwnerModal: null, modulesLoaded: [] };
+
+  window.onerror = function(msg, url, line) {
+    window.__STUDIO_ERRORS__.push({ source: url || 'global', msg: String(msg), line: line });
+    return false;
+  };
+
+  const _baseCanvas = document.getElementById('gameCanvas');
+  const _baseCtx = _baseCanvas.getContext('2d');
+  const _modalCanvas = document.createElement('canvas');
+  _modalCanvas.width = 800;
+  _modalCanvas.height = 600;
+  const _modalCtx = _modalCanvas.getContext('2d');
+
+  let _currentModName = '';
+  let _inModalPass = false;
+  let _modalOwnerThisFrame = 'BOOT_HOLD';
+
+  const MODAL_KEYWORDS = [
+    'SELECT ', 'CHOOSE ', 'UPGRADE', 'DRAFT', 'REFUGE', 'SHELTER',
+    'LEVEL UP', 'GAME OVER', 'OBITUARY', 'VICTORY', 'LEADERBOARD', 'TERMINATED'
+  ];
+
+  const _smartCtx = new Proxy(_baseCtx, {
+    get(target, prop) {
+      const activeTarget = _inModalPass === true ? _modalCtx : target;
+
+      if (prop === 'fillRect' || prop === 'strokeRect') {
+        return function(x, y, w, h) {
+          if (x >= 25 && y >= 25 && w >= 340 && w <= 750 && h >= 160 && h <= 540 && _currentModName !== 'Milestone_v0_1_0') {
+            if (_modalOwnerThisFrame && _modalOwnerThisFrame !== _currentModName) {
+              _inModalPass = 'SUPPRESSED';
+              return;
+            }
+            if (!_modalOwnerThisFrame) {
+              _modalOwnerThisFrame = _currentModName;
+              _inModalPass = true;
+              _modalCtx.font = target.font;
+              _modalCtx.textAlign = target.textAlign;
+              _modalCtx.textBaseline = target.textBaseline;
+              _modalCtx.fillStyle = 'rgba(6, 9, 18, 0.94)';
+              _modalCtx.fillRect(0, 36, 800, 564);
+            }
+            if (prop === 'fillRect' && typeof _modalCtx.fillStyle === 'string' && _modalCtx.fillStyle.startsWith('rgba')) {
+              _modalCtx.fillStyle = '#0f172a';
+            }
+            return _modalCtx[prop](x, y, w, h);
+          }
+          if (_inModalPass === 'SUPPRESSED') return;
+          return activeTarget[prop](x, y, w, h);
+        };
+      }
+
+      if (prop === 'fillText' || prop === 'strokeText') {
+        return function(text, x, y, maxWidth) {
+          if (_inModalPass === 'SUPPRESSED') return;
+          if (typeof text === 'string') {
+            if (text.includes('.')) {
+              text = text.replace(/(\d+)\.(\d{2,})/g, (m, a, b) => a + (y < 40 ? '' : '.' + b.slice(0, 1)));
+            }
+            if (_currentModName !== 'Milestone_v0_1_0' && y < 180) {
+              const upper = text.toUpperCase();
+              for (let k = 0; k < MODAL_KEYWORDS.length; k++) {
+                if (upper.includes(MODAL_KEYWORDS[k])) {
+                  if (!_modalOwnerThisFrame) {
+                    _modalOwnerThisFrame = _currentModName;
+                    _inModalPass = true;
+                    _modalCtx.font = target.font;
+                    _modalCtx.textAlign = target.textAlign;
+                    _modalCtx.textBaseline = target.textBaseline;
+                    _modalCtx.fillStyle = 'rgba(6, 9, 18, 0.94)';
+                    _modalCtx.fillRect(0, 36, 800, 564);
+                  }
+                  break;
+                }
+              }
+            }
+          }
+          const dest = _inModalPass === true ? _modalCtx : target;
+          return maxWidth !== undefined ? dest[prop](text, x, y, maxWidth) : dest[prop](text, x, y);
+        };
+      }
+
+      const val = activeTarget[prop];
+      return typeof val === 'function' ? val.bind(activeTarget) : val;
+    },
+    set(target, prop, value) {
+      target[prop] = value;
+      _modalCtx[prop] = value;
+      return true;
+    }
+  });
+
+  // Shared Array References (Eliminates cross-milestone array naming drift!)
+  const _sharedProjectiles = [];
+  const _sharedHazards = [];
+  const _sharedEntities = [];
+  const _sharedParticles = [];
+  const _sharedFloatingTexts = [];
+  const _sharedGates = [];
+  const _sharedLoot = [];
+  const _sharedRooms = [];
+  const _sharedProps = [];
+
+  window.StudioEngine = {
+    canvas: _baseCanvas,
+    ctx: _smartCtx,
+    modules: {},
+    hooks: { update: [], render: [] },
+    events: {},
+
+    state: {
+      running: true,
+      paused: true,
+      gameOver: false,
+      modal: null,
+      tick: 0,
+      dt: 0.016,
+      score: 0,
+      player: {
+        x: 400, y: 300, vx: 0, vy: 0, width: 24, height: 24,
+        angle: -Math.PI / 2, z: 0, vz: 0, isAirborne: false,
+        state: 'IDLE', health: 3, maxHealth: 3, shields: 3, maxShields: 3,
+        wipeouts: 0, invuln: 0, cooldown: 0, maxSpeed: 320
+      },
+      stats: {
+        level: 1, xp: 0, nextLevelXp: 100, unspentPoints: 0, combo: 1,
+        attributes: { VEL: 10, AGI: 10, BAL: 10, MOX: 10, LCK: 10 },
+        characterClass: null
+      },
+      inventory: {
+        items: [], relics: [], traits: [], currency: 0, pendingDraft: null
+      },
+      world: {
+        wave: 1, distance: 0, distanceMeters: 0, speed: 0,
+        cameraX: 0, cameraY: 0, cameraShake: 0, hitStop: 0, beatPulse: 0,
+        biome: 'DEFAULT',
+        lasers: _sharedProjectiles, bullets: _sharedProjectiles, projectiles: _sharedProjectiles,
+        asteroids: _sharedHazards, rocks: _sharedHazards, obstacles: _sharedHazards, hazards: _sharedHazards,
+        entities: _sharedEntities, enemies: _sharedEntities,
+        particles: _sharedParticles,
+        floatingTexts: _sharedFloatingTexts,
+        gates: _sharedGates, slalomGates: _sharedGates, doors: _sharedGates,
+        loot: _sharedLoot, items: _sharedLoot, drops: _sharedLoot,
+        rooms: _sharedRooms, tiles: _sharedRooms,
+        props: _sharedProps, shrines: _sharedProps, chests: _sharedProps, quests: []
+      },
+      keys: {
+        up: false, down: false, left: false, right: false,
+        jump: false, space: false, action: false, shift: false, map: false,
+        digit1: false, digit2: false, digit3: false, digit4: false
+      },
+      pointer: { x: 400, y: 300, clicked: false }
+    },
+
+    on: function(eventName, callback) {
+      if (!this.events[eventName]) this.events[eventName] = [];
+      this.events[eventName].push(callback);
+    },
+    emit: function(eventName, payload) {
+      const listeners = this.events[eventName] || [];
+      for (let i = 0; i < listeners.length; i++) {
+        try { listeners[i](payload, this.state); }
+        catch (e) { window.__STUDIO_ERRORS__.push({ source: 'event:' + eventName, msg: e.message }); }
+      }
+    },
+
+    registerModule: function(name, moduleDef) {
+      if (this.modules[name]) return;
+      this.modules[name] = moduleDef;
+      window.__COMPAT_REPORT__.modulesLoaded.push(name);
+      if (typeof moduleDef.update === 'function') {
+        this.hooks.update.push({ name: name, ref: moduleDef, fn: moduleDef.update.bind(moduleDef) });
+      }
+      if (typeof moduleDef.render === 'function') {
+        this.hooks.render.push({ name: name, ref: moduleDef, fn: moduleDef.render.bind(moduleDef) });
+      }
+      if (typeof moduleDef.init === 'function') {
+        try { moduleDef.init(this.state, this); }
+        catch (e) { window.__STUDIO_ERRORS__.push({ source: name + '.init', msg: e.message }); }
+      }
+    }
+  };
+
+  const _st = window.StudioEngine.state;
+  _st.level = _st.world;
+  _st.lasers = _sharedProjectiles;
+  _st.bullets = _sharedProjectiles;
+  _st.obstacles = _sharedHazards;
+  _st.asteroids = _sharedHazards;
+  _st.particles = _sharedParticles;
+  _st.floatingTexts = _sharedFloatingTexts;
+  window.__GAME_STATE__ = _st;
+
+  const KEY_MAP = {
+    ArrowUp: 'up', KeyW: 'up',
+    ArrowDown: 'down', KeyS: 'down',
+    ArrowLeft: 'left', KeyA: 'left',
+    ArrowRight: 'right', KeyD: 'right',
+    Space: 'jump', ShiftLeft: 'action', ShiftRight: 'action', KeyE: 'action',
+    KeyM: 'map', Digit1: 'digit1', Digit2: 'digit2', Digit3: 'digit3', Digit4: 'digit4'
+  };
+  window.addEventListener('keydown', e => {
+    const k = KEY_MAP[e.code];
+    if (k) {
+      _st.keys[k] = true;
+      if (k === 'jump') _st.keys.space = true;
+      if (k === 'action') _st.keys.shift = true;
+    }
+    window.StudioEngine.emit('KEYDOWN', { code: e.code, key: e.key });
+  });
+  window.addEventListener('keyup', e => {
+    const k = KEY_MAP[e.code];
+    if (k) {
+      _st.keys[k] = false;
+      if (k === 'jump') _st.keys.space = false;
+      if (k === 'action') _st.keys.shift = false;
+    }
+    window.StudioEngine.emit('KEYUP', { code: e.code, key: e.key });
+  });
+  _baseCanvas.addEventListener('mousemove', e => {
+    const rect = _baseCanvas.getBoundingClientRect();
+    _st.pointer.x = e.clientX - rect.left;
+    _st.pointer.y = e.clientY - rect.top;
+  });
+  _baseCanvas.addEventListener('mousedown', () => {
+    _st.pointer.clicked = true;
+    window.StudioEngine.emit('POINTER_DOWN', { x: _st.pointer.x, y: _st.pointer.y });
+  });
+  window.addEventListener('mouseup', () => { _st.pointer.clicked = false; });
+
+  (function runMicrokernel() {
+    let lastTime = performance.now();
+    function tick(now) {
+      const dt = Math.min((now - lastTime) / 1000, 0.05);
+      lastTime = now;
+      const engine = window.StudioEngine;
+      const state = engine.state;
+      state.dt = dt;
+      state.tick++;
+
+      if (typeof state.score === 'number') state.score = Math.floor(state.score);
+      if (state.stats && typeof state.stats.combo === 'number') {
+        state.stats.combo = Math.round(state.stats.combo * 10) / 10;
+      }
+
+      if (_modalOwnerThisFrame && _modalOwnerThisFrame !== 'BOOT_HOLD') {
+        state.paused = true;
+      } else if (_modalOwnerThisFrame === 'BOOT_HOLD') {
+        _modalOwnerThisFrame = null;
+      }
+
+      // Bidirectional Health <-> Shields Sync & Velocity Clamping
+      if (state.player) {
+        const p = state.player;
+        if (typeof engine._prevHealth !== 'number') engine._prevHealth = 3;
+        const curMin = Math.min(
+          typeof p.health === 'number' ? p.health : 3,
+          typeof p.shields === 'number' ? p.shields : 3
+        );
+        if (curMin < engine._prevHealth) {
+          p.health = Math.max(0, curMin);
+          p.shields = p.health;
+          p.invuln = Math.max(p.invuln || 0, 1.2);
+          engine._prevHealth = p.health;
+          engine.emit('PLAYER_DAMAGED', { health: p.health, shields: p.shields });
+        } else if (Math.max(p.health || 0, p.shields || 0) > engine._prevHealth) {
+          const restored = Math.max(p.health || 0, p.shields || 0);
+          p.health = restored;
+          p.shields = restored;
+          engine._prevHealth = restored;
+        }
+        const spd = Math.hypot(p.vx || 0, p.vy || 0);
+        const maxSpd = p.maxSpeed || 320;
+        if (spd > maxSpd) {
+          p.vx = (p.vx / spd) * maxSpd;
+          p.vy = (p.vy / spd) * maxSpd;
+        }
+      }
+
+      // Screen-Shake Damping
+      if (state.world && typeof state.world.cameraShake === 'number' && state.world.cameraShake > 0) {
+        state.world.cameraShake *= (state.keys && state.keys.jump) ? 0.85 : Math.pow(0.01, dt);
+        if (state.world.cameraShake < 0.25) state.world.cameraShake = 0;
+      }
+
+      // 1. Update Phase
+      for (let i = 0; i < engine.hooks.update.length; i++) {
+        const h = engine.hooks.update[i];
+        if (h.name === 'Milestone_v0_1_0' && (state.paused || _modalOwnerThisFrame)) continue;
+        if (_modalOwnerThisFrame && h.name !== _modalOwnerThisFrame && h.name !== 'Milestone_v0_1_0') continue;
+        try { h.fn(dt, state, engine); }
+        catch (e) {
+          if (window.__STUDIO_ERRORS__.length < 10) {
+            window.__STUDIO_ERRORS__.push({ source: h.name + '.update', msg: e.message });
+          }
+        }
+      }
+
+      // 2. Render Phase (2-Canvas Z-Compositor)
+      _modalCtx.clearRect(0, 0, 800, 600);
+      _modalOwnerThisFrame = null;
+
+      if (engine.hooks.render.length === 0) {
+        _baseCtx.fillStyle = '#090d16';
+        _baseCtx.fillRect(0, 0, 800, 600);
+        _baseCtx.fillStyle = '#38bdf8';
+        _baseCtx.font = 'bold 20px monospace';
+        _baseCtx.textAlign = 'center';
+        _baseCtx.fillText('AETHELGARD UNIVERSAL MICROKERNEL v3.0 ONLINE', 400, 280);
+      } else {
+        for (let i = 0; i < engine.hooks.render.length; i++) {
+          const h = engine.hooks.render[i];
+          _currentModName = h.name;
+          _inModalPass = false;
+          _baseCtx.save();
+          _modalCtx.save();
+          _baseCtx.textAlign = 'left';
+          _baseCtx.textBaseline = 'alphabetic';
+          _baseCtx.globalAlpha = 1.0;
+          _baseCtx.shadowBlur = 0;
+          try { h.fn(_smartCtx, state, engine); }
+          catch (e) {
+            if (window.__STUDIO_ERRORS__.length < 10) {
+              window.__STUDIO_ERRORS__.push({ source: h.name + '.render', msg: e.message });
+            }
+          }
+          _modalCtx.restore();
+          _baseCtx.restore();
+        }
+
+        if (_modalOwnerThisFrame) {
+          _baseCtx.drawImage(_modalCanvas, 0, 0);
+          window.__COMPAT_REPORT__.activeOwnerModal = _modalOwnerThisFrame;
+          state.paused = true;
+        } else {
+          window.__COMPAT_REPORT__.activeOwnerModal = null;
+          state.paused = false;
+        }
+      }
+
+      if (window.__STUDIO_ERRORS__.length > 0) {
+        const err = window.__STUDIO_ERRORS__[0];
+        _baseCtx.save();
+        _baseCtx.fillStyle = 'rgba(127, 29, 29, 0.95)';
+        _baseCtx.fillRect(20, 535, 760, 50);
+        _baseCtx.fillStyle = '#fecaca';
+        _baseCtx.font = 'bold 12px monospace';
+        _baseCtx.textAlign = 'left';
+        _baseCtx.fillText(`[PLUGIN FAULT ISOLATED] ${err.source}: ${err.msg}`, 32, 558);
+        _baseCtx.fillText(`Active Modules: ${Object.keys(engine.modules).length} | Faults Caught: ${window.__STUDIO_ERRORS__.length}`, 32, 575);
+        _baseCtx.restore();
+      }
+
+      state.pointer.clicked = false;
+      requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  })();
+  </script>
+  <!-- AUTONOMOUS AGENT MODULE PLUGINS -->
+</body>
+</html>

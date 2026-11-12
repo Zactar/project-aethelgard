@@ -1,0 +1,206 @@
+{
+  "active_version": "v0.5.0",
+  "milestones": [
+    {
+      "version": "v0.1.0",
+      "codename": "Foundation Kernel & Input Mapping",
+      "theme": "Initialize 60fps tick loop, viewport canvas, and player excavator locomotion.",
+      "status": "SHIPPED",
+      "created_at": "2026-11-03T08:03:37.938221",
+      "completed_at": null,
+      "deliverables": [
+        {
+          "deliverable_id": "DEL-01-SYS",
+          "discipline": "Systems",
+          "title": "Tick Loop & Coordinate State Machine",
+          "target_subsystem": "web_client/index.html",
+          "acceptance_criteria": [
+            "60fps render loop active"
+          ],
+          "status": "VERIFIED",
+          "verified_artifact": null
+        },
+        {
+          "deliverable_id": "DEL-01-GMP",
+          "discipline": "Gameplay",
+          "title": "Locomotion Inputs & Action Handlers",
+          "target_subsystem": "web_client/index.html",
+          "acceptance_criteria": [
+            "WASD/Arrow input binds"
+          ],
+          "status": "VERIFIED",
+          "verified_artifact": null
+        },
+        {
+          "deliverable_id": "DEL-01-CLI",
+          "discipline": "Client",
+          "title": "Primary Viewport Canvas & Status HUD",
+          "target_subsystem": "web_client/index.html",
+          "acceptance_criteria": [
+            "HUD indicators rendering"
+          ],
+          "status": "VERIFIED",
+          "verified_artifact": null
+        },
+        {
+          "deliverable_id": "DEL-01-QA",
+          "discipline": "Chaos QA",
+          "title": "Automated Render & Locomotion Invariant Test",
+          "target_subsystem": "tools/validate_webapp.py",
+          "acceptance_criteria": [
+            "Zero script errors"
+          ],
+          "status": "VERIFIED",
+          "verified_artifact": null
+        }
+      ],
+      "completion_percentage": 100.0
+    },
+    {
+      "version": "v0.2.0",
+      "codename": "Environmental Hazards & Collision Matrix",
+      "theme": "Destructible dirt, bedrock perimeters, and kinetic boulder falling physics.",
+      "status": "SHIPPED",
+      "created_at": "2026-11-03T08:03:37.938245",
+      "completed_at": null,
+      "deliverables": [
+        {
+          "deliverable_id": "DEL-02-LVL",
+          "discipline": "Level",
+          "title": "World Geometry & Arena Boundaries",
+          "target_subsystem": "web_client/index.html",
+          "acceptance_criteria": [
+            "Destructible terrain active"
+          ],
+          "status": "VERIFIED",
+          "verified_artifact": null
+        },
+        {
+          "deliverable_id": "DEL-02-SYS",
+          "discipline": "Systems",
+          "title": "AABB Spatial Collision & Damage Evaluator",
+          "target_subsystem": "web_client/index.html",
+          "acceptance_criteria": [
+            "Kinetic boulders fall when undermined"
+          ],
+          "status": "VERIFIED",
+          "verified_artifact": null
+        }
+      ],
+      "completion_percentage": 100.0
+    },
+    {
+      "version": "v0.3.0",
+      "codename": "Hostile Fauna & Pneumatic Combat",
+      "theme": "Subterranean fauna (Pookas, Fygars), directional harpoon tether, and pump inflation combat.",
+      "status": "SHIPPED",
+      "created_at": "2026-11-03T08:03:37.938256",
+      "completed_at": "2026-11-03T08:03:44.811953",
+      "deliverables": [
+        {
+          "deliverable_id": "DEL-03-GMP",
+          "discipline": "Gameplay",
+          "title": "Pneumatic Harpoon Tether & Pump Inflation Mechanics",
+          "target_subsystem": "web_client/index.html",
+          "acceptance_criteria": [
+            "[F]/[J] fires directional harpoon",
+            "Tapping pumps air across 4 stages to pop"
+          ],
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261103-50AEAB.json"
+        },
+        {
+          "deliverable_id": "DEL-03-SYS",
+          "discipline": "Systems",
+          "title": "Subterranean Fauna AI (Burrower Pooka & Magma Fygar)",
+          "target_subsystem": "web_client/index.html",
+          "acceptance_criteria": [
+            "Pookas patrol and ghost through dirt",
+            "Fygars breathe flame jets"
+          ],
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261103-DFB0F0.json"
+        },
+        {
+          "deliverable_id": "DEL-03-QA",
+          "discipline": "Chaos QA",
+          "title": "Combat Inflation & Immobilization Invariant Test",
+          "target_subsystem": "tools/validate_webapp.py",
+          "acceptance_criteria": [
+            "Inflated enemies are frozen and harmless"
+          ],
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261103-A2C8AC.json"
+        }
+      ],
+      "completion_percentage": 100.0
+    },
+    {
+      "version": "v0.4.0",
+      "codename": "Metroidvania Biomes & Traversal Ability Gates",
+      "theme": "Multi-depth biomes (Upper Loam, Dense Granite, Magma Chambers), Jack-Drill, and Jump-Piston double jump.",
+      "status": "SHIPPED",
+      "created_at": "2026-11-03T08:03:37.938263",
+      "completed_at": "2026-11-11T16:48:14.797597",
+      "deliverables": [
+        {
+          "deliverable_id": "DEL-04-LVL",
+          "discipline": "Level",
+          "title": "Multi-Strata Biome Grid & Geological Gates",
+          "target_subsystem": "web_client/index.html",
+          "acceptance_criteria": [
+            "Deep biomes rendering"
+          ],
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261111-4F10C8.json"
+        },
+        {
+          "deliverable_id": "DEL-04-SYS",
+          "discipline": "Systems",
+          "title": "Pneumatic Jack-Drill & Jump-Piston Traversal Modules",
+          "target_subsystem": "web_client/index.html",
+          "acceptance_criteria": [
+            "Granite drilling and double-jump active"
+          ],
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261111-982E23.json"
+        }
+      ],
+      "completion_percentage": 100.0
+    },
+    {
+      "version": "v0.5.0",
+      "codename": "Core Prisms, Sector Map & Extraction Loop",
+      "theme": "Exploration minimap overlay [M], 3 Ancient Core Prisms, and central elevator extraction victory.",
+      "status": "VALIDATING",
+      "created_at": "2026-11-03T08:03:37.938271",
+      "completed_at": "2026-11-11T17:54:28.481072",
+      "deliverables": [
+        {
+          "deliverable_id": "DEL-05-CLI",
+          "discipline": "Client",
+          "title": "Subterranean Sector Minimap Overlay",
+          "target_subsystem": "web_client/index.html",
+          "acceptance_criteria": [
+            "[M] toggles explored sector overview"
+          ],
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261111-1AAA83.json"
+        },
+        {
+          "deliverable_id": "DEL-05-SYS",
+          "discipline": "Systems",
+          "title": "Ancient Core Prisms & Central Elevator Victory State",
+          "target_subsystem": "web_client/index.html",
+          "acceptance_criteria": [
+            "Collecting all 3 prisms triggers elevator win"
+          ],
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261111-5B5855.json"
+        }
+      ],
+      "completion_percentage": 100.0
+    }
+  ],
+  "last_updated": "2026-11-11T18:21:56.689164"
+}

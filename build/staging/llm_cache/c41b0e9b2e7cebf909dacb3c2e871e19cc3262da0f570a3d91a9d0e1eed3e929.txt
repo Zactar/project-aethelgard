@@ -1,0 +1,49 @@
+{
+  "rfcs": [
+    {
+      "index": 0,
+      "summary": "Implement Ephemeral Protocol FIFO queue logic enforcing a maximum of 3 concurrent active sigils per contender.",
+      "technical_specification": "Toggle `state.stats.ephemeralProtocol` boolean on `state.keys['KeyM']` edge trigger during pre-match or match. Track contender placements as FIFO queues: `state.stats.p1Queue` (Blade) and `state.stats.p2Queue` (Ring), storing sector indices `0..8`. When contender pushes their 4th placement index `s`, `evictedSector = queue.shift()` executes immediately before placement. Set matrix cell `state.world.matrix[evictedSector] = 0` (vacant), clear its age, and emit `EPHEMERAL_EVICT` with `{ sector: evictedSector, faction }`. Recalculate cell ages (`1..3`) for remaining elements. Deadlock evaluation is bypassed when `ephemeralProtocol` is true.",
+      "acceptance_criteria": [
+        "Placing a 4th faction sigil dissolves the oldest sector to 0, ensuring maximum 3 sigils per faction.",
+        "Equilibrium Deadlock state is never triggered while ephemeralProtocol is active.",
+        "KeyM cleanly toggles protocol flag without clearing mid-match boards unless reset."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.keys.KeyM", "state.stats.activeTurn", "state.world.matrix"],
+        "outputs": ["state.stats.ephemeralProtocol", "state.stats.p1Queue", "state.stats.p2Queue", "state.world.matrix"],
+        "events": ["EPHEMERAL_EVICT", "EPHEMERAL_TOGGLED"]
+      }
+    },
+    {
+      "index": 1,
+      "summary": "Render dynamic decay shimmer and continuous disintegration motes on each contender's impending oldest sigil.",
+      "technical_specification": "When `state.stats.ephemeralProtocol` is true and `queue.length === 3`, identify target sector `idx = queue[0]`. Compute half-life pulsing factor `alpha = 0.5 + 0.5 * Math.sin(state.world.time * 6)`. Render a caustic border stroke with `ctx.strokeStyle = factionColor` at `alpha * 0.8` and radial jitter `dr = (Math.random() - 0.5) * 2`. Spawn persistent dissipation motes into `state.world.particles` at sector center `(cx, cy)`: velocity `vx = (Math.random() - 0.5) * 28`, `vy = -Math.random() * 35 - 10`, lifetime `0.6s`, fading stroke alpha. On `EPHEMERAL_EVICT`, spawn a 24-mote radial burst.",
+      "acceptance_criteria": [
+        "Oldest sigil displays pulsating chromatic shimmer only when queue reaches capacity 3.",
+        "Disintegration motes float upward continuously from the queued eviction sector.",
+        "EPHEMERAL_EVICT triggers a tactile dissipation particle burst across the freed sector."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.stats.ephemeralProtocol", "state.stats.p1Queue", "state.stats.p2Queue", "state.world.time"],
+        "outputs": ["state.world.particles"],
+        "events": ["EPHEMERAL_EVICT"]
+      }
+    },
+    {
+      "index": 2,
+      "summary": "Render diegetic chronometric age pips etched into sector inner corners reflecting queue positions 1, 2, and 3.",
+      "technical_specification": "In sector render pass, if `state.stats.ephemeralProtocol` is true and sector is occupied, determine age `pipCount`: `queue.indexOf(sectorIdx) + 1` (1 = oldest/expiring, 3 = newest). Render `pipCount` geometric micro-diamonds (radius `2.5px`, spaced `6px` along sector top-right inset `x: sector.x + 104, y: sector.y + 14`). Pip styling: oldest pip (`age = 1`) flickers with erratic phase `Math.sin(state.world.time * 12) > 0 ? 0.3 : 0.9` in faction warning tint; pips 2 and 3 render solid luminous obsidian-gold. Prohibit rectangular HUD overlays or text numerals.",
+      "acceptance_criteria": [
+        "Each occupied cell displays 1, 2, or 3 distinct diegetic corner diamond pips reflecting queue maturity.",
+        "Pip with age index 1 (next eviction) visibly flickers at high frequency.",
+        "Zero textual numerals or rectangular HUD boxes appear within the lattice."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.stats.ephemeralProtocol", "state.stats.p1Queue", "state.stats.p2Queue", "state.world.time"],
+        "outputs": ["state.world.matrixPips"],
+        "events": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,329 @@
+{
+  "meta": {
+    "manifest_version": "0.13.0",
+    "engine_target": "WebGL Three.js (Flagship Runtime)",
+    "coordinate_system": "Right-Handed Y-Up"
+  },
+  "environment": {
+    "fog_color": "#070a0e",
+    "fog_density": 0.008,
+    "ambient_light": {
+      "color": "#6272a4",
+      "intensity": 0.85
+    },
+    "directional_sun": {
+      "color": "#ffffff",
+      "intensity": 1.25,
+      "direction": [
+        40,
+        60,
+        30
+      ]
+    }
+  },
+  "rooms": [
+    {
+      "room_id": "market_cross",
+      "name": "Market Cross Square",
+      "district": "Cathedral Heights",
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "dimensions": [
+        24.0,
+        5.0,
+        24.0
+      ],
+      "inset_offset": 0.2,
+      "corridor_sockets": [
+        {
+          "target_room": "common_loaf_bakery",
+          "position": [
+            12.0,
+            0.0,
+            0.0
+          ],
+          "clearance_inset": 0.2
+        },
+        {
+          "target_room": "garrett_curatives",
+          "position": [
+            -12.0,
+            0.0,
+            0.0
+          ],
+          "clearance_inset": 0.2
+        },
+        {
+          "target_room": "undercroft_conduit",
+          "position": [
+            0.0,
+            0.0,
+            -12.0
+          ],
+          "clearance_inset": 0.2
+        }
+      ]
+    },
+    {
+      "room_id": "common_loaf_bakery",
+      "name": "The Common Loaf",
+      "district": "Market Cross Square",
+      "position": [
+        24.0,
+        0.0,
+        0.0
+      ],
+      "dimensions": [
+        14.0,
+        4.0,
+        14.0
+      ],
+      "inset_offset": 0.2,
+      "corridor_sockets": [
+        {
+          "target_room": "market_cross",
+          "position": [
+            17.0,
+            0.0,
+            0.0
+          ],
+          "clearance_inset": 0.2
+        }
+      ]
+    },
+    {
+      "room_id": "garrett_curatives",
+      "name": "Garrett's Curatives",
+      "district": "Market Cross Square",
+      "position": [
+        -24.0,
+        0.0,
+        0.0
+      ],
+      "dimensions": [
+        14.0,
+        4.0,
+        14.0
+      ],
+      "inset_offset": 0.2,
+      "corridor_sockets": [
+        {
+          "target_room": "market_cross",
+          "position": [
+            -17.0,
+            0.0,
+            0.0
+          ],
+          "clearance_inset": 0.2
+        }
+      ]
+    },
+    {
+      "room_id": "undercroft_conduit",
+      "name": "Subterranean Aqueduct Conduit",
+      "district": "Old Undercroft",
+      "position": [
+        0.0,
+        -4.5,
+        -28.0
+      ],
+      "dimensions": [
+        16.0,
+        4.0,
+        20.0
+      ],
+      "inset_offset": 0.2,
+      "corridor_sockets": [
+        {
+          "target_room": "market_cross",
+          "position": [
+            0.0,
+            0.0,
+            -18.0
+          ],
+          "clearance_inset": 0.2
+        },
+        {
+          "target_room": "aqueduct_sluice_conduit",
+          "position": [
+            8.0,
+            -4.5,
+            -28.0
+          ],
+          "clearance_inset": 0.2
+        }
+      ]
+    },
+    {
+      "room_id": "aqueduct_sluice_conduit",
+      "name": "Subterranean Aqueduct Sluice",
+      "district": "Old Undercroft",
+      "position": [
+        26.0,
+        -4.5,
+        -28.0
+      ],
+      "dimensions": [
+        22.0,
+        4.0,
+        14.0
+      ],
+      "inset_offset": 0.2,
+      "water_channel": {
+        "depth": 1.2,
+        "flow_velocity": [
+          0.0,
+          0.0,
+          1.5
+        ]
+      },
+      "corridor_sockets": [
+        {
+          "target_room": "undercroft_conduit",
+          "position": [
+            15.0,
+            -4.5,
+            -28.0
+          ],
+          "clearance_inset": 0.2
+        }
+      ]
+    },
+    {
+      "room_id": "district_sector_07",
+      "name": "Citadel Sector 07",
+      "district": "Citadel Expansion",
+      "position": [
+        0.0,
+        0.0,
+        -76.0
+      ],
+      "dimensions": [
+        22.0,
+        4.5,
+        20.0
+      ],
+      "inset_offset": 0.2,
+      "corridor_sockets": [
+        {
+          "target_room": "lower_warrens_mill",
+          "position": [
+            0.0,
+            0.0,
+            -66.0
+          ],
+          "clearance_inset": 0.2
+        }
+      ]
+    },
+    {
+      "room_id": "lower_warrens_mill",
+      "name": "Lower Warrens Grain Mill",
+      "district": "Citadel Expansion",
+      "position": [
+        0.0,
+        0.0,
+        -48.0
+      ],
+      "dimensions": [
+        22.0,
+        4.5,
+        20.0
+      ],
+      "inset_offset": 0.2,
+      "corridor_sockets": [
+        {
+          "target_room": "market_cross",
+          "position": [
+            0.0,
+            0.0,
+            -38.0
+          ],
+          "clearance_inset": 0.2
+        }
+      ]
+    }
+  ],
+  "thoroughfares": [
+    {
+      "from": "market_cross",
+      "to": "common_loaf_bakery",
+      "width": 3.2,
+      "curb_height": 0.15
+    },
+    {
+      "from": "market_cross",
+      "to": "garrett_curatives",
+      "width": 3.2,
+      "curb_height": 0.15
+    },
+    {
+      "from": "market_cross",
+      "to": "undercroft_conduit",
+      "width": 3.2,
+      "curb_height": 0.15
+    },
+    {
+      "from": "undercroft_conduit",
+      "to": "aqueduct_sluice_conduit",
+      "width": 3.2,
+      "curb_height": 0.15
+    },
+    {
+      "from": "district_sector_07",
+      "to": "lower_warrens_mill",
+      "width": 3.2,
+      "curb_height": 0.15
+    },
+    {
+      "from": "lower_warrens_mill",
+      "to": "market_cross",
+      "width": 3.2,
+      "curb_height": 0.15
+    }
+  ],
+  "actors": [
+    {
+      "actor_id": "hearthmother_elspeth",
+      "name": "Hearthmother Elspeth",
+      "room": "common_loaf_bakery",
+      "position": [
+        24.0,
+        0.0,
+        2.0
+      ],
+      "dialogue_key": "hearthmother_intro",
+      "is_interactive": true,
+      "interaction_layer": "InteractionLayer.INTERACTIVE"
+    },
+    {
+      "actor_id": "garrett_apothecary",
+      "name": "Garrett the Apothecary",
+      "room": "garrett_curatives",
+      "position": [
+        -24.0,
+        0.0,
+        2.0
+      ],
+      "dialogue_key": "garrett_intro",
+      "is_interactive": true,
+      "interaction_layer": "InteractionLayer.INTERACTIVE"
+    },
+    {
+      "actor_id": "watchman_bronn",
+      "name": "Inquest Sentinel Bronn",
+      "room": "aqueduct_sluice_conduit",
+      "position": [
+        26.0,
+        -4.5,
+        -25.0
+      ],
+      "dialogue_key": "watchman_curfew_challenge",
+      "is_interactive": true,
+      "interaction_layer": "InteractionLayer.INTERACTIVE"
+    }
+  ]
+}

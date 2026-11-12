@@ -1,0 +1,29 @@
+{
+  "summary": "High-performance, zero-allocation Canvas 2D execution loop delivering continuous downhill vertical scrolling for v0.1.0. Implements rigid delta-time clamping (50ms ceiling) and fixed-step simulation accumulation to prevent physics tunneling upon frame drops or tab defocus, coupled with a smooth-following vertical camera tracking the player downhill vector.",
+  "technical_specification": "1. Timing & Clamping Loop: Uses window.requestAnimationFrame passing DOMHighResTimeStamp. Calculate rawDt = (currentTime - lastTime) * 0.001. Enforce delta clamping via clampedDt = Math.min(rawDt, 0.05). Feed clampedDt into an accumulator using fixed physics time step FIXED_DT = 1.0 / 60.0 (0.016667s) with a maximum sub-step iteration limit of 3 to eliminate the 'spiral of death'. 2. Viewport & Camera Kinematics: Camera coordinates (camX, camY) are stored in pre-allocated scalar float properties within a static CAMERA singleton. Downhill scrolling tracks player world position with forward bias: camTargetY = playerY + (playerVy * LOOKAHEAD_SEC); camY += (camTargetY - camY) * CAMERA_LERP_FACTOR. Screen transform applies integer rounding via Math.floor to eliminate sub-pixel shimmering on 2D pixel-art lines: ctx.setTransform(dpr, 0, 0, dpr, -Math.floor(camX - viewportWidth * 0.5), -Math.floor(camY - viewportHeight * 0.3)). 3. Procedural Background Striping: Infinite downhill terrain scrolling rendered using modulo band arithmetic: startBand = Math.floor((camY - screenHeight) / GRID_STEP); endBand = Math.ceil((camY + screenHeight) / GRID_STEP). Render bands and reference piste boundary flags using purely procedural arithmetic with zero temporary object allocations. 4. Zero-Allocation Mandate: Declare all physics vectors, transform matrices, and render batch iterators in an outer persistent scope before rAF registration. Enforce imageSmoothingEnabled = false on the CanvasRenderingContext2D to retain the crisp 90s shareware aesthetic across canvas resizes.",
+  "acceptance_criteria": [
+    "Delta-time is strictly clamped to <= 0.05 seconds during frame hitches or after switching away from and returning to the browser tab, preventing tunneling and physics instability.",
+    "0 bytes per frame of garbage collection allocation during steady-state simulation and rendering, verified via Chrome DevTools Performance/Memory profiling.",
+    "Engine sustains 60 FPS under normal load with canvas transform updates and modulo-based downhill scrolling occurring within <= 2ms total execution budget per frame.",
+    "Viewport dynamically adapts to window resize events while maintaining aspect ratio and applying crisp nearest-neighbor integer coordinate transformations.",
+    "Camera smoothly leads downward momentum proportionally to downward velocity (Vy) without vertical jitter or sub-pixel line bleed."
+  ],
+  "interface_contracts": {
+    "inputs": [
+      "window.requestAnimationFrame(timestamp: DOMHighResTimeStamp)",
+      "window.addEventListener('resize', handleResize)",
+      "PlayerPositionState: { x: Float64, y: Float64, vx: Float64, vy: Float64 }"
+    ],
+    "outputs": [
+      "CanvasRenderingContext2D transform matrix and raster presentation buffer",
+      "CameraState: { x: Float64, y: Float64, width: Int32, height: Int32, dpr: Float64 }",
+      "EngineLoopMetrics: { fps: Int32, frameDelta: Float64, droppedFrames: Int32 }"
+    ],
+    "events": [
+      "onEngineInit(canvasElement: HTMLCanvasElement)",
+      "onFixedUpdate(fixedDelta: Float64)",
+      "onRender(alpha: Float64, ctx: CanvasRenderingContext2D)",
+      "onViewportResize(width: Int32, height: Int32, dpr: Float64)"
+    ]
+  }
+}

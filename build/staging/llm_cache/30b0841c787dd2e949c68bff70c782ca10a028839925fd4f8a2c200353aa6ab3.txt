@@ -1,0 +1,30 @@
+{
+  "summary": "Implements the core 2D ski kinematics engine and hierarchical finite state machine (HFSM) for Glissade within the single-file canvas architecture, incorporating clamped delta-time integration, anisotropic carving friction tensors, and ballistic jump parabolas.",
+  "technical_specification": "1. Time Step Safety & Integration Loop:\n- Calculate raw delta time dt = (t_now - t_last) / 1000.\n- Clamp delta time: dt_safe = Math.min(dt, 0.05) to prevent numerical divergence, tunneling, and catastrophic coordinate displacement during tab defocus or frame hitches.\n- Employ Semi-Implicit Euler integration: position += velocity * dt_safe; velocity += acceleration * dt_safe.\n\n2. Kinematic State Machine Definitions:\n- S_CRUISE: Standard downhill coasting. Standard powder drag tensor applies.\n- S_CARVE_LEFT / S_CARVE_RIGHT: Activated by [A]/[D] or [ArrowLeft]/[ArrowRight]. Ski heading angle theta rapidly transitions toward target angle theta_target (+/- 45 deg). Induces lateral acceleration a_x = sign * Carve_Force * (V_y / V_terminal). Longitudinal drag coefficient increases: V_y -= V_y * Carve_Brake_Factor * dt_safe. Throws procedural snow spray particles opposite to carving normal.\n- S_TUCK: Activated by [S] or [ArrowDown]. Reduces aerodynamic drag coefficient C_drag by 60%. Increases terminal downhill velocity cap by 35%. Constrains lateral turn response by dampening a_x response by 50%.\n- S_SNOWPLOW: Activated by [W] or [ArrowUp]. Sharp braking deceleration: a_y = -Brake_Friction * g. Restores lateral balance and quickly reduces lateral drift velocity V_x toward zero via strong dampening: V_x = V_x * Math.pow(0.01, dt_safe).\n- S_JUMP: Triggered by [Space]. Transitions state to AIRBORNE. Initial upward ballistic velocity V_z = Jump_Impulse. Ground collision disabled for low-lying obstacles (logs, rocks, moguls). Altitude governed by: z(t) = V_z0 * t - 0.5 * g_jump * t^2. Shadow scale and offset project ski height. State exits back to S_CRUISE or S_WIPEOUT upon z <= 0 depending on rotational alignment.\n- S_WIPEOUT: Involuntary state triggered when hitting lethal obstacles or landing mid-rotation. Kinematic velocity drops sharply, input lock engaged for recovery duration = Base_Recovery / Balance_Stat.\n\n3. Friction & Vector Decomposition:\n- Skier state vector: S = [x, y, z, vx, vy, vz, heading, roll, state].\n- Velocity decomposes into lateral (V_x) and downhill (V_y).\n- Ground surface tensor applied: a_net = F_gravity + F_carve - F_friction(surface_type, state) - F_drag(velocity, state).\n\n4. Obstacle Collision Hull:\n- Continuous bounding cylinder/capsule for skier (radius r=12px, height z_effective).\n- Obstacles evaluated against skier clearance: if obstacle.is_low && z > obstacle.clearance_height, ignore collision; otherwise trigger S_WIPEOUT.",
+  "acceptance_criteria": [
+    "Delta-time calculation strictly clamps to dt_safe = Math.min((t_now - t_last)/1000, 0.05) before any kinematics integration step.",
+    "Tucking ([S]) increases downhill velocity beyond standard terminal cap while significantly degrading lateral steering authority.",
+    "Carving ([A]/[D]) dynamically bleeds downhill speed (V_y) proportionally to turn sharpness and imparts directional lateral force (V_x).",
+    "Snowplowing ([W]) decelerates forward speed rapidly and stabilizes lateral sliding.",
+    "Jumping ([Space]) projects a parabolic Z-axis clearance curve that allows clean evasion of low-profile obstacles without wipeout triggers.",
+    "State transitions adhere strictly to state exclusions (e.g., cannot initiate Tuck or Snowplow while Airborne in S_JUMP)."
+  ],
+  "interface_contracts": {
+    "inputs": [
+      "InputState: { keyLeft: boolean, keyRight: boolean, keyUp: boolean, keyDown: boolean, keyJump: boolean, keyDash: boolean }",
+      "SurfaceProperties: { surfaceType: string, frictionCoeff: number, dragCoeff: number }",
+      "Timestamp: DOMHighResTimeStamp"
+    ],
+    "outputs": [
+      "SkierTransform: { x: number, y: number, z: number, vx: number, vy: number, vz: number, angle: number }",
+      "MovementState: 'CRUISE' | 'CARVE_LEFT' | 'CARVE_RIGHT' | 'TUCK' | 'SNOWPLOW' | 'JUMP' | 'WIPEOUT'",
+      "SnowSprayParticleEmission: { originX: number, originY: number, count: number, angle: number, velocity: number }"
+    ],
+    "events": [
+      "onStateChange(previousState, newState)",
+      "onJumpApexReached(height)",
+      "onLanded(impactVelocity, perfectStomp)",
+      "onWipeoutTriggered(obstacleRef, velocityAtImpact)"
+    ]
+  }
+}

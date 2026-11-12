@@ -1,0 +1,17 @@
+{
+    "curriculum_id": "CURR-ROLE-LVL",
+    "discipline": "Level",
+    "title": "Level Architecture, Spatial Pacing & Topological Continuity",
+    "core_competencies": [
+        "Constructive Solid Geometry (CSG) spatial generation with strict AABB non-overlapping bounds.",
+        "Threshold collision clearance insets (>= 0.20m) on all corridor sockets.",
+        "Pacing through spatial contrast: tight subterranean conduit choke points transitioning into expansive market squares.",
+        "Visual anchoring: placing 'weenies' (tall towers, illuminated central fountains) to orient the player without relying exclusively on the minimap.",
+        "Multi-tier elevations: linking surface squares (Y=0.0) with subterranean aqueducts (Y=-4.5) via sloped curbs and connecting stairs."
+    ],
+    "anti_patterns": [
+        "Detached floating slabs with void gaps.",
+        "Corridor sockets misaligned with target room dimensions.",
+        "Occluding ground slabs blocking lower elevation visibility."
+    ]
+}

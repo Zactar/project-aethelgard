@@ -1,0 +1,18 @@
+{
+  "codename": "Operation Prismatic Tether",
+  "theme": "Resonant Leyline Polarization & Dynamic Rift Synthesis",
+  "deliverables": [
+    {
+      "discipline": "Systems",
+      "title": "Leyline Harmonic Conduction: Adjacent friendly sigils generate pulsating optical resonance beams along the grid dividers that actively scorch neutral sectors into supercharged conduits, multiplying the kinetic particle bloom and triggering double-weight scoring along intersecting vectors."
+    },
+    {
+      "discipline": "Gameplay",
+      "title": "Spatial Rift Translocation: When an inscribed sigil is placed on a polarized sector, it spawns an unstable spatial vortex that physically pulls the cursor reticle and drifts adjacent floating grid lines toward its nexus, allowing contenders to slingshot tactical placements across distorted spatial lanes."
+    },
+    {
+      "discipline": "Client",
+      "title": "Diegetic Prism Bloom & In-World Chromatic Fracturing: Inscribed vectors project radial volumetric light refraction directly across the obsidian floor canvas, shattering the 2D arena's divider lines into vibrating, chromatic-aberrated shockwaves upon high-velocity triad locks without HUD text."
+    }
+  ]
+}

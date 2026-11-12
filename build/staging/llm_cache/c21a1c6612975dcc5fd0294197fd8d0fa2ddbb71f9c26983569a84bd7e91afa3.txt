@@ -1,0 +1,12 @@
+0x0010;`
+
+If wipeout:
+`stats.statusMask & 0x0020` is managed by `stats.triggerWipeout` and `stats.update(dt)`.
+When in wipeout, `player.wipeoutTimer = stats.recoveryTimer;`
+And when recovery ends, `stats.statusMask &= ~0x0020`.
+
+Let's check Yeti proximity:
+Wait, is Yeti in the code currently? Let's check the current code:
+In the current code, there is no Yeti spawned yet!
+Wait, could we have Yeti proximity? If Yeti is not yet present, or if Yeti is simulated / distance, wait:
+"0x0080:

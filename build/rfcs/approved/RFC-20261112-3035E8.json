@@ -1,0 +1,71 @@
+{
+  "rfc_id": "RFC-20261112-3035E8",
+  "title": "Centralized Web Audio API harmonic synthesizer: 9 distinct pentatonic crystal chime frequencies mapped to the 9 matrix sectors, deep sub-bass lock thuds on placement, triumphant chord fanfare on Triad Victory, and a suspended chord resolve on Equilibrium Deadlock.",
+  "target_subsystem": "web_client/index.html",
+  "discipline": "Client",
+  "target_milestone": "v0.3.0",
+  "milestone_target": "v0.3.0",
+  "milestone_tag": "v0.3.0",
+  "author_role": "Principal Client & UI Architect (Canvas 2D rendering, HUD overlays, visual feedback)",
+  "summary": "Implement a procedural Web Audio API harmonic sound engine triggering sector-specific pentatonic chime resonances, sub-bass sector impacts, and chord resolutions.",
+  "technical_specification": "Initialize `window.AudioContext` on first user interaction under `state.audioCtx`. Map sectors 0-8 to pentatonic frequencies: `[261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 587.33, 659.25, 783.99]` Hz. On placement in sector `i`, instantiate an oscillator at `freq[i]` with exponential decay (`tau = 0.4s`) and a 55Hz sub-bass sine wave decaying over 0.25s. On `TRIAD_VICTORY`, trigger a triumphant major chord triad `[freq[a], freq[b], freq[c]]` with a 1.2s shimmer envelope. On `EQUILIBRIUM_DEADLOCK`, trigger a suspended 4th chord resolve decaying over 1.6s. All audio nodes connect through a master limiter gain node at 0.35 gain.",
+  "acceptance_criteria": [
+    "Every matrix inscription emits both a 55Hz sub-bass thud and sector-mapped crystal chime without audio clipping.",
+    "Collinear Triad victory triggers a three-note resonant harmonic chord, while equilibrium deadlock emits a resolving sus4 chord."
+  ],
+  "interface_contracts": {
+    "inputs": [
+      "state.audioCtx",
+      "state.world.matrix[0..8]",
+      "state.world.lastSectorPlaced",
+      "state.world.roundOutcome"
+    ],
+    "outputs": [
+      "state.audioCtx",
+      "state.audioMasterGain"
+    ],
+    "events": [
+      "SECTOR_INSCRIBED",
+      "TRIAD_VICTORY",
+      "EQUILIBRIUM_DEADLOCK"
+    ]
+  },
+  "pre_flight_passed": true,
+  "description": "[Client] Centralized Web Audio API harmonic synthesizer: 9 distinct pentatonic crystal chime frequencies mapped to the 9 matrix sectors, deep sub-bass lock thuds on placement, triumphant chord fanfare on Triad Victory, and a suspended chord resolve on Equilibrium Deadlock.\n\nSummary:\nImplement a procedural Web Audio API harmonic sound engine triggering sector-specific pentatonic chime resonances, sub-bass sector impacts, and chord resolutions.\n\nSpecification:\nInitialize `window.AudioContext` on first user interaction under `state.audioCtx`. Map sectors 0-8 to pentatonic frequencies: `[261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 587.33, 659.25, 783.99]` Hz. On placement in sector `i`, instantiate an oscillator at `freq[i]` with exponential decay (`tau = 0.4s`) and a 55Hz sub-bass sine wave decaying over 0.25s. On `TRIAD_VICTORY`, trigger a triumphant major chord triad `[freq[a], freq[b], freq[c]]` with a 1.2s shimmer envelope. On `EQUILIBRIUM_DEADLOCK`, trigger a suspended 4th chord resolve decaying over 1.6s. All audio nodes connect through a master limiter gain node at 0.35 gain.",
+  "submitted_by": "Principal Client & UI Architect (Canvas 2D rendering, HUD overlays, visual feedback)",
+  "change_type": "UPDATE_UI_THEME",
+  "status": "PENDING_REVIEW",
+  "created_at": 1794485923.118155,
+  "payload_diff": {
+    "title": "Centralized Web Audio API harmonic synthesizer: 9 distinct pentatonic crystal chime frequencies mapped to the 9 matrix sectors, deep sub-bass lock thuds on placement, triumphant chord fanfare on Triad Victory, and a suspended chord resolve on Equilibrium Deadlock.",
+    "discipline": "Client",
+    "target_subsystem": "web_client/index.html",
+    "target_milestone": "v0.3.0",
+    "milestone_tag": "v0.3.0",
+    "author_role": "Principal Client & UI Architect (Canvas 2D rendering, HUD overlays, visual feedback)",
+    "summary": "Implement a procedural Web Audio API harmonic sound engine triggering sector-specific pentatonic chime resonances, sub-bass sector impacts, and chord resolutions.",
+    "technical_specification": "Initialize `window.AudioContext` on first user interaction under `state.audioCtx`. Map sectors 0-8 to pentatonic frequencies: `[261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 587.33, 659.25, 783.99]` Hz. On placement in sector `i`, instantiate an oscillator at `freq[i]` with exponential decay (`tau = 0.4s`) and a 55Hz sub-bass sine wave decaying over 0.25s. On `TRIAD_VICTORY`, trigger a triumphant major chord triad `[freq[a], freq[b], freq[c]]` with a 1.2s shimmer envelope. On `EQUILIBRIUM_DEADLOCK`, trigger a suspended 4th chord resolve decaying over 1.6s. All audio nodes connect through a master limiter gain node at 0.35 gain.",
+    "acceptance_criteria": [
+      "Every matrix inscription emits both a 55Hz sub-bass thud and sector-mapped crystal chime without audio clipping.",
+      "Collinear Triad victory triggers a three-note resonant harmonic chord, while equilibrium deadlock emits a resolving sus4 chord."
+    ],
+    "interface_contracts": {
+      "inputs": [
+        "state.audioCtx",
+        "state.world.matrix[0..8]",
+        "state.world.lastSectorPlaced",
+        "state.world.roundOutcome"
+      ],
+      "outputs": [
+        "state.audioCtx",
+        "state.audioMasterGain"
+      ],
+      "events": [
+        "SECTOR_INSCRIBED",
+        "TRIAD_VICTORY",
+        "EQUILIBRIUM_DEADLOCK"
+      ]
+    },
+    "pre_flight_passed": true
+  }
+}

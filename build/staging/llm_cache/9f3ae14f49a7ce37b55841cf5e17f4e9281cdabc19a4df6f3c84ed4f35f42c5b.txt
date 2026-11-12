@@ -1,0 +1,240 @@
+StudioEngine.registerModule('classSelectionScreen', {
+  init(state, engine) {
+    if (!state.player) state.player = {};
+    if (!state.stats) state.stats = {};
+
+    state.classSelection = {
+      active: state.player.class === undefined,
+      selectedIndex: 0,
+      animTime: 0,
+      cooldown: 0,
+      classes: [
+        {
+          id: 'olympian',
+          name: 'OLYMPIAN',
+          title: 'Titan of the Slopes',
+          color: '#F59E0B',
+          accent: '#FEF3C7',
+          description: 'Disciplined alpine powerhouse. Built for unstoppable downhill momentum, crushing drifts, and unmatched poise.',
+          stats: { speed: 85, control: 65, stability: 95, trick: 50 },
+          passive: 'Kinetic Dominance: Collisions cause 60% less speed decay. Carving accumulates heavy downhill charge.'
+        },
+        {
+          id: 'daredevil',
+          name: 'DAREDEVIL',
+          title: 'Adrenaline Zealot',
+          color: '#EF4444',
+          accent: '#FEE2E2',
+          description: 'High-risk trickster operating on razor-thin margins. Fragile handling traded for explosive boost and acrobatic airtime.',
+          stats: { speed: 95, control: 50, stability: 40, trick: 100 },
+          passive: 'Near-Miss Surge: Skimming obstacles awards instant nitro-boost and supercharges combo ratings.'
+        },
+        {
+          id: 'ranger',
+          name: 'RANGER',
+          title: 'Wayfinder of the Wilds',
+          color: '#10B981',
+          accent: '#D1FAE5',
+          description: 'Sublime mountain scout with pinpoint edge precision, dynamic traction adjustment, and unmatched recovery.',
+          stats: { speed: 70, control: 95, stability: 80, trick: 65 },
+          passive: 'Adaptive Edge: Zero speed loss on powder, ice patches, or off-piste trails. Rapid stamina recovery.'
+        },
+        {
+          id: 'occultist',
+          name: 'OCCULTIST',
+          title: 'Sovereign of the Black Ice',
+          color: '#8B5CF6',
+          accent: '#EDE9FE',
+          description: 'Harnesses forbidden mountain spirits. Capable of ethereal phantom-drifting and reality-bending acceleration bursts.',
+          stats: { speed: 80, control: 75, stability: 60, trick: 90 },
+          passive: 'Spectral Slipstream: Phasing through gates or rifts generates Eldritch Surge, pulling surrounding pickups.'
+        }
+      ]
+    };
+
+    this.onKeyDown = (e) => {
+      if (!state.classSelection || !state.classSelection.active) return;
+      const count = state.classSelection.classes.length;
+      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+        state.classSelection.selectedIndex = (state.classSelection.selectedIndex - 1 + count) % count;
+      } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+        state.classSelection.selectedIndex = (state.classSelection.selectedIndex + 1) % count;
+      } else if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+        this.confirmSelection(state);
+      }
+    };
+
+    this.onPointerDown = (e) => {
+      if (!state.classSelection || !state.classSelection.active) return;
+      const canvas = engine.canvas || (engine.ctx && engine.ctx.canvas) || window;
+      const rect = canvas.getBoundingClientRect ? canvas.getBoundingClientRect() : { left: 0, top: 0, width: window.innerWidth, height: window.innerHeight };
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+
+      const totalCards = state.classSelection.classes.length;
+      const cardWidth = Math.min(260, (rect.width - 120) / totalCards);
+      const gap = 16;
+      const totalWidth = totalCards * cardWidth + (totalCards - 1) * gap;
+      const startX = (rect.width - totalWidth) / 2;
+      const cardY = rect.height * 0.32;
+      const cardHeight = rect.height * 0.52;
+
+      for (let i = 0; i < totalCards; i++) {
+        const cx = startX + i * (cardWidth + gap);
+        if (mx >= cx && mx <= cx + cardWidth && my >= cardY && my <= cardY + cardHeight) {
+          if (state.classSelection.selectedIndex === i) {
+            this.confirmSelection(state);
+          } else {
+            state.classSelection.selectedIndex = i;
+          }
+          break;
+        }
+      }
+    };
+
+    window.addEventListener('keydown', this.onKeyDown);
+    window.addEventListener('pointerdown', this.onPointerDown);
+  },
+
+  confirmSelection(state) {
+    const sel = state.classSelection.classes[state.classSelection.selectedIndex];
+    state.player.class = sel.id;
+    state.player.className = sel.name;
+    state.player.baseStats = { ...sel.stats };
+    state.player.passive = sel.passive;
+    
+    // Apply core initial stats based on class archetype
+    state.stats.speed = sel.stats.speed * 1.2;
+    state.stats.handling = sel.stats.control / 100;
+    state.stats.stability = sel.stats.stability / 100;
+    state.stats.trickBoost = sel.stats.trick / 100;
+    state.stats.trickMultiplier = 1.0;
+    state.stats.score = state.stats.score || 0;
+
+    state.classSelection.active = false;
+  },
+
+  update(dt, state) {
+    if (!state.classSelection || !state.classSelection.active) return;
+    state.classSelection.animTime += dt;
+  },
+
+  render(ctx, state) {
+    if (!state.classSelection || !state.classSelection.active) return;
+
+    const w = ctx.canvas.width;
+    const h = ctx.canvas.height;
+    const cs = state.classSelection;
+    const t = cs.animTime;
+
+    ctx.save();
+
+    // Backdrop with atmospheric gradient
+    const bgGrad = ctx.createRadialGradient(w / 2, h / 2, 50, w / 2, h / 2, Math.max(w, h) * 0.75);
+    bgGrad.addColorStop(0, 'rgba(10, 15, 26, 0.94)');
+    bgGrad.addColorStop(1, 'rgba(2, 4, 8, 0.98)');
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, w, h);
+
+    // Decorative geometric grid lines
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+    ctx.lineWidth = 1;
+    const step = 40;
+    for (let x = 0; x < w; x += step) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, h);
+      ctx.stroke();
+    }
+    for (let y = 0; y < h; y += step) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(w, y);
+      ctx.stroke();
+    }
+
+    // Title & Subtitle Header
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = '900 36px "Segoe UI", Montserrat, sans-serif';
+    ctx.letterSpacing = '6px';
+    ctx.fillText('SELECT RUN PROTOCOL', w / 2, h * 0.14);
+
+    ctx.font = '500 13px "Segoe UI", Roboto, sans-serif';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+    ctx.letterSpacing = '3px';
+    ctx.fillText('ESTABLISH DOWNHILL BIOMETRICS AND TRACTION TRAITS', w / 2, h * 0.18);
+
+    // Calculate layout for 4 cards
+    const numCards = cs.classes.length;
+    const maxCardW = 280;
+    const padding = 20;
+    const cardW = Math.min(maxCardW, (w - padding * 2 - (numCards - 1) * 20) / numCards);
+    const cardH = Math.min(500, h * 0.58);
+    const totalW = numCards * cardW + (numCards - 1) * 20;
+    const startX = (w - totalW) / 2;
+    const startY = h * 0.24;
+
+    cs.classes.forEach((c, idx) => {
+      const isSelected = idx === cs.selectedIndex;
+      const x = startX + idx * (cardW + 20);
+      const hoverOffset = isSelected ? Math.sin(t * 3.5) * 4 - 8 : 0;
+      const y = startY + hoverOffset;
+
+      // Card Background & Shadow
+      ctx.save();
+      if (isSelected) {
+        ctx.shadowColor = c.color;
+        ctx.shadowBlur = 24;
+      } else {
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+        ctx.shadowBlur = 10;
+      }
+
+      ctx.fillStyle = isSelected ? 'rgba(20, 26, 38, 0.95)' : 'rgba(15, 18, 26, 0.82)';
+      ctx.strokeStyle = isSelected ? c.color : 'rgba(255, 255, 255, 0.12)';
+      ctx.lineWidth = isSelected ? 2.5 : 1;
+
+      // Draw Rounded Card
+      const r = 8;
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + cardW - r, y);
+      ctx.quadraticCurveTo(x + cardW, y, x + cardW, y + r);
+      ctx.lineTo(x + cardW, y + cardH - r);
+      ctx.quadraticCurveTo(x + cardW, y + cardH, x + cardW - r, y + cardH);
+      ctx.lineTo(x + r, y + cardH);
+      ctx.quadraticCurveTo(x, y + cardH, x, y + cardH - r);
+      ctx.lineTo(x, y + r);
+      ctx.quadraticCurveTo(x, y, x + r, y);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+
+      // Top Class Emblem / Accent Bar
+      ctx.fillStyle = c.color;
+      ctx.fillRect(x + 16, y + 16, isSelected ? 32 : 16, 4);
+
+      // Class Name & Title
+      ctx.textAlign = 'left';
+      ctx.font = '800 20px "Segoe UI", Montserrat, sans-serif';
+      ctx.fillStyle = isSelected ? '#FFFFFF' : 'rgba(255, 255, 255, 0.85)';
+      ctx.fillText(c.name, x + 16, y + 44);
+
+      ctx.font = '600 11px "Segoe UI", sans-serif';
+      ctx.fillStyle = c.color;
+      ctx.letterSpacing = '1px';
+      ctx.fillText(c.title.toUpperCase(), x + 16, y + 62);
+
+      // Class Lore
+      ctx.font = '400 12px "Segoe UI", sans-serif';
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
+      ctx.letterSpacing = '0px';
+
+      // Simple multiline wrapping for description
+      const descWords = c.description.split(' ');
+      let line = '';
+      let textY = y + 88;
+      for (let i = 0; i < descWords.length; i++) {
+        const testLine = line +

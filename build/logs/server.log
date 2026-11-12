@@ -1,0 +1,324 @@
+[2026-10-31 03:50:45,472] [INFO] [Aethelgard.Server]: Starting Aethelgard WebSocket Server on ws://0.0.0.0:8765
+[2026-10-31 03:50:45,553] [INFO] [websockets.server]: server listening on 0.0.0.0:8765
+[2026-10-31 03:50:50,169] [INFO] [websockets.server]: connection open
+[2026-10-31 03:50:50,169] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 52884)
+[2026-10-31 04:05:54,718] [INFO] [websockets.server]: connection closed
+[2026-10-31 04:05:56,211] [INFO] [websockets.server]: connection open
+[2026-10-31 04:05:56,212] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 49610)
+[2026-10-31 04:06:08,246] [INFO] [websockets.server]: connection closed
+[2026-10-31 04:06:09,406] [INFO] [websockets.server]: connection open
+[2026-10-31 04:06:09,407] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 33914)
+[2026-10-31 04:06:31,677] [INFO] [websockets.server]: connection closed
+[2026-10-31 04:15:22,837] [INFO] [websockets.server]: connection open
+[2026-10-31 04:15:22,837] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 46942)
+[2026-10-31 04:15:40,430] [INFO] [websockets.server]: connection closed
+[2026-10-31 04:15:41,229] [INFO] [websockets.server]: connection open
+[2026-10-31 04:15:41,230] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 48534)
+[2026-10-31 04:15:55,777] [INFO] [websockets.server]: connection closed
+[2026-10-31 04:25:00,012] [INFO] [websockets.server]: connection rejected (426 Upgrade Required)
+[2026-10-31 04:25:00,016] [INFO] [websockets.server]: connection closed
+[2026-10-31 04:25:13,612] [INFO] [websockets.server]: connection open
+[2026-10-31 04:25:13,613] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 46242)
+[2026-10-31 04:37:12,411] [INFO] [websockets.server]: connection closed
+[2026-10-31 04:37:13,371] [INFO] [websockets.server]: connection open
+[2026-10-31 04:37:13,372] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 43564)
+[2026-10-31 04:49:45,386] [INFO] [websockets.server]: connection open
+[2026-10-31 04:49:45,386] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 54754)
+[2026-10-31 04:49:45,389] [INFO] [websockets.server]: connection closed
+[2026-10-31 04:50:27,088] [INFO] [websockets.server]: connection closed
+[2026-10-31 04:50:28,011] [INFO] [websockets.server]: connection open
+[2026-10-31 04:50:28,012] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 58842)
+[2026-10-31 04:50:34,267] [INFO] [websockets.server]: connection closed
+[2026-10-31 04:50:34,988] [INFO] [websockets.server]: connection open
+[2026-10-31 04:50:34,989] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 34836)
+[2026-10-31 05:00:47,048] [INFO] [websockets.server]: connection open
+[2026-10-31 05:00:47,048] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 54910)
+[2026-10-31 05:00:47,050] [INFO] [websockets.server]: connection closed
+[2026-10-31 05:00:52,233] [INFO] [websockets.server]: connection open
+[2026-10-31 05:00:52,234] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 45988)
+[2026-10-31 05:00:52,236] [INFO] [websockets.server]: connection closed
+[2026-10-31 05:01:36,307] [INFO] [websockets.server]: connection closed
+[2026-10-31 05:01:37,224] [INFO] [websockets.server]: connection open
+[2026-10-31 05:01:37,225] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 53838)
+[2026-10-31 05:14:26,196] [INFO] [websockets.server]: connection open
+[2026-10-31 05:14:26,196] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 40942)
+[2026-10-31 05:14:26,203] [INFO] [websockets.server]: connection closed
+[2026-10-31 05:14:32,025] [INFO] [websockets.server]: connection open
+[2026-10-31 05:14:32,025] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 52328)
+[2026-10-31 05:14:32,027] [INFO] [websockets.server]: connection closed
+[2026-10-31 05:15:17,002] [INFO] [websockets.server]: connection closed
+[2026-10-31 05:15:17,901] [INFO] [websockets.server]: connection open
+[2026-10-31 05:15:17,901] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 55012)
+[2026-10-31 06:18:06,134] [INFO] [Aethelgard.Server]: Starting Aethelgard WebSocket Server on ws://0.0.0.0:8765
+[2026-10-31 06:18:06,186] [INFO] [websockets.server]: server listening on 0.0.0.0:8765
+[2026-10-31 06:18:16,416] [INFO] [websockets.server]: connection open
+[2026-10-31 06:18:16,416] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 38528)
+[2026-10-31 06:19:00,482] [INFO] [websockets.server]: connection open
+[2026-10-31 06:19:00,482] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 49910)
+[2026-10-31 06:19:00,485] [INFO] [websockets.server]: connection closed
+[2026-10-31 06:19:03,067] [INFO] [websockets.server]: connection open
+[2026-10-31 06:19:03,067] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 36582)
+[2026-10-31 06:19:03,069] [INFO] [websockets.server]: connection closed
+[2026-10-31 06:19:43,172] [INFO] [websockets.server]: connection closed
+[2026-10-31 06:19:43,753] [INFO] [websockets.server]: connection open
+[2026-10-31 06:19:43,753] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 48398)
+[2026-10-31 06:29:00,453] [INFO] [websockets.server]: connection closed
+[2026-10-31 06:29:01,593] [INFO] [websockets.server]: connection open
+[2026-10-31 06:29:01,593] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 37742)
+[2026-10-31 06:33:16,765] [INFO] [websockets.server]: connection open
+[2026-10-31 06:33:16,765] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 45090)
+[2026-10-31 06:33:16,767] [INFO] [websockets.server]: connection closed
+[2026-10-31 06:35:43,640] [INFO] [websockets.server]: connection open
+[2026-10-31 06:35:43,641] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 34058)
+[2026-10-31 06:35:43,642] [INFO] [websockets.server]: connection closed
+[2026-10-31 06:36:43,504] [INFO] [websockets.server]: connection closed
+[2026-10-31 06:36:44,618] [INFO] [websockets.server]: connection open
+[2026-10-31 06:36:44,619] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 51838)
+[2026-10-31 06:46:55,782] [INFO] [websockets.server]: connection closed
+[2026-10-31 06:46:55,783] [INFO] [Aethelgard.Server]: Client disconnected.
+[2026-11-01 13:33:39,143] [INFO] [Aethelgard.Server]: Starting Aethelgard WebSocket Server on ws://0.0.0.0:8765
+[2026-11-01 13:33:39,197] [INFO] [websockets.server]: server listening on 0.0.0.0:8765
+[2026-11-01 13:33:42,047] [INFO] [websockets.server]: connection open
+[2026-11-01 13:33:42,047] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 52732)
+[2026-11-01 13:33:42,054] [INFO] [websockets.server]: connection closed
+[2026-11-01 13:33:44,948] [INFO] [websockets.server]: connection open
+[2026-11-01 13:33:44,948] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 52742)
+[2026-11-01 13:33:44,951] [INFO] [websockets.server]: connection closed
+[2026-11-01 13:44:51,484] [INFO] [websockets.server]: connection open
+[2026-11-01 13:44:51,485] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 55492)
+[2026-11-01 13:44:51,486] [INFO] [websockets.server]: connection closed
+[2026-11-01 13:48:24,776] [INFO] [websockets.server]: connection open
+[2026-11-01 13:48:24,776] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 46012)
+[2026-11-01 13:48:24,779] [INFO] [websockets.server]: connection closed
+[2026-11-01 13:49:25,803] [INFO] [websockets.server]: connection open
+[2026-11-01 13:49:25,803] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 36794)
+[2026-11-01 13:49:33,432] [INFO] [websockets.server]: connection closed
+[2026-11-01 13:49:33,960] [INFO] [websockets.server]: connection open
+[2026-11-01 13:49:33,960] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 58414)
+[2026-11-01 13:57:02,391] [INFO] [websockets.server]: connection closed
+[2026-11-01 13:57:03,387] [INFO] [websockets.server]: connection open
+[2026-11-01 13:57:03,387] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 43712)
+[2026-11-01 13:58:02,830] [INFO] [websockets.server]: connection closed
+[2026-11-01 13:58:03,715] [INFO] [websockets.server]: connection open
+[2026-11-01 13:58:03,715] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 57318)
+[2026-11-01 14:03:05,372] [INFO] [websockets.server]: connection open
+[2026-11-01 14:03:05,373] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 55804)
+[2026-11-01 14:03:05,379] [INFO] [websockets.server]: connection closed
+[2026-11-01 14:03:52,743] [INFO] [websockets.server]: connection closed
+[2026-11-01 14:03:53,737] [INFO] [websockets.server]: connection open
+[2026-11-01 14:03:53,737] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 49462)
+[2026-11-01 14:04:01,241] [INFO] [websockets.server]: connection closed
+[2026-11-01 14:04:01,939] [INFO] [websockets.server]: connection open
+[2026-11-01 14:04:01,939] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 41656)
+[2026-11-01 14:21:25,417] [INFO] [websockets.server]: connection open
+[2026-11-01 14:21:25,419] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 55878)
+[2026-11-01 14:21:25,422] [INFO] [websockets.server]: connection closed
+[2026-11-01 14:22:00,571] [INFO] [websockets.server]: connection closed
+[2026-11-01 14:22:01,560] [INFO] [websockets.server]: connection open
+[2026-11-01 14:22:01,561] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 57064)
+[2026-11-01 14:50:35,077] [INFO] [websockets.server]: connection open
+[2026-11-01 14:50:35,077] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 55152)
+[2026-11-01 14:50:35,084] [INFO] [websockets.server]: connection closed
+[2026-11-01 14:50:38,515] [INFO] [websockets.server]: connection open
+[2026-11-01 14:50:38,515] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 34368)
+[2026-11-01 14:50:38,517] [INFO] [websockets.server]: connection closed
+[2026-11-01 14:51:27,684] [INFO] [websockets.server]: connection closed
+[2026-11-01 14:51:28,784] [INFO] [websockets.server]: connection open
+[2026-11-01 14:51:28,784] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 58228)
+[2026-11-01 15:07:09,426] [INFO] [websockets.server]: connection open
+[2026-11-01 15:07:09,426] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 55216)
+[2026-11-01 15:07:09,428] [INFO] [websockets.server]: connection closed
+[2026-11-01 15:07:39,030] [INFO] [websockets.server]: connection closed
+[2026-11-01 15:07:40,190] [INFO] [websockets.server]: connection open
+[2026-11-01 15:07:40,191] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 38020)
+[2026-11-01 15:30:44,727] [INFO] [websockets.server]: connection open
+[2026-11-01 15:30:44,727] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 59340)
+[2026-11-01 15:30:44,729] [INFO] [websockets.server]: connection closed
+[2026-11-01 15:31:33,060] [INFO] [websockets.server]: connection closed
+[2026-11-01 15:31:33,978] [INFO] [websockets.server]: connection open
+[2026-11-01 15:31:33,978] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 52378)
+[2026-11-01 15:45:31,924] [INFO] [websockets.server]: connection open
+[2026-11-01 15:45:31,924] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 36500)
+[2026-11-01 15:45:31,926] [INFO] [websockets.server]: connection closed
+[2026-11-01 15:45:36,381] [INFO] [websockets.server]: connection open
+[2026-11-01 15:45:36,381] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 36510)
+[2026-11-01 15:45:36,387] [INFO] [websockets.server]: connection closed
+[2026-11-01 15:46:41,632] [INFO] [websockets.server]: connection closed
+[2026-11-01 15:46:42,099] [INFO] [websockets.server]: connection open
+[2026-11-01 15:46:42,099] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 42984)
+[2026-11-01 15:59:05,739] [INFO] [websockets.server]: connection closed
+[2026-11-01 15:59:05,740] [INFO] [Aethelgard.Server]: Client disconnected.
+[2026-11-01 17:47:44,691] [INFO] [Aethelgard.Server]: Starting Aethelgard WebSocket Server on ws://0.0.0.0:8765
+[2026-11-01 17:47:44,739] [INFO] [websockets.server]: server listening on 0.0.0.0:8765
+[2026-11-01 17:47:44,952] [INFO] [websockets.server]: connection closed
+[2026-11-01 17:47:46,231] [INFO] [websockets.server]: connection open
+[2026-11-01 17:47:46,232] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 49686)
+[2026-11-01 17:47:46,234] [INFO] [websockets.server]: connection closed
+[2026-11-01 17:47:54,884] [INFO] [websockets.server]: connection open
+[2026-11-01 17:47:54,884] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 34324)
+[2026-11-01 17:48:00,521] [INFO] [websockets.server]: connection closed
+[2026-11-01 17:48:01,618] [INFO] [websockets.server]: connection open
+[2026-11-01 17:48:01,618] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 55734)
+[2026-11-01 17:48:01,620] [INFO] [websockets.server]: connection closed
+[2026-11-01 17:59:38,481] [INFO] [websockets.server]: connection closed
+[2026-11-01 17:59:39,614] [INFO] [websockets.server]: connection open
+[2026-11-01 17:59:39,614] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 51744)
+[2026-11-01 17:59:39,616] [INFO] [websockets.server]: connection closed
+[2026-11-01 17:59:44,573] [INFO] [websockets.server]: connection closed
+[2026-11-01 17:59:45,668] [INFO] [websockets.server]: connection open
+[2026-11-01 17:59:45,669] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 51762)
+[2026-11-01 17:59:45,670] [INFO] [websockets.server]: connection closed
+[2026-11-01 18:18:23,845] [INFO] [websockets.server]: connection closed
+[2026-11-01 18:18:25,304] [INFO] [websockets.server]: connection open
+[2026-11-01 18:18:25,305] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 50382)
+[2026-11-01 18:18:25,308] [INFO] [websockets.server]: connection closed
+[2026-11-01 18:19:57,123] [INFO] [websockets.server]: connection closed
+[2026-11-01 18:19:58,107] [INFO] [websockets.server]: connection open
+[2026-11-01 18:19:58,108] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 51540)
+[2026-11-01 18:25:07,707] [INFO] [websockets.server]: connection closed
+[2026-11-01 18:25:08,670] [INFO] [websockets.server]: connection open
+[2026-11-01 18:25:08,671] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 47122)
+[2026-11-01 18:26:37,726] [INFO] [websockets.server]: connection closed
+[2026-11-01 18:26:38,832] [INFO] [websockets.server]: connection open
+[2026-11-01 18:26:38,833] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 39150)
+[2026-11-01 18:26:38,834] [INFO] [websockets.server]: connection closed
+[2026-11-01 18:26:39,857] [INFO] [websockets.server]: connection closed
+[2026-11-01 18:26:41,034] [INFO] [websockets.server]: connection open
+[2026-11-01 18:26:41,036] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 39172)
+[2026-11-01 18:26:41,039] [INFO] [websockets.server]: connection closed
+[2026-11-01 18:26:42,306] [INFO] [websockets.server]: connection closed
+[2026-11-01 18:26:43,410] [INFO] [websockets.server]: connection open
+[2026-11-01 18:26:43,410] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 39186)
+[2026-11-01 18:26:43,412] [INFO] [websockets.server]: connection closed
+[2026-11-01 18:42:09,601] [INFO] [websockets.server]: connection closed
+[2026-11-01 18:42:10,746] [INFO] [websockets.server]: connection open
+[2026-11-01 18:42:10,747] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 44098)
+[2026-11-01 18:52:37,582] [INFO] [websockets.server]: connection closed
+[2026-11-01 18:52:38,629] [INFO] [websockets.server]: connection open
+[2026-11-01 18:52:38,629] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 51570)
+[2026-11-01 18:53:43,744] [INFO] [websockets.server]: connection closed
+[2026-11-01 18:53:44,199] [INFO] [websockets.server]: connection open
+[2026-11-01 18:53:44,200] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 35550)
+[2026-11-01 19:01:52,875] [INFO] [websockets.server]: connection closed
+[2026-11-01 19:01:54,063] [INFO] [websockets.server]: connection open
+[2026-11-01 19:01:54,063] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 58656)
+[2026-11-01 19:01:54,067] [INFO] [websockets.server]: connection closed
+[2026-11-01 19:01:55,214] [INFO] [websockets.server]: connection closed
+[2026-11-01 19:01:56,484] [INFO] [websockets.server]: connection open
+[2026-11-01 19:01:56,484] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 58686)
+[2026-11-01 19:01:56,489] [INFO] [websockets.server]: connection closed
+[2026-11-01 19:01:58,307] [INFO] [websockets.server]: connection closed
+[2026-11-01 19:01:59,413] [INFO] [websockets.server]: connection open
+[2026-11-01 19:01:59,413] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 37724)
+[2026-11-01 19:01:59,417] [INFO] [websockets.server]: connection closed
+[2026-11-01 19:02:59,509] [INFO] [websockets.server]: connection closed
+[2026-11-01 19:03:00,510] [INFO] [websockets.server]: connection open
+[2026-11-01 19:03:00,510] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 55278)
+[2026-11-01 19:10:40,006] [INFO] [websockets.server]: connection closed
+[2026-11-01 19:10:41,193] [INFO] [websockets.server]: connection open
+[2026-11-01 19:10:41,194] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 54130)
+[2026-11-01 19:10:41,197] [INFO] [websockets.server]: connection closed
+[2026-11-01 19:11:52,680] [INFO] [websockets.server]: connection closed
+[2026-11-01 19:11:53,826] [INFO] [websockets.server]: connection open
+[2026-11-01 19:11:53,826] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 35060)
+[2026-11-01 19:20:27,746] [INFO] [websockets.server]: connection closed
+[2026-11-01 19:20:29,107] [INFO] [websockets.server]: connection open
+[2026-11-01 19:20:29,111] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 35610)
+[2026-11-01 19:20:29,116] [INFO] [websockets.server]: connection closed
+[2026-11-01 19:22:08,368] [INFO] [websockets.server]: connection closed
+[2026-11-01 19:22:24,439] [INFO] [websockets.server]: connection closed
+[2026-11-01 19:22:25,547] [INFO] [websockets.server]: connection open
+[2026-11-01 19:22:25,547] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 55570)
+[2026-11-01 19:22:25,549] [INFO] [websockets.server]: connection closed
+[2026-11-01 19:24:22,614] [INFO] [websockets.server]: connection closed
+[2026-11-01 19:24:23,333] [INFO] [websockets.server]: connection open
+[2026-11-01 19:24:23,334] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 54250)
+[2026-11-01 19:35:47,980] [INFO] [websockets.server]: connection closed
+[2026-11-01 19:35:49,183] [INFO] [websockets.server]: connection open
+[2026-11-01 19:35:49,184] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 35416)
+[2026-11-01 19:35:49,189] [INFO] [websockets.server]: connection closed
+[2026-11-01 19:35:57,021] [INFO] [websockets.server]: connection closed
+[2026-11-01 19:35:58,312] [INFO] [websockets.server]: connection open
+[2026-11-01 19:35:58,313] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 50464)
+[2026-11-01 19:35:58,321] [INFO] [websockets.server]: connection closed
+[2026-11-01 19:37:02,530] [INFO] [websockets.server]: connection closed
+[2026-11-01 20:05:00,539] [INFO] [websockets.server]: connection closed
+[2026-11-01 20:05:01,649] [INFO] [websockets.server]: connection open
+[2026-11-01 20:05:01,649] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 46886)
+[2026-11-01 20:05:01,651] [INFO] [websockets.server]: connection closed
+[2026-11-01 20:05:59,017] [INFO] [websockets.server]: connection open
+[2026-11-01 20:05:59,017] [INFO] [Aethelgard.Server]: Client connected: ('127.0.0.1', 43602)
+[2026-11-01 20:50:15,235] [INFO] [websockets.server]: connection closed
+[2026-11-01 21:17:52,741] [INFO] [websockets.server]: connection rejected (405 Method Not Allowed)
+[2026-11-01 21:17:52,791] [INFO] [websockets.server]: connection closed
+[2026-11-01 21:17:52,792] [INFO] [websockets.server]: connection closed
+[2026-11-01 21:17:52,792] [INFO] [websockets.server]: connection closed
+[2026-11-01 21:17:52,792] [INFO] [websockets.server]: connection closed
+[2026-11-01 21:17:52,792] [INFO] [websockets.server]: connection closed
+[2026-11-01 21:17:52,792] [INFO] [websockets.server]: connection closed
+[2026-11-01 21:17:52,792] [INFO] [websockets.server]: connection closed
+[2026-11-01 21:17:52,940] [INFO] [websockets.server]: connection closed
+[2026-11-01 21:17:52,941] [INFO] [websockets.server]: connection closed
+[2026-11-01 21:17:52,941] [INFO] [websockets.server]: connection closed
+[2026-11-01 21:17:52,942] [INFO] [websockets.server]: connection rejected (426 Upgrade Required)
+[2026-11-01 21:17:52,990] [INFO] [websockets.server]: connection closed
+[2026-11-01 21:17:53,041] [INFO] [websockets.server]: connection closed
+[2026-11-01 21:17:53,091] [INFO] [websockets.server]: connection closed
+[2026-11-01 21:17:53,091] [INFO] [websockets.server]: connection closed
+[2026-11-01 21:17:53,091] [INFO] [websockets.server]: connection closed
+[2026-11-01 21:17:53,140] [INFO] [websockets.server]: connection closed
+[2026-11-01 21:17:53,239] [INFO] [websockets.server]: connection closed
+[2026-11-01 21:17:53,239] [INFO] [websockets.server]: connection closed
+[2026-11-01 21:17:53,240] [INFO] [websockets.server]: connection closed
+[2026-11-01 21:17:53,387] [INFO] [websockets.server]: connection closed
+[2026-11-01 21:17:53,388] [INFO] [websockets.server]: connection closed
+[2026-11-01 21:17:53,388] [INFO] [websockets.server]: connection closed
+[2026-11-01 21:17:53,536] [INFO] [websockets.server]: connection closed
+[2026-11-01 21:17:53,536] [INFO] [websockets.server]: connection closed
+[2026-11-01 21:17:53,536] [INFO] [websockets.server]: connection closed
+[2026-11-01 21:17:57,842] [INFO] [websockets.server]: connection closed
+[2026-11-01 21:18:02,942] [INFO] [websockets.server]: connection closed
+[2026-11-01 21:18:02,943] [INFO] [websockets.server]: connection closed
+[2026-11-01 21:18:08,044] [INFO] [websockets.server]: connection closed
+[2026-11-01 21:18:08,046] [INFO] [websockets.server]: connection closed
+[2026-11-01 21:18:08,047] [INFO] [websockets.server]: connection closed
+[2026-11-03 06:13:24,636] [INFO] [Aethelgard.Server]: Starting Aethelgard WebSocket Server on ws://0.0.0.0:8765
+[2026-11-03 06:13:24,763] [INFO] [websockets.server]: server listening on 0.0.0.0:8765
+[2026-11-11 16:47:15,887] [INFO] [Aethelgard.Server]: Starting Aethelgard WebSocket Server on ws://0.0.0.0:8765
+[2026-11-11 16:47:16,039] [INFO] [websockets.server]: server listening on 0.0.0.0:8765
+[2026-11-11 22:46:29,630] [INFO] [Aethelgard.Server]: Starting Aethelgard WebSocket Server on ws://0.0.0.0:8765
+[2026-11-11 22:46:29,773] [INFO] [websockets.server]: server listening on 0.0.0.0:8765
+[2026-11-12 00:50:58,460] [INFO] [websockets.server]: connection rejected (405 Method Not Allowed)
+[2026-11-12 00:50:58,510] [INFO] [websockets.server]: connection closed
+[2026-11-12 00:50:58,511] [INFO] [websockets.server]: connection closed
+[2026-11-12 00:50:58,511] [INFO] [websockets.server]: connection closed
+[2026-11-12 00:50:58,511] [INFO] [websockets.server]: connection closed
+[2026-11-12 00:50:58,512] [INFO] [websockets.server]: connection closed
+[2026-11-12 00:50:58,512] [INFO] [websockets.server]: connection closed
+[2026-11-12 00:50:58,512] [INFO] [websockets.server]: connection closed
+[2026-11-12 00:50:58,611] [INFO] [websockets.server]: connection rejected (426 Upgrade Required)
+[2026-11-12 00:50:58,660] [INFO] [websockets.server]: connection closed
+[2026-11-12 00:50:58,660] [INFO] [websockets.server]: connection closed
+[2026-11-12 00:50:58,661] [INFO] [websockets.server]: connection closed
+[2026-11-12 00:50:58,661] [INFO] [websockets.server]: connection closed
+[2026-11-12 00:50:58,710] [INFO] [websockets.server]: connection closed
+[2026-11-12 00:50:58,809] [INFO] [websockets.server]: connection closed
+[2026-11-12 00:50:58,809] [INFO] [websockets.server]: connection closed
+[2026-11-12 00:50:58,810] [INFO] [websockets.server]: connection closed
+[2026-11-12 00:50:58,810] [INFO] [websockets.server]: connection closed
+[2026-11-12 00:50:58,957] [INFO] [websockets.server]: connection closed
+[2026-11-12 00:50:58,958] [INFO] [websockets.server]: connection closed
+[2026-11-12 00:50:58,958] [INFO] [websockets.server]: connection closed
+[2026-11-12 00:50:59,107] [INFO] [websockets.server]: connection closed
+[2026-11-12 00:50:59,107] [INFO] [websockets.server]: connection closed
+[2026-11-12 00:50:59,108] [INFO] [websockets.server]: connection closed
+[2026-11-12 00:50:59,255] [INFO] [websockets.server]: connection closed
+[2026-11-12 00:50:59,255] [INFO] [websockets.server]: connection closed
+[2026-11-12 00:50:59,256] [INFO] [websockets.server]: connection closed
+[2026-11-12 00:51:03,561] [INFO] [websockets.server]: connection closed
+[2026-11-12 00:51:08,662] [INFO] [websockets.server]: connection closed
+[2026-11-12 00:51:08,662] [INFO] [websockets.server]: connection closed
+[2026-11-12 00:51:13,763] [INFO] [websockets.server]: connection closed
+[2026-11-12 00:51:18,863] [INFO] [websockets.server]: connection closed
+[2026-11-12 00:51:18,864] [INFO] [websockets.server]: connection closed
+/usr/local/bin/python: can't open file '/workspaces/project-aethelgard/services/agent_runtime/src/server.py': [Errno 2] No such file or directory

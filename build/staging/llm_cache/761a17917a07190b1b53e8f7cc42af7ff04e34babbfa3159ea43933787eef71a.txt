@@ -1,0 +1,158 @@
+```javascript
+(() => {
+  'use strict';
+
+  window.__GAME_STATE__ = window.__GAME_STATE__ || {};
+
+  const STATUS_FLAGS = Object.freeze({
+    AIRBORNE:           0x0001,
+    TUCKED:             0x0002,
+    CARVING_LEFT:       0x0004,
+    CARVING_RIGHT:      0x0008,
+    BRAKING:            0x0010,
+    WIPEOUT:            0x0020,
+    INVULNERABLE:       0x0040,
+    YETI_TERROR:        0x0080,
+    CRITICAL_STABILITY: 0x0100
+  });
+
+  class StatTracker {
+    constructor(baseStats = { VEL: 10, AGI: 10, BAL: 10, MOX: 10, LCK: 10 }) {
+      this.base = {
+        VEL: Math.max(1, Math.min(99, baseStats.VEL ?? 10)),
+        AGI: Math.max(1, Math.min(99, baseStats.AGI ?? 10)),
+        BAL: Math.max(1, Math.min(99, baseStats.BAL ?? 10)),
+        MOX: Math.max(1, Math.min(99, baseStats.MOX ?? 10)),
+        LCK: Math.max(1, Math.min(99, baseStats.LCK ?? 10))
+      };
+      this.modifiers = { VEL: 0, AGI: 0, BAL: 0, MOX: 0, LCK: 0 };
+      this.level = 1;
+      this.currentXP = 0;
+      this.statusMask = 0;
+      this.recoveryTimer = 0.0;
+      this.majorWipeouts = 0;
+      this.maxWipeouts = 3;
+    }
+
+    getStat(stat) {
+      const b = this.base[stat] || 1;
+      const m = this.modifiers[stat] || 0;
+      return Math.max(1, Math.min(99, Math.floor(b + m)));
+    }
+
+    setModifier(stat, val) {
+      if (this.modifiers[stat] !== undefined) {
+        this.modifiers[stat] = val;
+      }
+    }
+
+    getXPRequirement(lvl) {
+      return Math.floor(100 * Math.pow(lvl, 1.65) + ((lvl - 1) * 45));
+    }
+
+    addXP(amount) {
+      this.currentXP += Math.max(0, amount);
+      let leveledUp = false;
+      while (this.currentXP >= this.getXPRequirement(this.level)) {
+        this.currentXP -= this.getXPRequirement(this.level);
+        this.level++;
+        leveledUp = true;
+      }
+      return leveledUp;
+    }
+
+    awardNearMissXP() {
+      const mox = this.getStat('MOX');
+      const xp = Math.floor(15 * (1.0 + (mox * 0.02)));
+      return { xp, leveledUp: this.addXP(xp) };
+    }
+
+    awardGateXP() {
+      const mox = this.getStat('MOX');
+      const lck = this.getStat('LCK');
+      const xp = Math.floor(40 * (1.0 + (mox * 0.015)) * (1.0 + (lck * 0.005)));
+      return { xp, leveledUp: this.addXP(xp) };
+    }
+
+    hasStatus(flag) {
+      return (this.statusMask & flag) === flag;
+    }
+
+    setStatus(flag) {
+      this.statusMask |= flag;
+    }
+
+    clearStatus(flag) {
+      this.statusMask &= ~flag;
+    }
+
+    getDerivedKinematics() {
+      const vel = this.getStat('VEL');
+      const agi = this.getStat('AGI');
+      const bal = this.getStat('BAL');
+      const mox = this.getStat('MOX');
+      const lck = this.getStat('LCK');
+
+      const isTucked = (this.statusMask & STATUS_FLAGS.TUCKED) !== 0;
+      const isTerror = (this.statusMask & STATUS_FLAGS.YETI_TERROR) !== 0;
+
+      let vyMax = 350.0 + (vel * 8.5);
+      if (isTucked) vyMax *= (1.25 + (vel * 0.002));
+      if (isTerror) vyMax *= (1.0 + (mox * 0.008));
+
+      let ax = 420.0 + (agi * 11.2);
+      if (isTucked) ax *= 0.60;
+
+      return {
+        vyMax,
+        ax,
+        dx: 0.88 + (0.09 * (1.0 - (agi / 100.0))),
+        recoveryTime: Math.max(0.35, 2.50 - (bal * 0.022)),
+        stabilityThreshold: Math.min(0.95, 0.20 + (bal * 0.008)),
+        spinOmega: 4.188 + (mox * 0.125),
+        gateMagnetRadius: 16.0 + (lck * 0.45),
+        critRecoveryProb: Math.min(0.35, lck * 0.0035)
+      };
+    }
+
+    triggerWipeout(prngValue = Math.random()) {
+      if (this.hasStatus(STATUS_FLAGS.INVULNERABLE)) {
+        return false;
+      }
+
+      if (this.hasStatus(STATUS_FLAGS.CRITICAL_STABILITY)) {
+        this.clearStatus(STATUS_FLAGS.CRITICAL_STABILITY);
+        return false;
+      }
+
+      const kinematics = this.getDerivedKinematics();
+      if (prngValue < kinematics.critRecoveryProb) {
+        this.setStatus(STATUS_FLAGS.CRITICAL_STABILITY);
+        return false;
+      }
+
+      this.majorWipeouts++;
+      this.setStatus(STATUS_FLAGS.WIPEOUT);
+      this.clearStatus(STATUS_FLAGS.TUCKED | STATUS_FLAGS.CARVING_LEFT | STATUS_FLAGS.CARVING_RIGHT | STATUS_FLAGS.BRAKING);
+      this.recoveryTimer = kinematics.recoveryTime;
+      return true;
+    }
+
+    update(dt) {
+      if (this.hasStatus(STATUS_FLAGS.WIPEOUT)) {
+        this.recoveryTimer -= dt;
+        if (this.recoveryTimer <= 0) {
+          this.recoveryTimer = 0.0;
+          this.clearStatus(STATUS_FLAGS.WIPEOUT);
+        }
+      }
+    }
+  }
+
+  window.__GAME_STATE__.STATUS_FLAGS = STATUS_FLAGS;
+  window.__GAME_STATE__.StatTracker = StatTracker;
+  if (!window.__GAME_STATE__.stats) {
+    window.__GAME_STATE__.stats = new StatTracker();
+  }
+})();
+```

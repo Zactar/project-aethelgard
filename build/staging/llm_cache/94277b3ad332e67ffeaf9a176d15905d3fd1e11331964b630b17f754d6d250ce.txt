@@ -1,0 +1,19 @@
+{
+  "postmortem_summary": "While environmental set-pieces like censers and lodestones enriched combat spectacle, milestones bloated into 70 raw HUD fillRect calls and crutched on pop-up floating text announcements. Moving forward, world interactions must communicate strictly through diegetic physics, localized particles, and reactive shaders rather than intrusive text overlays.",
+  "key_mistakes_corrected": [
+    "Over-reliance on floating narrative pop-ups ('🔥 BRONZE CENSER SWUNG! 🔥') -> Replace text notifications with kinematic shockwaves, fiery particle spray, and bell audio resonance.",
+    "Hardcoded coordinate snapping (anchorX: 400, anchorY: 165) across arbitrary room roles -> Derive interactive prop placement dynamically from procedural room layouts to prevent clipping and coordinate drift.",
+    "Fragmented module-level state persistence between room transitions -> Bind milestone props directly to canonical entity managers with automated lifecycle cleanup."
+  ],
+  "updated_role_skill_cards": {
+    "Executive_Producer": "Reject milestone deliverables leaning on static text banners or disjointed modular micro-features. Mandate pure tactile physics, diegetic environmental feedback, tightly polished game feel, and zero narrative pop-up crutches across every milestone delivery.",
+    "Systems": "Model environmental hazards and combat interactions with unified kinematic formulas. Never announce mechanical triggers via floating text popups; communicate impact, damage windows, and status changes strictly through force impulses, spatial shockwaves, and reactive elemental statuses.",
+    "Gameplay": "Standardize fluid, non-blocking player actions with instantaneous hit response. Tie environmental triggers (dodges near lodestones, swings against censers) to dynamic collision volumes and physical impulses rather than rigid distance checks and text prompts.",
+    "Level": "Anchor interactive set-pieces to procedural level anchors rather than hardcoded viewport coordinates. Ensure hazards, lodestones, and altars respect chamber geometry, leaving readable combat lanes while maintaining dynamic kinematic clearance.",
+    "Client": "Purge debug-like floating text alerts and raw HUD fillRect patches. Project player status, prop triggers, and hazard states directly into the scene via screen warp, lighting flashes, camera kick, and directional audio cues.",
+    "Narrative": "Embed lore entirely into ruined architecture, acoustic acoustics, and prop degradation. Ban celebratory emoji-laden floating banners upon interaction; let the shuddering impact of an ignited censer convey mechanical consequence silently.",
+    "Aesthetics": "Render complex articulated props with multi-tier swinging physics, volumetric smoke puffs, and ember trails. Avoid single-color wireframes or flat primitives; light chambers dynamically with reactive chiaroscuro shadows and burning censer illumination.",
+    "UI_UX": "Keep the screen clean by eradicating intrusive combat text banners. Restrict UI to clean, diegetic edge-vignettes, physical world-space reticles, and tactile audio-visual cues that never obscure kinematic enemy telegraphs.",
+    "Codebase_Engineer": "Enforce unified lifecycle hooks across milestone modules to eliminate leaked room references. Manage all environmental props inside the core entity pipeline instead of loose, ad-hoc module variables with hardcoded coordinates."
+  }
+}

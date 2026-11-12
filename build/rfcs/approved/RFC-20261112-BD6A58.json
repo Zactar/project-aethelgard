@@ -1,0 +1,67 @@
+{
+  "rfc_id": "RFC-20261112-BD6A58",
+  "title": "Shimmering half-life decay indicators and disintegration particle motes on whichever sigil is queued to vanish next under Ephemeral Protocol.",
+  "target_subsystem": "web_client/index.html",
+  "discipline": "Aesthetics",
+  "target_milestone": "v0.4.0",
+  "milestone_target": "v0.4.0",
+  "milestone_tag": "v0.4.0",
+  "author_role": "Aesthetics Specialist",
+  "summary": "Render dynamic decay shimmer and continuous disintegration motes on each contender's impending oldest sigil.",
+  "technical_specification": "When `state.stats.ephemeralProtocol` is true and `queue.length === 3`, identify target sector `idx = queue[0]`. Compute half-life pulsing factor `alpha = 0.5 + 0.5 * Math.sin(state.world.time * 6)`. Render a caustic border stroke with `ctx.strokeStyle = factionColor` at `alpha * 0.8` and radial jitter `dr = (Math.random() - 0.5) * 2`. Spawn persistent dissipation motes into `state.world.particles` at sector center `(cx, cy)`: velocity `vx = (Math.random() - 0.5) * 28`, `vy = -Math.random() * 35 - 10`, lifetime `0.6s`, fading stroke alpha. On `EPHEMERAL_EVICT`, spawn a 24-mote radial burst.",
+  "acceptance_criteria": [
+    "Oldest sigil displays pulsating chromatic shimmer only when queue reaches capacity 3.",
+    "Disintegration motes float upward continuously from the queued eviction sector.",
+    "EPHEMERAL_EVICT triggers a tactile dissipation particle burst across the freed sector."
+  ],
+  "interface_contracts": {
+    "inputs": [
+      "state.stats.ephemeralProtocol",
+      "state.stats.p1Queue",
+      "state.stats.p2Queue",
+      "state.world.time"
+    ],
+    "outputs": [
+      "state.world.particles"
+    ],
+    "events": [
+      "EPHEMERAL_EVICT"
+    ]
+  },
+  "pre_flight_passed": true,
+  "description": "[Aesthetics] Shimmering half-life decay indicators and disintegration particle motes on whichever sigil is queued to vanish next under Ephemeral Protocol.\n\nSummary:\nRender dynamic decay shimmer and continuous disintegration motes on each contender's impending oldest sigil.\n\nSpecification:\nWhen `state.stats.ephemeralProtocol` is true and `queue.length === 3`, identify target sector `idx = queue[0]`. Compute half-life pulsing factor `alpha = 0.5 + 0.5 * Math.sin(state.world.time * 6)`. Render a caustic border stroke with `ctx.strokeStyle = factionColor` at `alpha * 0.8` and radial jitter `dr = (Math.random() - 0.5) * 2`. Spawn persistent dissipation motes into `state.world.particles` at sector center `(cx, cy)`: velocity `vx = (Math.random() - 0.5) * 28`, `vy = -Math.random() * 35 - 10`, lifetime `0.6s`, fading stroke alpha. On `EPHEMERAL_EVICT`, spawn a 24-mote radial burst.",
+  "submitted_by": "Aesthetics Specialist",
+  "change_type": "ADJUST_MECHANICS",
+  "status": "PENDING_REVIEW",
+  "created_at": 1794488212.842959,
+  "payload_diff": {
+    "title": "Shimmering half-life decay indicators and disintegration particle motes on whichever sigil is queued to vanish next under Ephemeral Protocol.",
+    "discipline": "Aesthetics",
+    "target_subsystem": "web_client/index.html",
+    "target_milestone": "v0.4.0",
+    "milestone_tag": "v0.4.0",
+    "author_role": "Aesthetics Specialist",
+    "summary": "Render dynamic decay shimmer and continuous disintegration motes on each contender's impending oldest sigil.",
+    "technical_specification": "When `state.stats.ephemeralProtocol` is true and `queue.length === 3`, identify target sector `idx = queue[0]`. Compute half-life pulsing factor `alpha = 0.5 + 0.5 * Math.sin(state.world.time * 6)`. Render a caustic border stroke with `ctx.strokeStyle = factionColor` at `alpha * 0.8` and radial jitter `dr = (Math.random() - 0.5) * 2`. Spawn persistent dissipation motes into `state.world.particles` at sector center `(cx, cy)`: velocity `vx = (Math.random() - 0.5) * 28`, `vy = -Math.random() * 35 - 10`, lifetime `0.6s`, fading stroke alpha. On `EPHEMERAL_EVICT`, spawn a 24-mote radial burst.",
+    "acceptance_criteria": [
+      "Oldest sigil displays pulsating chromatic shimmer only when queue reaches capacity 3.",
+      "Disintegration motes float upward continuously from the queued eviction sector.",
+      "EPHEMERAL_EVICT triggers a tactile dissipation particle burst across the freed sector."
+    ],
+    "interface_contracts": {
+      "inputs": [
+        "state.stats.ephemeralProtocol",
+        "state.stats.p1Queue",
+        "state.stats.p2Queue",
+        "state.world.time"
+      ],
+      "outputs": [
+        "state.world.particles"
+      ],
+      "events": [
+        "EPHEMERAL_EVICT"
+      ]
+    },
+    "pre_flight_passed": true
+  }
+}

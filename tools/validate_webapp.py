@@ -172,7 +172,14 @@ def verify_control_and_pacing_safeguards(plugin_files: List[Path]) -> Tuple[bool
             if re.search(r"(?:p|player)\.vx\s*=\s*Math\.cos\(", code) and "false" not in code:
                 warnings.append(f"{pf.name}:direct-velocity-override")
     status_note = f"warnings={warnings}" if warnings else "0 conflicts"
-    return True, f"Studio v4.0 Governance (Control, Schema, Aesthetics & UI/UX Z-Layer) Verified ({len(plugin_files)} modules; {status_note})"
+    for pf in plugin_files:
+        c = pf.read_text(encoding="utf-8")
+        saves = len(re.findall(r"\.save\(\s*\)", c))
+        restores = len(re.findall(r"\.restore\(\s*\)", c))
+        if saves != restores:
+            warnings.append(f"{pf.name}:unbalanced-ctx-save-restore({saves}!={restores})")
+    status_note = f"warnings={warnings}" if warnings else "0 conflicts, balanced ctx stacks"
+    return True, f"Studio v5.0 Governance (Control, Deep Schema, Spatial Slots & Canvas Stack) Verified ({len(plugin_files)} modules; {status_note})"
 
 def run_headless_microkernel_audit(extra_plugin_path: Optional[str] = None) -> Tuple[bool, str]:
     index_path = WORKSPACE_ROOT / "web_client" / "index.html"

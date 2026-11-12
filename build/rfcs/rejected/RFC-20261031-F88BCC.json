@@ -1,0 +1,101 @@
+{
+  "rfc_id": "RFC-20261031-F88BCC",
+  "title": "Expand Citadel Undercroft to Crypt Vaults",
+  "timestamp": "2026-10-31T02:29:57.755184Z",
+  "milestone_tag": "v0.5.0",
+  "discipline": "Level",
+  "target_subsystem": "procedural_spatial_generator.py",
+  "status": "STAGED_FOR_REVIEW",
+  "summary": "Adds a continuous corridor expansion into subterranean ossuaries without clearance margins.",
+  "proposed_changes": {
+    "room_id": "crypt_vaults_01",
+    "floorplate_dimensions": [
+      14.0,
+      3.5,
+      12.0
+    ],
+    "inset_offset": 0.05
+  },
+  "retrospective_memory": {
+    "injected_friction_rules": [
+      "All procedural AABB collision bounds must incorporate a minimum 0.15m inset offset relative to the visual floorplate and socket perimeter."
+    ],
+    "adversarial_prompt_context": "HISTORICAL ADVERSARIAL AUDIT (Violations will trigger automatic RFC rejection):\n  * PREVENT REGRESSION: All procedural AABB collision bounds must incorporate a minimum 0.15m inset offset relative to the visual floorplate and socket perimeter.",
+    "pre_flight_audit": {
+      "passed": false,
+      "violations_detected": 1,
+      "reasons": [
+        "Violation of INC-20261012-LVL-01: Procedural room socket or boundary lacks mandatory 0.15m clearance inset (current inset: 0.05m)."
+      ]
+    }
+  },
+  "validation_verdict": {
+    "passes_preflight": false,
+    "reasons": [
+      "Violation of INC-20261012-LVL-01: Procedural room socket or boundary lacks mandatory 0.15m clearance inset (current inset: 0.05m)."
+    ]
+  },
+  "review_verdict": {
+    "rfc_id": "RFC-20261031-F88BCC",
+    "timestamp": "2026-10-31T03:01:43.518866",
+    "status": "REJECTED",
+    "quorum_reached": false,
+    "total_votes": 6,
+    "approvals": 4,
+    "rejections": 2,
+    "vetoes_cast": 2,
+    "ballots": [
+      {
+        "reviewer": "Chaos QA",
+        "vote": "REJECT",
+        "critique": "Pre-flight validation failed. Proposal directly repeats recorded studio regressions.",
+        "friction_points": [
+          "Violation of INC-20261012-LVL-01: Procedural room socket or boundary lacks mandatory 0.15m clearance inset (current inset: 0.05m)."
+        ],
+        "veto": true
+      },
+      {
+        "reviewer": "Systems",
+        "vote": "APPROVE",
+        "critique": "Schema and bytecode evaluation constraints satisfied.",
+        "friction_points": [],
+        "veto": false
+      },
+      {
+        "reviewer": "Client",
+        "vote": "APPROVE",
+        "critique": "Complies with WebGL budget and scene-graph transform hierarchy.",
+        "friction_points": [],
+        "veto": false
+      },
+      {
+        "reviewer": "Level",
+        "vote": "REJECT",
+        "critique": "Insufficient clearance margin risks player entrapment at transition seams.",
+        "friction_points": [
+          "Boundary inset 0.05m is below minimum 0.15m margin."
+        ],
+        "veto": true
+      },
+      {
+        "reviewer": "Gameplay",
+        "vote": "APPROVE",
+        "critique": "Interaction masks and gameplay mechanics validated.",
+        "friction_points": [],
+        "veto": false
+      },
+      {
+        "reviewer": "Narrative",
+        "vote": "APPROVE",
+        "critique": "Thematic lore consistency maintained.",
+        "friction_points": [],
+        "veto": false
+      }
+    ],
+    "synthesis_summary": "Review Board Quorum FAILED: 4/6 approvals, 2 rejections, 2 vetoes.",
+    "actionable_directives": [
+      "[Chaos QA] Violation of INC-20261012-LVL-01: Procedural room socket or boundary lacks mandatory 0.15m clearance inset (current inset: 0.05m).",
+      "[Level] Boundary inset 0.05m is below minimum 0.15m margin."
+    ]
+  }
+}

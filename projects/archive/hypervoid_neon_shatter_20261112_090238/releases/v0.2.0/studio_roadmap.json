@@ -1,0 +1,176 @@
+{
+  "active_version": "v0.2.0",
+  "last_updated": "2026-11-12T05:48:47.772964",
+  "milestones": [
+    {
+      "version": "v0.1.0",
+      "codename": "Codename-v0.1.0",
+      "theme": "Neon Vector Core, Zero-G Drift Physics & Polygon Shatter",
+      "status": "SHIPPED",
+      "completion_percentage": 100.0,
+      "deliverables": [
+        {
+          "deliverable_id": "DELIV-V0_1_0-01",
+          "discipline": "Client",
+          "title": "Deep-void 800x600 canvas with a reactive neon perspective warp-grid, multi-layer parallax starfield, additive glow rendering (`shadowBlur`), and a sleek single-line top arcade status ribbon (`y: 0..34`).",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-DE9640.json"
+        },
+        {
+          "deliverable_id": "DELIV-V0_1_0-02",
+          "discipline": "Gameplay",
+          "title": "360-degree zero-G ship kinematics (`Left`/`Right` or `A`/`D` rotate, `Up`/`W` thrust with inertial drift, `Space` fire with recoil kickback, and seamless toroidal screen-edge wrap-around).",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-1EEBE5.json"
+        },
+        {
+          "deliverable_id": "DELIV-V0_1_0-03",
+          "discipline": "Systems",
+          "title": "Procedural jagged polygon asteroid spawner with 3-tier fracturing (`LARGE` -> 2 `MEDIUM` -> 3 `SMALL` neon shards), 40ms hit-stop impact frames, camera shake, and magnetic neon score gems that burst from shattered rocks.",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-2258D8.json"
+        }
+      ],
+      "completed_at": "2026-11-12T05:40:53.599090"
+    },
+    {
+      "version": "v0.2.0",
+      "codename": "Codename-v0.2.0",
+      "theme": "Pixel-Art Pilot Select, Slick Glitch Transitions & Combo Overdrive",
+      "status": "VALIDATING",
+      "completion_percentage": 100.0,
+      "deliverables": [
+        {
+          "deliverable_id": "DELIV-V0_2_0-01",
+          "discipline": "Client",
+          "title": "Animated Neo-80s Character Selection Modal featuring the 4 playable pilots (Vex, Kaze, Bass, Nyx) with procedural pixel-art portraits, stat bars, neon scanline transitions, and distinct ship vector hulls.",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-D7CABB.json"
+        },
+        {
+          "deliverable_id": "DELIV-V0_2_0-02",
+          "discipline": "Systems",
+          "title": "Pilot weapon firing patterns (Twin Pulse, Piercing Rail, Sonic Scatter, Homing Missiles), Pilot `[SHIFT]`/`[E]` Special Ability cooldown ring rendered diegetically around the ship, and hull shield regeneration rules.",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-D92CB7.json"
+        },
+        {
+          "deliverable_id": "DELIV-V0_2_0-03",
+          "discipline": "Gameplay",
+          "title": "Near-miss \"Graze\" detection and Overdrive Combo Multiplier (`1x` to `16x`) that escalates weapon projectile size, thruster flame trails, and neon grid color cycling.",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-EC677F.json"
+        }
+      ],
+      "completed_at": null
+    },
+    {
+      "version": "v0.3.0",
+      "codename": "Codename-v0.3.0",
+      "theme": "128-BPM EDM/Chiptune Sequencer & Beat-Synced Cybernetic Drafts",
+      "status": "PLANNED",
+      "completion_percentage": 0.0,
+      "deliverables": [
+        {
+          "deliverable_id": "DELIV-V0_3_0-01",
+          "discipline": "Gameplay",
+          "title": "Centralized Web Audio API 128-BPM EDM/chiptune step sequencer (driving 4-on-the-floor synth kick, sawtooth bassline arpeggiator, crispy noise snare, and dynamic lead synth layers tied to combo level) plus FM laser/shatter SFX.",
+          "target_subsystem": "web_client/index.html",
+          "status": "PENDING",
+          "verified_artifact": null
+        },
+        {
+          "deliverable_id": "DELIV-V0_3_0-02",
+          "discipline": "Systems",
+          "title": "Between-wave \"HYPER-MOD\" Draft Modal offering 3 neon arcade upgrade cartridges (e.g., *Chain-Lightning Arc*, *Orbital Saw-Drones*, *Ricochet Prism Lasers*, *Afterburner Nova*) with animated card selection.",
+          "target_subsystem": "web_client/index.html",
+          "status": "PENDING",
+          "verified_artifact": null
+        },
+        {
+          "deliverable_id": "DELIV-V0_3_0-03",
+          "discipline": "Client",
+          "title": "Beat-reactive visual synesthesia: the background synthwave grid, asteroid neon outlines, and starfield pulse synchronously on every 128-BPM quarter-note kick beat.",
+          "target_subsystem": "web_client/index.html",
+          "status": "PENDING",
+          "verified_artifact": null
+        }
+      ],
+      "completed_at": null
+    },
+    {
+      "version": "v0.4.0",
+      "codename": "Codename-v0.4.0",
+      "theme": "Rogue Synth-Hunters, Gravity Wells & Bullet-Hell Choreography",
+      "status": "PLANNED",
+      "completion_percentage": 0.0,
+      "deliverables": [
+        {
+          "deliverable_id": "DELIV-V0_4_0-01",
+          "discipline": "Level",
+          "title": "Hostile neon enemy squadron AI: Laser-Strafing Cyber-Saucers, Homing Glitch-Swarmers, and Purple Singularity Gravity Wells that curve both player lasers and asteroid trajectories.",
+          "target_subsystem": "web_client/index.html",
+          "status": "PENDING",
+          "verified_artifact": null
+        },
+        {
+          "deliverable_id": "DELIV-V0_4_0-02",
+          "discipline": "Gameplay",
+          "title": "Volatile hazard interactions: unstable Neon Plasma Barrels that detonate in chain-reaction shockwaves and directional dash-parry mechanics.",
+          "target_subsystem": "web_client/index.html",
+          "status": "PENDING",
+          "verified_artifact": null
+        },
+        {
+          "deliverable_id": "DELIV-V0_4_0-03",
+          "discipline": "Systems",
+          "title": "Dynamic Wave Director with diegetic on-screen warp-in warning reticles, escalating threat budgets, and combo-driven shield battery drops.",
+          "target_subsystem": "web_client/index.html",
+          "status": "PENDING",
+          "verified_artifact": null
+        }
+      ],
+      "completed_at": null
+    },
+    {
+      "version": "v0.5.0",
+      "codename": "Codename-v0.5.0",
+      "theme": "Omega-Synth Dreadnought Boss, High-Score Table & Arcade Finale",
+      "status": "PLANNED",
+      "completion_percentage": 0.0,
+      "deliverables": [
+        {
+          "deliverable_id": "DELIV-V0_5_0-01",
+          "discipline": "Level",
+          "title": "Multi-phase Boss Showdown (\"OMEGA-SYNTH LEVIATHAN\"): a massive rotating dayglo polygon dreadnought with destructible laser turrets, sweeping prism beams, and rhythmic bullet-hell patterns.",
+          "target_subsystem": "web_client/index.html",
+          "status": "PENDING",
+          "verified_artifact": null
+        },
+        {
+          "deliverable_id": "DELIV-V0_5_0-02",
+          "discipline": "Narrative",
+          "title": "High-voltage Arcade Game Over & Victory Summary Modal featuring Synth-Rank evaluation (`S-RANK: NEON DEITY` to `D-RANK: STATIC`), pilot victory quote, persistent Top-5 High Score Leaderboard, and instant `[SPACE]` replay reset.",
+          "target_subsystem": "web_client/index.html",
+          "status": "PENDING",
+          "verified_artifact": null
+        },
+        {
+          "deliverable_id": "DELIV-V0_5_0-03",
+          "discipline": "Client",
+          "title": "Slow-motion boss core meltdown explosion sequence, chromatic aberration screen flash, and victorious chiptune fanfare.",
+          "target_subsystem": "web_client/index.html",
+          "status": "PENDING",
+          "verified_artifact": null
+        }
+      ],
+      "completed_at": null
+    }
+  ]
+}

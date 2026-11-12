@@ -1,0 +1,87 @@
+{
+  "rfcs": [
+    {
+      "index": 0,
+      "summary": "Implement a full-canvas modal overlay with woodcut parchment aesthetics and 12x12 programmatic raster portraits to select one of four OSR doom classes.",
+      "technical_specification": "Modal mounts if `state.player.classSelected === false`, pausing kinematic loop via `state.isPaused = true`. Renders woodcut parchment box (`#07050a` backdrop, `#1c1917` filigree, `#d97706` accents). Reads `state.keys.menuLeft`, `menuRight`, and `action` to cycle and lock selection. Draws symmetric 12x12 procedural sprite grids and four `3d6` (3-18 range) stat meters (`STR`, `DEX`, `CON`, `ARC`) normalized to 100px bars. On confirmation (`ENTER` or `E`), sets `state.player.classId`, assigns base stats to `state.stats`, writes `state.player.weapon`, sets `classSelected = true`, and sets `state.isPaused = false`.",
+      "acceptance_criteria": [
+        "Render 4 classes with unique 12x12 symmetric pixel icons, weapon visuals, and 3d6 attribute meters without external asset files.",
+        "Selection instantly updates `state.stats` and unpauses engine without frame drops."
+      ],
+      "interface_contracts": {
+        "inputs": [
+          "state.keys.left",
+          "state.keys.right",
+          "state.keys.action",
+          "state.player.classSelected"
+        ],
+        "outputs": [
+          "state.player.classId",
+          "state.player.weapon",
+          "state.stats.str",
+          "state.stats.dex",
+          "state.stats.con",
+          "state.stats.arc",
+          "state.isPaused"
+        ],
+        "events": [
+          "CLASS_SELECTED"
+        ]
+      }
+    },
+    {
+      "index": 1,
+      "summary": "Define class attack patterns, class-specific Blood-Rites, and a Torchlight-coupled Stress and Resolve Check system.",
+      "technical_specification": "Tracks `state.world.torch` (0-100, drains at `0.75/sec`). If `torch < 30`, `state.player.stress` increases by `(30 - torch) * 0.08 * dt`. Space triggers attacks: Doomblade (broad 120-degree cleave), Acid Warlock (piercing line), Grave-Stalker (rapid dual thrust), Flagellant (whiplash cone). When `stress >= 100` and `resolveState === null`, triggers diegetic Resolve Check: roll `d100 + (con + arc)`. If `>= 65`, set `resolveState = 'TRANSCENDENT'` (+35% damage, torch refill), else `'AFFLICTED'` (hallucinatory phantoms spawn, random dodge misfires). Shift while stationary triggers class Blood-Rite, consuming 15 HP to unleash radial class utility.",
+      "acceptance_criteria": [
+        "Torch decay directly accelerates stress accumulation in pitch darkness.",
+        "Reaching 100 Stress triggers a single deterministic Resolve Test yielding either Transcendent buff or Afflicted penalties."
+      ],
+      "interface_contracts": {
+        "inputs": [
+          "state.keys.jump",
+          "state.keys.action",
+          "state.world.torch",
+          "state.player.stress"
+        ],
+        "outputs": [
+          "state.world.torch",
+          "state.player.stress",
+          "state.player.resolveState",
+          "state.player.bloodRiteActive"
+        ],
+        "events": [
+          "RESOLVE_TEST_TRIGGERED",
+          "BLOOD_RITE_ACTIVATED"
+        ]
+      }
+    },
+    {
+      "index": 2,
+      "summary": "Integrate an active 0.18s parry frame window upon Shift/E activation that repels attacks, plays anvil audio, and staggers attackers.",
+      "technical_specification": "On initial transition of `state.keys.action` with velocity magnitude `< 0.1`, set `state.player.isParrying = true` and `state.player.parryTimer = 0.18`. Decrement timer each tick. If an active enemy attack hitbox intersects `state.player.collider` while `parryTimer > 0`, negate incoming damage, invoke `WebAudio.playAnvilClang()`, emit `#f59e0b` spark particles at contact point, set target's `state.poise = 0`, and apply `target.staggerTimer = 1.2`. Player enters `riposteReady = true` for 0.8s, granting 3.0x critical multiplier and guaranteed knockback on next primary attack (`state.keys.jump`).",
+      "acceptance_criteria": [
+        "Incoming enemy melee hit within 0.18s of stationary Shift execution results in 0 player damage and an immediate anvil audio sting.",
+        "Parried enemies receive 1.2s poise stagger and 3x riposte damage on immediate follow-up attack."
+      ],
+      "interface_contracts": {
+        "inputs": [
+          "state.keys.action",
+          "state.player.velocity",
+          "state.world.enemies[].hitbox"
+        ],
+        "outputs": [
+          "state.player.isParrying",
+          "state.player.parryTimer",
+          "state.player.riposteReady",
+          "state.world.enemies[].staggerTimer",
+          "state.world.enemies[].poise"
+        ],
+        "events": [
+          "PARRY_SUCCESS",
+          "RIPOSTE_EXECUTED"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "rfcs": [
+    {
+      "index": 0,
+      "summary": "Implement interactive arena pylons that grav-slingshot projectiles with velocity boosts and chromatic shifts, exploding into neutralizing shockwaves when overloaded.",
+      "technical_specification": "Initialize `state.world.pylons = []` on boot (max 2 per wave). Each pylon holds `{x, y, radius: 28, hp: 120, maxHp: 120, charge: 0, pullRadius: 180, spinAngle: 0}`. In `update()`, calculate distance `d = hypot(px - pylon.x, py - pylon.y)`. For player projectiles with `d < pylon.pullRadius`, apply tangent/inward acceleration: `vx += (dx / d) * pullForce + (-dy / d) * spinForce`; scale `speed = min(speed * 1.03, 18)` and mutate `proj.color = '#39ff14'`. When struck by projectiles, subtract damage and increment `pylon.charge += dmg`. At `charge >= maxHp`, trigger `PYLON_IMPLODE`: clear nearby enemy hulls within 220px, emit hit-stop (3 frames), and add 800 combo score.",
+      "acceptance_criteria": [
+        "Projectiles within 180px curve smoothly around the pylon and accelerate up to 18px/frame with lime tint.",
+        "Overloading pylon HP detonates a 220px shockwave clearing enemy entities and awarding combo score."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.world.projectiles", "state.world.pylons"],
+        "outputs": ["state.world.pylons", "state.world.shockwaves", "state.stats.score"],
+        "events": ["PYLON_IMPLODE", "PYLON_SLINGSHOT"]
+      }
+    },
+    {
+      "index": 1,
+      "summary": "Add an omnidirectional phasic dash with invulnerability frames that leaves a lethal chromatic wake slicing chasing hunter enemies.",
+      "technical_specification": "Listen to `state.keys.Shift` or `state.keys.KeyE`. When triggered and `state.player.dashCooldown <= 0`: set `state.player.isDashing = true`, `state.player.dashTimer = 14`, `state.player.dashCooldown = 75`, `state.player.invulnerable = true`. Boost velocity: `vx = cos(moveAngle) * 16`, `vy = sin(moveAngle) * 16`. Push segments to `state.world.phaseWake = []` containing `{x1, y1, x2, y2, life: 30, maxLife: 30, color: '#00f3ff'}`. Hunter-class enemies colliding with active line segments take 85 piercing damage; surviving hunters are knocked back 6px. Decrement `dashTimer`; when 0, set `isDashing = false` and `invulnerable = false`.",
+      "acceptance_criteria": [
+        "Pressing Shift/E performs high-speed dash with invulnerability frames lasting exactly 14 frames.",
+        "Chasing hunter enemies intersecting the phase wake take immediate lethal damage and explode."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.keys.Shift", "state.keys.KeyE", "state.player.vx", "state.player.vy"],
+        "outputs": ["state.player.invulnerable", "state.player.dashCooldown", "state.world.phaseWake"],
+        "events": ["PLAYER_DASH", "PHASE_WAKE_SEVER"]
+      }
+    },
+    {
+      "index": 2,
+      "summary": "Render dual-frequency radial grid compression waves, velocity-based chromatic drift echoes, and vector fragmentation shatters on asteroid split events.",
+      "technical_specification": "Maintain `state.world.shockwaves = []` and `state.world.shatters = []`. On asteroid destruction, push shockwave `{x, y, radius: 0, maxRadius: 160, speed: 7, intensity: 1.0, color: '#ff007f'}`. In `render()`, displace background grid vertices via `offset = sin(dist * 0.08 - wave.radius * 0.1) * (wave.intensity * 14)`. When `player.speed > 8`, draw 3 trailing ship silhouettes offset by `[-vx*i*1.8, -vy*i*1.8]` with `ctx.globalCompositeOperation = 'lighter'` in electric cyan and magenta at `0.3` alpha. Spawn 12-16 tessellated vector polygon fragments with randomized spin `vRot` and outward burst velocity decaying at `0.92` per frame.",
+      "acceptance_criteria": [
+        "Asteroid splits visibly warp and compress background grid coordinates without dropping 60 FPS.",
+        "High-speed drifting ships generate fading RGB-split canvas afterimages directly along the inverse velocity vector."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.player.vx", "state.player.vy", "state.world.shockwaves", "state.world.shatters"],
+        "outputs": ["state.world.shockwaves", "state.world.shatters"],
+        "events": ["SHOCKWAVE_EMIT", "FRAGMENTATION_BURST"]
+      }
+    }
+  ]
+}

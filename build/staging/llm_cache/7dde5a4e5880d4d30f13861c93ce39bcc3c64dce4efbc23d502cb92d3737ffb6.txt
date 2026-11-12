@@ -1,0 +1,5 @@
+`state.stats[statKey]++`, `state.stats.unspentPoints--`, spawn button click particles/sound effect simulation.
+        *   Derived updates:
+            *   AGI: adjust skier turning responsiveness if player has carve factors, or ensure `state.stats.AGI` updates reflect on `player.vx` carve capability.
+            *   BAL: reduce wipeout duration `wipeoutTimer` recovery rate.
+            *   MOX: higher

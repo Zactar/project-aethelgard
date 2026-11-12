@@ -1,0 +1,67 @@
+{
+  "rfc_id": "RFC-20261112-20090D",
+  "title": "Translucent ghost-sigil hover preview inside vacant sectors and subtle pulsing threat-threads along any rank, file, or diagonal where a contender holds 2 of 3 sectors.",
+  "target_subsystem": "web_client/index.html",
+  "discipline": "Aesthetics",
+  "target_milestone": "v0.2.0",
+  "milestone_target": "v0.2.0",
+  "milestone_tag": "v0.2.0",
+  "author_role": "Aesthetics Specialist",
+  "summary": "Diegetic holographic hover ghosting on hovered vacant sectors and pulsating threat-thread lines along critical 2-of-3 collinear vectors.",
+  "technical_specification": "Compute hover index `sectorIdx = col + row * 3` from `state.pointer.x, y` within lattice bounds (`360x360` at `400,310`). If `state.grid[sectorIdx] === 0` and `state.activeContender === 1`, draw translucent ghost sigil at sector center with sine alpha `0.35 + 0.15 * Math.sin(state.world.time * 0.006)`. Iterate 8 triads: count ownership; if either contender holds exactly 2 sectors and 1 is vacant, calculate threat vector endpoints `(x1,y1)` to `(x2,y2)`. Render animated energetic threat-thread with dash offset `-state.world.time * 0.05` and glow width `2 + 1.5 * Math.sin(state.world.time * 0.01)` in contender's threat tint.",
+  "acceptance_criteria": [
+    "Hovering over empty sectors renders faction-accurate ghost preview with smooth pulsating alpha.",
+    "Threat-thread glows immediately along the exact vector whenever any contender holds 2 of 3 sectors.",
+    "Threat line vanishes immediately upon cell occlusion or vector resolution."
+  ],
+  "interface_contracts": {
+    "inputs": [
+      "state.pointer",
+      "state.grid",
+      "state.activeContender",
+      "state.world.time"
+    ],
+    "outputs": [
+      "state.threatTriads"
+    ],
+    "events": [
+      "THREAT_DETECTED"
+    ]
+  },
+  "pre_flight_passed": true,
+  "description": "[Aesthetics] Translucent ghost-sigil hover preview inside vacant sectors and subtle pulsing threat-threads along any rank, file, or diagonal where a contender holds 2 of 3 sectors.\n\nSummary:\nDiegetic holographic hover ghosting on hovered vacant sectors and pulsating threat-thread lines along critical 2-of-3 collinear vectors.\n\nSpecification:\nCompute hover index `sectorIdx = col + row * 3` from `state.pointer.x, y` within lattice bounds (`360x360` at `400,310`). If `state.grid[sectorIdx] === 0` and `state.activeContender === 1`, draw translucent ghost sigil at sector center with sine alpha `0.35 + 0.15 * Math.sin(state.world.time * 0.006)`. Iterate 8 triads: count ownership; if either contender holds exactly 2 sectors and 1 is vacant, calculate threat vector endpoints `(x1,y1)` to `(x2,y2)`. Render animated energetic threat-thread with dash offset `-state.world.time * 0.05` and glow width `2 + 1.5 * Math.sin(state.world.time * 0.01)` in contender's threat tint.",
+  "submitted_by": "Aesthetics Specialist",
+  "change_type": "ADJUST_MECHANICS",
+  "status": "PENDING_REVIEW",
+  "created_at": 1794485888.258021,
+  "payload_diff": {
+    "title": "Translucent ghost-sigil hover preview inside vacant sectors and subtle pulsing threat-threads along any rank, file, or diagonal where a contender holds 2 of 3 sectors.",
+    "discipline": "Aesthetics",
+    "target_subsystem": "web_client/index.html",
+    "target_milestone": "v0.2.0",
+    "milestone_tag": "v0.2.0",
+    "author_role": "Aesthetics Specialist",
+    "summary": "Diegetic holographic hover ghosting on hovered vacant sectors and pulsating threat-thread lines along critical 2-of-3 collinear vectors.",
+    "technical_specification": "Compute hover index `sectorIdx = col + row * 3` from `state.pointer.x, y` within lattice bounds (`360x360` at `400,310`). If `state.grid[sectorIdx] === 0` and `state.activeContender === 1`, draw translucent ghost sigil at sector center with sine alpha `0.35 + 0.15 * Math.sin(state.world.time * 0.006)`. Iterate 8 triads: count ownership; if either contender holds exactly 2 sectors and 1 is vacant, calculate threat vector endpoints `(x1,y1)` to `(x2,y2)`. Render animated energetic threat-thread with dash offset `-state.world.time * 0.05` and glow width `2 + 1.5 * Math.sin(state.world.time * 0.01)` in contender's threat tint.",
+    "acceptance_criteria": [
+      "Hovering over empty sectors renders faction-accurate ghost preview with smooth pulsating alpha.",
+      "Threat-thread glows immediately along the exact vector whenever any contender holds 2 of 3 sectors.",
+      "Threat line vanishes immediately upon cell occlusion or vector resolution."
+    ],
+    "interface_contracts": {
+      "inputs": [
+        "state.pointer",
+        "state.grid",
+        "state.activeContender",
+        "state.world.time"
+      ],
+      "outputs": [
+        "state.threatTriads"
+      ],
+      "events": [
+        "THREAT_DETECTED"
+      ]
+    },
+    "pre_flight_passed": true
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "rfc_id": "RFC-20261112-844826",
+  "title": "End-of-Series Grand Arbiter Verdict Modal displaying Series Outcome, Strategic Rating (`S-RANK: GRAND GEOMETER` to `C-RANK: INITIATE`), Win/Deadlock/Loss breakdown, Top-5 Observatory Ledger, and `[SPACE]` New Series / `[C]` Reconfigure Protocol.",
+  "target_subsystem": "web_client/index.html",
+  "discipline": "UI_UX",
+  "target_milestone": "v0.5.0",
+  "milestone_target": "v0.5.0",
+  "milestone_tag": "v0.5.0",
+  "author_role": "UI_UX Specialist",
+  "summary": "Implement the End-of-Series Grand Arbiter Verdict Modal with dynamic rank calculations, session ledger recording, and keyboard-driven lifecycle transitions.",
+  "technical_specification": "When `state.stats.seriesOver === true`, lock matrix input and render a high-contrast modal anchored at `(400, 310)`. Derive strategic score from efficiency ratio `E = (wins * 3 + deadlocks) / max(1, roundsPlayed * 3)`: assign `S-RANK: GRAND GEOMETER` for `E >= 0.85`, `A-RANK: CELESTIAL ARCHITECT` for `E >= 0.65`, `B-RANK: SECTOR ADEPT` for `E >= 0.45`, else `C-RANK: INITIATE`. Append record `{ wins, losses, deadlocks, rank, score: Math.round(E * 1000) }` into `state.stats.observatoryLedger` (capped to top 5 descending). If `state.keys['Space']`, trigger `SERIES_RESET` to clear grid and counters; if `state.keys['KeyC']`, toggle `state.stats.configOpen = true`.",
+  "acceptance_criteria": [
+    "Modal renders only when state.stats.seriesOver is true without obstructing underlying collinear vectors.",
+    "Pressing Space initiates a new series and resets bout tallies while preserving the top-5 ledger.",
+    "Strategic rank recalculates deterministically based on win/deadlock efficiency formula."
+  ],
+  "interface_contracts": {
+    "inputs": [
+      "state.stats.seriesOver",
+      "state.stats.wins",
+      "state.stats.losses",
+      "state.stats.deadlocks",
+      "state.keys.Space",
+      "state.keys.KeyC"
+    ],
+    "outputs": [
+      "state.stats.strategicRank",
+      "state.stats.observatoryLedger",
+      "state.stats.seriesOver",
+      "state.stats.configOpen"
+    ],
+    "events": [
+      "SERIES_RESET",
+      "CONFIG_OPEN"
+    ]
+  },
+  "pre_flight_passed": true,
+  "description": "[UI_UX] End-of-Series Grand Arbiter Verdict Modal displaying Series Outcome, Strategic Rating (`S-RANK: GRAND GEOMETER` to `C-RANK: INITIATE`), Win/Deadlock/Loss breakdown, Top-5 Observatory Ledger, and `[SPACE]` New Series / `[C]` Reconfigure Protocol.\n\nSummary:\nImplement the End-of-Series Grand Arbiter Verdict Modal with dynamic rank calculations, session ledger recording, and keyboard-driven lifecycle transitions.\n\nSpecification:\nWhen `state.stats.seriesOver === true`, lock matrix input and render a high-contrast modal anchored at `(400, 310)`. Derive strategic score from efficiency ratio `E = (wins * 3 + deadlocks) / max(1, roundsPlayed * 3)`: assign `S-RANK: GRAND GEOMETER` for `E >= 0.85`, `A-RANK: CELESTIAL ARCHITECT` for `E >= 0.65`, `B-RANK: SECTOR ADEPT` for `E >= 0.45`, else `C-RANK: INITIATE`. Append record `{ wins, losses, deadlocks, rank, score: Math.round(E * 1000) }` into `state.stats.observatoryLedger` (capped to top 5 descending). If `state.keys['Space']`, trigger `SERIES_RESET` to clear grid and counters; if `state.keys['KeyC']`, toggle `state.stats.configOpen = true`.",
+  "submitted_by": "UI_UX Specialist",
+  "change_type": "ADJUST_MECHANICS",
+  "status": "PENDING_REVIEW",
+  "created_at": 1794488243.0980618,
+  "payload_diff": {
+    "title": "End-of-Series Grand Arbiter Verdict Modal displaying Series Outcome, Strategic Rating (`S-RANK: GRAND GEOMETER` to `C-RANK: INITIATE`), Win/Deadlock/Loss breakdown, Top-5 Observatory Ledger, and `[SPACE]` New Series / `[C]` Reconfigure Protocol.",
+    "discipline": "UI_UX",
+    "target_subsystem": "web_client/index.html",
+    "target_milestone": "v0.5.0",
+    "milestone_tag": "v0.5.0",
+    "author_role": "UI_UX Specialist",
+    "summary": "Implement the End-of-Series Grand Arbiter Verdict Modal with dynamic rank calculations, session ledger recording, and keyboard-driven lifecycle transitions.",
+    "technical_specification": "When `state.stats.seriesOver === true`, lock matrix input and render a high-contrast modal anchored at `(400, 310)`. Derive strategic score from efficiency ratio `E = (wins * 3 + deadlocks) / max(1, roundsPlayed * 3)`: assign `S-RANK: GRAND GEOMETER` for `E >= 0.85`, `A-RANK: CELESTIAL ARCHITECT` for `E >= 0.65`, `B-RANK: SECTOR ADEPT` for `E >= 0.45`, else `C-RANK: INITIATE`. Append record `{ wins, losses, deadlocks, rank, score: Math.round(E * 1000) }` into `state.stats.observatoryLedger` (capped to top 5 descending). If `state.keys['Space']`, trigger `SERIES_RESET` to clear grid and counters; if `state.keys['KeyC']`, toggle `state.stats.configOpen = true`.",
+    "acceptance_criteria": [
+      "Modal renders only when state.stats.seriesOver is true without obstructing underlying collinear vectors.",
+      "Pressing Space initiates a new series and resets bout tallies while preserving the top-5 ledger.",
+      "Strategic rank recalculates deterministically based on win/deadlock efficiency formula."
+    ],
+    "interface_contracts": {
+      "inputs": [
+        "state.stats.seriesOver",
+        "state.stats.wins",
+        "state.stats.losses",
+        "state.stats.deadlocks",
+        "state.keys.Space",
+        "state.keys.KeyC"
+      ],
+      "outputs": [
+        "state.stats.strategicRank",
+        "state.stats.observatoryLedger",
+        "state.stats.seriesOver",
+        "state.stats.configOpen"
+      ],
+      "events": [
+        "SERIES_RESET",
+        "CONFIG_OPEN"
+      ]
+    },
+    "pre_flight_passed": true
+  }
+}

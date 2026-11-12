@@ -1,0 +1,11 @@
+1.35^0) = 100.
+Threshold(2) = floor(100 * 1.35^1) = 135.
+Threshold(3) = floor(100 * 1.35^2) = 182.
+Threshold(4) = floor(100 * 1.35^3) = 246.
+When `XP_current >= XP_needed`:
+```js
+while (player.xp >= getXpThreshold(player.level)) {
+  player.xp -= getXpThreshold(player.level);
+  player.level++;
+  player.statPoints++;
+  // trigger level up visual notification /

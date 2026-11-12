@@ -1,0 +1,31 @@
+{
+  "summary": "Implements deterministic downhill obstacle streaming (Pine Trees, Boulders, Moguls) coupled with Axis-Aligned Bounding Box (AABB) intersection tests, spatial chunk recycling, and an explicit 5-state player kinematics and wipeout state machine within HTML5 Canvas 2D.",
+  "technical_specification": "1. DETERMINISTIC PSEUDO-RANDOM NUMBER GENERATION (PRNG):\nUse a 32-bit SplitMix32/Xoshiro128** PRNG core initialized by an unsigned 32-bit world seed (S_0). Seed derivation for coordinate-indexed chunks uses MurmurHash3-style bit mixing: hash(seed, chunk_y) = (h ^ (h >>> 16)) >>> 0.\n\n2. SPATIAL CHUNK STREAMING PIPELINE:\n- Slopes are partitioned vertically into chunks: CHUNK_HEIGHT = 1200px, CHUNK_WIDTH = canvas.width (default 800px).\n- Generation maintains active chunks within the viewport plus an overdraw buffer: y in [Viewport_Y - 600, Viewport_Y + Viewport_Height + 1200].\n- Obstacle Density Formula per Chunk: N_obs = clamp(floor(12 + (Distance_Meters / 100) * 1.5), 12, 45).\n- Obstacle Type Categorization via discrete probability weights:\n  P(Pine Tree) = 0.50\n  P(Boulder) = 0.25\n  P(Mogul) = 0.25\n- Sub-pixel placements: Obstacle_X = PRNG() * (CHUNK_WIDTH - 64) + 32; Obstacle_Y = chunk_index * CHUNK_HEIGHT + PRNG() * CHUNK_HEIGHT.\n- Spatial Partitioning: Obstacles are stored in an active double-linked array and pruned when Obstacle_Y < Viewport_Y - 600.\n\n3. ENTITY DATA SCHEMA & HITBOX REGISTRATIONS:\n- Player Hitbox: AABB offset relative to anchor (x, y): { ox: -12, oy: -28, w: 24, h: 28 }.\n- Pine Tree (SOLID_OBSTACLE):\n  Sprite: 32x48px; Collision AABB: { ox: -10, oy: -14, w: 20, h: 14 } (Trunk base only, branches allow pass-through).\n- Boulder (SOLID_OBSTACLE):\n  Sprite: 28x20px; Collision AABB: { ox: -12, oy: -10, w: 24, h: 18 }.\n- Mogul (TERRAIN_SURFACE):\n  Sprite: 32x16px; Collision AABB: { ox: -14, oy: -6, w: 28, h: 12 }.\n\n4. COLLISION RESOLUTION ALGORITHM & STATE MACHINE:\nIntersection evaluated per tick: (abs(A.x - B.x) * 2 < (A.w + B.w)) && (abs(A.y - B.y) * 2 < (A.h + B.h)).\nState Machine Bits and Transitions:\n- Bitmask: 0x01 (SKIING), 0x02 (TUCK), 0x04 (AIRBORNE), 0x08 (WIPEOUT_MAJOR), 0x10 (WIPEOUT_RECOVERY), 0x20 (INVULNERABLE).\nTransitions:\n- If Player is AIRBORNE (0x04) and collides with Mogul: Ignore.\n- If Player is SKIING (0x01) or TUCK (0x02) and collides with Mogul: Launch into AIRBORNE (0x04); set vertical ascent V_z = 8.5 m/s, gravity g = -18.0 m/s^2. If landing without level alignment or at extreme lateral angle (|V_x| > 120), trigger WIPEOUT_MAJOR.\n- If Player intersects Pine Tree or Boulder:\n  - If AIRBORNE and Height Z > 24px: Clears obstacle.\n  - Else: Transition to WIPEOUT_MAJOR (0x08).\n\n5. WIPEOUT RECOVERY MATHEMATICS:\n- Wipeout state parameters: wipeout_count += 1; max_wipeouts = 3.\n- Momentum reduction: V_x = 0; V_y = V_y * 0.10 (bleed to 0 across 300ms).\n- Duration formula: Recovery_Duration_Sec = clamp(2.5 - (Balance_Stat * 0.04), 0.6, 2.5).\n- Recovery sub-state: WIPEOUT_MAJOR transitions to WIPEOUT_RECOVERY (0x10) with an invulnerability window (t_invuln = 1.2s) upon timer expiration.\n- Game Over Trigger: If wipeout_count >= max_wipeouts and not revived, trigger RUN_TERMINATED.",
+  "acceptance_criteria": [
+    "Pine trees, boulders, and moguls spawn procedurally down the slope using deterministic seeding, matching defined visual footprints and generation densities.",
+    "Axis-Aligned Bounding Box (AABB) intersection correctly registers collisions against trunk bases and boulder centers while ignoring non-colliding pine foliage canopy.",
+    "Colliding with a Mogul while grounded launches the skier into the air with vertical velocity parabolic arc without triggering a major wipeout.",
+    "Colliding with Pine Trees or Boulders while grounded triggers the WIPEOUT_MAJOR state, decrements life counter, and enters ragdoll recovery scaling inversely with Balance stat.",
+    "Player recovers into an invulnerable state (blinking sprite) for 1.2 seconds, during which obstacle collisions are bypassed.",
+    "Total wipeouts reaching 3 triggers an explicit RUN_TERMINATED state and halts kinematic progression."
+  ],
+  "interface_contracts": {
+    "inputs": [
+      "tick(deltaTimeMs: number)",
+      "setWorldSeed(seed: number): void",
+      "processInput(inputBitmask: number): void",
+      "updatePlayerStats(stats: { balance: number, agility: number }): void"
+    ],
+    "outputs": [
+      "getPlayerState(): { x: number, y: number, z: number, vx: number, vy: number, stateMask: number, wipeoutsRemaining: number }",
+      "getActiveObstacles(): Array<{ id: number, type: 'PINE'|'BOULDER'|'MOGUL', x: number, y: number, aabb: { ox: number, oy: number, w: number, h: number } }>",
+      "getRunStatus(): 'ACTIVE' | 'WIPEOUT' | 'TERMINATED'"
+    ],
+    "events": [
+      "onObstacleCollision(obstacleId: number, obstacleType: string, position: { x: number, y: number })",
+      "onPlayerWipeout(remainingWipeouts: number, recoveryDurationMs: number)",
+      "onPlayerRecovered()",
+      "onRunTerminated(finalDistanceMeters: number)"
+    ]
+  }
+}

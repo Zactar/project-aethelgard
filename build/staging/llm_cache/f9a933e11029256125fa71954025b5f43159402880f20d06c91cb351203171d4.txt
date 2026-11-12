@@ -1,0 +1,100 @@
+{
+  "rfcs": [
+    {
+      "index": 0,
+      "summary": "Detects player reaching distance multiples of 500 meters to spawn mountain refuge shelters and pause gameplay for draft events.",
+      "technical_specification": "Each frame, evaluate `state.player.distanceTraveled`. Maintain `state.world.lastCheckpointMeter` (initialized to 0). When `state.player.distanceTraveled - state.world.lastCheckpointMeter >= 500`, set `state.world.checkpointActive = true`, clamp `state.world.lastCheckpointMeter += 500`, spawn shelter structure entity at `state.player.y + 120` in `state.world.entities`, and emit `CHECKPOINT_REACHED`. Physics simulation freezes downhill delta while preserving lateral alignment until drafting finishes.",
+      "acceptance_criteria": [
+        "Fires `CHECKPOINT_REACHED` precisely when crossing multiples of 500m.",
+        "Halts downhill distance accumulator and sets `state.world.checkpointActive` to true without velocity loss."
+      ],
+      "interface_contracts": {
+        "inputs": [
+          "state.player.distanceTraveled",
+          "state.world.lastCheckpointMeter"
+        ],
+        "outputs": [
+          "state.world.checkpointActive",
+          "state.world.lastCheckpointMeter",
+          "state.world.entities"
+        ],
+        "events": [
+          "CHECKPOINT_REACHED"
+        ]
+      }
+    },
+    {
+      "index": 1,
+      "summary": "Generates a 3-card weighted relic draft modal overlay upon checkpoint arrival and resolves selection into player inventory.",
+      "technical_specification": "Listens for `CHECKPOINT_REACHED`. Reads global item registry, excludes currently equipped uniques, and selects 3 distinct IDs using rarity roll: Common (60%), Rare (30%), Epic (10%). Writes choices to `state.draft.choices = [item1, item2, item3]` and sets `state.draft.isOpen = true`. Renders UI card cards showing `title`, `rarity`, `icon`, and `description`. Keyboard keys `1`, `2`, `3` or click pointer bounds write choice to `state.inventory.items`, set `state.draft.isOpen = false`, reset `state.world.checkpointActive = false`, and emit `ITEM_ACQUIRED`.",
+      "acceptance_criteria": [
+        "Draft modal opens exclusively on `CHECKPOINT_REACHED` displaying 3 valid, non-duplicate choices.",
+        "Selecting a card updates inventory, closes the overlay, and resumes downhill simulation."
+      ],
+      "interface_contracts": {
+        "inputs": [
+          "state.draft.isOpen",
+          "state.keys",
+          "state.pointer"
+        ],
+        "outputs": [
+          "state.draft.choices",
+          "state.draft.isOpen",
+          "state.inventory.items",
+          "state.world.checkpointActive"
+        ],
+        "events": [
+          "CHECKPOINT_REACHED",
+          "ITEM_ACQUIRED"
+        ]
+      }
+    },
+    {
+      "index": 2,
+      "summary": "Maintains player passive stat recalculation pipeline and updates active gadget cooldown states during game loop ticks.",
+      "technical_specification": "Calculates `state.stats` dynamically every tick from `state.stats.base` + sum of modifiers from `state.inventory.items`. Passive formula: `statVal = (base + flatMod) * (1 + pctMod)`. Handles active items in `state.inventory.activeSlots`: decrement `cooldownRemaining = Math.max(0, cooldownRemaining - dt)`. When `state.keys.Active1` or `state.keys.Active2` is pressed and cooldown is 0, trigger gadget action logic, set `cooldownRemaining = baseCooldown`, and emit `ACTIVE_ITEM_TRIGGERED`.",
+      "acceptance_criteria": [
+        "Passives dynamically recalculate speed, carve rate, and stamina caps without compounding drift.",
+        "Active items enforce discrete cooldown timers reduced accurately by frame delta time."
+      ],
+      "interface_contracts": {
+        "inputs": [
+          "state.inventory.items",
+          "state.inventory.activeSlots",
+          "state.stats.base",
+          "state.keys"
+        ],
+        "outputs": [
+          "state.stats.current",
+          "state.inventory.activeSlots[].cooldownRemaining"
+        ],
+        "events": [
+          "ITEM_ACQUIRED",
+          "ACTIVE_ITEM_TRIGGERED"
+        ]
+      }
+    },
+    {
+      "index": 3,
+      "summary": "Defines data manifests and operational logic for the initial roster of 25 equipment relics and active survival gadgets.",
+      "technical_specification": "Populates `state.registry.items` with 25 immutable entries: 18 passives (e.g., 'Steel Edges' +15% carve, 'Wax Coating' +10% max speed, 'Fleece Lining' +20 max stamina, 'Mammoth Bell' -15% Yeti aggro range) and 7 actives (e.g., 'Flare Gun' stuns Yeti 3s on 20s CD, 'Spring Boots' vertical launch on 12s CD, 'Pocket Defibrillator' revive on 90s CD). Each entry defines `id`, `name`, `type` ('passive'|'active'), `rarity`, `iconSprite`, `stats` modifier table, and `onUse` hook.",
+      "acceptance_criteria": [
+        "All 25 unique items exist in registry with valid schema identifiers and descriptions.",
+        "Both passive stat injection and active slot bindings operate across all 25 registered relics."
+      ],
+      "interface_contracts": {
+        "inputs": [
+          "state.registry.items"
+        ],
+        "outputs": [
+          "state.registry.items",
+          "state.inventory.items"
+        ],
+        "events": [
+          "REGISTRY_INITIALIZED",
+          "ITEM_ACQUIRED"
+        ]
+      }
+    }
+  ]
+}

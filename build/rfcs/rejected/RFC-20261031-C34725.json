@@ -1,0 +1,119 @@
+{
+  "rfc_id": "RFC-20261031-C34725",
+  "title": "Aqueduct Sluice Gate & Subterranean Canal Geometry",
+  "timestamp": "2026-10-31T06:33:16.616950Z",
+  "milestone_tag": "v0.14.0",
+  "discipline": "Level",
+  "target_subsystem": "web_client/game_runtime_manifest.json",
+  "status": "STAGED_FOR_REVIEW",
+  "summary": "Algorithmic CSG spatial expansion adding zone 'new_citadel_district' with guaranteed 0.20m insets.",
+  "proposed_changes": {
+    "new_room": {
+      "room_id": "new_citadel_district",
+      "name": "Aqueduct Sluice Gate & Subterranean Canal Geometry",
+      "district": "Citadel Expansion",
+      "position": [
+        0.0,
+        0.0,
+        -48.0
+      ],
+      "dimensions": [
+        20.0,
+        4.5,
+        20.0
+      ],
+      "inset_offset": 0.2,
+      "corridor_sockets": [
+        {
+          "target_room": "market_cross",
+          "position": [
+            0.0,
+            0.0,
+            -38.0
+          ],
+          "clearance_inset": 0.2
+        }
+      ]
+    }
+  },
+  "retrospective_memory": {
+    "injected_friction_rules": [
+      "Ensure room socket offsets enforce minimum 0.15m separation on all floorplate axes.",
+      "All procedural AABB collision bounds must incorporate a minimum 0.15m inset offset relative to the visual floorplate and socket perimeter."
+    ],
+    "adversarial_prompt_context": "HISTORICAL ADVERSARIAL AUDIT (Violations will trigger automatic RFC rejection):\n  * PREVENT REGRESSION: Ensure room socket offsets enforce minimum 0.15m separation on all floorplate axes.\n  * PREVENT REGRESSION: All procedural AABB collision bounds must incorporate a minimum 0.15m inset offset relative to the visual floorplate and socket perimeter.",
+    "pre_flight_audit": {
+      "passed": false,
+      "violations_detected": 1,
+      "reasons": [
+        "Violation of INC-20261012-LVL-01: Procedural room socket or boundary lacks mandatory 0.15m clearance inset (current inset: 0.0m)."
+      ]
+    }
+  },
+  "validation_verdict": {
+    "passes_preflight": false,
+    "reasons": [
+      "Violation of INC-20261012-LVL-01: Procedural room socket or boundary lacks mandatory 0.15m clearance inset (current inset: 0.0m)."
+    ]
+  },
+  "review_verdict": {
+    "rfc_id": "RFC-20261031-C34725",
+    "timestamp": "2026-10-31T06:33:16.626543",
+    "status": "REJECTED",
+    "quorum_reached": false,
+    "total_votes": 6,
+    "approvals": 5,
+    "rejections": 1,
+    "vetoes_cast": 1,
+    "ballots": [
+      {
+        "reviewer": "Chaos QA",
+        "vote": "REJECT",
+        "critique": "Pre-flight validation failed. Proposal directly repeats recorded studio regressions.",
+        "friction_points": [
+          "Violation of INC-20261012-LVL-01: Procedural room socket or boundary lacks mandatory 0.15m clearance inset (current inset: 0.0m)."
+        ],
+        "veto": true
+      },
+      {
+        "reviewer": "Systems",
+        "vote": "APPROVE",
+        "critique": "Schema and bytecode evaluation constraints satisfied.",
+        "friction_points": [],
+        "veto": false
+      },
+      {
+        "reviewer": "Client",
+        "vote": "APPROVE",
+        "critique": "Complies with WebGL budget and scene-graph transform hierarchy.",
+        "friction_points": [],
+        "veto": false
+      },
+      {
+        "reviewer": "Level",
+        "vote": "APPROVE",
+        "critique": "AABB dimensions and socket clearance margins conform to spatial contracts.",
+        "friction_points": [],
+        "veto": false
+      },
+      {
+        "reviewer": "Gameplay",
+        "vote": "APPROVE",
+        "critique": "Interaction masks and gameplay mechanics validated.",
+        "friction_points": [],
+        "veto": false
+      },
+      {
+        "reviewer": "Narrative",
+        "vote": "APPROVE",
+        "critique": "Thematic lore consistency maintained.",
+        "friction_points": [],
+        "veto": false
+      }
+    ],
+    "synthesis_summary": "Review Board Quorum FAILED: 5/6 approvals, 1 rejections, 1 vetoes.",
+    "actionable_directives": [
+      "[Chaos QA] Violation of INC-20261012-LVL-01: Procedural room socket or boundary lacks mandatory 0.15m clearance inset (current inset: 0.0m)."
+    ]
+  }
+}

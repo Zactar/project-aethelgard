@@ -1,0 +1,92 @@
+{
+  "version": 5,
+  "projects_completed": [
+    "Glissade: Descent of the Yeti",
+    "HYPERVOID // NEON SHATTER",
+    "BLACK CHALICE // DOOM OF THE UNDERWORLD",
+    "TRINITAS // THE NINEFOLD LATTICE"
+  ],
+  "global_studio_tenets": [
+    "ACTION-CONSEQUENCE GAMEPLAY LOOP: Every feature must give the player an active decision, timing challenge, or spatial hazard to react to. Never substitute passive numbers or fake telemetry for gameplay.",
+    "DIEGETIC VISUALS OVER HUD BOXES: Keep the playfield unobstructed. Represent status, buffs, and hazards directly on sprites, terrain, and world particles rather than adding rectangular HUD panels.",
+    "COORDINATE & STATE CONTINUITY: Inspect how Milestone v0.1.0 updates player/world coordinates and health/wipeouts before writing v0.2.0+ logic. Never latch state variables with `d = d || val`.",
+    "DEFENSIVE INITIALIZATION: Initialize all custom arrays and sub-objects on `StudioEngine.state` inside `init(state)` before reading or `.push()`ing in `update()`."
+  ],
+  "role_skill_cards": {
+    "Executive_Producer": "Reject fragmented milestone silos and static modal screens. Mandate cohesive core-loop depth, diegetic tactile interaction, responsive viewport layouts, and seamless real-time state transitions across all milestone deliverables.",
+    "Systems": "Architect rule sets and decaying entity lifecycles through event-driven state mutations. Never poll or invoke foreign milestone methods directly; broadcast state transitions across a decoupled event bus.",
+    "Gameplay": "Design snappy, uninterrupted board interactions with tactile audio-visual cues. Guarantee state toggles and mutators integrate into the active phase loop cleanly without triggering abrupt hard resets.",
+    "Level": "Anchor astral margins and grid lattices to dynamic, aspect-ratio-aware coordinate anchors. Never hardcode absolute pixel boundaries or assume fixed screen widths for environmental elements.",
+    "Client": "Eliminate flat fillRect overlays and disconnected particle loops. Drive visual feedback through normalized render passes, integrated canvas blends, dynamic bloom, and responsive camera shakes.",
+    "Narrative": "Infuse cosmic lore directly into glyph disintegration, celestial alignments, and thematic board transitions. Completely avoid intrusive modal ledgers, text boxes, and artificial lore popups.",
+    "Codebase_Engineer": "Enforce strict module isolation, shared type interfaces, and single-source-of-truth state. Eliminate cross-module direct calls, ad-hoc arrays, and leaked keyboard listener bindings across milestones.",
+    "Aesthetics": "Compose shimmering motes, glyph flourishes, and starfields within a unified lighting layer. Ensure visual effects scale with game pace rather than using raw unscaled random distributions.",
+    "UI_UX": "Deliver scoreboards, player verdicts, and phase indicators as non-blocking diegetic scene components. Forbid intrusive modal takeovers that obstruct the core playfield and shatter immersion."
+  },
+  "postmortem_history": [
+    {
+      "project": "Glissade: Descent of the Yeti",
+      "timestamp": "2026-11-12T05:16:29.326968",
+      "metrics": {
+        "project_title": "Glissade: Descent of the Yeti",
+        "milestone_plugins_count": 7,
+        "total_js_lines": 1132,
+        "hud_fillrect_calls": 54
+      },
+      "summary": "While procedural Web Audio and diegetic phantom ghosts added strong alpine atmosphere, the project suffered from excessive HUD fillRect calls that cluttered player view instead of embedding feedback into the world. Moving forward, UI elements must give way to in-world telegraphs and strictly unified coordinate tracking.",
+      "mistakes_corrected": [
+        "54 HUD fillRect calls cluttering active descent -> Replace static stat banners with diegetic particle trails, kinetic particle bursts, and audio cues.",
+        "Static fixed coordinate ramp spawns desynced from continuous downhill progression -> Anchor terrain features to dynamic world-stream offsets.",
+        "Decoupled audio initializations per milestone -> Establish a centralized procedural audio bus in core engine initialization."
+      ]
+    },
+    {
+      "project": "HYPERVOID // NEON SHATTER",
+      "timestamp": "2026-11-12T08:37:00.173739",
+      "metrics": {
+        "project_title": "HYPERVOID // NEON SHATTER",
+        "milestone_plugins_count": 6,
+        "total_js_lines": 2041,
+        "hud_fillrect_calls": 19
+      },
+      "summary": "HYPERVOID delivered intense kinematic momentum and dynamic encounters, but suffered from 19 cluttering HUD fillRect overlays and fragmented audio context instantiation across plugin boundaries. Moving forward, tactile feedback must remain entirely diegetic within world-space while state mutations and audio routing are strictly centralized.",
+      "mistakes_corrected": [
+        "19 HUD fillRect overlay calls -> Shift all critical feedback to world-space reticles, vignette pulses, and chromatic shake.",
+        "Ad-hoc AudioContext creation in milestone plugins -> Enforce a single shared audio bus initialized on first user gesture in core engine.",
+        "Loose world-state arrays monkey-patched across milestones -> Enforce strict state schema initialization and single-source-of-truth registry."
+      ]
+    },
+    {
+      "project": "BLACK CHALICE // DOOM OF THE UNDERWORLD",
+      "timestamp": "2026-11-12T11:36:02.783900",
+      "metrics": {
+        "project_title": "BLACK CHALICE // DOOM OF THE UNDERWORLD",
+        "milestone_plugins_count": 9,
+        "total_js_lines": 3229,
+        "hud_fillrect_calls": 70
+      },
+      "summary": "While environmental set-pieces like censers and lodestones enriched combat spectacle, milestones bloated into 70 raw HUD fillRect calls and crutched on pop-up floating text announcements. Moving forward, world interactions must communicate strictly through diegetic physics, localized particles, and reactive shaders rather than intrusive text overlays.",
+      "mistakes_corrected": [
+        "Over-reliance on floating narrative pop-ups ('\ud83d\udd25 BRONZE CENSER SWUNG! \ud83d\udd25') -> Replace text notifications with kinematic shockwaves, fiery particle spray, and bell audio resonance.",
+        "Hardcoded coordinate snapping (anchorX: 400, anchorY: 165) across arbitrary room roles -> Derive interactive prop placement dynamically from procedural room layouts to prevent clipping and coordinate drift.",
+        "Fragmented module-level state persistence between room transitions -> Bind milestone props directly to canonical entity managers with automated lifecycle cleanup."
+      ]
+    },
+    {
+      "project": "TRINITAS // THE NINEFOLD LATTICE",
+      "timestamp": "2026-11-12T18:38:49.179288",
+      "metrics": {
+        "project_title": "TRINITAS // THE NINEFOLD LATTICE",
+        "milestone_plugins_count": 6,
+        "total_js_lines": 1148,
+        "hud_fillrect_calls": 8
+      },
+      "summary": "While the turn-order decay mechanic and celestial theme demonstrated strong conceptual novelty, the architecture fell prey to tight module coupling and hardcoded margins. Future titles must eradicate manual coordinate math and static modal overlays in favor of integrated world-space entity pipelines.",
+      "mistakes_corrected": [
+        "Tight cross-module coupling (Milestone_v0_4_0 calling Milestone_v0_1_0 methods directly) -> Decouple modules via event-driven bus dispatches and centralized entity state.",
+        "Hardcoded screen-space coordinate placement for astral particles -> Bind visual effects to camera projection matrices and responsive world anchors.",
+        "Reliance on blocking modals and fillRect scoreboards for bout conclusions -> Transition end-state verbiage into interactive, diegetic game-world manifestations."
+      ]
+    }
+  ]
+}

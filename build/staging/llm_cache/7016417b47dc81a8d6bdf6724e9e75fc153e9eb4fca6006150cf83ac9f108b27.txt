@@ -1,0 +1,49 @@
+{
+  "rfcs": [
+    {
+      "index": 0,
+      "summary": "Generates a grid of interconnected dungeon rooms featuring stone tile maps, destructible bone props, braziers, and gated cardinal doors.",
+      "technical_specification": "Initializes `state.world.rooms` as a 3x3 layout with active room pointer `state.world.currentRoom = {x: 1, y: 1}`. Each room defines a 20x12 grid (tile size 40px) with outer stone walls, traversable N/S/E/W door thresholds at grid midpoints, static braziers emitting light coords into `state.world.braziers`, and destructible bone piles (`hp: 1`, drops gold/crumbs). On player crossing door bounds `x < 20`, `x > 780`, `y < 20`, or `y > 460`, updates `currentRoom` offset, shifts player position to opposite archway, and spawns room-bound enemy entities into `state.world.enemies` with zero coordinate drift.",
+      "acceptance_criteria": [
+        "Traversing an open archway shifts current room and positions player at the opposite threshold.",
+        "Destructible bone piles fracture on melee cleave, updating the obstacle collision grid.",
+        "Each room maintains persistent cleared status and brazier coordinates across transitions."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.player.x", "state.player.y", "state.world.currentRoom"],
+        "outputs": ["state.world.rooms", "state.world.currentRoom", "state.world.collisionGrid", "state.world.braziers"],
+        "events": ["ROOM_TRANSITION", "PROP_DESTROYED"]
+      }
+    },
+    {
+      "index": 1,
+      "summary": "Implements 8-way kinematic movement with stamina-governed attacks, i-frame dodge rolling, continuous wall-sliding, and poise-based combat.",
+      "technical_specification": "Updates `state.player` via normalized vector `(dx, dy) * speed * dt`, sliding along `state.world.collisionGrid` bounding boxes. `SPACE` triggers cleave if `state.player.stamina >= 20`: locks movement for 0.22s, casts 60px arc at `state.player.facingAngle`, deals 25 damage, and inflicts 180px/s knockback with 0.08s hit-stop on skeletons/slimes. `SHIFT` or `E` while moving triggers dodge-roll if `stamina >= 25`: grants 0.3s i-frames, sets speed to 2.2x base, and ignores mob hitboxes. Stamina regenerates at 22/s after a 0.6s delay. Skeletons and slimes evaluate distance, chasing and staggering on poise break.",
+      "acceptance_criteria": [
+        "Melee cleave deducts 20 stamina and knocks back targeted skeletons and slimes.",
+        "Dodge-roll renders player invulnerable to enemy melee hitboxes for exactly 0.3 seconds.",
+        "Sliding against diagonal collision surfaces maintains tangential velocity without sticking."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.keys.left", "state.keys.right", "state.keys.up", "state.keys.down", "state.keys.jump", "state.keys.action"],
+        "outputs": ["state.player.x", "state.player.y", "state.player.stamina", "state.player.isRolling", "state.world.enemies"],
+        "events": ["PLAYER_ATTACK", "PLAYER_ROLL", "ENEMY_DAMAGED", "POISE_BROKEN"]
+      }
+    },
+    {
+      "index": 2,
+      "summary": "Renders a radial torchlight chiaroscuro lighting layer, floor decal particles, and a consolidated gothic iron status ribbon at screen top.",
+      "technical_specification": "Draws room tiles to Canvas 2D, then paints an offscreen shadow overlay composited with `destination-out` using `createRadialGradient` centered on `state.player` (radius `140 + sin(t*6)*8` scaled by `state.player.torchLevel`) and active braziers. Spawns persistent blood splatter decals and bone dust sparks into `state.world.particles` upon `ENEMY_DAMAGED`. Renders a single ribbon at `y: 0..36` showing: 5 HP skulls/hearts, horizontal Stamina bar, flickering Torch Sanity meter, Gold counter, and Depth indicator (`#07050a` frame, `#f59e0b` / `#dc2626` fills). World-space reticles indicate interactable altars and chests.",
+      "acceptance_criteria": [
+        "Radial torchlight gradient flickers organically and reveals tiles without exposing unvisited darkness.",
+        "No HUD elements or text boxes render below y: 36, preserving clear arena visibility.",
+        "Blood and spark particles render below entities and blend into the floor decals."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.player.x", "state.player.y", "state.player.torchLevel", "state.player.hp", "state.player.stamina", "state.world.particles"],
+        "outputs": ["state.world.particles"],
+        "events": ["RENDER_FRAME", "LIGHT_FLICKER"]
+      }
+    }
+  ]
+}

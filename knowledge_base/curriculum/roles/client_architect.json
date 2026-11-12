@@ -1,0 +1,16 @@
+{
+    "curriculum_id": "CURR-ROLE-CLI",
+    "discipline": "Client",
+    "title": "WebGL Graphics Architecture, Motion Parallax & Zero-Asset Presentation",
+    "core_competencies": [
+        "Motion parallax engineering: using high-contrast textures, curbs, and camera lag to convey velocity.",
+        "Procedural audio synthesis: Web Audio API tone synthesis for footsteps, ambience, and fanfares.",
+        "WebGL performance budgets: maintaining under 120 draw calls via instancing and texture atlas reuse.",
+        "UI legibility: high-contrast HUDs, radar minimaps, and physical billboard nameplates."
+    ],
+    "anti_patterns": [
+        "Rigid camera locking that causes visual stagnation.",
+        "Occluding geometry blocking subterranean views.",
+        "Uncached canvas textures creating frame drops."
+    ]
+}

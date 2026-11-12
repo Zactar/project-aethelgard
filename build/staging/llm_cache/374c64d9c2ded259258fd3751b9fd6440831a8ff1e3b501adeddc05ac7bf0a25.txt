@@ -1,0 +1,18 @@
+{
+  "codename": "Operation Bell-Toll Crypts",
+  "theme": "Resonant Sepulchers & Censer Swing Physics",
+  "deliverables": [
+    {
+      "discipline": "Systems",
+      "title": "Interactive Bronze Cathedral Censers: suspended ceiling-mounted pyres that players can strike with melee attacks to send swinging in a physics arc, dispersing sacred ash trails that blind lurking fiends and ignite floor oil slicks."
+    },
+    {
+      "discipline": "Gameplay",
+      "title": "Catacomb Bell-Warden Automaton: a heavy plate-armored wandering sentinel that rings a handheld funeral bell to trigger sonic shockwaves, demanding dodge-roll i-frame timing and ricocheting player projectiles back into destructible masonry."
+    },
+    {
+      "discipline": "Client",
+      "title": "Diegetic Runic Glyph Detonation: fractured floor flagstones that visually hum with violet eldritch fractures when stepped on, erupting into radial necrotic spikes after a 1.2-second telegraph to punish static positioning."
+    }
+  ]
+}

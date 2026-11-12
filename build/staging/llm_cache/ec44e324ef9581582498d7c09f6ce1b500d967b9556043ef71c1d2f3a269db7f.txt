@@ -1,0 +1,46 @@
+{
+  "rfcs": [
+    {
+      "index": 0,
+      "summary": "Implement procedural floor seams storing viscous tar pools that enforce a 0.6x drag penalty and ignite into chained Chiaroscuro flame carpets dealing tick damage.",
+      "technical_specification": "Initialize `state.world.tarFissures = []`. Each fissure stores `{id, x, y, radius: 42, ignited: false, flameTicks: 0, dps: 18}`. In physics loop, compute distance `d = hypot(p.x - f.x, p.y - f.y)`. If `d < f.radius` and `!f.ignited`, scale movement velocity `p.vx *= 0.6`, `p.vy *= 0.6`. When intersecting active fire hitboxes (kicked braziers, fire cleaves, or `EVENT_IGNITE_TAR`), set `f.ignited = true`, spawning `state.world.flameEmitters`. While ignited, deal `f.dps * dt` poise-piercing damage to any entity inside radius for 360 ticks, propagating ignition to adjacent fissures within 80px before decaying into ashen terrain.",
+      "acceptance_criteria": [
+        "Unignited tar fissures reduce player and enemy ground velocity by exactly 40%.",
+        "Touching fire hitboxes ignites the fissure, causing 18 DPS and chaining to adjacent fissures within 80px."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.world.projectiles", "state.player.x", "state.player.y", "state.enemies"],
+        "outputs": ["state.world.tarFissures", "state.player.vx", "state.player.vy"],
+        "events": ["EVENT_IGNITE_TAR", "EVENT_ENTITY_BURNED"]
+      }
+    },
+    {
+      "index": 1,
+      "summary": "Introduce Pyre-Vault tactical dash triggered via Shift/E that stomps the ground, cleanses local tar, emits poise-shattering cinder arcs, and grants 14 i-frames.",
+      "technical_specification": "When `state.keys.action` is pressed and moving without interactive targets, consume 22 stamina from `state.stats.stamina` and enter `state.player.dashState = { active: true, timer: 14, dirX: p.facingX, dirY: p.facingY }`. Apply kinematic burst `p.vx = dirX * 9.5`, `p.vy = dirY * 9.5`. On frame 1 (heel-stomp), scan `state.world.tarFissures` within 52px; extinguish flame or purge tar instantly. Radiate a 60-degree cinder cone pushing `state.world.projectiles` with `{type: 'cinder', poiseDmg: 28, lifespan: 18}`. Entities hit suffer 28 poise damage and 220px/s knockback along `dirX, dirY`.",
+      "acceptance_criteria": [
+        "Consumes 22 stamina and grants 14 frames of invulnerability with directional kinematic impulse.",
+        "Clears tar fissures within 52px and projects a cinder arc dealing 28 poise damage."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.keys.action", "state.stats.stamina", "state.player.facingX", "state.player.facingY"],
+        "outputs": ["state.stats.stamina", "state.player.dashState", "state.world.projectiles"],
+        "events": ["EVENT_PYRE_VAULT_STOMP", "EVENT_POISE_BROKEN"]
+      }
+    },
+    {
+      "index": 2,
+      "summary": "Render stone cinder-gargoyle wall reliefs that charge an incandescent Chiaroscuro halo and project 45-degree cone ember sweeps when agitated by weapon cleaves or shockwaves.",
+      "technical_specification": "Populate `state.world.gargoyles = []` along perimeter walls with `{x, y, angle, heat: 0, state: 'DORMANT'}`. When melee cleave (`state.keys.jump`) or bell reverberation collides within 64px, increment `g.heat += 45`. At `heat >= 100`, transition to `'BREATHING'` for 90 frames. In Canvas 2D render loop, draw the gargoyle's stone relief with `#f59e0b` emissive bloom (`ctx.shadowBlur = g.heat * 0.35`) and composite a sweeping 45-degree conical ember field using procedural noise, dealing 12 fire damage and 15 poise damage per tick to intersecting entities in post-entity z-pass.",
+      "acceptance_criteria": [
+        "Gargoyle reliefs track heat and enter 'BREATHING' state upon reaching 100 heat from cleaves/vibrations.",
+        "Draws diegetic chiaroscuro ember cone without floating HUD elements, rendering properly behind the top ribbon."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.player.weaponHitbox", "state.world.vibrations", "state.keys.jump"],
+        "outputs": ["state.world.gargoyles", "state.world.flameEmitters"],
+        "events": ["EVENT_GARGOYLE_AGITATED", "EVENT_GARGOYLE_BREATH"]
+      }
+    }
+  ]
+}

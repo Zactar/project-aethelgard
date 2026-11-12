@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aethelgard Universal Game Runtime</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: #080c16;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: 'Courier New', Courier, monospace;
+      user-select: none;
+    }
+
+    #viewport-container {
+      position: relative;
+      width: 800px;
+      height: 600px;
+      border: 3px solid #334155;
+      box-shadow: 0 0 40px rgba(0, 0, 0, 0.95);
+      background: #0f172a;
+      overflow: hidden;
+    }
+
+    canvas {
+      display: block;
+      width: 800px;
+      height: 600px;
+    }
+
+    #crt-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.12) 50%);
+      background-size: 100% 4px;
+      z-index: 10;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="viewport-container">
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <div id="crt-overlay"></div>
+  </div>
+
+  <script>
+    // =========================================================================
+    // PROJECT AETHELGARD: 100% GAME-AGNOSTIC MICROKERNEL & BLACKBOARD
+    // =========================================================================
+    window.__STUDIO_ERRORS__ = [];
+    window.onerror = function (msg, url, line) {
+      window.__STUDIO_ERRORS__.push({ source: url || 'global', msg: String(msg), line: line });
+      return false;
+    };
+
+    window.StudioEngine = {
+      canvas: document.getElementById('gameCanvas'),
+      ctx: document.getElementById('gameCanvas').getContext('2d'),
+      modules: {},
+      hooks: { update: [], render: [] },
+      events: {},
+
+      // Universal Shared Blackboard (Accessible to all 6 Agent Disciplines)
+      state: {
+        running: true,
+        paused: false,
+        tick: 0,
+        dt: 0.016,
+        score: 0,
+        player: {
+          x: 400, y: 220, vx: 0, vy: 0, width: 24, height: 32,
+          angle: 0, z: 0, vz: 0, isAirborne: false,
+          state: 'IDLE', health: 3, maxHealth: 3, wipeouts: 0, cooldown: 0
+        },
+        stats: {
+          level: 1, xp: 0, nextLevelXp: 100, unspentPoints: 0, combo: 1,
+          attributes: { VEL: 10, AGI: 10, BAL: 10, MOX: 10, LCK: 10 },
+          characterClass: null
+        },
+        inventory: {
+          items: [], relics: [], currency: 0, pendingDraft: null
+        },
+        world: {
+          distance: 0, speed: 0, cameraX: 0, cameraY: 0, cameraShake: 0,
+          biome: 'DEFAULT', entities: [], obstacles: [], gates: [], particles: []
+        },
+        keys: {
+          up: false, down: false, left: false, right: false,
+          jump: false, action: false, map: false,
+          digit1: false, digit2: false, digit3: false, digit4: false
+        },
+        pointer: { x: 0, y: 0, clicked: false }
+      },
+
+      // Inter-Agent Pub/Sub Event Bus
+      on: function (eventName, callback) {
+        if (!this.events[eventName]) this.events[eventName] = [];
+        this.events[eventName].push(callback);
+      },
+      emit: function (eventName, payload) {
+        const listeners = this.events[eventName] || [];
+        for (let i = 0; i < listeners.length; i++) {
+          try { listeners[i](payload, this.state); }
+          catch (e) { window.__STUDIO_ERRORS__.push({ source: 'event:' + eventName, msg: e.message }); }
+        }
+      },
+
+      // Deterministic Plugin Registration
+      registerModule: function (name, moduleDef) {
+        if (this.modules[name]) return;
+        this.modules[name] = moduleDef;
+        if (typeof moduleDef.update === 'function') {
+          this.hooks.update.push({ name: name, fn: moduleDef.update.bind(moduleDef) });
+        }
+        if (typeof moduleDef.render === 'function') {
+          this.hooks.render.push({ name: name, fn: moduleDef.render.bind(moduleDef) });
+        }
+        if (typeof moduleDef.init === 'function') {
+          try { moduleDef.init(this.state, this); }
+          catch (e) { window.__STUDIO_ERRORS__.push({ source: name + '.init', msg: e.message }); }
+        }
+      }
+    };
+
+    // Backwards-compatibility aliases for agent scripts
+    window.StudioEngine.state.level = window.StudioEngine.state.world;
+    window.__GAME_STATE__ = window.StudioEngine.state;
+
+    // Universal Input Mapping
+    const KEY_MAP = {
+      ArrowUp: 'up', KeyW: 'up',
+      ArrowDown: 'down', KeyS: 'down',
+      ArrowLeft: 'left', KeyA: 'left',
+      ArrowRight: 'right', KeyD: 'right',
+      Space: 'jump', ShiftLeft: 'action', ShiftRight: 'action', KeyE: 'action',
+      KeyM: 'map', Digit1: 'digit1', Digit2: 'digit2', Digit3: 'digit3', Digit4: 'digit4'
+    };
+    window.addEventListener('keydown', e => {
+      const k = KEY_MAP[e.code];
+      if (k) window.StudioEngine.state.keys[k] = true;
+      window.StudioEngine.emit('KEYDOWN', { code: e.code, key: e.key });
+    });
+    window.addEventListener('keyup', e => {
+      const k = KEY_MAP[e.code];
+      if (k) window.StudioEngine.state.keys[k] = false;
+      window.StudioEngine.emit('KEYUP', { code: e.code, key: e.key });
+    });
+    window.StudioEngine.canvas.addEventListener('mousemove', e => {
+      const rect = window.StudioEngine.canvas.getBoundingClientRect();
+      window.StudioEngine.state.pointer.x = e.clientX - rect.left;
+      window.StudioEngine.state.pointer.y = e.clientY - rect.top;
+    });
+    window.StudioEngine.canvas.addEventListener('mousedown', e => {
+      window.StudioEngine.state.pointer.clicked = true;
+      window.StudioEngine.emit('POINTER_DOWN', {
+        x: window.StudioEngine.state.pointer.x,
+        y: window.StudioEngine.state.pointer.y
+      });
+    });
+    window.StudioEngine.canvas.addEventListener('mouseup', () => {
+      window.StudioEngine.state.pointer.clicked = false;
+    });
+
+    // Main Microkernel Loop with Delta-Time Clamping & Fault Isolation
+    (function runMicrokernel() {
+      let lastTime = performance.now();
+      function tick(now) {
+        const dt = Math.min((now - lastTime) / 1000, 0.05);
+        lastTime = now;
+        const engine = window.StudioEngine;
+        const state = engine.state;
+        state.dt = dt;
+        state.tick++;
+
+        // 1. Update Phase
+        for (let i = 0; i < engine.hooks.update.length; i++) {
+          const h = engine.hooks.update[i];
+          try { h.fn(dt, state, engine); }
+          catch (e) {
+            if (window.__STUDIO_ERRORS__.length < 10) {
+              window.__STUDIO_ERRORS__.push({ source: h.name + '.update', msg: e.message });
+            }
+          }
+        }
+
+        // 2. Render Phase
+        const ctx = engine.ctx;
+        if (ctx) {
+          if (engine.hooks.render.length === 0) {
+            // Idle Standby Screen (Before v0.1.0 plugins are attached)
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(0, 0, 800, 600);
+            ctx.fillStyle = '#38bdf8';
+            ctx.font = 'bold 20px monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText('AETHELGARD UNIVERSAL MICROKERNEL ONLINE', 400, 280);
+            ctx.fillStyle = '#94a3b8';
+            ctx.font = '14px monospace';
+            ctx.fillText('Awaiting Milestone v0.1.0 Agent Module Synthesis...', 400, 315);
+          } else {
+            for (let i = 0; i < engine.hooks.render.length; i++) {
+              const h = engine.hooks.render[i];
+              try { h.fn(ctx, state, engine); }
+              catch (e) {
+                if (window.__STUDIO_ERRORS__.length < 10) {
+                  window.__STUDIO_ERRORS__.push({ source: h.name + '.render', msg: e.message });
+                }
+              }
+            }
+          }
+
+          // Fault Isolation Banner
+          if (window.__STUDIO_ERRORS__.length > 0) {
+            const err = window.__STUDIO_ERRORS__[0];
+            ctx.fillStyle = 'rgba(127, 29, 29, 0.92)';
+            ctx.fillRect(20, 535, 760, 50);
+            ctx.fillStyle = '#fecaca';
+            ctx.font = 'bold 12px monospace';
+            ctx.textAlign = 'left';
+            ctx.fillText(`[PLUGIN FAULT ISOLATED] ${err.source}: ${err.msg}`, 32, 558);
+            ctx.fillText(`Active Modules: ${Object.keys(engine.modules).length} | Faults Caught: ${window.__STUDIO_ERRORS__.length}`, 32, 575);
+          }
+        }
+
+        state.pointer.clicked = false;
+        requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    })();
+  </script>
+  <!-- AUTONOMOUS AGENT MODULE PLUGINS -->
+</body>
+
+</html>

@@ -1,0 +1,17 @@
+{
+  "postmortem_summary": "HYPERVOID delivered intense kinematic momentum and dynamic encounters, but suffered from 19 cluttering HUD fillRect overlays and fragmented audio context instantiation across plugin boundaries. Moving forward, tactile feedback must remain entirely diegetic within world-space while state mutations and audio routing are strictly centralized.",
+  "key_mistakes_corrected": [
+    "19 HUD fillRect overlay calls -> Shift all critical feedback to world-space reticles, vignette pulses, and chromatic shake.",
+    "Ad-hoc AudioContext creation in milestone plugins -> Enforce a single shared audio bus initialized on first user gesture in core engine.",
+    "Loose world-state arrays monkey-patched across milestones -> Enforce strict state schema initialization and single-source-of-truth registry."
+  ],
+  "updated_role_skill_cards": {
+    "Executive_Producer": "Reject milestone deliverables leaning on static text boxes, duplicate HUD meters, or fragmented feature creep. Mandate tactile, diegetic mechanics, polished arcade pacing, and unified feedback across all game systems.",
+    "Systems": "Model all progression and combat loops around expressive kinematic trade-offs like mass, friction, and recoil. Keep economy tables and entity catalogs compact, immutable, and strictly bound to player physics.",
+    "Gameplay": "Standardize intuitive controls: directional steering, continuous primary action on Space, and unified tactical ability on Shift. Ensure zero input collision and immediate mechanical response without modal friction.",
+    "Level": "Architect world layouts with reactive environmental set-pieces, kinetic hazards, and readable arenas. Synchronize dynamic spawn pacing directly to player velocity and threat metrics without coordinate drift.",
+    "Client": "Eliminate secondary floating HUD panels and text boxes. Transmit player health, ability cooldowns, and imminent dangers through localized audio stings, emissive shaders, camera shake, and reactive world-space reticles.",
+    "Narrative": "Infuse world-building and lore purely into environmental debris, boss telegraphs, and punchy death codas. Never halt kinematic combat flow with intrusive dialogue panels or unskippable static overlays.",
+    "Codebase_Engineer": "Centralize the Web Audio bus and engine state schema. Guard every gameplay loop against modal bleed with unified pause flags, and prohibit duplicate context creation or disjointed plugin state mutation."
+  }
+}

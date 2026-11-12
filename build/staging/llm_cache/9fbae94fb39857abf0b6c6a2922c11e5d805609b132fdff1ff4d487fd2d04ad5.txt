@@ -1,0 +1,105 @@
+StudioEngine.registerModule('SlalomGateSystem', {
+  init(state, engine) {
+    state.slalom = {
+      gates: [],
+      gateIndex: 0,
+      comboState: 'COMBO_INACTIVE', // COMBO_INACTIVE, COMBO_ACTIVE, COMBO_DECAYING
+      comboCount: 0,
+      multiplier: 1.0,
+      comboTimer: 0,
+      maxDuration: 3.0,
+      floatingTexts: [],
+      lastGeneratedY: 0,
+      lastGateX: (state.level && state.level.width ? state.level.width * 0.5 : 400),
+      lastGateY: 0,
+      lastPolarity: 1, // 1 = Blue (Right), -1 = Red (Left)
+      prevPlayerPos: {
+        x: (state.player && state.player.x) || 400,
+        y: (state.player && state.player.y) || 0
+      },
+      time: 0
+    };
+
+    // Public exclusion query for external Poisson-disk / chunk obstacle generators
+    state.isSlalomExcluded = (x, y) => {
+      const gates = state.slalom.gates;
+      for (let i = 0; i < gates.length - 1; i++) {
+        const g1 = gates[i];
+        const g2 = gates[i + 1];
+        const r = g2.width * 0.8;
+        const rSq = r * r;
+        const dx = g2.x - g1.x;
+        const dy = g2.y - g1.y;
+        const l2 = dx * dx + dy * dy;
+        let t = 0;
+        if (l2 > 0) {
+          t = Math.max(0, Math.min(1, ((x - g1.x) * dx + (y - g1.y) * dy) / l2));
+        }
+        const projX = g1.x + t * dx;
+        const projY = g1.y + t * dy;
+        const distSq = (x - projX) * (x - projX) + (y - projY) * (y - projY);
+        if (distSq <= rSq) return true;
+      }
+      return false;
+    };
+  },
+
+  update(dt, state) {
+    if (!state.player) return;
+    const slalom = state.slalom;
+    slalom.time += dt;
+
+    const player = state.player;
+    const stats = state.stats || {};
+    const pX = player.x;
+    const pY = player.y;
+    const pPrevX = slalom.prevPlayerPos.x;
+    const pPrevY = slalom.prevPlayerPos.y;
+
+    // Check Wipeout condition
+    if (player.isWipedOut || player.wipedOut) {
+      if (slalom.comboState !== 'COMBO_INACTIVE') {
+        slalom.comboState = 'COMBO_INACTIVE';
+        slalom.comboCount = 0;
+        slalom.multiplier = 1.0;
+        slalom.comboTimer = 0;
+      }
+    }
+
+    // Dynamic gate generation along descending Y axis
+    const lookaheadY = pY + 1600;
+    const minX = 100;
+    const maxX = (state.level && state.level.width ? state.level.width - 100 : 700);
+
+    if (slalom.lastGeneratedY === 0) {
+      slalom.lastGeneratedY = pY + 200;
+      slalom.lastGateY = slalom.lastGeneratedY;
+      slalom.lastGateX = (minX + maxX) * 0.5;
+    }
+
+    const nominalVy = Math.max(280, Math.abs(player.vy || 350));
+    const maxVx = Math.max(240, Math.abs(player.vxMax || 320));
+    const eta = 0.75;
+
+    while (slalom.lastGeneratedY < lookaheadY) {
+      const dtTurn = 0.6 + Math.random() * 0.6; // 0.6s to 1.2s
+      const dy = Math.max(240, Math.min(480, nominalVy * dtTurn));
+      const nextY = slalom.lastGeneratedY + dy;
+
+      // Kinematic reachable bounds
+      const maxDx = (maxVx / nominalVy) * dy * eta;
+      const targetPolarity = -slalom.lastPolarity; // Alternating polarity
+      const lateralBias = targetPolarity * (maxDx * 0.6 + Math.random() * maxDx * 0.35);
+      let nextX = slalom.lastGateX + lateralBias;
+      nextX = Math.max(minX, Math.min(maxX, nextX));
+
+      // Re-verify kinematic solvability after clamping
+      if (Math.abs(nextX - slalom.lastGateX) > maxDx) {
+        nextX = slalom.lastGateX + Math.sign(nextX - slalom.lastGateX) * maxDx;
+      }
+
+      const totalDist = nextY;
+      const gateWidth = Math.max(70, Math.min(110, 110 - (totalDist / 5000) * 10));
+
+      const newGate = {
+        id: slalom.

@@ -1,0 +1,200 @@
+{
+  "active_version": "v0.3.0",
+  "last_updated": "2026-11-12T03:10:31.226862",
+  "milestones": [
+    {
+      "version": "v0.1.0",
+      "codename": "Codename-v0.1.0",
+      "theme": "Alpine Baseline & Downhill Physics",
+      "status": "SHIPPED",
+      "completion_percentage": 100.0,
+      "deliverables": [
+        {
+          "deliverable_id": "DELIV-v0.1.0-01",
+          "discipline": "Client",
+          "title": "Continuous downhill vertical scrolling canvas loop with delta-time clamping.",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-ABB1BA.json"
+        },
+        {
+          "deliverable_id": "DELIV-v0.1.0-02",
+          "discipline": "Gameplay",
+          "title": "Player ski movement state machine: Carve Left/Right, Tuck, Snowplow, and Jump.",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-4123F5.json"
+        },
+        {
+          "deliverable_id": "DELIV-v0.1.0-03",
+          "discipline": "Systems",
+          "title": "Basic obstacle generation: Pine trees, boulders, and moguls with bounding-box collision and wipeout states.",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-AAA2A5.json"
+        },
+        {
+          "deliverable_id": "DELIV-v0.1.0-04",
+          "discipline": "Client",
+          "title": "HUD displaying current speed, distance traveled, and wipeout counter.",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-EC5EF2.json"
+        }
+      ],
+      "completed_at": "2026-11-12T02:09:51.880163"
+    },
+    {
+      "version": "v0.2.0",
+      "codename": "Codename-v0.2.0",
+      "theme": "Character Creation, Core Stats & Slalom XP Loop",
+      "status": "SHIPPED",
+      "completion_percentage": 100.0,
+      "deliverables": [
+        {
+          "deliverable_id": "DELIV-v0.2.0-01",
+          "discipline": "Systems",
+          "title": "Starting class selection screen (Olympian, Daredevil, Ranger, Occultist).",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-E3CEAE.json"
+        },
+        {
+          "deliverable_id": "DELIV-v0.2.0-02",
+          "discipline": "Systems",
+          "title": "Stat tracking system: Velocity, Agility, Balance, Moxie, Luck.",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-14C58B.json"
+        },
+        {
+          "deliverable_id": "DELIV-v0.2.0-03",
+          "discipline": "Level",
+          "title": "Slalom gate generator with combo multiplier tracking.",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-FA09D0.json"
+        },
+        {
+          "deliverable_id": "DELIV-v0.2.0-04",
+          "discipline": "Gameplay",
+          "title": "Near-miss hazard detection and XP-driven level-up stat allocation bar.",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-B61B76.json"
+        }
+      ],
+      "completed_at": "2026-11-12T02:26:15.319028"
+    },
+    {
+      "version": "v0.3.0",
+      "codename": "Codename-v0.3.0",
+      "theme": "500m Mountain Shelter & 3-Card Item Drafting",
+      "status": "VALIDATING",
+      "completion_percentage": 100.0,
+      "deliverables": [
+        {
+          "deliverable_id": "DELIV-v0.3.0-01",
+          "discipline": "Systems",
+          "title": "Checkpoint shelter detection every 500m.",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-3F9374.json"
+        },
+        {
+          "deliverable_id": "DELIV-v0.3.0-02",
+          "discipline": "Systems",
+          "title": "Modal draft screen displaying 3 randomized item cards with icons, rarities, and descriptions.",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-0C1215.json"
+        },
+        {
+          "deliverable_id": "DELIV-v0.3.0-03",
+          "discipline": "Systems",
+          "title": "Core inventory engine supporting passive stat modifications and active ability cooldowns.",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-DAC6AD.json"
+        },
+        {
+          "deliverable_id": "DELIV-v0.3.0-04",
+          "discipline": "Systems",
+          "title": "Implementation of initial 25 equipment and gadget items.",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-E11D92.json"
+        }
+      ],
+      "completed_at": null
+    },
+    {
+      "version": "v0.4.0",
+      "codename": "Codename-v0.4.0",
+      "theme": "100+ Relic System, Biomes & Environmental Hazards",
+      "status": "PLANNED",
+      "completion_percentage": 0.0,
+      "deliverables": [
+        {
+          "deliverable_id": "DELIV-v0.4.0-01",
+          "discipline": "Systems",
+          "title": "Full expansion of the 100+ item relic database across Common, Rare, Epic, and Cursed tiers.",
+          "target_subsystem": "web_client/index.html",
+          "status": "PENDING",
+          "verified_artifact": null
+        },
+        {
+          "deliverable_id": "DELIV-v0.4.0-02",
+          "discipline": "Level",
+          "title": "Dynamic biome transitions (Alpine Resort $\\rightarrow$ Black Diamond Pines $\\rightarrow$ Glacial Crevasse $\\rightarrow$ Yeti Tundra).",
+          "target_subsystem": "web_client/index.html",
+          "status": "PENDING",
+          "verified_artifact": null
+        },
+        {
+          "deliverable_id": "DELIV-v0.4.0-03",
+          "discipline": "Gameplay",
+          "title": "Environmental hazards: Ice patches, jump chasms, and blizzard visibility masking.",
+          "target_subsystem": "web_client/index.html",
+          "status": "PENDING",
+          "verified_artifact": null
+        }
+      ],
+      "completed_at": null
+    },
+    {
+      "version": "v0.5.0",
+      "codename": "Codename-v0.5.0",
+      "theme": "The Abominable Yeti, Audio Synthesis & Endgame Run Extraction",
+      "status": "PLANNED",
+      "completion_percentage": 0.0,
+      "deliverables": [
+        {
+          "deliverable_id": "DELIV-v0.5.0-01",
+          "discipline": "Level",
+          "title": "Procedural Yeti AI predator with sprint pathfinding, bounding leap attacks, and tree trip recovery.",
+          "target_subsystem": "web_client/index.html",
+          "status": "PENDING",
+          "verified_artifact": null
+        },
+        {
+          "deliverable_id": "DELIV-v0.5.0-02",
+          "discipline": "Gameplay",
+          "title": "Web Audio API procedural sound engine: Carve hiss, wind rush, slalom chime, and Yeti roar.",
+          "target_subsystem": "web_client/index.html",
+          "status": "PENDING",
+          "verified_artifact": null
+        },
+        {
+          "deliverable_id": "DELIV-v0.5.0-03",
+          "discipline": "Narrative",
+          "title": "High score leaderboard, terminal run obituary screen, and endless descent victory conditions.",
+          "target_subsystem": "web_client/index.html",
+          "status": "PENDING",
+          "verified_artifact": null
+        }
+      ],
+      "completed_at": null
+    }
+  ]
+}

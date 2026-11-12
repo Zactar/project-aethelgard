@@ -1,0 +1,73 @@
+{
+  "rfc_id": "RFC-20261112-1E71B2",
+  "title": "Kinetic Overcharge Sigil Strike: Active placement mechanic where timing an inscription input with the lattice's inward breathing pulse supercharges the sigil, emitting a directional shockwave that displaces adjacent ambient energy embers and fractures neighboring partition borders.",
+  "target_subsystem": "web_client/index.html",
+  "discipline": "Gameplay",
+  "target_milestone": "v0.6.0",
+  "milestone_target": "v0.6.0",
+  "milestone_tag": "v0.6.0",
+  "author_role": "Lead Gameplay & Kinematics Specialist (State machines, physics integration, collision rules)",
+  "summary": "Introduces a cadence-timed Kinetic Overcharge inscription window synced to lattice inhalation that detonates an impulse wave fracturing adjacent partitions.",
+  "technical_specification": "Lattice breathes via `state.world.breathWindow = Math.sin(state.world.singularity.pulsePhase)`. When player fires inscription (`state.keys.Space || state.pointer.justDown`), evaluate resonance window: if `breathWindow >= 0.82`, trigger Overcharge. Set `state.world.sectors[i].overcharged = true` and `state.world.shake = 8.5`. Spawn 24 kinetic shockwave fragments radiating at `v = (cos(theta), sin(theta)) * 320`. Iterate adjacent sector borders; increment their `fractureLevel` by 1 (max 3), altering divider stiffness and pushing neighboring floating embers back by `Math.max(0, 110 - dist) * 1.8` px.",
+  "acceptance_criteria": [
+    "Inscribing during peak pulse crest triggers instant screen kick and radial particle blast across adjacent sectors.",
+    "Partition borders adjacent to the overcharged sector gain structural cracks without blocking subsequent valid moves."
+  ],
+  "interface_contracts": {
+    "inputs": [
+      "state.keys.Space",
+      "state.pointer.justDown",
+      "state.world.breathWindow",
+      "state.world.hoveredSector"
+    ],
+    "outputs": [
+      "state.world.sectors[n].overcharged",
+      "state.world.sectors[n].fractureLevel",
+      "state.world.shake",
+      "state.world.shockwaves"
+    ],
+    "events": [
+      "SIGIL_OVERCHARGE_PERFECT",
+      "LATTICE_DIVIDER_FRACTURED"
+    ]
+  },
+  "pre_flight_passed": true,
+  "description": "[Gameplay] Kinetic Overcharge Sigil Strike: Active placement mechanic where timing an inscription input with the lattice's inward breathing pulse supercharges the sigil, emitting a directional shockwave that displaces adjacent ambient energy embers and fractures neighboring partition borders.\n\nSummary:\nIntroduces a cadence-timed Kinetic Overcharge inscription window synced to lattice inhalation that detonates an impulse wave fracturing adjacent partitions.\n\nSpecification:\nLattice breathes via `state.world.breathWindow = Math.sin(state.world.singularity.pulsePhase)`. When player fires inscription (`state.keys.Space || state.pointer.justDown`), evaluate resonance window: if `breathWindow >= 0.82`, trigger Overcharge. Set `state.world.sectors[i].overcharged = true` and `state.world.shake = 8.5`. Spawn 24 kinetic shockwave fragments radiating at `v = (cos(theta), sin(theta)) * 320`. Iterate adjacent sector borders; increment their `fractureLevel` by 1 (max 3), altering divider stiffness and pushing neighboring floating embers back by `Math.max(0, 110 - dist) * 1.8` px.",
+  "submitted_by": "Lead Gameplay & Kinematics Specialist (State machines, physics integration, collision rules)",
+  "change_type": "ADJUST_MECHANICS",
+  "status": "PENDING_REVIEW",
+  "created_at": 1794488284.4776871,
+  "payload_diff": {
+    "title": "Kinetic Overcharge Sigil Strike: Active placement mechanic where timing an inscription input with the lattice's inward breathing pulse supercharges the sigil, emitting a directional shockwave that displaces adjacent ambient energy embers and fractures neighboring partition borders.",
+    "discipline": "Gameplay",
+    "target_subsystem": "web_client/index.html",
+    "target_milestone": "v0.6.0",
+    "milestone_tag": "v0.6.0",
+    "author_role": "Lead Gameplay & Kinematics Specialist (State machines, physics integration, collision rules)",
+    "summary": "Introduces a cadence-timed Kinetic Overcharge inscription window synced to lattice inhalation that detonates an impulse wave fracturing adjacent partitions.",
+    "technical_specification": "Lattice breathes via `state.world.breathWindow = Math.sin(state.world.singularity.pulsePhase)`. When player fires inscription (`state.keys.Space || state.pointer.justDown`), evaluate resonance window: if `breathWindow >= 0.82`, trigger Overcharge. Set `state.world.sectors[i].overcharged = true` and `state.world.shake = 8.5`. Spawn 24 kinetic shockwave fragments radiating at `v = (cos(theta), sin(theta)) * 320`. Iterate adjacent sector borders; increment their `fractureLevel` by 1 (max 3), altering divider stiffness and pushing neighboring floating embers back by `Math.max(0, 110 - dist) * 1.8` px.",
+    "acceptance_criteria": [
+      "Inscribing during peak pulse crest triggers instant screen kick and radial particle blast across adjacent sectors.",
+      "Partition borders adjacent to the overcharged sector gain structural cracks without blocking subsequent valid moves."
+    ],
+    "interface_contracts": {
+      "inputs": [
+        "state.keys.Space",
+        "state.pointer.justDown",
+        "state.world.breathWindow",
+        "state.world.hoveredSector"
+      ],
+      "outputs": [
+        "state.world.sectors[n].overcharged",
+        "state.world.sectors[n].fractureLevel",
+        "state.world.shake",
+        "state.world.shockwaves"
+      ],
+      "events": [
+        "SIGIL_OVERCHARGE_PERFECT",
+        "LATTICE_DIVIDER_FRACTURED"
+      ]
+    },
+    "pre_flight_passed": true
+  }
+}

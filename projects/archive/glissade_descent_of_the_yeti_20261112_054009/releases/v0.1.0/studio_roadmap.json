@@ -1,0 +1,294 @@
+{
+  "active_version": "v0.1.0",
+  "milestones": [
+    {
+      "version": "v0.1.0",
+      "codename": "Codename-v0.1.0",
+      "theme": "Alpine Baseline & Downhill Physics",
+      "status": "VALIDATING",
+      "created_at": "2026-11-12T00:19:31.432648",
+      "completed_at": "2026-11-12T00:24:30.733057",
+      "deliverables": [
+        {
+          "deliverable_id": "DELIV-v0.1.0-01",
+          "discipline": "Client",
+          "title": "Continuous downhill vertical scrolling canvas loop with delta-time clamping.",
+          "target_subsystem": "web_client/index.html",
+          "acceptance_criteria": [
+            "Render visual viewport and HUD elements for Continuous downhill vertical scrolling canvas loop with delta-time clamping..",
+            "Maintain 60 FPS zero-allocation canvas draw loop.",
+            "Verify responsive display on 800x600 canvas."
+          ],
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-ABB1BA.json"
+        },
+        {
+          "deliverable_id": "DELIV-v0.1.0-02",
+          "discipline": "Gameplay",
+          "title": "Player ski movement state machine: Carve Left/Right, Tuck, Snowplow, and Jump.",
+          "target_subsystem": "web_client/index.html",
+          "acceptance_criteria": [
+            "Implement Player ski movement state machine: Carve Left/Right, Tuck, Snowplow, and Jump. with delta-time clamped kinematics.",
+            "Verify responsive player controls and state machine transitions.",
+            "Ensure no uncaught exceptions thrown during frame integration."
+          ],
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-4123F5.json"
+        },
+        {
+          "deliverable_id": "DELIV-v0.1.0-03",
+          "discipline": "Systems",
+          "title": "Basic obstacle generation: Pine trees, boulders, and moguls with bounding-box collision and wipeout states.",
+          "target_subsystem": "web_client/index.html",
+          "acceptance_criteria": [
+            "Define state models, formulas, and schema for Basic obstacle generation: Pine trees, boulders, and moguls with bounding-box collision and wipeout states..",
+            "Ensure deterministic state transitions and mutation guards.",
+            "Verify integration with active game state."
+          ],
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-AAA2A5.json"
+        },
+        {
+          "deliverable_id": "DELIV-v0.1.0-04",
+          "discipline": "Client",
+          "title": "HUD displaying current speed, distance traveled, and wipeout counter.",
+          "target_subsystem": "web_client/index.html",
+          "acceptance_criteria": [
+            "Render visual viewport and HUD elements for HUD displaying current speed, distance traveled, and wipeout counter..",
+            "Maintain 60 FPS zero-allocation canvas draw loop.",
+            "Verify responsive display on 800x600 canvas."
+          ],
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-EC5EF2.json"
+        }
+      ],
+      "completion_percentage": 100.0
+    },
+    {
+      "version": "v0.2.0",
+      "codename": "Codename-v0.2.0",
+      "theme": "Character Creation, Core Stats & Slalom XP Loop",
+      "status": "PLANNED",
+      "created_at": "2026-11-12T00:19:31.433013",
+      "completed_at": null,
+      "deliverables": [
+        {
+          "deliverable_id": "DELIV-v0.2.0-01",
+          "discipline": "Systems",
+          "title": "Starting class selection screen (Olympian, Daredevil, Ranger, Occultist).",
+          "target_subsystem": "web_client/index.html",
+          "acceptance_criteria": [
+            "Define state models, formulas, and schema for Starting class selection screen (Olympian, Daredevil, Ranger, Occultist)..",
+            "Ensure deterministic state transitions and mutation guards.",
+            "Verify integration with active game state."
+          ],
+          "status": "PENDING",
+          "verified_artifact": null
+        },
+        {
+          "deliverable_id": "DELIV-v0.2.0-02",
+          "discipline": "Systems",
+          "title": "Stat tracking system: Velocity, Agility, Balance, Moxie, Luck.",
+          "target_subsystem": "web_client/index.html",
+          "acceptance_criteria": [
+            "Define state models, formulas, and schema for Stat tracking system: Velocity, Agility, Balance, Moxie, Luck..",
+            "Ensure deterministic state transitions and mutation guards.",
+            "Verify integration with active game state."
+          ],
+          "status": "PENDING",
+          "verified_artifact": null
+        },
+        {
+          "deliverable_id": "DELIV-v0.2.0-03",
+          "discipline": "Level",
+          "title": "Slalom gate generator with combo multiplier tracking.",
+          "target_subsystem": "web_client/index.html",
+          "acceptance_criteria": [
+            "Implement procedural generation logic for Slalom gate generator with combo multiplier tracking..",
+            "Verify terrain solvability and collision bounds.",
+            "Ensure off-screen entities are cleaned up."
+          ],
+          "status": "PENDING",
+          "verified_artifact": null
+        },
+        {
+          "deliverable_id": "DELIV-v0.2.0-04",
+          "discipline": "Gameplay",
+          "title": "Near-miss hazard detection and XP-driven level-up stat allocation bar.",
+          "target_subsystem": "web_client/index.html",
+          "acceptance_criteria": [
+            "Implement Near-miss hazard detection and XP-driven level-up stat allocation bar. with delta-time clamped kinematics.",
+            "Verify responsive player controls and state machine transitions.",
+            "Ensure no uncaught exceptions thrown during frame integration."
+          ],
+          "status": "PENDING",
+          "verified_artifact": null
+        }
+      ],
+      "completion_percentage": 0.0
+    },
+    {
+      "version": "v0.3.0",
+      "codename": "Codename-v0.3.0",
+      "theme": "500m Mountain Shelter & 3-Card Item Drafting",
+      "status": "PLANNED",
+      "created_at": "2026-11-12T00:19:31.433059",
+      "completed_at": null,
+      "deliverables": [
+        {
+          "deliverable_id": "DELIV-v0.3.0-01",
+          "discipline": "Systems",
+          "title": "Checkpoint shelter detection every 500m.",
+          "target_subsystem": "web_client/index.html",
+          "acceptance_criteria": [
+            "Define state models, formulas, and schema for Checkpoint shelter detection every 500m..",
+            "Ensure deterministic state transitions and mutation guards.",
+            "Verify integration with active game state."
+          ],
+          "status": "PENDING",
+          "verified_artifact": null
+        },
+        {
+          "deliverable_id": "DELIV-v0.3.0-02",
+          "discipline": "Systems",
+          "title": "Modal draft screen displaying 3 randomized item cards with icons, rarities, and descriptions.",
+          "target_subsystem": "web_client/index.html",
+          "acceptance_criteria": [
+            "Define state models, formulas, and schema for Modal draft screen displaying 3 randomized item cards with icons, rarities, and descriptions..",
+            "Ensure deterministic state transitions and mutation guards.",
+            "Verify integration with active game state."
+          ],
+          "status": "PENDING",
+          "verified_artifact": null
+        },
+        {
+          "deliverable_id": "DELIV-v0.3.0-03",
+          "discipline": "Systems",
+          "title": "Core inventory engine supporting passive stat modifications and active ability cooldowns.",
+          "target_subsystem": "web_client/index.html",
+          "acceptance_criteria": [
+            "Define state models, formulas, and schema for Core inventory engine supporting passive stat modifications and active ability cooldowns..",
+            "Ensure deterministic state transitions and mutation guards.",
+            "Verify integration with active game state."
+          ],
+          "status": "PENDING",
+          "verified_artifact": null
+        },
+        {
+          "deliverable_id": "DELIV-v0.3.0-04",
+          "discipline": "Systems",
+          "title": "Implementation of initial 25 equipment and gadget items.",
+          "target_subsystem": "web_client/index.html",
+          "acceptance_criteria": [
+            "Define state models, formulas, and schema for Implementation of initial 25 equipment and gadget items..",
+            "Ensure deterministic state transitions and mutation guards.",
+            "Verify integration with active game state."
+          ],
+          "status": "PENDING",
+          "verified_artifact": null
+        }
+      ],
+      "completion_percentage": 0.0
+    },
+    {
+      "version": "v0.4.0",
+      "codename": "Codename-v0.4.0",
+      "theme": "100+ Relic System, Biomes & Environmental Hazards",
+      "status": "PLANNED",
+      "created_at": "2026-11-12T00:19:31.433108",
+      "completed_at": null,
+      "deliverables": [
+        {
+          "deliverable_id": "DELIV-v0.4.0-01",
+          "discipline": "Systems",
+          "title": "Full expansion of the 100+ item relic database across Common, Rare, Epic, and Cursed tiers.",
+          "target_subsystem": "web_client/index.html",
+          "acceptance_criteria": [
+            "Define state models, formulas, and schema for Full expansion of the 100+ item relic database across Common, Rare, Epic, and Cursed tiers..",
+            "Ensure deterministic state transitions and mutation guards.",
+            "Verify integration with active game state."
+          ],
+          "status": "PENDING",
+          "verified_artifact": null
+        },
+        {
+          "deliverable_id": "DELIV-v0.4.0-02",
+          "discipline": "Level",
+          "title": "Dynamic biome transitions (Alpine Resort $\\rightarrow$ Black Diamond Pines $\\rightarrow$ Glacial Crevasse $\\rightarrow$ Yeti Tundra).",
+          "target_subsystem": "web_client/index.html",
+          "acceptance_criteria": [
+            "Implement procedural generation logic for Dynamic biome transitions (Alpine Resort $\\rightarrow$ Black Diamond Pines $\\rightarrow$ Glacial Crevasse $\\rightarrow$ Yeti Tundra)..",
+            "Verify terrain solvability and collision bounds.",
+            "Ensure off-screen entities are cleaned up."
+          ],
+          "status": "PENDING",
+          "verified_artifact": null
+        },
+        {
+          "deliverable_id": "DELIV-v0.4.0-03",
+          "discipline": "Gameplay",
+          "title": "Environmental hazards: Ice patches, jump chasms, and blizzard visibility masking.",
+          "target_subsystem": "web_client/index.html",
+          "acceptance_criteria": [
+            "Implement Environmental hazards: Ice patches, jump chasms, and blizzard visibility masking. with delta-time clamped kinematics.",
+            "Verify responsive player controls and state machine transitions.",
+            "Ensure no uncaught exceptions thrown during frame integration."
+          ],
+          "status": "PENDING",
+          "verified_artifact": null
+        }
+      ],
+      "completion_percentage": 0.0
+    },
+    {
+      "version": "v0.5.0",
+      "codename": "Codename-v0.5.0",
+      "theme": "The Abominable Yeti, Audio Synthesis & Endgame Run Extraction",
+      "status": "PLANNED",
+      "created_at": "2026-11-12T00:19:31.433162",
+      "completed_at": null,
+      "deliverables": [
+        {
+          "deliverable_id": "DELIV-v0.5.0-01",
+          "discipline": "Level",
+          "title": "Procedural Yeti AI predator with sprint pathfinding, bounding leap attacks, and tree trip recovery.",
+          "target_subsystem": "web_client/index.html",
+          "acceptance_criteria": [
+            "Implement procedural generation logic for Procedural Yeti AI predator with sprint pathfinding, bounding leap attacks, and tree trip recovery..",
+            "Verify terrain solvability and collision bounds.",
+            "Ensure off-screen entities are cleaned up."
+          ],
+          "status": "PENDING",
+          "verified_artifact": null
+        },
+        {
+          "deliverable_id": "DELIV-v0.5.0-02",
+          "discipline": "Gameplay",
+          "title": "Web Audio API procedural sound engine: Carve hiss, wind rush, slalom chime, and Yeti roar.",
+          "target_subsystem": "web_client/index.html",
+          "acceptance_criteria": [
+            "Implement Web Audio API procedural sound engine: Carve hiss, wind rush, slalom chime, and Yeti roar. with delta-time clamped kinematics.",
+            "Verify responsive player controls and state machine transitions.",
+            "Ensure no uncaught exceptions thrown during frame integration."
+          ],
+          "status": "PENDING",
+          "verified_artifact": null
+        },
+        {
+          "deliverable_id": "DELIV-v0.5.0-03",
+          "discipline": "Narrative",
+          "title": "High score leaderboard, terminal run obituary screen, and endless descent victory conditions.",
+          "target_subsystem": "web_client/index.html",
+          "acceptance_criteria": [
+            "Author diegetic text and flavor vignettes for High score leaderboard, terminal run obituary screen, and endless descent victory conditions..",
+            "Integrate modal text formatting with retro shareware aesthetic."
+          ],
+          "status": "PENDING",
+          "verified_artifact": null
+        }
+      ],
+      "completion_percentage": 0.0
+    }
+  ],
+  "last_updated": "2026-11-12T02:09:51.853564"
+}

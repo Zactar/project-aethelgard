@@ -1,0 +1,27 @@
+{
+  "summary": "High-performance, zero-allocation HUD rendering pipeline embedded into the HTML5 Canvas 2D render loop. Renders instantaneous player downhill velocity, cumulative distance traveled, and a 3-strike wipeout indicator styled with a 90s shareware CRT aesthetic without generating heap garbage during active animation frames.",
+  "technical_specification": "1. Data Model & State Encapsulation: Define a fixed-size, mutable C-style struct 'HUDState' using a shared Float64Array and Int32Array (SpeedKmH: Float64[0], DistanceM: Float64[1], Wipeouts: Int32[0], MaxWipeouts: 3). 2. Kinematics-to-Display Formulas: Velocity magnitude is computed per-tick as v_mag = Math.sqrt(vx * vx + vy * vy). Speed is scaled to km/h via S = v_mag * 3.6. Distance accumulates along the downhill axis: D_next = D_prev + (vy * dt). 3. Zero-Allocation String Formatting: Eliminate per-frame string allocations by pre-allocating an ASCII character code buffer or an array of numeric sprite glyphs (0-9, 'K', 'M', '/', 'H', ':'). Pre-bake a 16x16 fixed-pitch monospace bitmap font onto an offscreen canvas at initialization. Text rendering draws directly from this glyph texture via ctx.drawImage() blits using direct integer math (glyphIndex = (val / divisor) % 10 | 0). 4. Layout & Visual Pipeline: Anchor HUD to the top viewport edge using screen-space coordinates unaffected by the dynamic downhill camera matrix. Layout consists of: (a) Left cluster: Analog/Digital Speedometer showing current speed with redline threshold warning past 80 km/h; (b) Center cluster: Odometer tracking distance down the mountain with milestone flash indicators at 500m intervals; (c) Right cluster: Three 16x16 segmented retro ski/skull glyphs depicting wipeout life reserves (Filled Cyan = Intact, Flashing Yellow = Danger, Dark Grey Strikethrough = Lost). 5. Post-Processing CRT Emulation: Blit a persistent scanline pattern via CanvasRenderingContext2D globalCompositeOperation ('source-over' with 1px alpha-banded horizontal scanlines cached on a 2x2 pattern canvas).",
+  "acceptance_criteria": [
+    "Zero allocations per frame verified via Chrome DevTools Allocation Profiler during active descent and HUD update calls.",
+    "HUD maintains continuous 60 FPS under simulated load with viewport resizing between 320x240 (scaled up) and 1920x1080 native resolutions.",
+    "Speedometer accurately reflects vector magnitude changes within 1 frame of player acceleration, snowplow braking, or carve deceleration.",
+    "Distance meter continuously increments and dispatches checkpoint milestone signals at exact 500-meter boundaries.",
+    "Wipeout counter updates synchronously on collision events, showing discrete visual states for 0, 1, 2, and 3 strikes."
+  ],
+  "interface_contracts": {
+    "inputs": [
+      "playerKinematics.vx (float64, world pixels per second)",
+      "playerKinematics.vy (float64, downhill pixels per second)",
+      "playerSession.wipeouts (int32, range [0, 3])",
+      "engine.deltaTime (float64, seconds elapsed since last frame)"
+    ],
+    "outputs": [
+      "canvas2DContext.drawImage (direct blit calls to screen-space HUD canvas)",
+      "hudState.lastDistanceMeters (float64, accumulated distance scalar)"
+    ],
+    "events": [
+      "hud:onCheckpointReached(distanceThreshold: number)",
+      "hud:onWipeoutStateChanged(currentWipeouts: number, remainingWipeouts: number)"
+    ]
+  }
+}

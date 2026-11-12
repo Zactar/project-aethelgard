@@ -1,0 +1,48 @@
+{
+    "curriculum_id": "CURR-GDES-01",
+    "title": "Foundational Principles of Game Design & Systemic Continuums",
+    "modules": [
+        {
+            "topic": "Mechanics-Dynamics-Aesthetics (MDA) Framework",
+            "core_principles": [
+                "Mechanics represent the granular rules, data structures, and algorithms (e.g., base speed, inventory caps, commodity exchange ratios).",
+                "Dynamics describe how mechanics interact when set in motion by player input and systemic loops (e.g., grain shortages spiking bread prices and triggering martial curfew patrol AI).",
+                "Aesthetics denote the desirable emotional and sensory responses evoked in the player (e.g., tension, claustrophobia, relief, curiosity)."
+            ],
+            "exemplar_case_studies": [
+                "System Shock",
+                "Dishonored",
+                "The Legend of Zelda: Tears of the Kingdom"
+            ],
+            "operational_rule": "Every proposed feature RFC must explicitly specify its intended dynamic interaction and emotional aesthetic target."
+        },
+        {
+            "topic": "Game Feel, Kinetics & Juice",
+            "core_principles": [
+                "Kinetic responsiveness requires instant input acknowledgment: visual particles, audio cues, and mesh facing on frame 1 of input.",
+                "Motion parallax is essential for 3D orientation: high-contrast floor seams, vertical props, and camera spring damping create depth perception.",
+                "Input leniency (coyote time, input buffering) prevents dropped interactions at boundaries."
+            ],
+            "exemplar_case_studies": [
+                "Celeste",
+                "Hades",
+                "Diablo II"
+            ],
+            "operational_rule": "The player model must visibly stride, bank, and emit floor contact feedback within 16ms of input."
+        },
+        {
+            "topic": "Systemic Economies & Scarcity Chains",
+            "core_principles": [
+                "Economies must avoid arbitrary spawn tables; production must follow a Leontief input-output matrix (Raw Resource -> Refined Material -> Finished Consumable).",
+                "Every currency or commodity requires balancing sinks and faucets to prevent runaway hyperinflation.",
+                "Resource shortages must cascade into environmental, lighting, and NPC hostility changes."
+            ],
+            "exemplar_case_studies": [
+                "Eve Online",
+                "Path of Exile",
+                "Victoria 3"
+            ],
+            "operational_rule": "Minting a new consumable requires defining its raw production source and consumption sink."
+        }
+    ]
+}

@@ -1,0 +1,18 @@
+{
+  "codename": "Operation Abyssal Tremor",
+  "theme": "Subterranean Seismic Hazards & Cursed Alchemical Rupture",
+  "deliverables": [
+    {
+      "discipline": "Systems",
+      "title": "Unstable Crypt Vault ceilings with structural fault lines that shower crushing stone debris when struck by heavy poise weapons or triggered by enemy charge impacts"
+    },
+    {
+      "discipline": "Gameplay",
+      "title": "Interactive Black Bile Geo-Vents that players can breach with kick-shoves or blunt weapon impacts to coat advancing hordes in flammable, volatile tar"
+    },
+    {
+      "discipline": "Client",
+      "title": "Diegetic weapon-resonance trail FX that crackle with chromatic lightning and ground-fissure sparks when winding up max-charge heavy stamina swings"
+    }
+  ]
+}

@@ -1,0 +1,181 @@
+{
+  "active_version": "v0.4.0",
+  "milestones": [
+    {
+      "version": "v0.1.0",
+      "codename": "Kernel, Flies & Currency HUD",
+      "theme": "Grid hopping, heart lives, fly pickups, and currency tracking HUD.",
+      "status": "SHIPPED",
+      "created_at": "2026-11-01T21:23:10.679399",
+      "completed_at": "2026-11-01T21:23:18.837510",
+      "deliverables": [
+        {
+          "deliverable_id": "DEL-01-SYS",
+          "discipline": "Systems",
+          "title": "Fly Currency & Heart Damage State Machine",
+          "target_subsystem": "web_client/index.html",
+          "acceptance_criteria": [
+            "Flies tracked in HUD",
+            "Heart count displayed"
+          ],
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261101-AFD61A.json"
+        },
+        {
+          "deliverable_id": "DEL-01-GMP",
+          "discipline": "Gameplay",
+          "title": "Fly Spawning & Tongue Catch Mechanics",
+          "target_subsystem": "web_client/index.html",
+          "acceptance_criteria": [
+            "Flies spawn in lanes",
+            "Catching adds to fly wallet"
+          ],
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261101-8BEC6C.json"
+        },
+        {
+          "deliverable_id": "DEL-01-QA",
+          "discipline": "Chaos QA",
+          "title": "Currency & Life Invariant Test",
+          "target_subsystem": "tools/validate_webapp.py",
+          "acceptance_criteria": [
+            "Web client verifies currency tracking"
+          ],
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261101-96DB03.json"
+        }
+      ],
+      "completion_percentage": 100.0
+    },
+    {
+      "version": "v0.2.0",
+      "codename": "The Pond Peddler & Relic Shop",
+      "theme": "Interstitial item shop, relic purchasing, and active trinket triggers.",
+      "status": "SHIPPED",
+      "created_at": "2026-11-01T21:23:10.679420",
+      "completed_at": "2026-11-01T21:44:17.353066",
+      "deliverables": [
+        {
+          "deliverable_id": "DEL-02-SYS",
+          "discipline": "Systems",
+          "title": "Pond Shop State Machine & Inventory Relic Modifiers",
+          "target_subsystem": "web_client/index.html",
+          "acceptance_criteria": [
+            "Shop screen pauses action",
+            "Items cost flies"
+          ],
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261101-A78138.json"
+        },
+        {
+          "deliverable_id": "DEL-02-CLI",
+          "discipline": "Client",
+          "title": "Pond Shop UI Modal & Relic Badges",
+          "target_subsystem": "web_client/index.html",
+          "acceptance_criteria": [
+            "Shop modal displays 3 items",
+            "Equipped relics shown"
+          ],
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261101-00E6C4.json"
+        }
+      ],
+      "completion_percentage": 100.0
+    },
+    {
+      "version": "v0.3.0",
+      "codename": "Hazard Escalation & Stage Transitions",
+      "theme": "Dynamic difficulty scaling per stage: crocodile teeth, diving turtles, and fast sweepers.",
+      "status": "SHIPPED",
+      "created_at": "2026-11-01T21:23:10.679429",
+      "completed_at": "2026-11-01T22:00:43.199390",
+      "deliverables": [
+        {
+          "deliverable_id": "DEL-03-SYS",
+          "discipline": "Systems",
+          "title": "Procedural Difficulty Velocity Scaler",
+          "target_subsystem": "web_client/index.html",
+          "acceptance_criteria": [
+            "Traffic speed increases per stage",
+            "River log gaps shrink"
+          ],
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261101-73B1DC.json"
+        }
+      ],
+      "completion_percentage": 100.0
+    },
+    {
+      "version": "v0.4.0",
+      "codename": "Permadeath & Amber Meta-Progression",
+      "theme": "Persistent Amber Resin bank, permanent sanctuary perks, and death stats.",
+      "status": "VALIDATING",
+      "created_at": "2026-11-01T21:23:10.679445",
+      "completed_at": "2026-11-01T22:24:01.835091",
+      "deliverables": [
+        {
+          "deliverable_id": "DEL-04-SYS",
+          "discipline": "Systems",
+          "title": "Amber Resin Persistent Bank & Sanctuary Upgrades",
+          "target_subsystem": "web_client/index.html",
+          "acceptance_criteria": [
+            "Amber persisted to localStorage",
+            "Sanctuary perks unlockable"
+          ],
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261101-45EFC6.json"
+        }
+      ],
+      "completion_percentage": 100.0
+    },
+    {
+      "version": "v0.5.0",
+      "codename": "The Great Lilypad Sanctuary & Amber Perk Tree",
+      "theme": "Permanent meta-progression hub: Thick Hide (+Hearts), Lilypad Nest Egg (+Starting Flies), and Resin Crucible (+Amber Yield).",
+      "status": "SHIPPED",
+      "created_at": "2026-11-03T06:25:32.243549",
+      "completed_at": "2026-11-03T06:25:50.497737",
+      "deliverables": [
+        {
+          "deliverable_id": "DEL-05-SYS",
+          "discipline": "Systems",
+          "title": "Sanctuary Meta-Upgrade State Machine & Perk Persister",
+          "target_subsystem": "web_client/index.html",
+          "acceptance_criteria": [
+            "Amber Resin spendable on permanent upgrades",
+            "Upgrades persist in localStorage",
+            "Starting hearts/flies scale with purchased ranks"
+          ],
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261103-787C90.json"
+        },
+        {
+          "deliverable_id": "DEL-05-CLI",
+          "discipline": "Client",
+          "title": "Sanctuary Hub Modal & Upgrade Badges",
+          "target_subsystem": "web_client/index.html",
+          "acceptance_criteria": [
+            "Sanctuary modal accessible via [S] or Game Over",
+            "Displays upgrade ranks and Amber balance"
+          ],
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261103-26F433.json"
+        },
+        {
+          "deliverable_id": "DEL-05-QA",
+          "discipline": "Chaos QA",
+          "title": "Sanctuary Persistence & Starting Perk Invariant Test",
+          "target_subsystem": "tools/validate_webapp.py",
+          "acceptance_criteria": [
+            "Verify Amber balance deductions",
+            "Assert perk bonuses apply on fresh run initialization"
+          ],
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261103-DF8EDC.json"
+        }
+      ],
+      "completion_percentage": 100.0
+    }
+  ],
+  "last_updated": "2026-11-03T06:53:12.363692"
+}

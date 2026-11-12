@@ -1,0 +1,8 @@
+[gd_scene format=3]
+
+[node name="lower_warrens_mill" type="Node3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0, 0.0, -48.0)
+
+[node name="Floorplate" type="CSGBox3D" parent="."]
+size = Vector3(22.0, 0.4, 20.0)
+use_collision = true

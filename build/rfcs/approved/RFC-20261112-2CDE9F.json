@@ -1,0 +1,67 @@
+{
+  "rfc_id": "RFC-20261112-2CDE9F",
+  "title": "Animated geometric sigil drawing (*Intersecting Diagonal Blades* vs. *Concentric Meridian Ring*), radial particle bursts upon inscription, and a blazing harmonic laser beam connecting the 3 aligned sectors on victory.",
+  "target_subsystem": "web_client/index.html",
+  "discipline": "Aesthetics",
+  "target_milestone": "v0.1.0",
+  "milestone_target": "v0.1.0",
+  "milestone_tag": "v0.1.0",
+  "author_role": "Aesthetics Specialist",
+  "summary": "Drives stroke-drawn vector sigil animations, burst particles on inscription, and a pulsing harmonic laser across the victorious triad.",
+  "technical_specification": "Store active animations in `state.world.inscriptions = []` (containing `cellIndex`, `type`, `progress: 0..1`) and `state.world.particles = []`. On `CELL_INSCRIBED`, spawn 24 radial velocity particles (`speed * cos(theta)`, damping 0.92) matching contender tint (Cyan `#00f0ff` for Blades, Gold `#ffd700` for Rings). In render loop, interpolate `progress += dt * 4`; draw Blades via `ctx.lineTo` crossed strokes and Ring via `ctx.arc(..., 0, progress * Math.PI * 2)`. If `state.stats.winVector` exists, trace a glowing laser beam through the three cell centers with outer additive glow (`ctx.shadowBlur = 18`, width 6px) and oscillating sinusoidal intensity `0.8 + 0.2 * Math.sin(time * 12)`.",
+  "acceptance_criteria": [
+    "Sigils animate with continuous stroke expansion upon placement rather than appearing instantaneously.",
+    "Claiming a sector produces an immediate radial burst of 20+ particle sparks colored by faction.",
+    "Winning round draws an uninterrupted high-luminosity laser beam through the centers of all 3 winning sectors."
+  ],
+  "interface_contracts": {
+    "inputs": [
+      "state.stats.winVector",
+      "state.stats.grid",
+      "state.stats.phase"
+    ],
+    "outputs": [
+      "state.world.inscriptions",
+      "state.world.particles"
+    ],
+    "events": [
+      "CELL_INSCRIBED"
+    ]
+  },
+  "pre_flight_passed": true,
+  "description": "[Aesthetics] Animated geometric sigil drawing (*Intersecting Diagonal Blades* vs. *Concentric Meridian Ring*), radial particle bursts upon inscription, and a blazing harmonic laser beam connecting the 3 aligned sectors on victory.\n\nSummary:\nDrives stroke-drawn vector sigil animations, burst particles on inscription, and a pulsing harmonic laser across the victorious triad.\n\nSpecification:\nStore active animations in `state.world.inscriptions = []` (containing `cellIndex`, `type`, `progress: 0..1`) and `state.world.particles = []`. On `CELL_INSCRIBED`, spawn 24 radial velocity particles (`speed * cos(theta)`, damping 0.92) matching contender tint (Cyan `#00f0ff` for Blades, Gold `#ffd700` for Rings). In render loop, interpolate `progress += dt * 4`; draw Blades via `ctx.lineTo` crossed strokes and Ring via `ctx.arc(..., 0, progress * Math.PI * 2)`. If `state.stats.winVector` exists, trace a glowing laser beam through the three cell centers with outer additive glow (`ctx.shadowBlur = 18`, width 6px) and oscillating sinusoidal intensity `0.8 + 0.2 * Math.sin(time * 12)`.",
+  "submitted_by": "Aesthetics Specialist",
+  "change_type": "ADJUST_MECHANICS",
+  "status": "PENDING_REVIEW",
+  "created_at": 1794485222.1123786,
+  "payload_diff": {
+    "title": "Animated geometric sigil drawing (*Intersecting Diagonal Blades* vs. *Concentric Meridian Ring*), radial particle bursts upon inscription, and a blazing harmonic laser beam connecting the 3 aligned sectors on victory.",
+    "discipline": "Aesthetics",
+    "target_subsystem": "web_client/index.html",
+    "target_milestone": "v0.1.0",
+    "milestone_tag": "v0.1.0",
+    "author_role": "Aesthetics Specialist",
+    "summary": "Drives stroke-drawn vector sigil animations, burst particles on inscription, and a pulsing harmonic laser across the victorious triad.",
+    "technical_specification": "Store active animations in `state.world.inscriptions = []` (containing `cellIndex`, `type`, `progress: 0..1`) and `state.world.particles = []`. On `CELL_INSCRIBED`, spawn 24 radial velocity particles (`speed * cos(theta)`, damping 0.92) matching contender tint (Cyan `#00f0ff` for Blades, Gold `#ffd700` for Rings). In render loop, interpolate `progress += dt * 4`; draw Blades via `ctx.lineTo` crossed strokes and Ring via `ctx.arc(..., 0, progress * Math.PI * 2)`. If `state.stats.winVector` exists, trace a glowing laser beam through the three cell centers with outer additive glow (`ctx.shadowBlur = 18`, width 6px) and oscillating sinusoidal intensity `0.8 + 0.2 * Math.sin(time * 12)`.",
+    "acceptance_criteria": [
+      "Sigils animate with continuous stroke expansion upon placement rather than appearing instantaneously.",
+      "Claiming a sector produces an immediate radial burst of 20+ particle sparks colored by faction.",
+      "Winning round draws an uninterrupted high-luminosity laser beam through the centers of all 3 winning sectors."
+    ],
+    "interface_contracts": {
+      "inputs": [
+        "state.stats.winVector",
+        "state.stats.grid",
+        "state.stats.phase"
+      ],
+      "outputs": [
+        "state.world.inscriptions",
+        "state.world.particles"
+      ],
+      "events": [
+        "CELL_INSCRIBED"
+      ]
+    },
+    "pre_flight_passed": true
+  }
+}

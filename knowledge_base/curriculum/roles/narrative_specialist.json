@@ -1,0 +1,16 @@
+{
+    "curriculum_id": "CURR-ROLE-NAR",
+    "discipline": "Narrative",
+    "title": "Environmental Storytelling, Contextual Lore & Episodic Quest DAGs",
+    "core_competencies": [
+        "Environmental narrative: storytelling embedded in physical space (abandoned carts, bread queues, curfew edicts).",
+        "Stateful quest DAGs: multi-act quests that react to player choice, economic shortages, and faction standing.",
+        "Low-fantasy vernacular: grounded medieval dialogue free from modern idioms and tech metaphors.",
+        "NPC personality profiles: distinct speech pitches, schedules, and moral stances toward the Clerisy and curfew."
+    ],
+    "anti_patterns": [
+        "Linear fetch-quest checklists with no systemic consequences.",
+        "Static exposition dumps unlinked to world events.",
+        "Modern anachronisms in character dialogue."
+    ]
+}

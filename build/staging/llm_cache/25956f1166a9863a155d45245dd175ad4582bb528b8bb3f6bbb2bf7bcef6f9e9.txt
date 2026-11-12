@@ -1,0 +1,31 @@
+{
+  "summary": "Architectural specification for an infinite, procedurally generated slalom gate sequence featuring mathematically solvable lateral placement envelopes, clearance corridor masking over Poisson-disk hazards, and a real-time combo multiplier tracking system implemented in vanilla ES6 Canvas 2D.",
+  "technical_specification": "1. Gate Placement Kinematics & Solvability Envelope:\n   - Gates are placed in down-mountain chunks along the vertical distance axis (Y). Consecutive gates (i and i+1) alternate lateral polarity (Red = Left-favored, Blue = Right-favored).\n   - Vertical spacing is bounded by dynamic descent velocity: dy = clamp(V_y * dt_turn, 240, 480) pixels, where dt_turn is the baseline carve transition duration (0.6s to 1.2s).\n   - Lateral placement constraint: The maximum horizontal step dx between gate centers is governed by the player's maximum lateral turning speed V_x_max and an operational safety margin eta = 0.75: |x_{i+1} - x_i| <= (V_x_max / V_y_nominal) * (y_{i+1} - y_i) * eta. This guarantees a kinematically reachable carving arc regardless of current speed.\n   - Gate Geometry: Each gate consists of two poles separated by width W_g = clamp(110 - (distance / 5000) * 10, 70, 110) px. Left pole: (x - W_g/2, y); Right pole: (x + W_g/2, y).\n\n2. Hazard Masking & Poisson-Disk Exclusion:\n   - Slalom paths define an exclusion capsule polygon between consecutive gates: Capsule(Segment((x_i, y_i), (x_{i+1}, y_{i+1})), radius = W_g * 0.8).\n   - During chunk population, the Poisson-disk obstacle generator queries this capsule; tree and boulder candidate points falling within the exclusion zone are rejected, ensuring zero unavoidable obstacle collisions while navigating gates.\n\n3. Gate Crossing Detection Algorithm:\n   - Evaluated every frame using continuous swept-line intersection between previous player position P_prev(x, y) and current position P_curr(x, y).\n   - Gate plane is represented as a horizontal line segment L from (x_left, y_gate) to (x_right, y_gate).\n   - Detection triggers when (P_prev.y <= y_gate and P_curr.y >= y_gate). Interpolated crossing position: x_cross = P_prev.x + (y_gate - P_prev.y) * ((P_curr.x - P_prev.x) / (P_curr.y - P_prev.y)).\n   - Success condition: (x_left <= x_cross <= x_right). If true, flag as CLEARED. If false (and P_curr.y > y_gate + 20 without clearance), flag as MISSED.\n\n4. Combo Multiplier State Machine & Scoring:\n   - States: [COMBO_INACTIVE, COMBO_ACTIVE, COMBO_DECAYING].\n   - On Successful Clearance: Increment combo_count by 1. Multiplier formula: M = 1.0 + min(floor(combo_count / 3) * 0.5, 4.0). Base XP award: XP_earned = 50 * M. Reset combo_timer to max_duration = 3.0s (scaled positively by player Moxie/Agility stats).\n   - On Miss / Wipeout: Transition to COMBO_INACTIVE, instantly resetting combo_count to 0 and multiplier to 1.0x.\n   - On Frame Update: If combo_timer > 0, decrement by dt. If timer hits 0 in COMBO_ACTIVE, transition to COMBO_DECAYING where multiplier drops by 1.0x per second until hitting 1.0x (COMBO_INACTIVE).\n\n5. Visuals & Rendering (Canvas 2D):\n   - Render flags at 60 FPS using indexed 16-color shareware palette: #E70000 (Red Gate) / #0045E7 (Blue Gate) with procedural cloth fluttering calculated via sin(time * 12 + pole.y * 0.05) * 4.\n   - Cleared gate triggers floating retro Canvas text render (e.g., '+150 XP [COMBO x2.5]') with vertical floating offset and linear alpha fade.",
+  "acceptance_criteria": [
+    "Slalom gates procedurally generate along the slope such that the lateral offset between any two consecutive gates never exceeds the physical carve turn radius at terminal velocity (guaranteeing a mathematically solvable route).",
+    "Poisson-disk obstacle scatter strictly excludes procedural trees, rocks, and moguls within an 80px corridor envelope connecting successive slalom gates.",
+    "Continuous swept-line collision accurately detects gate passage even when downhill velocity (V_y) exceeds 600 px/sec across frame deltas.",
+    "Clearing consecutive gates increments the combo multiplier in stepped 0.5x thresholds up to a hard cap of 5.0x, applying the correct multiplier directly to character XP.",
+    "Missing a gate or suffering a wipeout state immediately drops the combo streak and restores the multiplier to base 1.0x.",
+    "Gate banners and combo text draw strictly via Canvas 2D primitives and pixel buffers matching the 90s CRT/shareware aesthetic without external assets or libraries."
+  ],
+  "interface_contracts": {
+    "inputs": [
+      "playerKinematics: { x: number, y: number, prevX: number, prevY: number, vx: number, vy: number, isWipeout: boolean }",
+      "chunkBounds: { startY: number, endY: number, width: number, seed: number }",
+      "playerAttributes: { agility: number, moxie: number, luck: number }",
+      "deltaTime: number"
+    ],
+    "outputs": [
+      "activeGates: Array<{ id: string, type: 'RED'|'BLUE', leftPole: {x: number, y: number}, rightPole: {x: number, y: number}, cleared: boolean, missed: boolean }>",
+      "exclusionPolygons: Array<{ p1: {x: number, y: number}, p2: {x: number, y: number}, radius: number }>",
+      "comboState: { count: number, multiplier: number, timerRemaining: number, maxTimer: number }"
+    ],
+    "events": [
+      "onSlalomGateCleared(gateId, earnedXP, currentMultiplier)",
+      "onSlalomGateMissed(gateId)",
+      "onComboMultiplierChanged(previousMultiplier, newMultiplier)",
+      "onComboDropped(finalStreakCount)"
+    ]
+  }
+}

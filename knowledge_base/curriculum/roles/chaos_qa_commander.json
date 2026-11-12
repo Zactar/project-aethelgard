@@ -1,0 +1,16 @@
+{
+    "curriculum_id": "CURR-ROLE-QA",
+    "discipline": "Chaos QA",
+    "title": "Automated Quality Assurance, Invariant Testing & Adversarial Fuzzing",
+    "core_competencies": [
+        "AABB spatial collision auditing: detecting room overlaps and corridor threshold pinch points.",
+        "WebSocket telemetry fuzzing: testing state packet serialization and packet drops.",
+        "Topological reachability tests: confirming all spawned zones have navigable doorways.",
+        "Regression post-mortems: converting bugs into permanent prevention rules."
+    ],
+    "anti_patterns": [
+        "Rubber-stamping milestone reviews without testing on-disk artifacts.",
+        "Allowing unverified deliverables to count toward burndown.",
+        "Ignoring edge-case collision glitches."
+    ]
+}

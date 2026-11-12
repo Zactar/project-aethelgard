@@ -1,0 +1,9 @@
+Count = 0` (or `comboCount = 0`)
+`multiplier = 1.0`
+`comboTimer = 0`
+`maxDuration = 3.0`
+`player.xp = 0` (and `score` / `xp` in player object)
+
+On Successful Clearance:
+`comboCount++`
+`multiplier = 1.0 + Math.min(Math.floor(comboCount / 3) * 0.5, 4.0)` (so hard cap is 5.0x, stepped by 0.5x every 3 gates: 0-2 -> 1.0x, 3-5 -> 1.5x, 6-8 -> 2

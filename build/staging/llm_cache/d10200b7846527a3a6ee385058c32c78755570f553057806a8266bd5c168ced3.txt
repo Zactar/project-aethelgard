@@ -1,0 +1,49 @@
+{
+  "rfcs": [
+    {
+      "index": 0,
+      "summary": "Implement a 3-phase kinematic boss entity with 4 destructible perimeter turrets, telegraphing rotating beam prisms, and synced bullet hell rings.",
+      "technical_specification": "Initialize `state.world.boss = { active: true, phase: 1, x: 960, y: 540, angle: 0, rotSpeed: 0.008, hp: 6000, maxHp: 6000, turrets: [{ hp: 500, relAngle: i * Math.PI / 2, dist: 140, active: true }], beamAngle: 0, beamActive: false, attackTimer: 0 }`. In `update()`, guard with `if (state.paused) return;`. Increment `angle += rotSpeed`. In Phase 1 (`hp > 4000`), turrets shoot radial bursts every 1.875s (4 beats at 128 BPM). In Phase 2 (`hp > 1500`), core fires 2 sweeping laser chords (`beamAngle += 0.025`, collision line-to-circle check against `state.player`). In Phase 3 (`hp <= 1500`), core pulses 16-way spiral projectile volleys (`vel = 3.5 * [cos(θ), sin(θ)]`). Turret destruction deducts 500 direct core HP and spawns neon shards.",
+      "acceptance_criteria": [
+        "Boss entity spawns at Wave 10 and enforces 3 distinct attack phases based on aggregate HP thresholds.",
+        "Laser prisms and projectile bursts sync to 128-BPM beat clock ticks (`state.audio.beatTick`).",
+        "Turret destruction removes collision hulls and yields kinetic neon shards pulled toward the player."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.world.wave", "state.audio.beatTick", "state.player.x", "state.player.y"],
+        "outputs": ["state.world.boss", "state.world.projectiles", "state.world.particles"],
+        "events": ["BOSS_SPAWNED", "BOSS_TURRET_DESTROYED", "BOSS_PHASE_ADVANCED", "BOSS_DEFEATED"]
+      }
+    },
+    {
+      "index": 1,
+      "summary": "Deliver a zero-HUD-bleed end-run modal evaluating Synth-Rank performance tiers, dynamic pilot obituaries, and persistent localStorage leaderboard entries.",
+      "technical_specification": "When `state.player.hp <= 0` or boss is defeated, set `state.modal = 'RUN_SUMMARY'` and `state.paused = true`. Calculate rank string: score > 500k: `S-RANK: NEON DEITY`, >300k: `A-RANK: CHROME GLADIATOR`, >150k: `B-RANK: VECTOR ACE`, >50k: `C-RANK: VOID RUNNER`, else `D-RANK: STATIC`. Read pilot ID from `state.player.pilotId` to fetch thematic victory/death epigram. Write top score record into `state.stats.leaderboard` (parsed from `localStorage.getItem('HV_SCORES') || []`, sorted desc, top 5 retained). Listen for Space key (`state.keys.Space`); on press, invoke `resetRun(state)` reinitializing kinematic vectors, shield rings, and audio sequence at Wave 1.",
+      "acceptance_criteria": [
+        "Modal renders only when paused without bleeding background gameplay updates or double-firing inputs.",
+        "Calculates correct Synth-Rank tier using score, combo multiplier peak, and elapsed run time.",
+        "Pressing Space instantly cleanses runtime state and launches a fresh run within 1 frame."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.player.hp", "state.world.boss.hp", "state.stats.score", "state.player.pilotId", "state.keys.Space"],
+        "outputs": ["state.modal", "state.paused", "state.stats.leaderboard"],
+        "events": ["RUN_COMPLETED", "LEADERBOARD_UPDATED", "RUN_RESTARTED"]
+      }
+    },
+    {
+      "index": 2,
+      "summary": "Render a multi-stage slow-motion boss core meltdown with radial shockwave distortion, chromatic canvas offsets, and victory audio fanfare.",
+      "technical_specification": "Upon `BOSS_DEFEATED`, set `state.meltdown = { timer: 180, x: boss.x, y: boss.y, intensity: 1.0 }` and trigger a 40ms freeze before slowing delta to 0.25x. For 180 frames, spawn high-velocity additive neon shards (`#ff007f`, `#00f3ff`, `#ffea00`) with quadratic easing outward. Apply screen-wide chromatic split: draw canvas offscreen buffer twice with `ctx.drawImage` offset by `dx = ±(meltdown.intensity * 12 * Math.sin(timer * 0.4))` across composite blend `'screen'`. Trigger procedural Web Audio fanfare on `state.audio.ctx`: three ascending polyphonic major arpeggios (sawtooth + 24dB lowpass, sidechained decay). On completion (`timer <= 0`), zero meltdown state and transition to `RUN_SUMMARY` modal.",
+      "acceptance_criteria": [
+        "Chromatic aberration and shockwave distortion dynamically expand and fade smoothly across 180 frames.",
+        "Procedural Web Audio synthesizer plays triumphant multi-oscillator fanfare without clipping or clicks.",
+        "Meltdown cleanly transitions directly into Narrative victory modal without orphaned canvas transform states."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.world.boss.hp", "state.audio.ctx"],
+        "outputs": ["state.meltdown", "state.world.particles", "state.screenShake"],
+        "events": ["BOSS_DEFEATED", "MELTDOWN_COMPLETE"]
+      }
+    }
+  ]
+}

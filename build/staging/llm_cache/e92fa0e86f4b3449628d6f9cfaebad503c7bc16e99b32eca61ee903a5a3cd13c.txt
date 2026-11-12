@@ -1,0 +1,46 @@
+{
+  "rfcs": [
+    {
+      "index": 0,
+      "summary": "Implements an orbital Astra-Singularity node at lattice intersections that exerts inverse-square magnetic pull on reticles and warps sigil particle trajectories.",
+      "technical_specification": "Initialize `state.world.singularity = { active: true, x: 400, y: 310, targetX: 400, targetY: 310, pulsePhase: 0, strength: 1.0, eventHorizonRadius: 42 }`. On each frame, `pulsePhase = (pulsePhase + dt * 2.4) % (Math.PI * 2)`. Compute pull on `state.pointer`: `dx = singularity.x - pointer.x`, `dy = singularity.y - pointer.y`, `dist = Math.hypot(dx, dy)`. If `dist < 260 && dist > 8`, offset pointer visual tracking by `(dx / dist) * (singularity.strength * 480 / (dist + 40)) * dt`. Update existing particle arrays (`state.world.particles`), bending velocity vectors toward singularity using `a = G / (dist^1.5)` clamped to 400 px/s².",
+      "acceptance_criteria": [
+        "Cursor visual reticle drifts tangibly toward the singularity intersection when within 260px radius without desyncing canvas logic coords.",
+        "Emitted sigil spark particles curve smoothly around the core instead of traveling in rigid linear paths."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.pointer.x", "state.pointer.y", "state.stats.turn"],
+        "outputs": ["state.world.singularity.pulsePhase", "state.world.singularity.x", "state.world.singularity.y", "state.pointer.reticleX", "state.pointer.reticleY"],
+        "events": ["SINGULARITY_PULSE_CREST", "SINGULARITY_SHIFT_NODE"]
+      }
+    },
+    {
+      "index": 1,
+      "summary": "Introduces a cadence-timed Kinetic Overcharge inscription window synced to lattice inhalation that detonates an impulse wave fracturing adjacent partitions.",
+      "technical_specification": "Lattice breathes via `state.world.breathWindow = Math.sin(state.world.singularity.pulsePhase)`. When player fires inscription (`state.keys.Space || state.pointer.justDown`), evaluate resonance window: if `breathWindow >= 0.82`, trigger Overcharge. Set `state.world.sectors[i].overcharged = true` and `state.world.shake = 8.5`. Spawn 24 kinetic shockwave fragments radiating at `v = (cos(theta), sin(theta)) * 320`. Iterate adjacent sector borders; increment their `fractureLevel` by 1 (max 3), altering divider stiffness and pushing neighboring floating embers back by `Math.max(0, 110 - dist) * 1.8` px.",
+      "acceptance_criteria": [
+        "Inscribing during peak pulse crest triggers instant screen kick and radial particle blast across adjacent sectors.",
+        "Partition borders adjacent to the overcharged sector gain structural cracks without blocking subsequent valid moves."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.keys.Space", "state.pointer.justDown", "state.world.breathWindow", "state.world.hoveredSector"],
+        "outputs": ["state.world.sectors[n].overcharged", "state.world.sectors[n].fractureLevel", "state.world.shake", "state.world.shockwaves"],
+        "events": ["SIGIL_OVERCHARGE_PERFECT", "LATTICE_DIVIDER_FRACTURED"]
+      }
+    },
+    {
+      "index": 2,
+      "summary": "Projects real-time obsidian stress fractures, chromatic refractive ripples on dividers, and heat bloom over contested collinear vectors without HUD overlays.",
+      "technical_specification": "Read `state.world.sectors[n].fractureLevel` and `state.world.contestedLines`. For each divider segment, render jagged procedural obsidian fissures using cached seeded noise offsets scaled by `fractureLevel * 2.8px`. Where `contestedLines.length > 0`, calculate triad corridor bounding box and draw an additive dual-pass radial gradient (`rgba(255,190,40,0.18)` core to `rgba(7,9,19,0.0)`) modulated by `Math.sin(state.world.time * 6 + lineIdx)`. Inscribe active shockwave rings via Canvas `arc()` with `globalCompositeOperation = 'screen'` and dynamic blur stroke (`lineWidth = (1 - age/maxLife) * 6`), eliminating text-based battle telemetry.",
+      "acceptance_criteria": [
+        "Contested triad corridors cast dynamic, pulsing refractive light across tiles with zero planar UI rectangles or floating text banners.",
+        "Dividers progressively display jagged, glowing fissures as repeated kinetic strikes land on adjacent sectors."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.world.sectors", "state.world.shockwaves", "state.world.contestedLines", "state.world.time"],
+        "outputs": ["canvas.context2D.renderPass"],
+        "events": ["LATTICE_RENDER_COMPLETE"]
+      }
+    }
+  ]
+}

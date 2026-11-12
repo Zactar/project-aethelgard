@@ -1,0 +1,19 @@
+{
+  "postmortem_summary": "While the turn-order decay mechanic and celestial theme demonstrated strong conceptual novelty, the architecture fell prey to tight module coupling and hardcoded margins. Future titles must eradicate manual coordinate math and static modal overlays in favor of integrated world-space entity pipelines.",
+  "key_mistakes_corrected": [
+    "Tight cross-module coupling (Milestone_v0_4_0 calling Milestone_v0_1_0 methods directly) -> Decouple modules via event-driven bus dispatches and centralized entity state.",
+    "Hardcoded screen-space coordinate placement for astral particles -> Bind visual effects to camera projection matrices and responsive world anchors.",
+    "Reliance on blocking modals and fillRect scoreboards for bout conclusions -> Transition end-state verbiage into interactive, diegetic game-world manifestations."
+  ],
+  "updated_role_skill_cards": {
+    "Executive_Producer": "Reject fragmented milestone silos and static modal screens. Mandate cohesive core-loop depth, diegetic tactile interaction, responsive viewport layouts, and seamless real-time state transitions across all milestone deliverables.",
+    "Systems": "Architect rule sets and decaying entity lifecycles through event-driven state mutations. Never poll or invoke foreign milestone methods directly; broadcast state transitions across a decoupled event bus.",
+    "Gameplay": "Design snappy, uninterrupted board interactions with tactile audio-visual cues. Guarantee state toggles and mutators integrate into the active phase loop cleanly without triggering abrupt hard resets.",
+    "Level": "Anchor astral margins and grid lattices to dynamic, aspect-ratio-aware coordinate anchors. Never hardcode absolute pixel boundaries or assume fixed screen widths for environmental elements.",
+    "Client": "Eliminate flat fillRect overlays and disconnected particle loops. Drive visual feedback through normalized render passes, integrated canvas blends, dynamic bloom, and responsive camera shakes.",
+    "Narrative": "Infuse cosmic lore directly into glyph disintegration, celestial alignments, and thematic board transitions. Completely avoid intrusive modal ledgers, text boxes, and artificial lore popups.",
+    "Aesthetics": "Compose shimmering motes, glyph flourishes, and starfields within a unified lighting layer. Ensure visual effects scale with game pace rather than using raw unscaled random distributions.",
+    "UI_UX": "Deliver scoreboards, player verdicts, and phase indicators as non-blocking diegetic scene components. Forbid intrusive modal takeovers that obstruct the core playfield and shatter immersion.",
+    "Codebase_Engineer": "Enforce strict module isolation, shared type interfaces, and single-source-of-truth state. Eliminate cross-module direct calls, ad-hoc arrays, and leaked keyboard listener bindings across milestones."
+  }
+}

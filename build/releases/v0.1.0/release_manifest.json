@@ -1,0 +1,12 @@
+{
+  "version": "v0.1.0",
+  "packaged_at": "2026-11-12T12:07:29.721571",
+  "artifacts": [
+    "studio_roadmap.json",
+    "web_client/district_manifest.json",
+    "web_client/index.html",
+    "web_client/game_runtime_manifest.json",
+    "web_client/index_template.html",
+    "web_client/js/milestone_v0_1_0.js"
+  ]
+}

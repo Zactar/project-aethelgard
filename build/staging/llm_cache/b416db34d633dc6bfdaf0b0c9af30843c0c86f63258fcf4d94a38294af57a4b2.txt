@@ -1,0 +1,18 @@
+{
+  "codename": "Operation Avalanche Echoes",
+  "theme": "Dynamic Weather Calamities & Alpinist Masteries",
+  "deliverables": [
+    {
+      "discipline": "Systems",
+      "title": "Severe Weather Fronts & Avalanche Hazards: Dynamic localized environmental conditions (Whiteout blizzards, wind shears, and cascading snowpack collapses) that alter friction, field of view, and Yeti aggression."
+    },
+    {
+      "discipline": "Gameplay",
+      "title": "Downhill Trick Mastery & Freestyle Adrenaline: Mid-air stunt combo system (tail grabs, backflips, rail slides on fallen logs) granting Adrenaline bursts that temporarily deter the Yeti and multiply slalom XP."
+    },
+    {
+      "discipline": "Client",
+      "title": "Weather Particle Buffers & Retro Telemetry UI: Canvas 2D wind vector particle overlays, frost vignette post-processing, and a bespoke 90s digital altimeter/inclinometer dashboard."
+    }
+  ]
+}

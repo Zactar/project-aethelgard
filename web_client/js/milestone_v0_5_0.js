@@ -148,6 +148,9 @@ window.StudioEngine.registerModule("Milestone_v0_5_0", {
     if (this.verdictOpen && this.lastSummary) {
       const sum = this.lastSummary;
       ctx.save();
+      ctx.globalAlpha = 1.0;
+      ctx.fillStyle = 'rgba(6, 9, 18, 0.96)';
+      ctx.fillRect(0, 36, 800, 564);
       ctx.fillStyle = "#080c17";
       ctx.fillRect(140, 82, 520, 440);
       ctx.strokeStyle = pal.xCol;

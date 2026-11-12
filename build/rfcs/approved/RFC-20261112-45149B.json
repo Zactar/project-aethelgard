@@ -1,0 +1,71 @@
+{
+  "rfc_id": "RFC-20261112-45149B",
+  "title": "Optional 5.0-second Blitz Turn Timer integrated diegetically into the outer frame of the Ninefold Matrix (pulsing faster during the final 2 seconds and awarding speed-placement score bonuses).",
+  "target_subsystem": "web_client/index.html",
+  "discipline": "Gameplay",
+  "target_milestone": "v0.3.0",
+  "milestone_target": "v0.3.0",
+  "milestone_tag": "v0.3.0",
+  "author_role": "Lead Gameplay & Kinematics Specialist (State machines, physics integration, collision rules)",
+  "summary": "Run a 5.0-second diegetic Blitz Turn Timer rendered along the outer lattice border that pulses rapidly under 2.0s and computes speed bonuses on placement.",
+  "technical_specification": "Initialize `state.world.blitz = { enabled: true, maxTime: 5.0, timeLeft: 5.0, lastTick: 0 }`. In active contender turns, decrement `timeLeft` by delta time `dt`. Trace the outer 360x360 border stroke using `(timeLeft / maxTime) * 1440px` perimeter line dash offset. When `timeLeft <= 2.0`, oscillate border line-width between 2px and 6px at frequency `f = 6Hz * (2.0 - timeLeft + 0.5)`. If `timeLeft <= 0`, force a forfeited turn with random vacant sector inscription. On player placement with `timeLeft > 0`, calculate speed bonus `Math.floor((timeLeft / 5.0) * 300) * state.stats.multiplier` and reset `timeLeft = 5.0`.",
+  "acceptance_criteria": [
+    "The outer matrix border perimeter shrinks smoothly over 5 seconds and pulses in frequency/width during the final 2 seconds.",
+    "Placing a sigil within the window grants proportional speed bonus points; timer expiration auto-commits a random vacant sector."
+  ],
+  "interface_contracts": {
+    "inputs": [
+      "state.world.activeTurn",
+      "state.stats.multiplier",
+      "state.pointer.click",
+      "state.keys"
+    ],
+    "outputs": [
+      "state.world.blitz.timeLeft",
+      "state.stats.score",
+      "state.world.lastSectorPlaced"
+    ],
+    "events": [
+      "BLITZ_EXPIRED",
+      "SECTOR_INSCRIBED"
+    ]
+  },
+  "pre_flight_passed": true,
+  "description": "[Gameplay] Optional 5.0-second Blitz Turn Timer integrated diegetically into the outer frame of the Ninefold Matrix (pulsing faster during the final 2 seconds and awarding speed-placement score bonuses).\n\nSummary:\nRun a 5.0-second diegetic Blitz Turn Timer rendered along the outer lattice border that pulses rapidly under 2.0s and computes speed bonuses on placement.\n\nSpecification:\nInitialize `state.world.blitz = { enabled: true, maxTime: 5.0, timeLeft: 5.0, lastTick: 0 }`. In active contender turns, decrement `timeLeft` by delta time `dt`. Trace the outer 360x360 border stroke using `(timeLeft / maxTime) * 1440px` perimeter line dash offset. When `timeLeft <= 2.0`, oscillate border line-width between 2px and 6px at frequency `f = 6Hz * (2.0 - timeLeft + 0.5)`. If `timeLeft <= 0`, force a forfeited turn with random vacant sector inscription. On player placement with `timeLeft > 0`, calculate speed bonus `Math.floor((timeLeft / 5.0) * 300) * state.stats.multiplier` and reset `timeLeft = 5.0`.",
+  "submitted_by": "Lead Gameplay & Kinematics Specialist (State machines, physics integration, collision rules)",
+  "change_type": "ADJUST_MECHANICS",
+  "status": "PENDING_REVIEW",
+  "created_at": 1794485923.1191628,
+  "payload_diff": {
+    "title": "Optional 5.0-second Blitz Turn Timer integrated diegetically into the outer frame of the Ninefold Matrix (pulsing faster during the final 2 seconds and awarding speed-placement score bonuses).",
+    "discipline": "Gameplay",
+    "target_subsystem": "web_client/index.html",
+    "target_milestone": "v0.3.0",
+    "milestone_tag": "v0.3.0",
+    "author_role": "Lead Gameplay & Kinematics Specialist (State machines, physics integration, collision rules)",
+    "summary": "Run a 5.0-second diegetic Blitz Turn Timer rendered along the outer lattice border that pulses rapidly under 2.0s and computes speed bonuses on placement.",
+    "technical_specification": "Initialize `state.world.blitz = { enabled: true, maxTime: 5.0, timeLeft: 5.0, lastTick: 0 }`. In active contender turns, decrement `timeLeft` by delta time `dt`. Trace the outer 360x360 border stroke using `(timeLeft / maxTime) * 1440px` perimeter line dash offset. When `timeLeft <= 2.0`, oscillate border line-width between 2px and 6px at frequency `f = 6Hz * (2.0 - timeLeft + 0.5)`. If `timeLeft <= 0`, force a forfeited turn with random vacant sector inscription. On player placement with `timeLeft > 0`, calculate speed bonus `Math.floor((timeLeft / 5.0) * 300) * state.stats.multiplier` and reset `timeLeft = 5.0`.",
+    "acceptance_criteria": [
+      "The outer matrix border perimeter shrinks smoothly over 5 seconds and pulses in frequency/width during the final 2 seconds.",
+      "Placing a sigil within the window grants proportional speed bonus points; timer expiration auto-commits a random vacant sector."
+    ],
+    "interface_contracts": {
+      "inputs": [
+        "state.world.activeTurn",
+        "state.stats.multiplier",
+        "state.pointer.click",
+        "state.keys"
+      ],
+      "outputs": [
+        "state.world.blitz.timeLeft",
+        "state.stats.score",
+        "state.world.lastSectorPlaced"
+      ],
+      "events": [
+        "BLITZ_EXPIRED",
+        "SECTOR_INSCRIBED"
+      ]
+    },
+    "pre_flight_passed": true
+  }
+}

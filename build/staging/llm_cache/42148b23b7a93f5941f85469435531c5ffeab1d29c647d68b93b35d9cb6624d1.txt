@@ -1,0 +1,81 @@
+{
+  "rfcs": [
+    {
+      "index": 0,
+      "summary": "Implement the Black Chalice Reliquary entity, interactive drinking/shattering state transitions, and the Bone-Splinter Ricochet ballistic cleave mechanic without text prompts.",
+      "technical_specification": "Spawn reliquary at chamber anchor when `state.world.depth >= 3` or quest stage completes. When player interacts via `state.keys.action` within radius 36px, toggle `state.player.ascended = true` and `state.player.chaliceConsumed = true`, applying 180f shockwave impulse (12px screenshake, zero camera text). On weapon cleave (`state.keys.jump`), if `state.player.ascended`, spawn 3 splinter projectiles at arc angles `player.angle + [-0.35, 0, 0.35]` with velocity `v = 420px/s`. Splinters bounce up to 2 times on walls via surface normal reflection `v' = v - 2(v·n)n`, dealing 18 physical damage and 25 poise damage to `state.world.enemies` on contact.",
+      "acceptance_criteria": [
+        "Reliquary pedestal spawns at procedural anchor without blocking room transit.",
+        "Interaction cleanly triggers `ascended` state and physical radial shockwave without text alerts.",
+        "Cleaves spawn ricocheting bone splinters that reflect correctly off dungeon wall normal vectors."
+      ],
+      "interface_contracts": {
+        "inputs": [
+          "state.keys.action",
+          "state.keys.jump",
+          "state.player.x",
+          "state.player.y",
+          "state.player.angle"
+        ],
+        "outputs": [
+          "state.player.ascended",
+          "state.world.projectiles",
+          "state.world.reliquary.state"
+        ],
+        "events": [
+          "CHALICE_ASCENSION_TRIGGERED",
+          "BONE_SPLINTER_SPAWN"
+        ]
+      }
+    },
+    {
+      "index": 1,
+      "summary": "Render dynamic chiaroscuro lighting, drifting crypt ash motes, multi-ring chalice auras, and splinter ballistic trails using direct Canvas2D compositing.",
+      "technical_specification": "Simulate 64 crypt ash motes in `state.world.particles` drifting with velocity `(sin(t * 0.001 + p.seed) * 12, cos(t * 0.0008) * 8 - 14)`. Render reliquary goblet via multi-layered stroked path geometry using `#eab308` and `#dc2626` with pulsing radial aura `r = 28 + 6 * sin(state.time * 4)`. For bone-splinter projectiles, draw elongated velocity-aligned polyline ribbons (`#fef08a` core, `#dc2626` tail) interpolating previous 4 recorded coordinate pairs with `ctx.globalCompositeOperation = 'lighter'`. Render chiaroscuro vignette using radial gradient `createRadialGradient(player.x, player.y, 40, player.x, player.y, 360)` fading to `#07050a` without obscuring combat lanes.",
+      "acceptance_criteria": [
+        "Drifting ash motes exhibit zero allocation per frame in update loop.",
+        "Black Chalice renders with layered gold/crimson aura and reactive chiaroscuro lighting.",
+        "Bone splinters draw directional motion trails without frame drops or visual artifacts."
+      ],
+      "interface_contracts": {
+        "inputs": [
+          "state.player.x",
+          "state.player.y",
+          "state.world.particles",
+          "state.world.projectiles",
+          "state.time"
+        ],
+        "outputs": [
+          "state.world.particles"
+        ],
+        "events": [
+          "RENDER_LIGHTING_PASS",
+          "RENDER_PARTICLE_BURST"
+        ]
+      }
+    },
+    {
+      "index": 2,
+      "summary": "Integrate a diegetic Gold Master seal and chalice relic icon into the top gothic iron ribbon, leaving the playfield and cartographer map completely clear.",
+      "technical_specification": "Constrain HUD rendering to iron status ribbon at `y: [0, 36]` and `x: [0, 640]`. At `x: 310, y: 18`, draw 12px tall etched gothic seal `v1.0.0 GOLD MASTER` in weathered ochre (`#ca8a04`) with dark drop shadow (`#07050a`). When `state.player.ascended` is true, render active Relic Chalice icon at `x: 278, y: 6` (size 22x24px) featuring pulsing inner ember core (`#ef4444`) and gold filigree border. Strictly leave minimap region (`x >= 640, y <= 160`) and entire viewport below `y = 36` free of rectangular panels or floating combat popups.",
+      "acceptance_criteria": [
+        "HUD ribbon strictly bounds rendering to y <= 36 and x <= 640.",
+        "Minimap region (x > 640, y < 160) and central playfield have zero HUD overlap.",
+        "Chalice ascension displays as an illuminated gothic ribbon icon rather than screen-blocking text."
+      ],
+      "interface_contracts": {
+        "inputs": [
+          "state.player.ascended",
+          "state.stats.hp",
+          "state.stats.stamina"
+        ],
+        "outputs": [
+          "state.hud.relicSlotDrawn"
+        ],
+        "events": [
+          "HUD_RIBBON_RENDERED"
+        ]
+      }
+    }
+  ]
+}

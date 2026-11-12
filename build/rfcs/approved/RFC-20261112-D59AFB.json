@@ -1,0 +1,65 @@
+{
+  "rfc_id": "RFC-20261112-D59AFB",
+  "title": "Centered 9-sector orthogonal lattice (`three ranks by three files`) rendered with glowing architectural dividers, sector coordinate mapping, and dual Mouse-Click + Keyboard (`WASD`/`Arrows` + `SPACE`) sector selection.",
+  "target_subsystem": "web_client/index.html",
+  "discipline": "Level",
+  "target_milestone": "v0.1.0",
+  "milestone_target": "v0.1.0",
+  "milestone_tag": "v0.1.0",
+  "author_role": "Lead Procedural Level Designer (Entity spawning, spatial pacing, hazard/gate placement)",
+  "summary": "Constructs the 360x360px centered 9-sector orthogonal lattice at (400, 310) with glowing dividers, sector collision bounds, and dual mouse/keyboard cursor navigation.",
+  "technical_specification": "Initialize `state.world.matrix = { x: 220, y: 130, size: 360, cellSize: 120, selectedIndex: 4 }`. Each cell index `i` maps to `row = Math.floor(i / 3)`, `col = i % 3`, center `cx = 220 + col * 120 + 60`, `cy = 130 + row * 120 + 60`. On keydown (WASD/Arrows), clamp `selectedIndex` across ranks/files with wrapping/clamping logic. On mousemove, if `pointer.x/y` is inside lattice bounds, update `selectedIndex = Math.floor((pointer.y - 130) / 120) * 3 + Math.floor((pointer.x - 220) / 120)`. Render lattice dividers as dual-stroke neon lines with bloom at `x = 340, 460` and `y = 250, 370`.",
+  "acceptance_criteria": [
+    "Lattice renders exactly centered at x:400, y:310 with 9 distinct 120x120px interactive sectors.",
+    "Navigating with WASD or Arrow keys immediately moves the sector selection reticle to adjacent cells.",
+    "Hovering the mouse inside any sector updates the selection reticle to that sector's coordinate."
+  ],
+  "interface_contracts": {
+    "inputs": [
+      "state.keys",
+      "state.pointer"
+    ],
+    "outputs": [
+      "state.world.matrix.selectedIndex",
+      "state.world.matrix.cellSize"
+    ],
+    "events": [
+      "LATTICE_CELL_HOVERED"
+    ]
+  },
+  "pre_flight_passed": true,
+  "description": "[Level] Centered 9-sector orthogonal lattice (`three ranks by three files`) rendered with glowing architectural dividers, sector coordinate mapping, and dual Mouse-Click + Keyboard (`WASD`/`Arrows` + `SPACE`) sector selection.\n\nSummary:\nConstructs the 360x360px centered 9-sector orthogonal lattice at (400, 310) with glowing dividers, sector collision bounds, and dual mouse/keyboard cursor navigation.\n\nSpecification:\nInitialize `state.world.matrix = { x: 220, y: 130, size: 360, cellSize: 120, selectedIndex: 4 }`. Each cell index `i` maps to `row = Math.floor(i / 3)`, `col = i % 3`, center `cx = 220 + col * 120 + 60`, `cy = 130 + row * 120 + 60`. On keydown (WASD/Arrows), clamp `selectedIndex` across ranks/files with wrapping/clamping logic. On mousemove, if `pointer.x/y` is inside lattice bounds, update `selectedIndex = Math.floor((pointer.y - 130) / 120) * 3 + Math.floor((pointer.x - 220) / 120)`. Render lattice dividers as dual-stroke neon lines with bloom at `x = 340, 460` and `y = 250, 370`.",
+  "submitted_by": "Lead Procedural Level Designer (Entity spawning, spatial pacing, hazard/gate placement)",
+  "change_type": "NEW_ROOM_NODE",
+  "status": "PENDING_REVIEW",
+  "created_at": 1794485222.1109228,
+  "payload_diff": {
+    "title": "Centered 9-sector orthogonal lattice (`three ranks by three files`) rendered with glowing architectural dividers, sector coordinate mapping, and dual Mouse-Click + Keyboard (`WASD`/`Arrows` + `SPACE`) sector selection.",
+    "discipline": "Level",
+    "target_subsystem": "web_client/index.html",
+    "target_milestone": "v0.1.0",
+    "milestone_tag": "v0.1.0",
+    "author_role": "Lead Procedural Level Designer (Entity spawning, spatial pacing, hazard/gate placement)",
+    "summary": "Constructs the 360x360px centered 9-sector orthogonal lattice at (400, 310) with glowing dividers, sector collision bounds, and dual mouse/keyboard cursor navigation.",
+    "technical_specification": "Initialize `state.world.matrix = { x: 220, y: 130, size: 360, cellSize: 120, selectedIndex: 4 }`. Each cell index `i` maps to `row = Math.floor(i / 3)`, `col = i % 3`, center `cx = 220 + col * 120 + 60`, `cy = 130 + row * 120 + 60`. On keydown (WASD/Arrows), clamp `selectedIndex` across ranks/files with wrapping/clamping logic. On mousemove, if `pointer.x/y` is inside lattice bounds, update `selectedIndex = Math.floor((pointer.y - 130) / 120) * 3 + Math.floor((pointer.x - 220) / 120)`. Render lattice dividers as dual-stroke neon lines with bloom at `x = 340, 460` and `y = 250, 370`.",
+    "acceptance_criteria": [
+      "Lattice renders exactly centered at x:400, y:310 with 9 distinct 120x120px interactive sectors.",
+      "Navigating with WASD or Arrow keys immediately moves the sector selection reticle to adjacent cells.",
+      "Hovering the mouse inside any sector updates the selection reticle to that sector's coordinate."
+    ],
+    "interface_contracts": {
+      "inputs": [
+        "state.keys",
+        "state.pointer"
+      ],
+      "outputs": [
+        "state.world.matrix.selectedIndex",
+        "state.world.matrix.cellSize"
+      ],
+      "events": [
+        "LATTICE_CELL_HOVERED"
+      ]
+    },
+    "pre_flight_passed": true
+  }
+}

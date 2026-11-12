@@ -1,0 +1,49 @@
+{
+  "rfcs": [
+    {
+      "index": 0,
+      "summary": "Implement a 60 FPS Canvas 2D render pipeline featuring an audio/motion-reactive perspective warp grid, dual-layer parallax starfield, additive bloom pass, and a unified 34px top arcade status ribbon.",
+      "technical_specification": "Clear canvas with `#05020d`. Draw two star layers offset by player position `(x * factor) % 800` using cyan/magenta points. Render dynamic warp grid from `(x, y)` lines distorted via `sin(t * 4 + dist * 0.05) * (state.world.shake + state.world.beatPulse * 8)`. Wrap game entities in `ctx.shadowColor = entity.color` and `ctx.shadowBlur = 12`. Render top ribbon strictly in `y: 0..34`: draw a semi-transparent slate bar (`#0d0826cc`), then render monospace neon text for `SCORE`, `COMBO (xN)`, segmented shield blocks (`state.player.shields`), and `WAVE` using `#00f3ff` and `#ff007f` with no secondary HUD panels.",
+      "acceptance_criteria": [
+        "Playfield renders at 800x600 with reactive warp-grid lines pulsing to screen shake and beat values.",
+        "Zero UI overlay rectangles exist below y=34; all ship, weapon, and hazard state remain diegetic in world-space.",
+        "Laser shots and particle shards use additive glow (`shadowBlur: 10..15`, `globalCompositeOperation = 'lighter'`)."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.player.x", "state.player.y", "state.player.shields", "state.stats.score", "state.stats.combo", "state.world.wave", "state.world.shake", "state.world.beatPulse"],
+        "outputs": ["ctx (render target)"],
+        "events": ["RENDER_FRAME"]
+      }
+    },
+    {
+      "index": 1,
+      "summary": "Integrate 360-degree Newtonian ship physics featuring angular steering, continuous thruster vector integration, weapon kickback recoil, and toroidal edge wrapping.",
+      "technical_specification": "Track rotation via `angle += turnDir * rotSpeed * dt`. When thrusting (`W`/`Up`), add acceleration vector: `vx += cos(angle) * thrust * dt`, `vy += sin(angle) * thrust * dt`; push thruster particle to `state.world.particles`. Apply vacuum drag: `vx *= 0.985`, `vy *= 0.985`. On primary fire (`Space`), deduct cooldown, spawn projectile along `(cos(angle), sin(angle)) * projSpeed`, and apply direct recoil impulse: `vx -= cos(angle) * recoil`, `vy -= sin(angle) * recoil`. Enforce toroidal wrap: `x = (x + 800) % 800`, `y = (y + 600) % 600`. Maintain 12-entry position trail in `state.player.trail` for afterimage rendering.",
+      "acceptance_criteria": [
+        "Ship smoothly drifts with inertia and rotates 360 degrees without gimbal or coordinate loss.",
+        "Firing immediately pushes the ship backward along the firing vector via impulse kickback.",
+        "Crossing any screen boundary seamlessly warps the ship and active trail to the opposite edge."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.keys.ArrowLeft", "state.keys.ArrowRight", "state.keys.ArrowUp", "state.keys.KeyA", "state.keys.KeyD", "state.keys.KeyW", "state.keys.Space", "state.player.cooldown"],
+        "outputs": ["state.player.x", "state.player.y", "state.player.vx", "state.player.vy", "state.player.angle", "state.world.particles", "state.world.projectiles"],
+        "events": ["PLAYER_FIRED", "PLAYER_THRUST"]
+      }
+    },
+    {
+      "index": 2,
+      "summary": "Implement a procedural 3-tier asteroid fracture engine that triggers camera shake, 40ms hit-stops, and magnetic neon score shards upon projectile impact.",
+      "technical_specification": "Asteroids spawn with procedural 8-12 vertex offsets from base radii: LARGE (r=42), MEDIUM (r=22), SMALL (r=11). Upon collision with laser, decrement asteroid HP. On kill, set `state.world.hitStop = 0.04` (40ms), add `state.world.shake += tierShake`, and fracture: LARGE spawns 2 MEDIUMs, MEDIUM spawns 3 SMALLs with divergent velocities `vel + randomVector() * splitForce`. SMALLs shatter into 4-7 magnetic neon gems (`state.world.gems`). Gems calculate acceleration toward player: `dir = normalize(player.pos - gem.pos) * (5000 / dist^1.5)`. On gem contact, increment `state.stats.score += 50 * state.stats.combo` and refresh combo decay timer.",
+      "acceptance_criteria": [
+        "Destroying a LARGE asteroid cleanly spawns 2 MEDIUMs, and MEDIUM spawns 3 SMALLs with divergent velocities.",
+        "Asteroid destruction sets `state.world.hitStop` to freeze simulation updates for exactly 40ms.",
+        "Gems dynamically magnetize to ship within a 140px radius and increment score scaled by combo multiplier."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.world.projectiles", "state.world.asteroids", "state.player.x", "state.player.y", "state.stats.combo"],
+        "outputs": ["state.world.asteroids", "state.world.gems", "state.world.hitStop", "state.world.shake", "state.stats.score", "state.stats.combo"],
+        "events": ["ASTEROID_HIT", "ASTEROID_SHATTERED", "GEM_COLLECTED"]
+      }
+    }
+  ]
+}

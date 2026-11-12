@@ -1,0 +1,64 @@
+{
+  "rfcs": [
+    {
+      "index": 0,
+      "summary": "Implements pre-run class selection modal initializing the player's archetypal baseline attributes and passive traits.",
+      "technical_specification": "Before run starts (`state.world.gameState === 'CLASS_SELECT'`), player navigates 4 classes using `state.keys` (Left/Right/Space). Upon confirmation, set `state.player.classId` to selected key and seed `state.stats`: Olympian (+3 Velocity, +2 Balance), Daredevil (+3 Agility, +2 Moxie), Ranger (+2 Agility, +3 Luck), Occultist (+4 Moxie, +1 Luck). Apply starting traits into `state.inventory.traits` and switch `state.world.gameState` to 'RUNNING'. Renders class cards, sprite preview, and stat deltas to Canvas overlay.",
+      "acceptance_criteria": [
+        "Selection UI displays Olympian, Daredevil, Ranger, Occultist with distinct stat breakdowns.",
+        "Confirming a class sets state.player.classId, populates baseline state.stats, and starts run.",
+        "Prevents physics updates while in CLASS_SELECT state."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.keys.left", "state.keys.right", "state.keys.confirm", "state.world.gameState"],
+        "outputs": ["state.player.classId", "state.stats.velocity", "state.stats.agility", "state.stats.balance", "state.stats.moxie", "state.stats.luck", "state.world.gameState"],
+        "events": ["CLASS_SELECTED", "RUN_STARTED"]
+      }
+    },
+    {
+      "index": 1,
+      "summary": "Establishes canonical 5-attribute ledger with derived formulas for kinematic parameters, crash resilience, and loot weightings.",
+      "technical_specification": "Maintains `state.stats = { velocity: N, agility: N, balance: N, moxie: N, luck: N }`. Derived metrics recalculate on stat modification: Max downhill speed $V_{y\\max} = 12 + 1.2 \\times \\text{velocity}$; lateral turning accel $A_x = 0.8 + 0.15 \\times \\text{agility}$; wipeout recovery window $T_{rec} = \\max(0.4, 2.0 - 0.12 \\times \\text{balance})$ sec; trick XP and score multiplier $M_{xp} = 1.0 + 0.08 \\times \\text{moxie}$; rare draft weight modifier $W_{rare} = 1.0 + 0.05 \\times \\text{luck}$. Clamps all base stats to $[1, 99]$. Exposed via `StudioEngine.stats.recalculate()`.",
+      "acceptance_criteria": [
+        "All 5 attributes exist under state.stats and bound correctly within range [1, 99].",
+        "Kinematic derivatives update dynamically when an attribute changes.",
+        "Calling StudioEngine.stats.recalculate() correctly updates state.player derived attributes."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.stats.velocity", "state.stats.agility", "state.stats.balance", "state.stats.moxie", "state.stats.luck"],
+        "outputs": ["state.player.maxVy", "state.player.turnSpeed", "state.player.recoverDuration", "state.player.scoreMult", "state.world.lootWeightModifier"],
+        "events": ["STATS_RECALCULATED"]
+      }
+    },
+    {
+      "index": 2,
+      "summary": "Generates downhill paired slalom gates, detects clean traverses, and tracks streak combo multipliers.",
+      "technical_specification": "Procedurally spawns paired gate entities into `state.world.gates` every $180 \\pm 40$ meters ($y$-distance). Gates have left flag $(x_1, y)$, right flag $(x_2, y)$ with clearance $W = 64\\text{px}$, and alternating red/blue alignment. When player crosses $y$-threshold between $x_1$ and $x_2$, increment `state.player.slalomStreak`, add base XP ($50 \\times \\min(\\text{streak}, 10)$), trigger floating text, and emit `SLALOM_CLEAR`. If player crosses $y$ outside $[x_1, x_2]$, reset streak to 0 and emit `SLALOM_MISSED`. Streak increments global score multiplier $S_{mult} = 1.0 + 0.1 \\times \\text{slalomStreak}$.",
+      "acceptance_criteria": [
+        "Slalom gates spawn at regular downhill intervals with valid pass-through gaps.",
+        "Passing between flags increments state.player.slalomStreak and awards scaled XP.",
+        "Missing or bypassing a gate resets state.player.slalomStreak to zero."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.player.x", "state.player.y", "state.world.distance"],
+        "outputs": ["state.world.gates", "state.player.slalomStreak", "state.player.scoreMult", "state.player.xp"],
+        "events": ["SLALOM_CLEAR", "SLALOM_MISSED"]
+      }
+    },
+    {
+      "index": 3,
+      "summary": "Tracks proximity hazard near-misses for kinetic XP bonuses and manages level-up threshold stat allocation pauses.",
+      "technical_specification": "On frame update, scan obstacles in `state.world.hazards` (rocks, pines). If lateral distance $|x_p - x_h| \\le 22\\text{px}$ and vertical overlap $|y_p - y_h| \\le 16\\text{px}$ without collision, flag hazard as `grazed`. Award Near-Miss XP: $XP_{add} = 25 \\times (V_y / 10) \\times (1 + \\text{moxie} \\times 0.08)$. Append XP to `state.player.xp`. Level threshold follows $XP_{req} = 100 \\times (\\text{level})^{1.4}$. When $XP \\ge XP_{req}$, pause gameplay (`state.world.gameState = 'LEVEL_UP'`), prompt HUD to pick 1 of 3 randomized base stats to increment by +1, deduct $XP_{req}$, and increment `state.player.level`.",
+      "acceptance_criteria": [
+        "Passing within 22px of an obstacle without colliding awards near-miss XP scaled by speed and moxie.",
+        "Obstacles can only trigger near-miss once per pass.",
+        "Reaching XP threshold triggers LEVEL_UP state and permits stat allocation before unpausing."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.player.x", "state.player.y", "state.player.vy", "state.world.hazards", "state.stats.moxie"],
+        "outputs": ["state.player.xp", "state.player.level", "state.world.gameState", "state.stats"],
+        "events": ["HAZARD_NEAR_MISS", "LEVEL_UP_READY", "STAT_ALLOCATED"]
+      }
+    }
+  ]
+}

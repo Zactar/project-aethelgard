@@ -1,0 +1,73 @@
+{
+  "rfc_id": "RFC-20261112-8F19AB",
+  "title": "Astra-Singularity Dynamic Core: An interactive graviton node that manifests at sector intersections, physically pulsing gravitational wave rings outward to magnetically pull cursor reticles and bend inscribed particle beams toward its epicenter.",
+  "target_subsystem": "web_client/index.html",
+  "discipline": "Systems",
+  "target_milestone": "v0.6.0",
+  "milestone_target": "v0.6.0",
+  "milestone_tag": "v0.6.0",
+  "author_role": "Principal Systems & Economy Architect (Data schemas, progression curves, state ledgers)",
+  "summary": "Implements an orbital Astra-Singularity node at lattice intersections that exerts inverse-square magnetic pull on reticles and warps sigil particle trajectories.",
+  "technical_specification": "Initialize `state.world.singularity = { active: true, x: 400, y: 310, targetX: 400, targetY: 310, pulsePhase: 0, strength: 1.0, eventHorizonRadius: 42 }`. On each frame, `pulsePhase = (pulsePhase + dt * 2.4) % (Math.PI * 2)`. Compute pull on `state.pointer`: `dx = singularity.x - pointer.x`, `dy = singularity.y - pointer.y`, `dist = Math.hypot(dx, dy)`. If `dist < 260 && dist > 8`, offset pointer visual tracking by `(dx / dist) * (singularity.strength * 480 / (dist + 40)) * dt`. Update existing particle arrays (`state.world.particles`), bending velocity vectors toward singularity using `a = G / (dist^1.5)` clamped to 400 px/s\u00b2.",
+  "acceptance_criteria": [
+    "Cursor visual reticle drifts tangibly toward the singularity intersection when within 260px radius without desyncing canvas logic coords.",
+    "Emitted sigil spark particles curve smoothly around the core instead of traveling in rigid linear paths."
+  ],
+  "interface_contracts": {
+    "inputs": [
+      "state.pointer.x",
+      "state.pointer.y",
+      "state.stats.turn"
+    ],
+    "outputs": [
+      "state.world.singularity.pulsePhase",
+      "state.world.singularity.x",
+      "state.world.singularity.y",
+      "state.pointer.reticleX",
+      "state.pointer.reticleY"
+    ],
+    "events": [
+      "SINGULARITY_PULSE_CREST",
+      "SINGULARITY_SHIFT_NODE"
+    ]
+  },
+  "pre_flight_passed": true,
+  "description": "[Systems] Astra-Singularity Dynamic Core: An interactive graviton node that manifests at sector intersections, physically pulsing gravitational wave rings outward to magnetically pull cursor reticles and bend inscribed particle beams toward its epicenter.\n\nSummary:\nImplements an orbital Astra-Singularity node at lattice intersections that exerts inverse-square magnetic pull on reticles and warps sigil particle trajectories.\n\nSpecification:\nInitialize `state.world.singularity = { active: true, x: 400, y: 310, targetX: 400, targetY: 310, pulsePhase: 0, strength: 1.0, eventHorizonRadius: 42 }`. On each frame, `pulsePhase = (pulsePhase + dt * 2.4) % (Math.PI * 2)`. Compute pull on `state.pointer`: `dx = singularity.x - pointer.x`, `dy = singularity.y - pointer.y`, `dist = Math.hypot(dx, dy)`. If `dist < 260 && dist > 8`, offset pointer visual tracking by `(dx / dist) * (singularity.strength * 480 / (dist + 40)) * dt`. Update existing particle arrays (`state.world.particles`), bending velocity vectors toward singularity using `a = G / (dist^1.5)` clamped to 400 px/s\u00b2.",
+  "submitted_by": "Principal Systems & Economy Architect (Data schemas, progression curves, state ledgers)",
+  "change_type": "NEW_ITEM",
+  "status": "PENDING_REVIEW",
+  "created_at": 1794488284.4773192,
+  "payload_diff": {
+    "title": "Astra-Singularity Dynamic Core: An interactive graviton node that manifests at sector intersections, physically pulsing gravitational wave rings outward to magnetically pull cursor reticles and bend inscribed particle beams toward its epicenter.",
+    "discipline": "Systems",
+    "target_subsystem": "web_client/index.html",
+    "target_milestone": "v0.6.0",
+    "milestone_tag": "v0.6.0",
+    "author_role": "Principal Systems & Economy Architect (Data schemas, progression curves, state ledgers)",
+    "summary": "Implements an orbital Astra-Singularity node at lattice intersections that exerts inverse-square magnetic pull on reticles and warps sigil particle trajectories.",
+    "technical_specification": "Initialize `state.world.singularity = { active: true, x: 400, y: 310, targetX: 400, targetY: 310, pulsePhase: 0, strength: 1.0, eventHorizonRadius: 42 }`. On each frame, `pulsePhase = (pulsePhase + dt * 2.4) % (Math.PI * 2)`. Compute pull on `state.pointer`: `dx = singularity.x - pointer.x`, `dy = singularity.y - pointer.y`, `dist = Math.hypot(dx, dy)`. If `dist < 260 && dist > 8`, offset pointer visual tracking by `(dx / dist) * (singularity.strength * 480 / (dist + 40)) * dt`. Update existing particle arrays (`state.world.particles`), bending velocity vectors toward singularity using `a = G / (dist^1.5)` clamped to 400 px/s\u00b2.",
+    "acceptance_criteria": [
+      "Cursor visual reticle drifts tangibly toward the singularity intersection when within 260px radius without desyncing canvas logic coords.",
+      "Emitted sigil spark particles curve smoothly around the core instead of traveling in rigid linear paths."
+    ],
+    "interface_contracts": {
+      "inputs": [
+        "state.pointer.x",
+        "state.pointer.y",
+        "state.stats.turn"
+      ],
+      "outputs": [
+        "state.world.singularity.pulsePhase",
+        "state.world.singularity.x",
+        "state.world.singularity.y",
+        "state.pointer.reticleX",
+        "state.pointer.reticleY"
+      ],
+      "events": [
+        "SINGULARITY_PULSE_CREST",
+        "SINGULARITY_SHIFT_NODE"
+      ]
+    },
+    "pre_flight_passed": true
+  }
+}

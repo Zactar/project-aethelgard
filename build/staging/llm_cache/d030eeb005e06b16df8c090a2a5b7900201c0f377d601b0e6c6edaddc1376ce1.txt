@@ -1,0 +1,49 @@
+{
+  "rfcs": [
+    {
+      "index": 0,
+      "summary": "Implement cyber-saucer strafing, swarm homing kinematics, and singularity gravitational vector deflection on projectiles and asteroids.",
+      "technical_specification": "Initialize arrays state.world.enemies = [] and state.world.singularities = []. Saucers move perpendicular to target vector with tangential speed 180px/s, firing laser pulses on 1.2s intervals. Swarmers calculate steering vector a = normalize(p - pos) * 320 - vel * 1.5. Singularities apply radial gravity force F = G * mass / (dist^2 + epsilon) with G=120000, max pull 600px/s^2, deflecting state.world.projectiles and state.world.asteroids via velocity integration dv = F * dt * (singularity.pos - entity.pos) / dist. Singularities decay after 8.0s or upon collapsing via player laser threshold (300 damage).",
+      "acceptance_criteria": [
+        "Singularities visibly bend trajectory paths of player lasers, enemy pulses, and asteroids within a 260px radius.",
+        "Glitch-swarmers exhibit coherent pursuit trajectories without clipping into singularity event horizons.",
+        "Cyber-saucers maintain 180-280px operational distance from player while executing strafing bursts."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.player.x", "state.player.y", "state.world.projectiles", "state.world.asteroids"],
+        "outputs": ["state.world.enemies", "state.world.singularities"],
+        "events": ["ENEMY_SPAWNED", "SINGULARITY_COLLAPSED"]
+      }
+    },
+    {
+      "index": 1,
+      "summary": "Author volatile plasma barrel chain-reaction shockwaves and a directional dash-parry mechanic that converts hostile projectiles into critical player vectors.",
+      "technical_specification": "Maintain state.world.barrels = []. When barrel health <= 0, trigger shockwave expanding from radius 0 to 140px over 0.25s, dealing 150 area damage and chain-detonating adjacent barrels. Player dash state (state.player.dashing && state.player.dashTimer > 0) defines parry window: if an enemy projectile intersects player hit radius (18px) during dash, deflect projectile velocity vec' = -vec * 1.8, re-tag owner to player with 3x damage multiplier, award 250 score, and trigger 40ms hit-stop (state.engine.hitStop = 0.04) with cyan chromatic aberration flare.",
+      "acceptance_criteria": [
+        "Dashing directly through an incoming hostile laser reflects it back toward cursor heading with neon cyan tint.",
+        "Barrels detonate in cascading sequences with screen-shake proportional to combo multiplier.",
+        "40ms hit-stop freeze triggers exclusively on successful parry contact without breaking audio sequencer tempo."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.player.x", "state.player.y", "state.player.vx", "state.player.vy", "state.player.dashTimer", "state.world.projectiles"],
+        "outputs": ["state.world.barrels", "state.world.shockwaves", "state.engine.hitStop", "state.stats.score"],
+        "events": ["PARRY_SUCCESS", "BARREL_DETONATED"]
+      }
+    },
+    {
+      "index": 2,
+      "summary": "Architect threat-budgeted wave pacing with diegetic warp reticles, dynamic difficulty scaling, and combo-gated shield battery drops.",
+      "technical_specification": "Wave director runs on state.director = { wave: 1, budget: 100, spawnedBudget: 0, spawnQueue: [] }. Budget scales as B = 100 * (1.25 ^ (wave - 1)). Enemy costs: Swarmer=10, Saucer=35, Singularity=70. Spawns project world-space pulsating warning reticles (tau phase 0.8s, expanding alpha ring) at target coordinates before entity materialization. When state.stats.combo >= 10 and enemy dies, drop Shield Battery item at entity position (max 1 drop per 15s). Battery restores +1 shield segment (clamped to pilot max, state.player.shields <= state.player.maxShields).",
+      "acceptance_criteria": [
+        "Reticle rings contract toward center point over 0.8s before enemy entities become active and collidable.",
+        "Wave completes cleanly when active enemy count and pending budget queue reach zero.",
+        "Shield batteries drop exclusively during active combo chains of 10 or greater and honor cooldown limiter."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.stats.combo", "state.stats.wave", "state.world.enemies.length"],
+        "outputs": ["state.director.budget", "state.world.warpReticles", "state.world.pickups", "state.player.shields"],
+        "events": ["WAVE_STARTED", "WAVE_CLEARED", "SHIELD_RESTORED"]
+      }
+    }
+  ]
+}

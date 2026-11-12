@@ -1,0 +1,65 @@
+{
+  "rfc_id": "RFC-20261112-5152A0",
+  "title": "Diegetic Lattice Stress Fractures & Radiant Crucible Bloom: Pure in-world visual feedback system replacing external state prompts with progressive glowing obsidian fractures, dynamic refractive ripples along partition lines, and prismatic heat distortion over contested triad corridors.",
+  "target_subsystem": "web_client/index.html",
+  "discipline": "Client",
+  "target_milestone": "v0.6.0",
+  "milestone_target": "v0.6.0",
+  "milestone_tag": "v0.6.0",
+  "author_role": "Principal Client & UI Architect (Canvas 2D rendering, HUD overlays, visual feedback)",
+  "summary": "Projects real-time obsidian stress fractures, chromatic refractive ripples on dividers, and heat bloom over contested collinear vectors without HUD overlays.",
+  "technical_specification": "Read `state.world.sectors[n].fractureLevel` and `state.world.contestedLines`. For each divider segment, render jagged procedural obsidian fissures using cached seeded noise offsets scaled by `fractureLevel * 2.8px`. Where `contestedLines.length > 0`, calculate triad corridor bounding box and draw an additive dual-pass radial gradient (`rgba(255,190,40,0.18)` core to `rgba(7,9,19,0.0)`) modulated by `Math.sin(state.world.time * 6 + lineIdx)`. Inscribe active shockwave rings via Canvas `arc()` with `globalCompositeOperation = 'screen'` and dynamic blur stroke (`lineWidth = (1 - age/maxLife) * 6`), eliminating text-based battle telemetry.",
+  "acceptance_criteria": [
+    "Contested triad corridors cast dynamic, pulsing refractive light across tiles with zero planar UI rectangles or floating text banners.",
+    "Dividers progressively display jagged, glowing fissures as repeated kinetic strikes land on adjacent sectors."
+  ],
+  "interface_contracts": {
+    "inputs": [
+      "state.world.sectors",
+      "state.world.shockwaves",
+      "state.world.contestedLines",
+      "state.world.time"
+    ],
+    "outputs": [
+      "canvas.context2D.renderPass"
+    ],
+    "events": [
+      "LATTICE_RENDER_COMPLETE"
+    ]
+  },
+  "pre_flight_passed": true,
+  "description": "[Client] Diegetic Lattice Stress Fractures & Radiant Crucible Bloom: Pure in-world visual feedback system replacing external state prompts with progressive glowing obsidian fractures, dynamic refractive ripples along partition lines, and prismatic heat distortion over contested triad corridors.\n\nSummary:\nProjects real-time obsidian stress fractures, chromatic refractive ripples on dividers, and heat bloom over contested collinear vectors without HUD overlays.\n\nSpecification:\nRead `state.world.sectors[n].fractureLevel` and `state.world.contestedLines`. For each divider segment, render jagged procedural obsidian fissures using cached seeded noise offsets scaled by `fractureLevel * 2.8px`. Where `contestedLines.length > 0`, calculate triad corridor bounding box and draw an additive dual-pass radial gradient (`rgba(255,190,40,0.18)` core to `rgba(7,9,19,0.0)`) modulated by `Math.sin(state.world.time * 6 + lineIdx)`. Inscribe active shockwave rings via Canvas `arc()` with `globalCompositeOperation = 'screen'` and dynamic blur stroke (`lineWidth = (1 - age/maxLife) * 6`), eliminating text-based battle telemetry.",
+  "submitted_by": "Principal Client & UI Architect (Canvas 2D rendering, HUD overlays, visual feedback)",
+  "change_type": "UPDATE_UI_THEME",
+  "status": "PENDING_REVIEW",
+  "created_at": 1794488284.477995,
+  "payload_diff": {
+    "title": "Diegetic Lattice Stress Fractures & Radiant Crucible Bloom: Pure in-world visual feedback system replacing external state prompts with progressive glowing obsidian fractures, dynamic refractive ripples along partition lines, and prismatic heat distortion over contested triad corridors.",
+    "discipline": "Client",
+    "target_subsystem": "web_client/index.html",
+    "target_milestone": "v0.6.0",
+    "milestone_tag": "v0.6.0",
+    "author_role": "Principal Client & UI Architect (Canvas 2D rendering, HUD overlays, visual feedback)",
+    "summary": "Projects real-time obsidian stress fractures, chromatic refractive ripples on dividers, and heat bloom over contested collinear vectors without HUD overlays.",
+    "technical_specification": "Read `state.world.sectors[n].fractureLevel` and `state.world.contestedLines`. For each divider segment, render jagged procedural obsidian fissures using cached seeded noise offsets scaled by `fractureLevel * 2.8px`. Where `contestedLines.length > 0`, calculate triad corridor bounding box and draw an additive dual-pass radial gradient (`rgba(255,190,40,0.18)` core to `rgba(7,9,19,0.0)`) modulated by `Math.sin(state.world.time * 6 + lineIdx)`. Inscribe active shockwave rings via Canvas `arc()` with `globalCompositeOperation = 'screen'` and dynamic blur stroke (`lineWidth = (1 - age/maxLife) * 6`), eliminating text-based battle telemetry.",
+    "acceptance_criteria": [
+      "Contested triad corridors cast dynamic, pulsing refractive light across tiles with zero planar UI rectangles or floating text banners.",
+      "Dividers progressively display jagged, glowing fissures as repeated kinetic strikes land on adjacent sectors."
+    ],
+    "interface_contracts": {
+      "inputs": [
+        "state.world.sectors",
+        "state.world.shockwaves",
+        "state.world.contestedLines",
+        "state.world.time"
+      ],
+      "outputs": [
+        "canvas.context2D.renderPass"
+      ],
+      "events": [
+        "LATTICE_RENDER_COMPLETE"
+      ]
+    },
+    "pre_flight_passed": true
+  }
+}

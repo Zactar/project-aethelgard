@@ -1,0 +1,77 @@
+{
+  "rfc_id": "RFC-20261112-944106",
+  "title": "Alternating turn state machine (`PLAYER_TURN` -> `AI_THINKING` -> `ROUND_OVER`), immutable sector claiming, evaluation of all 8 collinear triads (3 ranks, 3 files, 2 diagonals) plus 9-sector Equilibrium Deadlock detection, and instant `[SPACE]` / Click bout reset.",
+  "target_subsystem": "web_client/index.html",
+  "discipline": "Gameplay",
+  "target_milestone": "v0.1.0",
+  "milestone_target": "v0.1.0",
+  "milestone_tag": "v0.1.0",
+  "author_role": "Lead Gameplay & Kinematics Specialist (State machines, physics integration, collision rules)",
+  "summary": "Implements the alternating turn state machine, immutable sector inscription, win-line/draw resolution over 8 collinear vectors, and instant bout resets.",
+  "technical_specification": "Initialize `state.stats.grid = Array(9).fill(null)`, `state.stats.phase = 'PLAYER_TURN'`, `state.stats.winner = null`, `state.stats.winVector = null`, `state.stats.aiTimer = 0`. On `SPACE` or `pointer.down` while in `PLAYER_TURN`, if `grid[selectedIndex] === null`, assign `'BLADES'`, emit `CELL_INSCRIBED`, and switch to `AI_THINKING` (with `aiTimer = 0.35`). Evaluate win against 8 collinear indices: `[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]]`. If matched, set `winner` and `phase = 'ROUND_OVER'`. If no win and all filled, set `phase = 'ROUND_OVER'`, `winner = 'DEADLOCK'`. When `ROUND_OVER`, pressing `SPACE` or clicking resets `grid`, `winner`, `winVector`, and returns to `PLAYER_TURN`.",
+  "acceptance_criteria": [
+    "Claiming a sector permanently locks its value against overwriting for the remainder of the round.",
+    "Collinear completion immediately freezes turn input, records the 3-index vector, and marks victor.",
+    "9 filled cells without a 3-in-a-row triggers Equilibrium Deadlock status.",
+    "Space or click during ROUND_OVER fully resets the board and starts a new duel."
+  ],
+  "interface_contracts": {
+    "inputs": [
+      "state.world.matrix.selectedIndex",
+      "state.keys",
+      "state.pointer.down"
+    ],
+    "outputs": [
+      "state.stats.grid",
+      "state.stats.phase",
+      "state.stats.winner",
+      "state.stats.winVector"
+    ],
+    "events": [
+      "CELL_INSCRIBED",
+      "BOUT_RESOLVED",
+      "BOUT_RESET"
+    ]
+  },
+  "pre_flight_passed": true,
+  "description": "[Gameplay] Alternating turn state machine (`PLAYER_TURN` -> `AI_THINKING` -> `ROUND_OVER`), immutable sector claiming, evaluation of all 8 collinear triads (3 ranks, 3 files, 2 diagonals) plus 9-sector Equilibrium Deadlock detection, and instant `[SPACE]` / Click bout reset.\n\nSummary:\nImplements the alternating turn state machine, immutable sector inscription, win-line/draw resolution over 8 collinear vectors, and instant bout resets.\n\nSpecification:\nInitialize `state.stats.grid = Array(9).fill(null)`, `state.stats.phase = 'PLAYER_TURN'`, `state.stats.winner = null`, `state.stats.winVector = null`, `state.stats.aiTimer = 0`. On `SPACE` or `pointer.down` while in `PLAYER_TURN`, if `grid[selectedIndex] === null`, assign `'BLADES'`, emit `CELL_INSCRIBED`, and switch to `AI_THINKING` (with `aiTimer = 0.35`). Evaluate win against 8 collinear indices: `[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]]`. If matched, set `winner` and `phase = 'ROUND_OVER'`. If no win and all filled, set `phase = 'ROUND_OVER'`, `winner = 'DEADLOCK'`. When `ROUND_OVER`, pressing `SPACE` or clicking resets `grid`, `winner`, `winVector`, and returns to `PLAYER_TURN`.",
+  "submitted_by": "Lead Gameplay & Kinematics Specialist (State machines, physics integration, collision rules)",
+  "change_type": "ADJUST_MECHANICS",
+  "status": "PENDING_REVIEW",
+  "created_at": 1794485222.1113183,
+  "payload_diff": {
+    "title": "Alternating turn state machine (`PLAYER_TURN` -> `AI_THINKING` -> `ROUND_OVER`), immutable sector claiming, evaluation of all 8 collinear triads (3 ranks, 3 files, 2 diagonals) plus 9-sector Equilibrium Deadlock detection, and instant `[SPACE]` / Click bout reset.",
+    "discipline": "Gameplay",
+    "target_subsystem": "web_client/index.html",
+    "target_milestone": "v0.1.0",
+    "milestone_tag": "v0.1.0",
+    "author_role": "Lead Gameplay & Kinematics Specialist (State machines, physics integration, collision rules)",
+    "summary": "Implements the alternating turn state machine, immutable sector inscription, win-line/draw resolution over 8 collinear vectors, and instant bout resets.",
+    "technical_specification": "Initialize `state.stats.grid = Array(9).fill(null)`, `state.stats.phase = 'PLAYER_TURN'`, `state.stats.winner = null`, `state.stats.winVector = null`, `state.stats.aiTimer = 0`. On `SPACE` or `pointer.down` while in `PLAYER_TURN`, if `grid[selectedIndex] === null`, assign `'BLADES'`, emit `CELL_INSCRIBED`, and switch to `AI_THINKING` (with `aiTimer = 0.35`). Evaluate win against 8 collinear indices: `[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]]`. If matched, set `winner` and `phase = 'ROUND_OVER'`. If no win and all filled, set `phase = 'ROUND_OVER'`, `winner = 'DEADLOCK'`. When `ROUND_OVER`, pressing `SPACE` or clicking resets `grid`, `winner`, `winVector`, and returns to `PLAYER_TURN`.",
+    "acceptance_criteria": [
+      "Claiming a sector permanently locks its value against overwriting for the remainder of the round.",
+      "Collinear completion immediately freezes turn input, records the 3-index vector, and marks victor.",
+      "9 filled cells without a 3-in-a-row triggers Equilibrium Deadlock status.",
+      "Space or click during ROUND_OVER fully resets the board and starts a new duel."
+    ],
+    "interface_contracts": {
+      "inputs": [
+        "state.world.matrix.selectedIndex",
+        "state.keys",
+        "state.pointer.down"
+      ],
+      "outputs": [
+        "state.stats.grid",
+        "state.stats.phase",
+        "state.stats.winner",
+        "state.stats.winVector"
+      ],
+      "events": [
+        "CELL_INSCRIBED",
+        "BOUT_RESOLVED",
+        "BOUT_RESET"
+      ]
+    },
+    "pre_flight_passed": true
+  }
+}

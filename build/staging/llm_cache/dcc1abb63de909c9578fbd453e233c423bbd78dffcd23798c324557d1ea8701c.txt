@@ -1,0 +1,18 @@
+{
+  "codename": "Operation Celestial Flux",
+  "theme": "Dynamic Astral Hazards & Kinetic Gravity Resonance",
+  "deliverables": [
+    {
+      "discipline": "Systems",
+      "title": "Astra-Singularity Dynamic Core: An interactive graviton node that manifests at sector intersections, physically pulsing gravitational wave rings outward to magnetically pull cursor reticles and bend inscribed particle beams toward its epicenter."
+    },
+    {
+      "discipline": "Gameplay",
+      "title": "Kinetic Overcharge Sigil Strike: Active placement mechanic where timing an inscription input with the lattice's inward breathing pulse supercharges the sigil, emitting a directional shockwave that displaces adjacent ambient energy embers and fractures neighboring partition borders."
+    },
+    {
+      "discipline": "Client",
+      "title": "Diegetic Lattice Stress Fractures & Radiant Crucible Bloom: Pure in-world visual feedback system replacing external state prompts with progressive glowing obsidian fractures, dynamic refractive ripples along partition lines, and prismatic heat distortion over contested triad corridors."
+    }
+  ]
+}

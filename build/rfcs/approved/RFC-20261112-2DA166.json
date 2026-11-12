@@ -1,0 +1,63 @@
+{
+  "rfc_id": "RFC-20261112-2DA166",
+  "title": "Diegetic turn-order age pips (`1`, `2`, `3`) subtly etched into the corner of each occupied sector so both contenders can read the decay queue at a glance.",
+  "target_subsystem": "web_client/index.html",
+  "discipline": "UI_UX",
+  "target_milestone": "v0.4.0",
+  "milestone_target": "v0.4.0",
+  "milestone_tag": "v0.4.0",
+  "author_role": "UI_UX Specialist",
+  "summary": "Render diegetic chronometric age pips etched into sector inner corners reflecting queue positions 1, 2, and 3.",
+  "technical_specification": "In sector render pass, if `state.stats.ephemeralProtocol` is true and sector is occupied, determine age `pipCount`: `queue.indexOf(sectorIdx) + 1` (1 = oldest/expiring, 3 = newest). Render `pipCount` geometric micro-diamonds (radius `2.5px`, spaced `6px` along sector top-right inset `x: sector.x + 104, y: sector.y + 14`). Pip styling: oldest pip (`age = 1`) flickers with erratic phase `Math.sin(state.world.time * 12) > 0 ? 0.3 : 0.9` in faction warning tint; pips 2 and 3 render solid luminous obsidian-gold. Prohibit rectangular HUD overlays or text numerals.",
+  "acceptance_criteria": [
+    "Each occupied cell displays 1, 2, or 3 distinct diegetic corner diamond pips reflecting queue maturity.",
+    "Pip with age index 1 (next eviction) visibly flickers at high frequency.",
+    "Zero textual numerals or rectangular HUD boxes appear within the lattice."
+  ],
+  "interface_contracts": {
+    "inputs": [
+      "state.stats.ephemeralProtocol",
+      "state.stats.p1Queue",
+      "state.stats.p2Queue",
+      "state.world.time"
+    ],
+    "outputs": [
+      "state.world.matrixPips"
+    ],
+    "events": []
+  },
+  "pre_flight_passed": true,
+  "description": "[UI_UX] Diegetic turn-order age pips (`1`, `2`, `3`) subtly etched into the corner of each occupied sector so both contenders can read the decay queue at a glance.\n\nSummary:\nRender diegetic chronometric age pips etched into sector inner corners reflecting queue positions 1, 2, and 3.\n\nSpecification:\nIn sector render pass, if `state.stats.ephemeralProtocol` is true and sector is occupied, determine age `pipCount`: `queue.indexOf(sectorIdx) + 1` (1 = oldest/expiring, 3 = newest). Render `pipCount` geometric micro-diamonds (radius `2.5px`, spaced `6px` along sector top-right inset `x: sector.x + 104, y: sector.y + 14`). Pip styling: oldest pip (`age = 1`) flickers with erratic phase `Math.sin(state.world.time * 12) > 0 ? 0.3 : 0.9` in faction warning tint; pips 2 and 3 render solid luminous obsidian-gold. Prohibit rectangular HUD overlays or text numerals.",
+  "submitted_by": "UI_UX Specialist",
+  "change_type": "ADJUST_MECHANICS",
+  "status": "PENDING_REVIEW",
+  "created_at": 1794488212.8433294,
+  "payload_diff": {
+    "title": "Diegetic turn-order age pips (`1`, `2`, `3`) subtly etched into the corner of each occupied sector so both contenders can read the decay queue at a glance.",
+    "discipline": "UI_UX",
+    "target_subsystem": "web_client/index.html",
+    "target_milestone": "v0.4.0",
+    "milestone_tag": "v0.4.0",
+    "author_role": "UI_UX Specialist",
+    "summary": "Render diegetic chronometric age pips etched into sector inner corners reflecting queue positions 1, 2, and 3.",
+    "technical_specification": "In sector render pass, if `state.stats.ephemeralProtocol` is true and sector is occupied, determine age `pipCount`: `queue.indexOf(sectorIdx) + 1` (1 = oldest/expiring, 3 = newest). Render `pipCount` geometric micro-diamonds (radius `2.5px`, spaced `6px` along sector top-right inset `x: sector.x + 104, y: sector.y + 14`). Pip styling: oldest pip (`age = 1`) flickers with erratic phase `Math.sin(state.world.time * 12) > 0 ? 0.3 : 0.9` in faction warning tint; pips 2 and 3 render solid luminous obsidian-gold. Prohibit rectangular HUD overlays or text numerals.",
+    "acceptance_criteria": [
+      "Each occupied cell displays 1, 2, or 3 distinct diegetic corner diamond pips reflecting queue maturity.",
+      "Pip with age index 1 (next eviction) visibly flickers at high frequency.",
+      "Zero textual numerals or rectangular HUD boxes appear within the lattice."
+    ],
+    "interface_contracts": {
+      "inputs": [
+        "state.stats.ephemeralProtocol",
+        "state.stats.p1Queue",
+        "state.stats.p2Queue",
+        "state.world.time"
+      ],
+      "outputs": [
+        "state.world.matrixPips"
+      ],
+      "events": []
+    },
+    "pre_flight_passed": true
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "rfcs": [
+    {
+      "index": 0,
+      "summary": "Implement a modular pre-run heat mutator ledger that modifies downhill threat parameters and applies exponential multipliers to XP and high-tier relic drops.",
+      "technical_specification": "Initializes `state.world.heatModifiers` as an array of active mutator IDs. Evaluates total heat level $H = \\sum \\text{heatValues}$. Modifies progression math: XP yield $XP_{\\text{final}} = XP_{\\text{base}} \\times (1.18)^H$ and rare relic draft probability $P(\\text{mythic}) = P_{\\text{base}} + (0.04 \\times H)$. In physics tick, applies mutator hazards to `state.world`: 'black_ice' scales lateral friction by $0.4$, 'twin_yetis' sets `state.world.yetiCount = 2`, and 'whiteout' scales `state.world.visibilityRadius` to $240\\text{px}$. Writes computed multiplier results directly into `state.stats.heatLevel`, `state.stats.xpMultiplier`, and `state.stats.luckBonus`.",
+      "acceptance_criteria": [
+        "state.stats.xpMultiplier correctly evaluates base * (1.18)^H upon run launch.",
+        "state.world.yetiCount spawns two synchronized pursuers when 'twin_yetis' mutator is active.",
+        "Selecting heat mutators emits 'HEAT_LEVEL_CHANGED' and persists heat loadout to state ledger."
+      ],
+      "interface_contracts": {
+        "inputs": [
+          "state.keys",
+          "state.world.heatModifiers"
+        ],
+        "outputs": [
+          "state.stats.heatLevel",
+          "state.stats.xpMultiplier",
+          "state.stats.luckBonus",
+          "state.world.visibilityRadius",
+          "state.world.yetiCount"
+        ],
+        "events": [
+          "HEAT_LEVEL_CHANGED",
+          "RUN_INITIATED"
+        ]
+      }
+    },
+    {
+      "index": 1,
+      "summary": "Introduce chalet shelter interaction mechanics allowing relic combination into elevated rarity tiers or sacrificing current HP for cursed alpine charms.",
+      "technical_specification": "Triggers when `state.player.distance % 500 === 0` enters `state.player.state = 'CHALET'`. Reads `state.inventory.relics`. Relic fusion merges two identical tier relics into one upgraded tier relic, resetting duplicate counters. Transmutation sacrifices blood: deducts $0.25 \\times \\text{maxHP}$ from `state.player.hp` (clamped to 1) and adds an item with `cursed: true` granting high stat variance (e.g., $+40\\%\\, V_y\\text{ max}$, $-30\\%\\, \\text{turnRate}$). Exiting shelter resets state machine to 'SKIING', updates `state.stats.transmutationsPerformed`, and resumes downhill physics integration.",
+      "acceptance_criteria": [
+        "Fusing two duplicate relics removes both instances and adds a tier+1 equivalent to state.inventory.relics.",
+        "Sacrificing health deducts exactly 25% max HP without killing the player and injects a cursed relic.",
+        "Emits 'RELIC_TRANSMUTED' and returns state.player.state to 'SKIING' upon exit."
+      ],
+      "interface_contracts": {
+        "inputs": [
+          "state.player.distance",
+          "state.player.hp",
+          "state.inventory.relics",
+          "state.keys.interact"
+        ],
+        "outputs": [
+          "state.player.state",
+          "state.player.hp",
+          "state.inventory.relics",
+          "state.stats.transmutationsPerformed"
+        ],
+        "events": [
+          "CHALET_ENTERED",
+          "RELIC_TRANSMUTED",
+          "CHALET_EXITED"
+        ]
+      }
+    },
+    {
+      "index": 2,
+      "summary": "Render high-contrast personal best ghost descent silhouettes via downsampled frame buffers alongside a CRT-styled vector telemetry HUD.",
+      "technical_specification": "Samples `state.player.x`, `state.player.y`, and `state.player.velocity` every 6 ticks into a circular buffer `state.world.activeTelemetry`. Compares current position against stored array `state.world.ghostTrajectory` (loaded from localStorage). Renders ghost on Canvas 2D using globalCompositeOperation 'screen', cyan silhouette fill (`#00f3ff`), and an opacity decay factor $0.45$. Overlays green CRT telemetry vector HUD displaying live split $\\Delta t = t_{\\text{curr}} - t_{\\text{ghost}}$, current $V_y$, and G-force calculations derived from lateral carve acceleration $(dV_x / dt)$.",
+      "acceptance_criteria": [
+        "Ghost sprite renders at recorded historical (x, y) coordinates corresponding to matching downhill distance.",
+        "CRT telemetry draws real-time delta comparison (ahead/behind in seconds) without Canvas frame drops.",
+        "Emits 'GHOST_RECORD_SAVED' and persists buffer to localStorage when previous run distance is beaten."
+      ],
+      "interface_contracts": {
+        "inputs": [
+          "state.player.x",
+          "state.player.y",
+          "state.player.velocity",
+          "state.world.ghostTrajectory"
+        ],
+        "outputs": [
+          "state.world.activeTelemetry",
+          "state.stats.splitDelta"
+        ],
+        "events": [
+          "GHOST_RECORD_SAVED",
+          "TELEMETRY_UPDATED"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "codename": "Operation Chrono-Fracture",
+  "theme": "Spatiotemporal Anomalies & Kinetic Rift Warfare",
+  "deliverables": [
+    {
+      "discipline": "Systems",
+      "title": "Quantum Singularity Pylons: Interactive in-arena geometric monoliths that warp local vector trajectories, slingshot projectile velocities with an additive color shift, and implode into localized shockwaves when overloaded by weapon fire."
+    },
+    {
+      "discipline": "Gameplay",
+      "title": "Phasic Blink Dash & Phase-Blade Wake: An omnidirectional dash ability granting brief invulnerability frames, leaving a razor-sharp chromatic ribbon trail in the void that severs and detonates chasing hunter-class enemies on contact."
+    },
+    {
+      "discipline": "Client",
+      "title": "Prismatic Tessellation Shatter & Radial Shockwaves: Pure canvas-rendered visual overhaul featuring dual-frequency radial grid compression waves on heavy asteroid splits, trailing chromatic afterimage echoes behind high-velocity drifts, and reactive polygon fragmentation bursts."
+    }
+  ]
+}

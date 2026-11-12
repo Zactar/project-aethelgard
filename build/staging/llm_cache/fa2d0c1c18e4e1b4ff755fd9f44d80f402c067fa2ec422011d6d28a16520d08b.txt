@@ -1,0 +1,18 @@
+{
+  "codename": "Operation Obsidian Ironclads",
+  "theme": "Stygian Bell-Warden Hazards & Magnetic Chasm Traversal",
+  "deliverables": [
+    {
+      "discipline": "Systems",
+      "title": "Diegetic Necrotic Bell-Wardens: Heavy roaming subterranean constructs that emit physical harmonic shockwaves upon receiving weapon poise damage, vibrating oil slicks and cracking brittle wall tiles toward the impact vector without any external UI meters."
+    },
+    {
+      "discipline": "Gameplay",
+      "title": "Interactive Lodestone Pylons & Shield Rebound: Polarized magnetic monoliths naturally anchored in abyss rooms that pull iron-clad adversaries, deflect projectile trajectories, and allow players to dash-bash their shields against the pillar to unleash a circular concussive EMP arc."
+    },
+    {
+      "discipline": "Client",
+      "title": "Chiaroscuro Floor-Grit & Sunder Visual Dynamics: Real-time stone splintering, dynamic soot trails stamped into blood pools, and directional torch shadow elongation computed directly onto 2D floor surfaces whenever subterranean seismic tremors detonate."
+    }
+  ]
+}

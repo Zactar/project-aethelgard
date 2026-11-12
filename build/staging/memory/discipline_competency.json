@@ -1,0 +1,62 @@
+{
+  "Systems": {
+    "discipline": "Systems",
+    "total_proposals": 0,
+    "accepted_rfcs": 17,
+    "regressions_caused": 2,
+    "clean_streak": 17,
+    "active_friction_notes": [
+      "[INC-20261027-SYS-04] CRITICAL: All Enums and type primitives must be declared strictly at the top of the schema file prior to any Pydantic BaseModel definitions.",
+      "[INC-20261031-AST-E852] CRITICAL: Code patches targeting 'services/agent_runtime/src/broken_test.py' must pass pre-compile AST checks and verify all imported symbols and enums prior to write."
+    ]
+  },
+  "Level": {
+    "discipline": "Level",
+    "total_proposals": 0,
+    "accepted_rfcs": 19,
+    "regressions_caused": 4,
+    "clean_streak": 15,
+    "active_friction_notes": [
+      "[INC-20261012-LVL-01] HIGH: All procedural AABB collision bounds must incorporate a minimum 0.15m inset offset relative to the visual floorplate and socket perimeter.",
+      "[INC-20261031-LVL-9079] HIGH: Ensure room socket offsets enforce minimum 0.15m separation on all floorplate axes.",
+      "[INC-20261101-LVL-3589] HIGH: Ensure room socket offsets enforce minimum 0.15m separation on all floorplate axes.",
+      "[INC-20261101-LVL-91AD] HIGH: Ensure room socket offsets enforce minimum 0.15m separation on all floorplate axes."
+    ]
+  },
+  "Narrative": {
+    "discipline": "Narrative",
+    "total_proposals": 0,
+    "accepted_rfcs": 23,
+    "regressions_caused": 0,
+    "clean_streak": 23,
+    "active_friction_notes": []
+  },
+  "Gameplay": {
+    "discipline": "Gameplay",
+    "total_proposals": 0,
+    "accepted_rfcs": 17,
+    "regressions_caused": 1,
+    "clean_streak": 17,
+    "active_friction_notes": [
+      "[INC-20261023-GMP-03] HIGH: Raycasts and proximity queries must mask explicitly to InteractionLayer.INTERACTIVE and reject passive decor or static room boundary collision geometries."
+    ]
+  },
+  "Client": {
+    "discipline": "Client",
+    "total_proposals": 0,
+    "accepted_rfcs": 19,
+    "regressions_caused": 1,
+    "clean_streak": 19,
+    "active_friction_notes": [
+      "[INC-20261018-CLI-02] MEDIUM: Billboards and HUD text anchors must be nested under the actor transform hierarchy and update orientation post-camera-matrix computation in the render loop."
+    ]
+  },
+  "Chaos QA": {
+    "discipline": "Chaos QA",
+    "total_proposals": 0,
+    "accepted_rfcs": 23,
+    "regressions_caused": 0,
+    "clean_streak": 23,
+    "active_friction_notes": []
+  }
+}

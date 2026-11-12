@@ -1,0 +1,73 @@
+{
+  "rfc_id": "RFC-20261112-0B8BF5",
+  "title": "Best-of-5 Championship Series & Streak Multiplier system tracking Tactical Forks, Center-Nexus Control, and Flawless Series Sweeps inside the top status ribbon.",
+  "target_subsystem": "web_client/index.html",
+  "discipline": "Systems",
+  "target_milestone": "v0.3.0",
+  "milestone_target": "v0.3.0",
+  "milestone_tag": "v0.3.0",
+  "author_role": "Principal Systems & Economy Architect (Data schemas, progression curves, state ledgers)",
+  "summary": "Track match progression across a Best-of-5 championship series with tactical point multipliers for center-nexus holds, fork creations, and flawless sweeps.",
+  "technical_specification": "Maintain `state.stats.series = { playerWins: 0, aiWins: 0, ties: 0, targetWins: 3, roundIndex: 1 }`. On round end, increment winner score. Detect 'Center-Nexus Control' if sector 4 belongs to winner (`+250` pts). Evaluate 'Tactical Fork' when a move creates >=2 simultaneous win-threat vectors (`+500` pts, increment `state.stats.forksCreated`). Series multiplier `state.stats.multiplier` starts at 1.0, climbing `+0.5` per consecutive player win up to 3.0x. Award 'Flawless Sweep' (`+2500` pts) if player reaches 3 series wins with 0 losses. Render series pips and active multiplier in the top ribbon.",
+  "acceptance_criteria": [
+    "First contender to reach 3 round wins completes the championship series and displays sweep bonus if opponent wins equal 0.",
+    "Placing the nexus or establishing two simultaneous winning threats updates score bonuses and active streak multipliers immediately."
+  ],
+  "interface_contracts": {
+    "inputs": [
+      "state.world.matrix[0..8]",
+      "state.world.activeTurn",
+      "state.world.roundOutcome"
+    ],
+    "outputs": [
+      "state.stats.series",
+      "state.stats.score",
+      "state.stats.multiplier",
+      "state.stats.forksCreated"
+    ],
+    "events": [
+      "ROUND_CONCLUDED",
+      "SERIES_CONCLUDED",
+      "TACTICAL_FORK_ACHIEVED"
+    ]
+  },
+  "pre_flight_passed": true,
+  "description": "[Systems] Best-of-5 Championship Series & Streak Multiplier system tracking Tactical Forks, Center-Nexus Control, and Flawless Series Sweeps inside the top status ribbon.\n\nSummary:\nTrack match progression across a Best-of-5 championship series with tactical point multipliers for center-nexus holds, fork creations, and flawless sweeps.\n\nSpecification:\nMaintain `state.stats.series = { playerWins: 0, aiWins: 0, ties: 0, targetWins: 3, roundIndex: 1 }`. On round end, increment winner score. Detect 'Center-Nexus Control' if sector 4 belongs to winner (`+250` pts). Evaluate 'Tactical Fork' when a move creates >=2 simultaneous win-threat vectors (`+500` pts, increment `state.stats.forksCreated`). Series multiplier `state.stats.multiplier` starts at 1.0, climbing `+0.5` per consecutive player win up to 3.0x. Award 'Flawless Sweep' (`+2500` pts) if player reaches 3 series wins with 0 losses. Render series pips and active multiplier in the top ribbon.",
+  "submitted_by": "Principal Systems & Economy Architect (Data schemas, progression curves, state ledgers)",
+  "change_type": "NEW_ITEM",
+  "status": "PENDING_REVIEW",
+  "created_at": 1794485923.1186674,
+  "payload_diff": {
+    "title": "Best-of-5 Championship Series & Streak Multiplier system tracking Tactical Forks, Center-Nexus Control, and Flawless Series Sweeps inside the top status ribbon.",
+    "discipline": "Systems",
+    "target_subsystem": "web_client/index.html",
+    "target_milestone": "v0.3.0",
+    "milestone_tag": "v0.3.0",
+    "author_role": "Principal Systems & Economy Architect (Data schemas, progression curves, state ledgers)",
+    "summary": "Track match progression across a Best-of-5 championship series with tactical point multipliers for center-nexus holds, fork creations, and flawless sweeps.",
+    "technical_specification": "Maintain `state.stats.series = { playerWins: 0, aiWins: 0, ties: 0, targetWins: 3, roundIndex: 1 }`. On round end, increment winner score. Detect 'Center-Nexus Control' if sector 4 belongs to winner (`+250` pts). Evaluate 'Tactical Fork' when a move creates >=2 simultaneous win-threat vectors (`+500` pts, increment `state.stats.forksCreated`). Series multiplier `state.stats.multiplier` starts at 1.0, climbing `+0.5` per consecutive player win up to 3.0x. Award 'Flawless Sweep' (`+2500` pts) if player reaches 3 series wins with 0 losses. Render series pips and active multiplier in the top ribbon.",
+    "acceptance_criteria": [
+      "First contender to reach 3 round wins completes the championship series and displays sweep bonus if opponent wins equal 0.",
+      "Placing the nexus or establishing two simultaneous winning threats updates score bonuses and active streak multipliers immediately."
+    ],
+    "interface_contracts": {
+      "inputs": [
+        "state.world.matrix[0..8]",
+        "state.world.activeTurn",
+        "state.world.roundOutcome"
+      ],
+      "outputs": [
+        "state.stats.series",
+        "state.stats.score",
+        "state.stats.multiplier",
+        "state.stats.forksCreated"
+      ],
+      "events": [
+        "ROUND_CONCLUDED",
+        "SERIES_CONCLUDED",
+        "TACTICAL_FORK_ACHIEVED"
+      ]
+    },
+    "pre_flight_passed": true
+  }
+}

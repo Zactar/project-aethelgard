@@ -1,0 +1,49 @@
+{
+  "rfcs": [
+    {
+      "index": 0,
+      "summary": "Full-screen modal state machine rendering procedural pixel-art pilot portraits, CRT scanlines, and animated neon vector ship hulls for pilot draft.",
+      "technical_specification": "In `state.menu.pilotSelect`: track `selectedIndex` (0..3: Vex, Kaze, Bass, Nyx), `transitionT` (0..1 lerp), and `active` boolean. Render dark overlay (`#05020d`, alpha 0.92) with horizontal CRT scanlines every 3px. For each pilot, procedural 12x12 pixel portraits draw scaled blocks via bitmask arrays at offset cards. Render ship hull preview with `ctx.beginPath()`, rotating by `t * 0.03` radians with additive glow (`ctx.shadowBlur = 16`, `ctx.shadowColor = pilot.color`). Left/Right keys cycle index with sound hook `audio.playBeep(440, 0.05)`. Enter/Space assigns `state.player.pilot = pilots[selectedIndex]`, copies hull speed/handling/cooldowns, and sets `active = false`.",
+      "acceptance_criteria": [
+        "Interactive selection modal allows cycling through Vex, Kaze, Bass, and Nyx with keyboard navigation.",
+        "Renders procedural pixel portraits and rotating vector hulls with pilot-specific neon color palettes.",
+        "Dismisses modal on confirmation and initializes state.player kinematic baselines."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.keys.ArrowLeft", "state.keys.ArrowRight", "state.keys.Enter", "state.keys.Space"],
+        "outputs": ["state.menu.pilotSelect.active", "state.player.pilot", "state.player.color", "state.player.maxSpeed", "state.player.turnSpeed"],
+        "events": ["PILOT_SELECTED", "MENU_NAVIGATE"]
+      }
+    },
+    {
+      "index": 1,
+      "summary": "Weapon archetype dispatchers with distinct ballistic patterns, defensive shield regen tick logic, and diegetic hull cooldown arcs.",
+      "technical_specification": "Maintain `state.player.abilityCd` and `abilityMaxCd` (Vex: Dash 180f, Kaze: Warp 300f, Bass: EMP 420f, Nyx: Decoy 360f). Draw diegetic radial arc around player `(x, y)` from `-PI/2` to `-PI/2 + (abilityCd / abilityMaxCd) * 2PI` with lineWidth 2.5 and pilot neon stroke. `[SPACE]` fires weapon archetype: Twin Pulse (dual parallel offsets dx/dy), Piercing Rail (high speed 24px/f ray), Sonic Scatter (7-ray cone ±0.35 rad), Homing Missiles (vector steering to closest target). Shield system: `state.player.shields` (0..3 segments); if unhit for `regenDelay` (300 frames), restore 1 segment per 120 frames with a radial cyan pulse.",
+      "acceptance_criteria": [
+        "Each of the 4 pilots spawns unique projectile spreads, velocities, and damage signatures.",
+        "Ability cooldown is visibly indicated by a circular diegetic ring centered on the ship hull without any box HUD.",
+        "Shield segments regenerate sequentially after 300 hitless frames."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.keys.Space", "state.keys.ShiftLeft", "state.keys.KeyE", "state.player.x", "state.player.y", "state.player.angle"],
+        "outputs": ["state.projectiles", "state.player.abilityCd", "state.player.shields", "state.player.shieldRegenTimer"],
+        "events": ["PLAYER_FIRE", "ABILITY_TRIGGERED", "SHIELD_REGEN"]
+      }
+    },
+    {
+      "index": 2,
+      "summary": "Near-miss proximity graze detector and dynamic combo multiplier tier driving projectile scale, thruster lengths, and warp-grid chromatic shifts.",
+      "technical_specification": "Evaluate distance `dist = hypot(player.x - obj.x, player.y - obj.y)` against all active hazards. If `player.radius < dist <= player.radius + 32` and `!obj.grazed`: set `obj.grazed = true`, trigger micro-spark particle burst, grant +150 score, and add +0.25 to `state.stats.combo` (clamped 1.0x to 16.0x). Combo decay: subtract `0.005 * dt` if no graze or hit occurs within 180 frames. Multiplier scales projectile radius by `1 + (combo - 1) * 0.08`, thruster ghost trail length up to 24 frames, and modulates background grid hue: `gridHue = (280 + combo * 15) % 360` with grid line glow.",
+      "acceptance_criteria": [
+        "Grazing an enemy or projectile within 32px boundary triggers immediate spark particles and increments combo.",
+        "Combo multiplier scales smoothly up to 16x and decays after inactivity window.",
+        "Higher combo visibly expands player projectile size, thruster flame trails, and shifts warp-grid colors."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.player.x", "state.player.y", "state.player.radius", "state.world.asteroids", "state.world.enemyProjectiles"],
+        "outputs": ["state.stats.combo", "state.stats.score", "state.particles", "state.world.gridHue", "state.player.trailLength"],
+        "events": ["PLAYER_GRAZE", "COMBO_TIER_UP"]
+      }
+    }
+  ]
+}

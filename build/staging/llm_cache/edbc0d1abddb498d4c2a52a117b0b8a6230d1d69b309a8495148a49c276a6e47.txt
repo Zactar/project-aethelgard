@@ -1,0 +1,49 @@
+{
+  "rfcs": [
+    {
+      "index": 0,
+      "summary": "Tracks vault ceiling integrity fault lines that trigger localized crushing stone fallouts and area poise damage when struck by heavy attacks or colliding brutes.",
+      "technical_specification": "Initialize `state.world.vaultCeilings = [{id, x, y, r: 52, hp: 100, maxHp: 100, triggered: false, collapseTimer: 0}]`. When player cleave (`state.player.attackTimer > 0` with `chargeRatio >= 0.7`) or an enemy in charging state collides with `vaultCeiling.r`, deduct ceiling `hp` by weapon poise (`dmg * 1.5`) or charge impact (`40`). At `hp <= 0`, set `triggered = true`, start `collapseTimer = 0.45s`, and spawn telegraph dust rings. On expiry, deal `120` physical crush damage, 100 poise break, and inflict `stun: 1.8s` to all entities within radius `r`, leaving permanent non-walkable rubble colliders.",
+      "acceptance_criteria": [
+        "Vault ceilings take damage strictly from charged heavy swings and enemy charge physics.",
+        "Telegraphed collapse drops crushing debris dealing 120 damage and breaking poise for both enemies and player.",
+        "Leaves permanent rubble colliders registered in `state.world.colliders`."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.player.isAttacking", "state.player.chargeRatio", "state.enemies[].isCharging"],
+        "outputs": ["state.world.vaultCeilings", "state.world.debris", "state.world.colliders"],
+        "events": ["VAULT_CEILING_COLLAPSE", "POISE_BROKEN"]
+      }
+    },
+    {
+      "index": 1,
+      "summary": "Implements rupturable Black Bile Geo-Vents that spray viscous flammable tar pools upon kick-shove or blunt strike, drenching entities in volatile fuel.",
+      "technical_specification": "Define `state.world.geoVents = [{id, x, y, r: 24, intact: true, bileDuration: 0}]`. When player performs an interact-kick (`state.keys.action` within 36px) or connects a blunt swing, set `intact = false`, erupting a persistent tar puddle `state.world.tarPools.push({x, y, r: 64, life: 12.0, ignited: false})`. Entities walking through tar suffer `-45%` movement speed and gain `state.entities[].bileCoated = 8.0s`. If any fire source (torch cleave, kicked brazier) intersects the tar puddle or a bile-coated entity, ignite into a DoT inferno dealing `28` fire damage per second for 5 seconds.",
+      "acceptance_criteria": [
+        "Kicking or bludgeoning an intact vent immediately ruptures it into an expanding tar slick.",
+        "Coated units suffer 45% slow and display diegetic dripping black tar shaders.",
+        "Contact with any flame trigger ignites the pool and coated entities into high-damage doomfire."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.keys.action", "state.player.isAttacking", "state.player.pos"],
+        "outputs": ["state.world.geoVents", "state.world.tarPools", "state.enemies[].bileCoated"],
+        "events": ["GEO_VENT_RUPTURED", "TAR_IGNITED"]
+      }
+    },
+    {
+      "index": 2,
+      "summary": "Renders diegetic weapon-resonance trails and chromatic lightning arcs across ground fissures proportional to melee windup charge.",
+      "technical_specification": "Read `state.player.chargeRatio` (0.0 to 1.0) and weapon tip coordinates `(tipX, tipY)`. At `chargeRatio >= 0.5`, inject jagged arc primitives into `state.world.visualFx` connecting the blade tip to ground contacts using chromatic violet/amber strokes (`#a855f7`, `#f59e0b`). At `chargeRatio >= 0.95`, spawn radiating stone fracture lines with jitter offset `(Math.random() - 0.5) * 4px` and pulse player emissive aura at 8Hz. On swing release, sweep an articulated chiaroscuro weapon trail polygon with tapering opacity and trailing sparks, completely avoiding screen-space UI elements.",
+      "acceptance_criteria": [
+        "Resonance lightning begins arcing only when heavy swing windup exceeds 50% charge threshold.",
+        "Ground fissures and chromatic spark particles dynamically trace blade position without UI panel overlays.",
+        "Release creates a sweeping chiaroscuro cleave polygon that fades over 180ms."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.player.chargeRatio", "state.player.weaponTip", "state.player.facingAngle"],
+        "outputs": ["state.world.visualFx", "state.renderer.screenShake"],
+        "events": ["WEAPON_MAX_CHARGE_REACHED", "WEAPON_CLEAVE_RELEASED"]
+      }
+    }
+  ]
+}

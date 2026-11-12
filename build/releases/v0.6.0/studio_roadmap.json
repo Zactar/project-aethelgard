@@ -1,0 +1,210 @@
+{
+  "active_version": "v0.6.0",
+  "last_updated": "2026-11-12T12:58:29.265220",
+  "milestones": [
+    {
+      "version": "v0.1.0",
+      "codename": "Codename-v0.1.0",
+      "theme": "The Ninefold Matrix, Alternating Turn Protocol & Collinear Triad Arbiter",
+      "status": "SHIPPED",
+      "completion_percentage": 100.0,
+      "deliverables": [
+        {
+          "deliverable_id": "DELIV-V0_1_0-01",
+          "discipline": "Level",
+          "title": "Centered 9-sector orthogonal lattice (`three ranks by three files`) rendered with glowing architectural dividers, sector coordinate mapping, and dual Mouse-Click + Keyboard (`WASD`/`Arrows` + `SPACE`) sector selection.",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-D59AFB.json"
+        },
+        {
+          "deliverable_id": "DELIV-V0_1_0-02",
+          "discipline": "Gameplay",
+          "title": "Alternating turn state machine (`PLAYER_TURN` -> `AI_THINKING` -> `ROUND_OVER`), immutable sector claiming, evaluation of all 8 collinear triads (3 ranks, 3 files, 2 diagonals) plus 9-sector Equilibrium Deadlock detection, and instant `[SPACE]` / Click bout reset.",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-944106.json"
+        },
+        {
+          "deliverable_id": "DELIV-V0_1_0-03",
+          "discipline": "Aesthetics",
+          "title": "Animated geometric sigil drawing (*Intersecting Diagonal Blades* vs. *Concentric Meridian Ring*), radial particle bursts upon inscription, and a blazing harmonic laser beam connecting the 3 aligned sectors on victory.",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-2CDE9F.json"
+        }
+      ],
+      "completed_at": "2026-11-12T12:07:29.722618"
+    },
+    {
+      "version": "v0.2.0",
+      "codename": "Codename-v0.2.0",
+      "theme": "Contender Sigil Customization, Minimax Oracle AI & Threat Telemetry",
+      "status": "SHIPPED",
+      "completion_percentage": 100.0,
+      "deliverables": [
+        {
+          "deliverable_id": "DELIV-V0_2_0-01",
+          "discipline": "UI_UX",
+          "title": "Pre-series Contender Configuration Modal allowing the player to choose their Geometric Crest palette, select who claims the opening turn (`Initiator First` vs `Arbiter First` vs `Alternating`), and select the Arbiter's cognitive tier (*Tier I: Opportunist*, *Tier II: Tactical Blocker*, *Tier III: Perfect Minimax Oracle*).",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-1C50B2.json"
+        },
+        {
+          "deliverable_id": "DELIV-V0_2_0-02",
+          "discipline": "Systems",
+          "title": "Three-tier Synthetic Arbiter AI: Tier I claims random/adjacent sectors; Tier II detects and blocks any collinear vector where the opponent holds 2 of 3 sectors; Tier III executes full recursive Minimax lookahead (prioritizing immediate winning triads, blocking opponent threats, seizing the central nexus or corner anchors, and setting up dual-vector forks).",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-74BCA8.json"
+        },
+        {
+          "deliverable_id": "DELIV-V0_2_0-03",
+          "discipline": "Aesthetics",
+          "title": "Translucent ghost-sigil hover preview inside vacant sectors and subtle pulsing threat-threads along any rank, file, or diagonal where a contender holds 2 of 3 sectors.",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-20090D.json"
+        }
+      ],
+      "completed_at": "2026-11-12T12:18:30.788872"
+    },
+    {
+      "version": "v0.3.0",
+      "codename": "Codename-v0.3.0",
+      "theme": "Pentatonic Crystal Audio Synthesizer, Championship Series & Blitz Clock",
+      "status": "SHIPPED",
+      "completion_percentage": 100.0,
+      "deliverables": [
+        {
+          "deliverable_id": "DELIV-V0_3_0-01",
+          "discipline": "Client",
+          "title": "Centralized Web Audio API harmonic synthesizer: 9 distinct pentatonic crystal chime frequencies mapped to the 9 matrix sectors, deep sub-bass lock thuds on placement, triumphant chord fanfare on Triad Victory, and a suspended chord resolve on Equilibrium Deadlock.",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-3035E8.json"
+        },
+        {
+          "deliverable_id": "DELIV-V0_3_0-02",
+          "discipline": "Systems",
+          "title": "Best-of-5 Championship Series & Streak Multiplier system tracking Tactical Forks, Center-Nexus Control, and Flawless Series Sweeps inside the top status ribbon.",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-0B8BF5.json"
+        },
+        {
+          "deliverable_id": "DELIV-V0_3_0-03",
+          "discipline": "Gameplay",
+          "title": "Optional 5.0-second Blitz Turn Timer integrated diegetically into the outer frame of the Ninefold Matrix (pulsing faster during the final 2 seconds and awarding speed-placement score bonuses).",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-45149B.json"
+        }
+      ],
+      "completed_at": "2026-11-12T12:19:01.255701"
+    },
+    {
+      "version": "v0.4.0",
+      "codename": "Codename-v0.4.0",
+      "theme": "Ephemeral Decay Mutator & Quantum Swap Protocol",
+      "status": "SHIPPED",
+      "completion_percentage": 100.0,
+      "deliverables": [
+        {
+          "deliverable_id": "DELIV-V0_4_0-01",
+          "discipline": "Gameplay",
+          "title": "Optional \"Ephemeral Protocol\" mutator toggle (`[KeyM]` or pre-match toggle): each contender may only maintain at most 3 active sigils on the lattice at once\u2014when a contender inscribes their 4th sigil, their oldest sigil on the lattice dissolves back into a vacant sector, making Equilibrium Deadlocks impossible!",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-CFA130.json"
+        },
+        {
+          "deliverable_id": "DELIV-V0_4_0-02",
+          "discipline": "Aesthetics",
+          "title": "Shimmering half-life decay indicators and disintegration particle motes on whichever sigil is queued to vanish next under Ephemeral Protocol.",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-BD6A58.json"
+        },
+        {
+          "deliverable_id": "DELIV-V0_4_0-03",
+          "discipline": "UI_UX",
+          "title": "Diegetic turn-order age pips (`1`, `2`, `3`) subtly etched into the corner of each occupied sector so both contenders can read the decay queue at a glance.",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-2DA166.json"
+        }
+      ],
+      "completed_at": "2026-11-12T12:57:09.998130"
+    },
+    {
+      "version": "v0.5.0",
+      "codename": "Codename-v0.5.0",
+      "theme": "Grand Arbiter Coronation, Match Replay & Master Ledger",
+      "status": "SHIPPED",
+      "completion_percentage": 100.0,
+      "deliverables": [
+        {
+          "deliverable_id": "DELIV-V0_5_0-01",
+          "discipline": "UI_UX",
+          "title": "End-of-Series Grand Arbiter Verdict Modal displaying Series Outcome, Strategic Rating (`S-RANK: GRAND GEOMETER` to `C-RANK: INITIATE`), Win/Deadlock/Loss breakdown, Top-5 Observatory Ledger, and `[SPACE]` New Series / `[C]` Reconfigure Protocol.",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-844826.json"
+        },
+        {
+          "deliverable_id": "DELIV-V0_5_0-02",
+          "discipline": "Aesthetics",
+          "title": "Constellation background starfield that links won bouts into glowing zodiac geometries behind the lattice, plus a slow-motion harmonic shatter finale when a Championship Series is clinched.",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-B233B9.json"
+        },
+        {
+          "deliverable_id": "DELIV-V0_5_0-03",
+          "discipline": "Narrative",
+          "title": "Concise, atmospheric philosophical axioms from the Observatory Arbiter inscribed along the bottom border of the Verdict Modal reflecting the player's tactical style (Corner Dominance, Center Control, or Fork Mastery).",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-3F6F9F.json"
+        }
+      ],
+      "completed_at": "2026-11-12T12:57:48.277053"
+    },
+    {
+      "version": "v0.6.0",
+      "codename": "Operation Celestial Flux",
+      "theme": "Dynamic Astral Hazards & Kinetic Gravity Resonance",
+      "status": "VALIDATING",
+      "completion_percentage": 100.0,
+      "deliverables": [
+        {
+          "deliverable_id": "DELIV-V0_6_0-01",
+          "discipline": "Systems",
+          "title": "Astra-Singularity Dynamic Core: An interactive graviton node that manifests at sector intersections, physically pulsing gravitational wave rings outward to magnetically pull cursor reticles and bend inscribed particle beams toward its epicenter.",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-8F19AB.json"
+        },
+        {
+          "deliverable_id": "DELIV-V0_6_0-02",
+          "discipline": "Gameplay",
+          "title": "Kinetic Overcharge Sigil Strike: Active placement mechanic where timing an inscription input with the lattice's inward breathing pulse supercharges the sigil, emitting a directional shockwave that displaces adjacent ambient energy embers and fractures neighboring partition borders.",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-1E71B2.json"
+        },
+        {
+          "deliverable_id": "DELIV-V0_6_0-03",
+          "discipline": "Client",
+          "title": "Diegetic Lattice Stress Fractures & Radiant Crucible Bloom: Pure in-world visual feedback system replacing external state prompts with progressive glowing obsidian fractures, dynamic refractive ripples along partition lines, and prismatic heat distortion over contested triad corridors.",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-5152A0.json"
+        }
+      ],
+      "completed_at": null
+    }
+  ]
+}

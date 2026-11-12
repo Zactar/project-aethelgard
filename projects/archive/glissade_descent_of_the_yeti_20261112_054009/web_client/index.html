@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Glissade: Descent of the Yeti</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #060911;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: 'Inter', 'Segoe UI', 'Courier New', monospace;
+      user-select: none;
+    }
+    #viewport-container {
+      position: relative;
+      width: 800px;
+      height: 600px;
+      border: 2px solid #334155;
+      border-radius: 6px;
+      box-shadow: 0 0 50px rgba(0, 0, 0, 0.95), 0 0 15px rgba(56, 189, 248, 0.15);
+      background: #0f172a;
+      overflow: hidden;
+    }
+    canvas { display: block; width: 800px; height: 600px; }
+    #crt-overlay {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.08) 50%);
+      background-size: 100% 4px;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+  <div id="viewport-container">
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <div id="crt-overlay"></div>
+  </div>
+
+  <script>
+  // =========================================================================
+  // PROJECT AETHELGARD: UNIVERSAL MICROKERNEL & 2-CANVAS Z-LAYER COMPOSITOR
+  // =========================================================================
+  window.__STUDIO_ERRORS__ = [];
+  window.__COMPAT_REPORT__ = { warnings: [], activeOwnerModal: null, modulesLoaded: [] };
+
+  window.onerror = function(msg, url, line) {
+    window.__STUDIO_ERRORS__.push({ source: url || 'global', msg: String(msg), line: line });
+    return false;
+  };
+
+  // Offscreen Modal Layer Canvas (Guarantees Modals ALWAYS render on top of all world/gate layers)
+  const _baseCanvas = document.getElementById('gameCanvas');
+  const _baseCtx = _baseCanvas.getContext('2d');
+  const _modalCanvas = document.createElement('canvas');
+  _modalCanvas.width = 800;
+  _modalCanvas.height = 600;
+  const _modalCtx = _modalCanvas.getContext('2d');
+
+  let _currentModName = '';
+  let _inModalPass = false;
+  let _modalOwnerThisFrame = 'BOOT_HOLD';
+  let _v2HudShiftActive = false;
+
+  // Smart Context Proxy: Routes modal draw calls to topmost layer, blocks duplicate modals,
+  // forces opaque modal backdrops, and shifts v0.2.0 top-left HUD below v0.1.0 SPEED bar.
+  const _smartCtx = new Proxy(_baseCtx, {
+    get(target, prop) {
+      const activeTarget = _inModalPass ? _modalCtx : target;
+
+      if (prop === 'fillRect' || prop === 'strokeRect') {
+        return function(x, y, w, h) {
+          // Detect full-screen or centered modal overlay (width >= 350, height >= 170)
+          if (w >= 350 && h >= 170 && _currentModName !== 'Milestone_v0_1_0') {
+            if (_modalOwnerThisFrame && _modalOwnerThisFrame !== _currentModName) {
+              // Another module already owns the modal layer this frame; suppress competing modal!
+              _inModalPass = 'SUPPRESSED';
+              return;
+            }
+            if (!_modalOwnerThisFrame) {
+              _modalOwnerThisFrame = _currentModName;
+              _inModalPass = true;
+              // Sync font/alignment state to modalCtx and draw an opaque curtain over playfield
+              _modalCtx.font = target.font;
+              _modalCtx.textAlign = target.textAlign;
+              _modalCtx.textBaseline = target.textBaseline;
+              _modalCtx.fillStyle = 'rgba(7, 11, 20, 0.96)';
+              _modalCtx.fillRect(0, 42, 800, 558);
+            }
+            // Force solid opacity on modal containers so underlying text never bleeds through
+            if (prop === 'fillRect' && typeof _modalCtx.fillStyle === 'string' && _modalCtx.fillStyle.startsWith('rgba')) {
+              _modalCtx.fillStyle = '#0f172a';
+            }
+            return _modalCtx[prop](x, y, w, h);
+          }
+
+          if (_inModalPass === 'SUPPRESSED') return;
+
+          // Shift v0.2.0 Top-Left Level/XP HUD box down by +42px so it sits cleanly below SPEED
+          if (!_inModalPass && _currentModName === 'Milestone_v0_2_0' && x < 60 && y < 44 && w < 340 && h < 60) {
+            _v2HudShiftActive = true;
+            return target[prop](x, y + 42, w, h);
+          }
+
+          return activeTarget[prop](x, y, w, h);
+        };
+      }
+
+      if (prop === 'fillText' || prop === 'strokeText') {
+        return function(text, x, y, maxWidth) {
+          if (_inModalPass === 'SUPPRESSED') return;
+          const dest = _inModalPass ? _modalCtx : target;
+          // Shift v0.2.0 Top-Left Level/XP text down by +42px
+          if (!_inModalPass && _currentModName === 'Milestone_v0_2_0' && x < 320 && y < 48) {
+            return maxWidth !== undefined ? dest[prop](text, x, y + 42, maxWidth) : dest[prop](text, x, y + 42);
+          }
+          return maxWidth !== undefined ? dest[prop](text, x, y, maxWidth) : dest[prop](text, x, y);
+        };
+      }
+
+      const val = activeTarget[prop];
+      return typeof val === 'function' ? val.bind(activeTarget) : val;
+    },
+    set(target, prop, value) {
+      target[prop] = value;
+      _modalCtx[prop] = value;
+      return true;
+    }
+  });
+
+  window.StudioEngine = {
+    canvas: _baseCanvas,
+    ctx: _smartCtx,
+    modules: {},
+    hooks: { update: [], render: [] },
+    events: {},
+
+    state: {
+      running: true,
+      paused: true, // Start paused on Frame 0 so Class Select is peaceful!
+      tick: 0,
+      dt: 0.016,
+      score: 0,
+      player: {
+        x: 400, y: 220, vx: 0, vy: 0, width: 24, height: 32,
+        angle: 0, z: 0, vz: 0, isAirborne: false,
+        state: 'IDLE', health: 3, maxHealth: 3, wipeouts: 0, cooldown: 0
+      },
+      stats: {
+        level: 1, xp: 0, nextLevelXp: 100, unspentPoints: 0, combo: 1,
+        attributes: { VEL: 10, AGI: 10, BAL: 10, MOX: 10, LCK: 10 },
+        characterClass: null
+      },
+      inventory: {
+        items: [], relics: [], traits: [], currency: 0, pendingDraft: null
+      },
+      world: {
+        distance: 0, speed: 0, cameraX: 0, cameraY: 0, cameraShake: 0,
+        biome: 'Alpine Resort', entities: [], obstacles: [], gates: [], slalomGates: [],
+        particles: [], floatingTexts: [], skiTracks: [], speedLines: [], hazards: []
+      },
+      keys: {
+        up: false, down: false, left: false, right: false,
+        jump: false, action: false, map: false,
+        digit1: false, digit2: false, digit3: false, digit4: false
+      },
+      pointer: { x: 0, y: 0, clicked: false }
+    },
+
+    on: function(eventName, callback) {
+      if (!this.events[eventName]) this.events[eventName] = [];
+      this.events[eventName].push(callback);
+    },
+    emit: function(eventName, payload) {
+      const listeners = this.events[eventName] || [];
+      for (let i = 0; i < listeners.length; i++) {
+        try {
+          // If a modal is suppressed, do not let background modals steal key events
+          listeners[i](payload, this.state);
+        } catch (e) {
+          window.__STUDIO_ERRORS__.push({ source: 'event:' + eventName, msg: e.message });
+        }
+      }
+    },
+
+    registerModule: function(name, moduleDef) {
+      if (this.modules[name]) return;
+      this.modules[name] = moduleDef;
+      window.__COMPAT_REPORT__.modulesLoaded.push(name);
+      if (typeof moduleDef.update === 'function') {
+        this.hooks.update.push({ name: name, ref: moduleDef, fn: moduleDef.update.bind(moduleDef) });
+      }
+      if (typeof moduleDef.render === 'function') {
+        this.hooks.render.push({ name: name, ref: moduleDef, fn: moduleDef.render.bind(moduleDef) });
+      }
+      if (typeof moduleDef.init === 'function') {
+        try { moduleDef.init(this.state, this); }
+        catch (e) { window.__STUDIO_ERRORS__.push({ source: name + '.init', msg: e.message }); }
+      }
+    }
+  };
+
+  window.StudioEngine.state.level = window.StudioEngine.state.world;
+  window.StudioEngine.state.obstacles = window.StudioEngine.state.world.obstacles;
+  window.StudioEngine.state.gates = window.StudioEngine.state.world.gates;
+  window.StudioEngine.state.slalomGates = window.StudioEngine.state.world.slalomGates;
+  window.StudioEngine.state.particles = window.StudioEngine.state.world.particles;
+  window.StudioEngine.state.floatingTexts = window.StudioEngine.state.world.floatingTexts;
+  window.__GAME_STATE__ = window.StudioEngine.state;
+
+  const KEY_MAP = {
+    ArrowUp: 'up', KeyW: 'up',
+    ArrowDown: 'down', KeyS: 'down',
+    ArrowLeft: 'left', KeyA: 'left',
+    ArrowRight: 'right', KeyD: 'right',
+    Space: 'jump', ShiftLeft: 'action', ShiftRight: 'action', KeyE: 'action',
+    KeyM: 'map', Digit1: 'digit1', Digit2: 'digit2', Digit3: 'digit3', Digit4: 'digit4'
+  };
+  window.addEventListener('keydown', e => {
+    const k = KEY_MAP[e.code];
+    if (k) window.StudioEngine.state.keys[k] = true;
+    window.StudioEngine.emit('KEYDOWN', { code: e.code, key: e.key });
+  });
+  window.addEventListener('keyup', e => {
+    const k = KEY_MAP[e.code];
+    if (k) window.StudioEngine.state.keys[k] = false;
+    window.StudioEngine.emit('KEYUP', { code: e.code, key: e.key });
+  });
+  _baseCanvas.addEventListener('mousemove', e => {
+    const rect = _baseCanvas.getBoundingClientRect();
+    window.StudioEngine.state.pointer.x = e.clientX - rect.left;
+    window.StudioEngine.state.pointer.y = e.clientY - rect.top;
+  });
+  _baseCanvas.addEventListener('mousedown', e => {
+    window.StudioEngine.state.pointer.clicked = true;
+    window.StudioEngine.emit('POINTER_DOWN', {
+      x: window.StudioEngine.state.pointer.x,
+      y: window.StudioEngine.state.pointer.y
+    });
+  });
+  window.addEventListener('mouseup', () => {
+    window.StudioEngine.state.pointer.clicked = false;
+  });
+
+  // Main Microkernel Loop with Modal-First Update Lock & 2-Canvas Z-Compositing
+  (function runMicrokernel() {
+    let lastTime = performance.now();
+    function tick(now) {
+      const dt = Math.min((now - lastTime) / 1000, 0.05);
+      lastTime = now;
+      const engine = window.StudioEngine;
+      const state = engine.state;
+      state.dt = dt;
+      state.tick++;
+      // Synchronize v0.1.0 wipeouts, live distanceMeters, and auto-emit PLAYER_WIPEOUT
+      if (state.world) {
+        const rawDist = state.world.distance || 0;
+        state.world.distanceMeters = rawDist > 2500 ? Math.floor(rawDist / 10) : Math.floor(rawDist);
+      }
+      if (state.player) {
+        const maxH = state.player.maxHealth || 3;
+        const curW = state.player.wipeouts || 0;
+        state.player.health = Math.max(0, maxH - curW);
+        if (typeof engine._lastWipeouts !== 'number') engine._lastWipeouts = 0;
+        if (curW > engine._lastWipeouts) {
+          engine._lastWipeouts = curW;
+          engine.emit('PLAYER_WIPEOUT', { wipeouts: curW, health: state.player.health });
+        } else if (curW < engine._lastWipeouts) {
+          engine._lastWipeouts = curW;
+        }
+      }
+
+      // Automatically sync state.paused with whether a modal is currently active on screen
+      state.paused = Boolean(_modalOwnerThisFrame);
+
+      // 1. Update Phase: Run v0.2.0+ feature/modal controllers FIRST so pause locks apply before v0.1.0 physics
+      for (let i = engine.hooks.update.length - 1; i >= 0; i--) {
+        const h = engine.hooks.update[i];
+        // Never advance v0.1.0 downhill skiing while paused or while a modal is on screen!
+        if (h.name === 'Milestone_v0_1_0' && (state.paused || _modalOwnerThisFrame)) {
+          continue;
+        }
+        // If another module owns an active modal, pause competing feature updates
+        if (_modalOwnerThisFrame && h.name !== _modalOwnerThisFrame && h.name !== 'Milestone_v0_1_0') {
+          continue;
+        }
+        try { h.fn(dt, state, engine); }
+        catch (e) {
+          if (window.__STUDIO_ERRORS__.length < 10) {
+            window.__STUDIO_ERRORS__.push({ source: h.name + '.update', msg: e.message });
+          }
+        }
+      }
+
+      // 2. Render Phase: World & HUDs draw to _baseCtx; any active Modal is captured onto _modalCtx
+      _modalCtx.clearRect(0, 0, 800, 600);
+      _modalOwnerThisFrame = null;
+
+      if (engine.hooks.render.length === 0) {
+        _baseCtx.fillStyle = '#0f172a';
+        _baseCtx.fillRect(0, 0, 800, 600);
+        _baseCtx.fillStyle = '#38bdf8';
+        _baseCtx.font = 'bold 20px monospace';
+        _baseCtx.textAlign = 'center';
+        _baseCtx.fillText('AETHELGARD UNIVERSAL MICROKERNEL ONLINE', 400, 280);
+      } else {
+        for (let i = 0; i < engine.hooks.render.length; i++) {
+          const h = engine.hooks.render[i];
+          _currentModName = h.name;
+          _inModalPass = false;
+          _v2HudShiftActive = false;
+
+          _baseCtx.save();
+          _modalCtx.save();
+          _baseCtx.textAlign = 'left';
+          _baseCtx.textBaseline = 'alphabetic';
+          _baseCtx.globalAlpha = 1.0;
+          _baseCtx.shadowBlur = 0;
+
+          try { h.fn(_smartCtx, state, engine); }
+          catch (e) {
+            if (window.__STUDIO_ERRORS__.length < 10) {
+              window.__STUDIO_ERRORS__.push({ source: h.name + '.render', msg: e.message });
+            }
+          }
+
+          _modalCtx.restore();
+          _baseCtx.restore();
+        }
+
+        // Composite the topmost Modal Canvas over the base canvas LAST & update pause state
+        if (_modalOwnerThisFrame) {
+          _baseCtx.drawImage(_modalCanvas, 0, 0);
+          window.__COMPAT_REPORT__.activeOwnerModal = _modalOwnerThisFrame;
+          state.paused = true;
+        } else {
+          window.__COMPAT_REPORT__.activeOwnerModal = null;
+          state.paused = false;
+        }
+      }
+
+      if (window.__STUDIO_ERRORS__.length > 0) {
+        const err = window.__STUDIO_ERRORS__[0];
+        _baseCtx.save();
+        _baseCtx.fillStyle = 'rgba(127, 29, 29, 0.95)';
+        _baseCtx.fillRect(20, 535, 760, 50);
+        _baseCtx.fillStyle = '#fecaca';
+        _baseCtx.font = 'bold 12px monospace';
+        _baseCtx.textAlign = 'left';
+        _baseCtx.fillText(`[PLUGIN FAULT ISOLATED] ${err.source}: ${err.msg}`, 32, 558);
+        _baseCtx.fillText(`Active Modules: ${Object.keys(engine.modules).length} | Faults Caught: ${window.__STUDIO_ERRORS__.length}`, 32, 575);
+        _baseCtx.restore();
+      }
+
+      state.pointer.clicked = false;
+      requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  })();
+  </script>
+  <!-- AUTONOMOUS AGENT MODULE PLUGINS -->
+  <script src="js/milestone_v0_1_0.js"></script>
+  <script src="js/milestone_v0_2_0.js"></script>
+  <script src="js/milestone_v0_3_0.js"></script>
+  <script src="js/milestone_v0_4_0.js"></script>
+  <script src="js/milestone_v0_5_0.js"></script>
+  <script src="js/milestone_v0_6_0.js"></script>
+  <script src="js/milestone_v0_7_0.js"></script>
+</body>
+</html>

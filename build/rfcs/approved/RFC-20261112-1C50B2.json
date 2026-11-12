@@ -1,0 +1,69 @@
+{
+  "rfc_id": "RFC-20261112-1C50B2",
+  "title": "Pre-series Contender Configuration Modal allowing the player to choose their Geometric Crest palette, select who claims the opening turn (`Initiator First` vs `Arbiter First` vs `Alternating`), and select the Arbiter's cognitive tier (*Tier I: Opportunist*, *Tier II: Tactical Blocker*, *Tier III: Perfect Minimax Oracle*).",
+  "target_subsystem": "web_client/index.html",
+  "discipline": "UI_UX",
+  "target_milestone": "v0.2.0",
+  "milestone_target": "v0.2.0",
+  "milestone_tag": "v0.2.0",
+  "author_role": "UI_UX Specialist",
+  "summary": "Implement an interactive pre-series tactical modal initializing Arbiter cognitive tier, player sigil palette, and opening turn precedence.",
+  "technical_specification": "Maintain `state.config = { open: boolean, palette: 0|1, firstTurn: 'PLAYER'|'ARBITER'|'ALTERNATING', tier: 1|2|3, roundCount: number }`. When `state.config.open` is true, render diegetic obsidian modal over center lattice (`x: 220, y: 130, w: 360, h: 360`). Map pointer clicks and key inputs (`1-3` for tier, `P` for palette toggle, `T` for turn mode, `SPACE`/`ENTER` to lock). Upon confirmation, set `state.config.open = false`, set `state.arbiterTier = config.tier`, set active contender `state.activeContender = (config.firstTurn === 'ALTERNATING' ? (config.roundCount % 2 === 0 ? 1 : 2) : (config.firstTurn === 'PLAYER' ? 1 : 2))`, and dispatch `CONFIG_COMMITTED`.",
+  "acceptance_criteria": [
+    "Modal renders without DOM overlays using native canvas drawing in obsidian/gold styling.",
+    "Selecting Tier I, II, or III cleanly updates `state.arbiterTier` before turn 1 starts.",
+    "Palette toggles between Crimson/Gold and Cyan/Violet, stored in `state.activePalette`."
+  ],
+  "interface_contracts": {
+    "inputs": [
+      "state.pointer",
+      "state.keys"
+    ],
+    "outputs": [
+      "state.config",
+      "state.arbiterTier",
+      "state.activePalette",
+      "state.activeContender"
+    ],
+    "events": [
+      "CONFIG_COMMITTED"
+    ]
+  },
+  "pre_flight_passed": true,
+  "description": "[UI_UX] Pre-series Contender Configuration Modal allowing the player to choose their Geometric Crest palette, select who claims the opening turn (`Initiator First` vs `Arbiter First` vs `Alternating`), and select the Arbiter's cognitive tier (*Tier I: Opportunist*, *Tier II: Tactical Blocker*, *Tier III: Perfect Minimax Oracle*).\n\nSummary:\nImplement an interactive pre-series tactical modal initializing Arbiter cognitive tier, player sigil palette, and opening turn precedence.\n\nSpecification:\nMaintain `state.config = { open: boolean, palette: 0|1, firstTurn: 'PLAYER'|'ARBITER'|'ALTERNATING', tier: 1|2|3, roundCount: number }`. When `state.config.open` is true, render diegetic obsidian modal over center lattice (`x: 220, y: 130, w: 360, h: 360`). Map pointer clicks and key inputs (`1-3` for tier, `P` for palette toggle, `T` for turn mode, `SPACE`/`ENTER` to lock). Upon confirmation, set `state.config.open = false`, set `state.arbiterTier = config.tier`, set active contender `state.activeContender = (config.firstTurn === 'ALTERNATING' ? (config.roundCount % 2 === 0 ? 1 : 2) : (config.firstTurn === 'PLAYER' ? 1 : 2))`, and dispatch `CONFIG_COMMITTED`.",
+  "submitted_by": "UI_UX Specialist",
+  "change_type": "ADJUST_MECHANICS",
+  "status": "PENDING_REVIEW",
+  "created_at": 1794485888.2572565,
+  "payload_diff": {
+    "title": "Pre-series Contender Configuration Modal allowing the player to choose their Geometric Crest palette, select who claims the opening turn (`Initiator First` vs `Arbiter First` vs `Alternating`), and select the Arbiter's cognitive tier (*Tier I: Opportunist*, *Tier II: Tactical Blocker*, *Tier III: Perfect Minimax Oracle*).",
+    "discipline": "UI_UX",
+    "target_subsystem": "web_client/index.html",
+    "target_milestone": "v0.2.0",
+    "milestone_tag": "v0.2.0",
+    "author_role": "UI_UX Specialist",
+    "summary": "Implement an interactive pre-series tactical modal initializing Arbiter cognitive tier, player sigil palette, and opening turn precedence.",
+    "technical_specification": "Maintain `state.config = { open: boolean, palette: 0|1, firstTurn: 'PLAYER'|'ARBITER'|'ALTERNATING', tier: 1|2|3, roundCount: number }`. When `state.config.open` is true, render diegetic obsidian modal over center lattice (`x: 220, y: 130, w: 360, h: 360`). Map pointer clicks and key inputs (`1-3` for tier, `P` for palette toggle, `T` for turn mode, `SPACE`/`ENTER` to lock). Upon confirmation, set `state.config.open = false`, set `state.arbiterTier = config.tier`, set active contender `state.activeContender = (config.firstTurn === 'ALTERNATING' ? (config.roundCount % 2 === 0 ? 1 : 2) : (config.firstTurn === 'PLAYER' ? 1 : 2))`, and dispatch `CONFIG_COMMITTED`.",
+    "acceptance_criteria": [
+      "Modal renders without DOM overlays using native canvas drawing in obsidian/gold styling.",
+      "Selecting Tier I, II, or III cleanly updates `state.arbiterTier` before turn 1 starts.",
+      "Palette toggles between Crimson/Gold and Cyan/Violet, stored in `state.activePalette`."
+    ],
+    "interface_contracts": {
+      "inputs": [
+        "state.pointer",
+        "state.keys"
+      ],
+      "outputs": [
+        "state.config",
+        "state.arbiterTier",
+        "state.activePalette",
+        "state.activeContender"
+      ],
+      "events": [
+        "CONFIG_COMMITTED"
+      ]
+    },
+    "pre_flight_passed": true
+  }
+}

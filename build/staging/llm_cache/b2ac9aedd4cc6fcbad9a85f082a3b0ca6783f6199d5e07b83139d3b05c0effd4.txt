@@ -1,0 +1,50 @@
+{
+  "rfcs": [
+    {
+      "index": 0,
+      "summary": "Constructs the 360x360px centered 9-sector orthogonal lattice at (400, 310) with glowing dividers, sector collision bounds, and dual mouse/keyboard cursor navigation.",
+      "technical_specification": "Initialize `state.world.matrix = { x: 220, y: 130, size: 360, cellSize: 120, selectedIndex: 4 }`. Each cell index `i` maps to `row = Math.floor(i / 3)`, `col = i % 3`, center `cx = 220 + col * 120 + 60`, `cy = 130 + row * 120 + 60`. On keydown (WASD/Arrows), clamp `selectedIndex` across ranks/files with wrapping/clamping logic. On mousemove, if `pointer.x/y` is inside lattice bounds, update `selectedIndex = Math.floor((pointer.y - 130) / 120) * 3 + Math.floor((pointer.x - 220) / 120)`. Render lattice dividers as dual-stroke neon lines with bloom at `x = 340, 460` and `y = 250, 370`.",
+      "acceptance_criteria": [
+        "Lattice renders exactly centered at x:400, y:310 with 9 distinct 120x120px interactive sectors.",
+        "Navigating with WASD or Arrow keys immediately moves the sector selection reticle to adjacent cells.",
+        "Hovering the mouse inside any sector updates the selection reticle to that sector's coordinate."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.keys", "state.pointer"],
+        "outputs": ["state.world.matrix.selectedIndex", "state.world.matrix.cellSize"],
+        "events": ["LATTICE_CELL_HOVERED"]
+      }
+    },
+    {
+      "index": 1,
+      "summary": "Implements the alternating turn state machine, immutable sector inscription, win-line/draw resolution over 8 collinear vectors, and instant bout resets.",
+      "technical_specification": "Initialize `state.stats.grid = Array(9).fill(null)`, `state.stats.phase = 'PLAYER_TURN'`, `state.stats.winner = null`, `state.stats.winVector = null`, `state.stats.aiTimer = 0`. On `SPACE` or `pointer.down` while in `PLAYER_TURN`, if `grid[selectedIndex] === null`, assign `'BLADES'`, emit `CELL_INSCRIBED`, and switch to `AI_THINKING` (with `aiTimer = 0.35`). Evaluate win against 8 collinear indices: `[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]]`. If matched, set `winner` and `phase = 'ROUND_OVER'`. If no win and all filled, set `phase = 'ROUND_OVER'`, `winner = 'DEADLOCK'`. When `ROUND_OVER`, pressing `SPACE` or clicking resets `grid`, `winner`, `winVector`, and returns to `PLAYER_TURN`.",
+      "acceptance_criteria": [
+        "Claiming a sector permanently locks its value against overwriting for the remainder of the round.",
+        "Collinear completion immediately freezes turn input, records the 3-index vector, and marks victor.",
+        "9 filled cells without a 3-in-a-row triggers Equilibrium Deadlock status.",
+        "Space or click during ROUND_OVER fully resets the board and starts a new duel."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.world.matrix.selectedIndex", "state.keys", "state.pointer.down"],
+        "outputs": ["state.stats.grid", "state.stats.phase", "state.stats.winner", "state.stats.winVector"],
+        "events": ["CELL_INSCRIBED", "BOUT_RESOLVED", "BOUT_RESET"]
+      }
+    },
+    {
+      "index": 2,
+      "summary": "Drives stroke-drawn vector sigil animations, burst particles on inscription, and a pulsing harmonic laser across the victorious triad.",
+      "technical_specification": "Store active animations in `state.world.inscriptions = []` (containing `cellIndex`, `type`, `progress: 0..1`) and `state.world.particles = []`. On `CELL_INSCRIBED`, spawn 24 radial velocity particles (`speed * cos(theta)`, damping 0.92) matching contender tint (Cyan `#00f0ff` for Blades, Gold `#ffd700` for Rings). In render loop, interpolate `progress += dt * 4`; draw Blades via `ctx.lineTo` crossed strokes and Ring via `ctx.arc(..., 0, progress * Math.PI * 2)`. If `state.stats.winVector` exists, trace a glowing laser beam through the three cell centers with outer additive glow (`ctx.shadowBlur = 18`, width 6px) and oscillating sinusoidal intensity `0.8 + 0.2 * Math.sin(time * 12)`.",
+      "acceptance_criteria": [
+        "Sigils animate with continuous stroke expansion upon placement rather than appearing instantaneously.",
+        "Claiming a sector produces an immediate radial burst of 20+ particle sparks colored by faction.",
+        "Winning round draws an uninterrupted high-luminosity laser beam through the centers of all 3 winning sectors."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.stats.winVector", "state.stats.grid", "state.stats.phase"],
+        "outputs": ["state.world.inscriptions", "state.world.particles"],
+        "events": ["CELL_INSCRIBED"]
+      }
+    }
+  ]
+}

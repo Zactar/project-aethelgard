@@ -1,0 +1,40 @@
+{
+    "curriculum_id": "CURR-SIM-SOCIOLOGY",
+    "discipline": "Systems",
+    "title": "Sociological, Political & Theological Emergence in Colony Simulations",
+    "references": [
+        "Dwarf Fortress",
+        "Songs of Syx",
+        "Rimworld",
+        "Victoria 3"
+    ],
+    "modules": [
+        {
+            "topic": "Micro-Needs to Macro-Politics",
+            "core_principles": [
+                "Citizens have distinct physiological, psychological, and social needs (Hunger, Exhaustion, Spiritual Devotion, Safety, Kinship).",
+                "Unmet needs generate individual stress and grievances; aggregated grievances across demographics produce collective unrest and political pressure.",
+                "Authority figures (guards, magistrates, inquisitors) are subjected to the same need and loyalty equations as common citizens."
+            ],
+            "operational_rule": "Never spawn artificial guard enforcement when civic authority is bankrupt; guards must draw wages, consume food, and evaluate personal loyalty."
+        },
+        {
+            "topic": "Faction Power Balances & Mutable Regimes",
+            "core_principles": [
+                "Power resides in competing interest groups: The Clerisy (Theology), The Guilds (Capital), The Laborers (Production), and The Guard (Coercion).",
+                "Regime legitimacy is mathematically computed from faction appeasement, treasury reserves, and food security.",
+                "Edicts (such as Curfew, Grain Requisitions, or Tithe Exemptions) shift faction loyalty vectors and can provoke strikes or rebellions."
+            ],
+            "operational_rule": "Civic edicts like curfew must be toggleable political states governed by regime legitimacy and civil unrest."
+        },
+        {
+            "topic": "Theology, Heresy & Social Cohesion",
+            "core_principles": [
+                "Religion is a social technology that modulates citizen morale, obedience, and tolerance for hardship.",
+                "Prolonged economic strain causes theological schisms: citizens abandon orthodox cathedral rites in favor of underground heretical cults.",
+                "Heretical movements can form clandestine mutual-aid networks that organize strikes or smuggle supplies past authorities."
+            ],
+            "operational_rule": "Model religious fervor as a dynamic variable that can either stabilize civic authority or spark ideological revolutions."
+        }
+    ]
+}

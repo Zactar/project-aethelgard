@@ -1,0 +1,30 @@
+{
+  "meeting_id": "SYNC-AUTO-C01",
+  "timestamp": "2026-11-12T12:56:41.037710",
+  "active_milestone": "v0.4.0",
+  "theme": "Ephemeral Decay Mutator & Quantum Swap Protocol",
+  "deliverables_in_scope": [
+    {
+      "deliverable_id": "DELIV-V0_4_0-01",
+      "discipline": "Gameplay",
+      "title": "Optional \"Ephemeral Protocol\" mutator toggle (`[KeyM]` or pre-match toggle): each contender may only maintain at most 3 active sigils on the lattice at once\u2014when a contender inscribes their 4th sigil, their oldest sigil on the lattice dissolves back into a vacant sector, making Equilibrium Deadlocks impossible!",
+      "target_subsystem": "web_client/index.html",
+      "status": "PENDING"
+    },
+    {
+      "deliverable_id": "DELIV-V0_4_0-02",
+      "discipline": "Aesthetics",
+      "title": "Shimmering half-life decay indicators and disintegration particle motes on whichever sigil is queued to vanish next under Ephemeral Protocol.",
+      "target_subsystem": "web_client/index.html",
+      "status": "PENDING"
+    },
+    {
+      "deliverable_id": "DELIV-V0_4_0-03",
+      "discipline": "UI_UX",
+      "title": "Diegetic turn-order age pips (`1`, `2`, `3`) subtly etched into the corner of each occupied sector so both contenders can read the decay queue at a glance.",
+      "target_subsystem": "web_client/index.html",
+      "status": "PENDING"
+    }
+  ],
+  "blackboard_contract": "window.StudioEngine.state (player, stats, inventory, world, keys, pointer)"
+}

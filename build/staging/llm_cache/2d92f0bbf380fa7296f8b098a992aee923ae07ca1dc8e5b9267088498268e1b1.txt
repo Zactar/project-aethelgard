@@ -1,0 +1,46 @@
+{
+  "rfcs": [
+    {
+      "index": 0,
+      "summary": "Implement dynamic ceiling-suspended Bronze Cathedral Censers that oscillate on hit, emit blinding ash clouds, and detonate floor oil slicks.",
+      "technical_specification": "Store in `state.world.censers[]` with properties `{id, anchorX, anchorY, length, angle, angularVel, angularAcc, ashTimer}`. Player melee hitbox collision triggers impulse: `censer.angularVel += (player.vx * 0.05) + (player.facingDirX * 0.12)`. Integrate pendulum physics via `angularAcc = (-0.004 * Math.sin(angle)) - (0.015 * angularVel)`. When `|angularVel| > 0.01`, spawn ash particles in `state.world.particles[]` with radius `32`. Enemies touching ash receive `fiend.blindTimer = 180` (reducing detection range by 70%). If ash position overlaps any `state.world.hazards[]` where `type === 'oil_slick'`, mutate hazard to `'burning_slick'` with active DPS `14`.",
+      "acceptance_criteria": [
+        "Striking a censer with Space melee initiates physically damped harmonic oscillation matching player swing vector.",
+        "Emitted sacred ash particles inflict blind status on fiends and convert oil slicks into burning hazards within 32px."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.player.attackHitbox", "state.player.facingDirX", "state.world.hazards"],
+        "outputs": ["state.world.censers", "state.world.particles", "state.world.hazards"],
+        "events": ["CENSER_STRUCK", "ASH_IGNITE_OIL"]
+      }
+    },
+    {
+      "index": 1,
+      "summary": "Introduce the Bell-Warden Automaton entity featuring funeral bell sonic shockwaves requiring i-frame rolls and a projectile-deflecting shield.",
+      "technical_specification": "Instantiate within `state.world.entities[]` as `{type: 'bell_warden', state: 'patrol'|'windup'|'chime'|'cooldown', timer: 0, poise: 120, x, y, vx, vy}`. Every 360 ticks, Warden winds up for 45 ticks, then emits expanding circular shockwave in `state.world.hazards[]`: radius grows by `4.5px/frame` up to `140px`. Player must roll (`state.keys.action` with `player.isRolling === true`) to negate `45` kinetic damage and poise stagger. Warden front-arc (`cos(theta) > 0.5`) reflects incoming player projectiles: projectile velocity reverses `vx = -vx * 1.3`, `vy = -vy * 1.3`, damaging crypt pillars and masonry on impact.",
+      "acceptance_criteria": [
+        "Bell-Warden sonic ring damages and staggers player unless player is currently in active dodge-roll i-frames.",
+        "Frontal projectiles ricochet off the automaton's bell/shield with inverted velocity and damage environment tiles."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.keys.action", "state.player.isRolling", "state.world.projectiles"],
+        "outputs": ["state.world.entities", "state.world.hazards", "state.player.health", "state.player.poise"],
+        "events": ["BELL_WARDEN_CHIME", "PROJECTILE_RICOCHET"]
+      }
+    },
+    {
+      "index": 2,
+      "summary": "Render canvas-native diegetic runic glyphs on fractured flagstones that trigger an eldritch fracture telegraph and erupt necrotic floor spikes.",
+      "technical_specification": "Track in `state.world.glyphs[]` with `{x, y, radius: 28, state: 'dormant'|'primed'|'erupted', timer: 0}`. When `hypot(player.x - glyph.x, player.y - glyph.y) < glyph.radius` and dormant, transition to `'primed'` with `timer = 72` (1.2s at 60fps). Render primed state on floor canvas pass: draw branching violet fracture paths (`#a855f7`) with jittering line widths `Math.sin(timer * 0.4) * 2 + 1.5` and expanding alpha glow. At `timer === 0`, trigger eruption: spawn radial spikes dealing `38` necrotic damage to unrolled entities in radius `36`, add screen shake `intensity = 7`, and leave scorched flagstone decal.",
+      "acceptance_criteria": [
+        "Stepping on glyph initiates a 1.2-second procedural violet fracture line animation without opening HUD modals.",
+        "Detonation inflicts 38 damage to non-dodging entities within radius and applies camera shake directly on Canvas 2D."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.player.x", "state.player.y", "state.player.isRolling"],
+        "outputs": ["state.world.glyphs", "state.camera.shakeIntensity", "state.player.health"],
+        "events": ["GLYPH_TRIGGERED", "GLYPH_DETONATED"]
+      }
+    }
+  ]
+}

@@ -1,0 +1,176 @@
+{
+  "active_version": "v0.1.0",
+  "last_updated": "2026-11-12T05:34:47.138518",
+  "milestones": [
+    {
+      "version": "v0.1.0",
+      "codename": "Codename-v0.1.0",
+      "theme": "Alpine Baseline & Downhill Physics",
+      "status": "IN_PROGRESS",
+      "completion_percentage": 0.0,
+      "deliverables": [
+        {
+          "deliverable_id": "DELIV-v0.1.0-01",
+          "discipline": "Gameplay",
+          "title": "Downhill Kinematics & Carving State Machine",
+          "target_subsystem": "web_client/index.html",
+          "status": "PENDING",
+          "verified_artifact": null
+        },
+        {
+          "deliverable_id": "DELIV-v0.1.0-02",
+          "discipline": "Level",
+          "title": "Procedural Obstacle & Slalom Gate Scatter",
+          "target_subsystem": "web_client/index.html",
+          "status": "PENDING",
+          "verified_artifact": null
+        },
+        {
+          "deliverable_id": "DELIV-v0.1.0-03",
+          "discipline": "Client",
+          "title": "Downhill Viewport Loop & Performance HUD",
+          "target_subsystem": "web_client/index.html",
+          "status": "PENDING",
+          "verified_artifact": null
+        }
+      ],
+      "completed_at": null
+    },
+    {
+      "version": "v0.2.0",
+      "codename": "Codename-v0.2.0",
+      "theme": "Character Creation, Core Stats & Slalom XP Loop",
+      "status": "PLANNED",
+      "completion_percentage": 0.0,
+      "deliverables": [
+        {
+          "deliverable_id": "DELIV-v0.2.0-01",
+          "discipline": "Systems",
+          "title": "Alpinist Character Creation & Core Attribute Formulas",
+          "target_subsystem": "web_client/index.html",
+          "status": "PENDING",
+          "verified_artifact": null
+        },
+        {
+          "deliverable_id": "DELIV-v0.2.0-02",
+          "discipline": "Gameplay",
+          "title": "Slalom Gate Near-Miss & Trick XP Scoring",
+          "target_subsystem": "web_client/index.html",
+          "status": "PENDING",
+          "verified_artifact": null
+        },
+        {
+          "deliverable_id": "DELIV-v0.2.0-03",
+          "discipline": "Client",
+          "title": "Attribute Allocation HUD & Slalom Combos",
+          "target_subsystem": "web_client/index.html",
+          "status": "PENDING",
+          "verified_artifact": null
+        }
+      ],
+      "completed_at": null
+    },
+    {
+      "version": "v0.3.0",
+      "codename": "Codename-v0.3.0",
+      "theme": "500m Mountain Shelter & 3-Card Item Drafting",
+      "status": "PLANNED",
+      "completion_percentage": 0.0,
+      "deliverables": [
+        {
+          "deliverable_id": "DELIV-v0.3.0-01",
+          "discipline": "Systems",
+          "title": "500m Checkpoint Shelter & 3-Card Draft Generator",
+          "target_subsystem": "web_client/index.html",
+          "status": "PENDING",
+          "verified_artifact": null
+        },
+        {
+          "deliverable_id": "DELIV-v0.3.0-02",
+          "discipline": "Client",
+          "title": "Modal Card Selection UI & Relic Ledger HUD",
+          "target_subsystem": "web_client/index.html",
+          "status": "PENDING",
+          "verified_artifact": null
+        },
+        {
+          "deliverable_id": "DELIV-v0.3.0-03",
+          "discipline": "Chaos QA",
+          "title": "Draft RNG Integrity & Stat Stacking Audit",
+          "target_subsystem": "tools/validate_webapp.py",
+          "status": "PENDING",
+          "verified_artifact": null
+        }
+      ],
+      "completed_at": null
+    },
+    {
+      "version": "v0.4.0",
+      "codename": "Codename-v0.4.0",
+      "theme": "100+ Relic System, Biomes & Environmental Hazards",
+      "status": "PLANNED",
+      "completion_percentage": 0.0,
+      "deliverables": [
+        {
+          "deliverable_id": "DELIV-v0.4.0-01",
+          "discipline": "Systems",
+          "title": "Comprehensive 100+ Relic Catalog & Stacking Engine",
+          "target_subsystem": "web_client/index.html",
+          "status": "PENDING",
+          "verified_artifact": null
+        },
+        {
+          "deliverable_id": "DELIV-v0.4.0-02",
+          "discipline": "Level",
+          "title": "Dynamic Biome Transition & Hazard Escalation Matrix",
+          "target_subsystem": "web_client/index.html",
+          "status": "PENDING",
+          "verified_artifact": null
+        },
+        {
+          "deliverable_id": "DELIV-v0.4.0-03",
+          "discipline": "Narrative",
+          "title": "Relic Vignettes & Shareware Alpine Folklore",
+          "target_subsystem": "web_client/index.html",
+          "status": "PENDING",
+          "verified_artifact": null
+        }
+      ],
+      "completed_at": null
+    },
+    {
+      "version": "v0.5.0",
+      "codename": "Codename-v0.5.0",
+      "theme": "The Abominable Yeti, Audio Synthesis & Endgame Extraction",
+      "status": "PLANNED",
+      "completion_percentage": 0.0,
+      "deliverables": [
+        {
+          "deliverable_id": "DELIV-v0.5.0-01",
+          "discipline": "Gameplay",
+          "title": "Abominable Yeti Pursuit AI & Sprint Ambush Mechanics",
+          "target_subsystem": "web_client/index.html",
+          "status": "PENDING",
+          "verified_artifact": null
+        },
+        {
+          "deliverable_id": "DELIV-v0.5.0-02",
+          "discipline": "Client",
+          "title": "Web Audio API Procedural Soundscape & Slalom Chimes",
+          "target_subsystem": "web_client/index.html",
+          "status": "PENDING",
+          "verified_artifact": null
+        },
+        {
+          "deliverable_id": "DELIV-v0.5.0-03",
+          "discipline": "Chaos QA",
+          "title": "Endless Descent Solvability & Obituary Verification",
+          "target_subsystem": "tools/validate_webapp.py",
+          "status": "PENDING",
+          "verified_artifact": null
+        }
+      ],
+      "completed_at": null
+    }
+  ]
+}

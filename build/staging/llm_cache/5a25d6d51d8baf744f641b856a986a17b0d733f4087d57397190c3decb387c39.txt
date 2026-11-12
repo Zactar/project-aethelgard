@@ -1,0 +1,95 @@
+{
+  "rfcs": [
+    {
+      "index": 0,
+      "summary": "Procedural predator AI implementing relentless downhill pursuit, leap telegraphs, and obstacle collision penalties.",
+      "technical_specification": "Spawns when state.world.distanceMeters >= state.world.yetiSpawnThreshold. AI state machine: CHASE, LEAP, STUMBLE. In CHASE, updates state.world.yeti.x towards state.player.x via lerp at speed Vy = state.player.vy * 1.35. When distance <= 180px and leapCooldown <= 0, enters LEAP: shadow locks to player, triggers telegraph, leaps with quadratic altitude h(t) = 4 * H_max * (t/T) * (1 - t/T) over T=0.8s. If landing intersects state.player without invincible flag, triggers YETI_MAUL. If Yeti's bounding box hits state.world.obstacles (PINE_TREE, ROCK), enters STUMBLE for 1.4s, setting speed to 0 and emitting YETI_STUMBLED.",
+      "acceptance_criteria": [
+        "Yeti spawns behind or beside player once distance threshold is reached and pursues faster than base player velocity.",
+        "Yeti telegraphs and executes aerial leap attack toward projected player coordinates.",
+        "Colliding with trees forces Yeti into a 1.4s stumble state, allowing player recovery distance."
+      ],
+      "interface_contracts": {
+        "inputs": [
+          "state.player.x",
+          "state.player.y",
+          "state.player.vy",
+          "state.player.invincible",
+          "state.world.distanceMeters",
+          "state.world.obstacles"
+        ],
+        "outputs": [
+          "state.world.yeti.x",
+          "state.world.yeti.y",
+          "state.world.yeti.state",
+          "state.world.yeti.leapProgress",
+          "state.world.yetiSpawnThreshold"
+        ],
+        "events": [
+          "YETI_SPAWNED",
+          "YETI_ROAR",
+          "YETI_LEAP_START",
+          "YETI_STUMBLED",
+          "YETI_MAUL"
+        ]
+      }
+    },
+    {
+      "index": 1,
+      "summary": "Procedural Web Audio API sound synthesis driver generating dynamic ski friction, atmospheric wind velocity, slalom rewards, and monster roars.",
+      "technical_specification": "Initializes AudioContext on first user input. Continuous soundscapes: 'Carve hiss' uses white noise through BiquadFilterNode (bandpass, Q=4.0), modulated by Math.abs(state.player.vx) and state.player.isCarving; 'Wind rush' feeds white noise through lowpass filter with cutoff = 200 + (state.player.vy / maxVy) * 2800 Hz. Discrete soundscapes: listening to GATE_CLEARED plays dual sine oscillators (880Hz, 1320Hz) with exponential gain decay (0.2s); listening to YETI_ROAR modulates sawtooth oscillator (65Hz down to 32Hz) with lowpass filter sweep and brownian noise gain burst over 1.2s.",
+      "acceptance_criteria": [
+        "Audio synthesis runs completely procedurally without external audio assets.",
+        "Wind and carve noise dynamically scale pitch, cutoff frequency, and volume with player velocities.",
+        "Clean gate clearances and Yeti life-cycle events trigger immediate non-blocking audio cues."
+      ],
+      "interface_contracts": {
+        "inputs": [
+          "state.player.vx",
+          "state.player.vy",
+          "state.player.isCarving",
+          "state.player.state"
+        ],
+        "outputs": [
+          "state.stats.audioInitialized"
+        ],
+        "events": [
+          "GATE_CLEARED",
+          "YETI_ROAR",
+          "PLAYER_JUMP",
+          "PLAYER_WIPEOUT"
+        ]
+      }
+    },
+    {
+      "index": 2,
+      "summary": "Terminal run obituary system, high-score persistence engine, and endless checkpoint milestone evaluator.",
+      "technical_specification": "Listens for PLAYER_WIPEOUT and YETI_MAUL. Computes runScore = Math.floor(state.world.distanceMeters * 10 + state.stats.xp * 2 + state.stats.tricksScore). Compares against localStorage['glissade_leaderboard']; stores top 5 entries with run stats, cause of death, and timestamp. Evaluates state.world.distanceMeters % 500 === 0 for REFUGE_REACHED item drafts. On death, transitions state.world.mode to 'OBITUARY', formatting CRT run summary: distance, gates passed, relic count, and diegetic epitaph based on death cause ('Devoured by the Beast', 'Wrapped around a Bristlecone Pine').",
+      "acceptance_criteria": [
+        "Leaderboard persists scores across sessions using localStorage.",
+        "Obituary overlay displays calculated score, run statistics, and contextual cause-of-death text upon fatal collision.",
+        "Triggers milestone draft events precisely at each 500-meter descent interval."
+      ],
+      "interface_contracts": {
+        "inputs": [
+          "state.world.distanceMeters",
+          "state.stats.xp",
+          "state.stats.tricksScore",
+          "state.inventory.relics",
+          "state.player.lastDamageSource"
+        ],
+        "outputs": [
+          "state.world.mode",
+          "state.stats.finalScore",
+          "state.stats.leaderboard"
+        ],
+        "events": [
+          "PLAYER_WIPEOUT",
+          "YETI_MAUL",
+          "REFUGE_REACHED",
+          "RUN_COMPLETED"
+        ]
+      }
+    }
+  ]
+}

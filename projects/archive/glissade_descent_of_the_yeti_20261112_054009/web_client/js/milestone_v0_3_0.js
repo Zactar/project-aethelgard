@@ -1,0 +1,214 @@
+// Cohesive Milestone Plugin: v0.3.0
+// --- LOADED MODULE: milestone_v0_3_0.js ---
+// Cohesive Milestone Plugin: v0.3.0 - Item Registry, 500m Refuge Shelter Draft, Active Relics & Inventory HUD
+window.StudioEngine.registerModule("Milestone_v0_3_0", {
+  init(st, eng) {
+    st.world = st.world || {};
+    st.inventory = st.inventory || { items: [], relics: [], activeSlots: [] };
+    st.draft = { isOpen: false, choices: [] };
+    st.world.lastCheckpointMeter = 0;
+    st.world.checkpointActive = false;
+    st.stats.base = st.stats.base || { velocity: 10, agility: 10, balance: 10, moxie: 10, luck: 10 };
+
+    // 25 Equipment and Gadget Items (18 Passives, 7 Actives)
+    st.registry = st.registry || {};
+    st.registry.items = [
+      { id: "wax_coating", name: "Wax Coating", type: "passive", rarity: "Common", icon: "🏂", desc: "+15% Velocity", mod: { velocityPct: 0.15 } },
+      { id: "steel_edges", name: "Steel Edges", type: "passive", rarity: "Common", icon: "🗡️", desc: "+2 Agility, +10% Carve", mod: { agilityFlat: 2, agilityPct: 0.1 } },
+      { id: "fleece_hood", name: "Fleece Hood", type: "passive", rarity: "Common", icon: "🧣", desc: "+2 Balance, +1 Health", mod: { balanceFlat: 2 } },
+      { id: "rabbit_paw", name: "Rabbit Paw", type: "passive", rarity: "Common", icon: "🐾", desc: "+3 Luck", mod: { luckFlat: 3 } },
+      { id: "energy_bar", name: "Energy Bar", type: "passive", rarity: "Common", icon: "🍫", desc: "+2 Moxie, +10% XP", mod: { moxieFlat: 2, moxiePct: 0.1 } },
+      { id: "carbon_poles", name: "Carbon Poles", type: "passive", rarity: "Common", icon: "🥢", desc: "+2 Agility, +1 Velocity", mod: { agilityFlat: 2, velocityFlat: 1 } },
+      { id: "thermal_socks", name: "Thermal Socks", type: "passive", rarity: "Common", icon: "🧦", desc: "+3 Balance", mod: { balanceFlat: 3 } },
+      { id: "clover_brooch", name: "Clover Pin", type: "passive", rarity: "Common", icon: "🍀", desc: "+2 Luck, +5% Rarity", mod: { luckFlat: 2, luckPct: 0.1 } },
+      { id: "tinted_goggles", name: "Amber Visor", type: "passive", rarity: "Common", icon: "🥽", desc: "+2 Moxie, +1 Agility", mod: { moxieFlat: 2, agilityFlat: 1 } },
+      { id: "mammoth_bell", name: "Mammoth Bell", type: "passive", rarity: "Rare", icon: "🔔", desc: "-20% Yeti aggro, +3 Moxie", mod: { moxieFlat: 3, moxiePct: 0.15 } },
+      { id: "titanium_skis", name: "Titanium Skis", type: "passive", rarity: "Rare", icon: "🎿", desc: "+4 Velocity, +2 Balance", mod: { velocityFlat: 4, balanceFlat: 2 } },
+      { id: "adrenaline_patch", name: "Adrenaline Gum", type: "passive", rarity: "Rare", icon: "💉", desc: "+25% Moxie, +3 Agility", mod: { moxiePct: 0.25, agilityFlat: 3 } },
+      { id: "lucky_horseshoe", name: "Horseshoe", type: "passive", rarity: "Rare", icon: "🧲", desc: "+5 Luck, +20% Rarity", mod: { luckFlat: 5, luckPct: 0.2 } },
+      { id: "featherweight_suit", name: "Aero Suit", type: "passive", rarity: "Rare", icon: "🪶", desc: "+20% Velocity & Carve", mod: { velocityPct: 0.2, agilityPct: 0.2 } },
+      { id: "gyro_stabilizer", name: "Gyro Rig", type: "passive", rarity: "Rare", icon: "🧭", desc: "+5 Balance, Wipeout Shield", mod: { balanceFlat: 5, balancePct: 0.15 } },
+      { id: "frost_charm", name: "Frost Talisman", type: "passive", rarity: "Epic", icon: "💎", desc: "+5 All Base Stats", mod: { velocityFlat: 5, agilityFlat: 5, balanceFlat: 5, moxieFlat: 5, luckFlat: 5 } },
+      { id: "aurora_mantle", name: "Aurora Cape", type: "passive", rarity: "Epic", icon: "🌌", desc: "+40% Moxie XP boost", mod: { moxiePct: 0.4, luckFlat: 6 } },
+      { id: "avalanche_core", name: "Glacial Heart", type: "passive", rarity: "Epic", icon: "❄️", desc: "+30% Max Speed & Impact Armor", mod: { velocityPct: 0.3, balanceFlat: 6 } },
+      // Actives
+      { id: "flare_gun", name: "Flare Gun", type: "active", rarity: "Common", cd: 20, icon: "🎆", desc: "Stuns pursuers 4s [CD 20s]", onUse(st, eng) { eng.emit("HUD_MSG", { text: "FLARE FIRED! YETI BLINDED" }); if (st.world.yeti) st.world.yeti.stun = 4; } },
+      { id: "spring_boots", name: "Spring Rig", type: "active", rarity: "Common", cd: 12, icon: "👟", desc: "Super Vertical Air-Launch [CD 12s]", onUse(st) { st.player.vz = 420; st.player.z = 10; st.player.state = 0x04; } },
+      { id: "pocket_nitro", name: "Nitro Flask", type: "active", rarity: "Rare", cd: 15, icon: "🧪", desc: "+80% Burst Speed for 3s [CD 15s]", onUse(st) { st.player.vy = Math.min(500, (st.player.vy || 160) + 180); } },
+      { id: "boulder_shredder", name: "Snow Plow", type: "active", rarity: "Rare", cd: 18, icon: "🛡️", desc: "Shatters nearby obstacles [CD 18s]", onUse(st) { (st.world.obstacles || []).forEach(o => { if (Math.abs(o.y - st.player.y) < 180 && Math.abs(o.x - st.player.x) < 100) o.y = -9999; }); } },
+      { id: "defibrillator", name: "Pocket Defib", type: "active", rarity: "Epic", cd: 60, icon: "⚡", desc: "Instantly Recovers Wipeout [CD 60s]", onUse(st) { st.player.wipeouts = Math.max(0, (st.player.wipeouts || 1) - 1); st.player.state = 0x01; } },
+      { id: "chrono_stopwatch", name: "Chrono Watch", type: "active", rarity: "Epic", cd: 30, icon: "⏱️", desc: "Slow Down World Slope 4s [CD 30s]", onUse(st, eng) { st.world.timeWarp = 4; eng.emit("HUD_MSG", { text: "TIME DILATION TRIGGERED" }); } },
+      { id: "yeti_decoy", name: "Bait Horn", type: "active", rarity: "Epic", cd: 40, icon: "📯", desc: "Lures Yeti backward 350m [CD 40s]", onUse(st) { if (st.world.yeti) st.world.yeti.y -= 350; } }
+    ];
+
+    eng.on("CHECKPOINT_REACHED", () => {
+      st.world.checkpointActive = true;
+      st.paused = true;
+      st.draft.isOpen = true;
+      // Filter out uniquely owned items
+      const owned = new Set((st.inventory.items || []).map(i => i.id).concat((st.inventory.activeSlots || []).map(a => a.id)));
+      const pool = st.registry.items.filter(it => !owned.has(it.id));
+      const pick = (tier) => {
+        const sub = pool.filter(i => i.rarity === tier);
+        return sub.length ? sub[Math.floor(Math.random() * sub.length)] : pool[Math.floor(Math.random() * pool.length)];
+      };
+      const choices = [];
+      while (choices.length < 3 && choices.length < pool.length) {
+        const roll = Math.random();
+        const tier = roll < 0.60 ? "Common" : (roll < 0.90 ? "Rare" : "Epic");
+        const cand = pick(tier);
+        if (cand && !choices.some(c => c.id === cand.id)) choices.push(cand);
+      }
+      st.draft.choices = choices;
+    });
+
+    this.selectDraft = (idx, s, e) => {
+      const choice = s.draft.choices[idx];
+      if (!choice) return;
+      if (choice.type === "active") {
+        (s.inventory.activeSlots || (s.inventory.activeSlots = [])).push({ ...choice, cooldownRemaining: 0 });
+      } else {
+        (s.inventory.items || (s.inventory.items = [])).push(choice);
+      }
+      s.draft.isOpen = false;
+      s.world.checkpointActive = false;
+      s.paused = false;
+      e.emit("ITEM_ACQUIRED", { item: choice });
+      this.recalculateStats(s, e);
+    };
+
+    this.recalculateStats = (s, e) => {
+      const base = s.stats.base || { velocity: 10, agility: 10, balance: 10, moxie: 10, luck: 10 };
+      const flat = { velocity: 0, agility: 0, balance: 0, moxie: 0, luck: 0 };
+      const pct = { velocity: 0, agility: 0, balance: 0, moxie: 0, luck: 0 };
+
+      (s.inventory.items || []).forEach(it => {
+        if (!it.mod) return;
+        for (let k in flat) {
+          if (it.mod[k + "Flat"]) flat[k] += it.mod[k + "Flat"];
+          if (it.mod[k + "Pct"]) pct[k] += it.mod[k + "Pct"];
+        }
+      });
+      for (let k in base) {
+        s.stats[k] = Math.round((base[k] + flat[k]) * (1 + pct[k]));
+      }
+      if (e.stats && e.stats.recalculate) e.stats.recalculate();
+    };
+  },
+
+  update(dt, st, eng) {
+    const sdt = Math.min(dt, 0.05);
+    // Active Gadget Cooldown Tick
+    (st.inventory.activeSlots || []).forEach(slot => {
+      if (slot.cooldownRemaining > 0) slot.cooldownRemaining = Math.max(0, slot.cooldownRemaining - sdt);
+    });
+
+    // Checkpoint 500m evaluation
+    const distTraveled = Math.floor(st.world.distance || (st.player.y / 8));
+    if (distTraveled - st.world.lastCheckpointMeter >= 500 && !st.draft.isOpen) {
+      st.world.lastCheckpointMeter = Math.floor(distTraveled / 500) * 500;
+      (st.world.entities || (st.world.entities = [])).push({
+        type: "SHELTER", x: st.player.x - 30, y: (st.player.y || 200) + 120, w: 80, h: 50
+      });
+      eng.emit("CHECKPOINT_REACHED", { distance: st.world.lastCheckpointMeter });
+    }
+
+    // Modal Draft Keyboard / Click Input
+    const k = st.keys || {}, ptr = st.pointer || {};
+    if (st.draft.isOpen) {
+      if (k.digit1 || k.num1) this.selectDraft(0, st, eng);
+      else if (k.digit2 || k.num2) this.selectDraft(1, st, eng);
+      else if (k.digit3 || k.num3) this.selectDraft(2, st, eng);
+      else if (ptr.clicked) {
+        for (let i = 0; i < st.draft.choices.length; i++) {
+          const bx = 120 + i * 195, by = 230;
+          if (ptr.x >= bx && ptr.x <= bx + 180 && ptr.y >= by && ptr.y <= by + 190) {
+            this.selectDraft(i, st, eng);
+            ptr.clicked = false;
+            break;
+          }
+        }
+      }
+      return;
+    }
+
+    // Trigger Active Relics [Action / 1 / 2]
+    if (!st.paused) {
+      if ((k.action || k.digit1) && st.inventory.activeSlots && st.inventory.activeSlots[0]) {
+        const slot = st.inventory.activeSlots[0];
+        if (slot.cooldownRemaining <= 0) {
+          slot.cooldownRemaining = slot.cd || 15;
+          slot.onUse(st, eng);
+          eng.emit("ACTIVE_ITEM_TRIGGERED", { item: slot });
+        }
+      }
+    }
+  },
+
+  render(ctx, st) {
+    // 1. Render World Shelter Entity if in viewport
+    (st.world.entities || []).forEach(ent => {
+      if (ent.type === "SHELTER") {
+        const sy = ent.y - (st.world.camY || (st.player.y - 120)) + 200;
+        ctx.fillStyle = "#854d0e"; ctx.fillRect(ent.x - 40, sy - 20, 80, 40);
+        ctx.fillStyle = "#dc2626"; ctx.beginPath(); ctx.moveTo(ent.x - 50, sy - 20); ctx.lineTo(ent.x, sy - 50); ctx.lineTo(ent.x + 50, sy - 20); ctx.fill();
+        ctx.fillStyle = "#fef08a"; ctx.fillRect(ent.x - 12, sy, 24, 20);
+        ctx.fillStyle = "#fff"; ctx.font = "10px monospace"; ctx.fillText("500m REFUGE", ent.x - 30, sy - 26);
+      }
+    });
+
+    // 2. Sub-Top Right HUD Zone (x: 520..784, y: 48..110)
+    ctx.save();
+    ctx.fillStyle = "rgba(15, 23, 42, 0.75)";
+    ctx.fillRect(12, 536, 280, 52);
+    ctx.strokeStyle = "#38bdf8"; ctx.strokeRect(12, 536, 280, 52);
+
+    const distToShelter = 500 - ((Math.floor(st.world.distance || (st.player.y / 8))) % 500);
+    ctx.fillStyle = "#93c5fd"; ctx.font = "10px monospace";
+    ctx.fillText(`NEXT SHELTER: ${distToShelter}m`, 22, 550);
+
+    const slot = (st.inventory.activeSlots || [])[0];
+    if (slot) {
+      const cdPct = slot.cooldownRemaining > 0 ? (slot.cooldownRemaining / slot.cd) : 0;
+      ctx.fillStyle = cdPct > 0 ? "#f87171" : "#4ade80";
+      ctx.fillText(`GADGET: ${slot.icon} ${slot.name} [KEY F]`, 22, 566);
+      ctx.fillStyle = "#334155"; ctx.fillRect(528, 86, 120, 6);
+      ctx.fillStyle = cdPct > 0 ? "#ef4444" : "#22c55e";
+      ctx.fillRect(528, 86, Math.floor(120 * (1 - cdPct)), 6);
+      ctx.fillStyle = "#ffffff"; ctx.fillText(`${cdPct > 0 ? slot.cooldownRemaining.toFixed(1) + 's' : 'READY'}`, 180, 580);
+    } else {
+      ctx.fillStyle = "#64748b"; ctx.fillText(`GADGET: [EMPTY - REACH REFUGE]`, 22, 566);
+    }
+    ctx.fillText(`RELICS: ${(st.inventory.items || []).length}`, 180, 550);
+    ctx.restore();
+
+    // 3. Checkpoint Item Draft Modal Overlay
+    if (st.draft.isOpen) {
+      ctx.save();
+      ctx.fillStyle = "rgba(5, 10, 20, 0.88)"; ctx.fillRect(0, 0, 800, 600);
+      ctx.fillStyle = "#38bdf8"; ctx.font = "bold 20px monospace"; ctx.textAlign = "center";
+      ctx.fillText("MOUNTAIN REFUGE REACHED", 400, 160);
+      ctx.font = "12px monospace"; ctx.fillStyle = "#94a3b8";
+      ctx.fillText("Select 1 Gear or Gadget Supply from Alpine Stash [Keys 1, 2, 3 or Click]", 400, 185);
+
+      st.draft.choices.forEach((it, i) => {
+        const bx = 120 + i * 195, by = 220;
+        const col = it.rarity === "Epic" ? "#c084fc" : (it.rarity === "Rare" ? "#60a5fa" : "#e2e8f0");
+        ctx.fillStyle = "rgba(30, 41, 59, 0.95)"; ctx.fillRect(bx, by, 170, 200);
+        ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.strokeRect(bx, by, 170, 200);
+
+        ctx.fillStyle = col; ctx.font = "bold 13px monospace"; ctx.fillText(`[${i + 1}] ${it.rarity}`, bx + 85, by + 26);
+        ctx.font = "32px monospace"; ctx.fillText(it.icon, bx + 85, by + 70);
+        ctx.font = "bold 13px monospace"; ctx.fillStyle = "#ffffff"; ctx.fillText(it.name, bx + 85, by + 105);
+        ctx.font = "10px monospace"; ctx.fillStyle = "#94a3b8";
+        ctx.fillText(it.type.toUpperCase(), bx + 85, by + 124);
+        ctx.fillStyle = "#cbd5e1";
+        const words = it.desc.split(" ");
+        let line1 = words.slice(0, 3).join(" "), line2 = words.slice(3).join(" ");
+        ctx.fillText(line1, bx + 85, by + 155);
+        if (line2) ctx.fillText(line2, bx + 85, by + 172);
+      });
+      ctx.restore();
+    }
+  }
+});

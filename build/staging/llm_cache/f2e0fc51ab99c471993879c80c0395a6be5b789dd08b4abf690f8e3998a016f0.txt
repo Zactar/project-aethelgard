@@ -1,0 +1,84 @@
+window.StudioEngine.registerModule("StatTrackingSystem", {
+  init: function(state, engine) {
+    if (!state.stats) {
+      state.stats = {
+        VEL: 15,
+        AGI: 12,
+        BAL: 14,
+        MOX: 10,
+        LCK: 10,
+        level: 1,
+        xp: 0,
+        nextLevelXp: 100,
+        unspentPoints: 0,
+        combo: 0
+      };
+    }
+
+    if (!state.statTracker) {
+      class StatTracker {
+        constructor(baseStats) {
+          this.base = {
+            VEL: baseStats && baseStats.VEL ? baseStats.VEL : 15,
+            AGI: baseStats && baseStats.AGI ? baseStats.AGI : 12,
+            BAL: baseStats && baseStats.BAL ? baseStats.BAL : 14,
+            MOX: baseStats && baseStats.MOX ? baseStats.MOX : 10,
+            LCK: baseStats && baseStats.LCK ? baseStats.LCK : 10
+          };
+          this.modifiers = { VEL: 0, AGI: 0, BAL: 0, MOX: 0, LCK: 0 };
+          this.level = baseStats && baseStats.level ? baseStats.level : 1;
+          this.currentXP = baseStats && baseStats.xp ? baseStats.xp : 0;
+          this.statusMask = 0;
+          this.recoveryTimer = 0.0;
+          this.majorWipeouts = 0;
+          this.maxWipeouts = 3;
+          this.critStabilityTimer = 0.0;
+          this.floatingNotifications = [];
+        }
+
+        getStat(stat) {
+          const b = this.base[stat] !== undefined ? this.base[stat] : 10;
+          const m = this.modifiers[stat] !== undefined ? this.modifiers[stat] : 0;
+          return Math.max(1, Math.min(99, b + m));
+        }
+
+        addXP(amount) {
+          this.currentXP += amount;
+          let leveledUp = false;
+          while (this.currentXP >= this.getXPRequirement(this.level)) {
+            this.currentXP -= this.getXPRequirement(this.level);
+            this.level++;
+            leveledUp = true;
+          }
+          return leveledUp;
+        }
+
+        getXPRequirement(lvl) {
+          return Math.floor(100 * Math.pow(lvl, 1.65) + ((lvl - 1) * 45));
+        }
+
+        getDerivedKinematics() {
+          const vel = this.getStat('VEL');
+          const agi = this.getStat('AGI');
+          const bal = this.getStat('BAL');
+          const mox = this.getStat('MOX');
+          const lck = this.getStat('LCK');
+
+          const isTucked = (this.statusMask & 0x0002) !== 0;
+          const isTerror = (this.statusMask & 0x0080) !== 0;
+
+          let vyMax = 350.0 + (vel * 8.5);
+          if (isTucked) vyMax *= (1.25 + (vel * 0.002));
+          if (isTerror) vyMax *= (1.0 + (mox * 0.008));
+
+          let ax = 420.0 + (agi * 11.2);
+          if (isTucked) ax *= 0.60;
+
+          return {
+            vyMax,
+            ax,
+            dx: 0.88 + (0.09 * (1.0 - (agi / 100.0))),
+            recoveryTime: Math.max(0.35, 2.50 - (bal * 0.022)),
+            stabilityThreshold: Math.min(0.95, 0.20 + (bal * 0.008)),
+            spinOmega: 4.188 + (mox * 0.125),
+            gateMagnet

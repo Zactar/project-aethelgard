@@ -1,0 +1,49 @@
+{
+  "rfcs": [
+    {
+      "index": 0,
+      "summary": "Implement Necrotic Bell-Wardens as physics-heavy roaming constructs on state.world.enemies that emit directional shockwave arcs upon taking poise damage, shattering fragile tiles and igniting oil slicks without UI meters.",
+      "technical_specification": "Bell-Wardens exist in `state.world.enemies` with `{ type: 'bell_warden', mass: 450, poise: 80, poiseMax: 80, resonance: 0 }`. On melee strike (`state.keys.jump`), calculate poise hit: `warden.poise -= playerDamage * 0.75`. When `warden.poise <= 0`, reset poise to `poiseMax`, increment `warden.resonance`, and spawn an entity in `state.world.hazards`: `{ type: 'harmonic_wave', x, y, radius: 24, maxRadius: 180, speed: 320, angle: impactAngle }`. The wave iterates `state.world.tiles` within distance `r`, flipping `brittle_wall` to `rubble` and igniting any intersecting `state.world.oilSlicks` (`slick.ignited = true`). Harmonic intensity renders as vibrating bronze clappers directly on the sprite silhouette.",
+      "acceptance_criteria": [
+        "Bell-Warden stagger triggers an expanding harmonic wave along the player's weapon swing angle.",
+        "Brittle wall tiles shatter and nearby oil slicks ignite instantly upon harmonic wave intersection.",
+        "Poise depletion and resonance level are visualized strictly through clapper vibration and body chime glow, not meters."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.keys.jump", "state.player.weapon", "state.world.enemies"],
+        "outputs": ["state.world.hazards", "state.world.tiles", "state.world.oilSlicks"],
+        "events": ["WARDEN_RESONANCE_DETONATED", "WALL_SUNDERED"]
+      }
+    },
+    {
+      "index": 1,
+      "summary": "Add polarized Lodestone Pylons that gravitationally pull metal-armored units, curve iron projectiles, and detonate in a concussive magnetic burst when hit by player dash-rolls.",
+      "technical_specification": "Instantiate `state.world.pylons = [{ x, y, radius: 28, polarity: 1, charge: 1.0 }]`. Each frame, pull iron-clad entities within `dist <= 220` with force `F = (G * pylon.charge) / max(dist, 32)` added to `entity.vx, entity.vy`. Iron projectiles in `state.world.projectiles` bend trajectory: `proj.angle += atan2(dy, dx) * (dt * 3.5)`. When player dodges (`state.keys.action` with `player.isRolling === true`) directly into pylon collision (`dist <= pylon.radius + player.radius`), consume 25 stamina, set `pylon.charge = 0`, and trigger an EMP ring pushing all targets outward by `recoilVel = 400` while dealing 40 electric poise damage.",
+      "acceptance_criteria": [
+        "Iron enemies and arrows visibly drift toward active Lodestone Pylons via inverse-distance magnetic kinematic pull.",
+        "Rolling shield-bash into a pylon discharges a full-room radial EMP blast that repels adversaries and exhausts pylon charge.",
+        "Discharged pylons take 8 seconds to visibly reignite magnetic sparks before re-engaging pull force."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.keys.action", "state.player.isRolling", "state.player.stamina"],
+        "outputs": ["state.world.projectiles", "state.world.enemies", "state.world.pylons"],
+        "events": ["LODESTONE_EMP_DISCHARGE", "PROJECTILE_DEFLECTED"]
+      }
+    },
+    {
+      "index": 2,
+      "summary": "Render a post-floor canvas pass generating real-time stone splinter decals, bloody soot tread footprints, and seismic shadow skewing mapped to dungeon illumination.",
+      "technical_specification": "Maintain `state.world.floorDecals = []` capped at 256 instances. When `state.world.hazards` trigger seismic pulses or wardens chime, push splinter decals: `{ x, y, angle, length: rand(12, 36), color: '#1c1917' }`. When player or monsters cross `state.world.bloodPools`, assign `footstepSoot = { stepsRemaining: 6, bloodHue: '#991b1b' }`; subsequent steps push directional footprint stamps fading over 12 seconds. In floor render loop, skew dynamic torch drop-shadows by seismic tremor offset `shakeX = sin(t * 30) * screenShakeMag`, stretching shadow geometry inversely to distance from primary light emitter (`x: state.player.x, y: state.player.y, range: state.player.torchRadius`).",
+      "acceptance_criteria": [
+        "Seismic detonations permanently fracture floor tiles with jagged directional ink decals.",
+        "Entities walking through blood pools deposit decaying bloody footprints matching their movement vectors.",
+        "Dynamic drop-shadows elongate and judder diegetically along floor geometry during shockwave events without UI frame drops."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.player.torchRadius", "state.world.hazards", "state.world.bloodPools"],
+        "outputs": ["state.world.floorDecals", "state.render.shadowSkewOffset"],
+        "events": ["FLOOR_DECALS_STAMPED", "TORCH_SHADOW_SKEWED"]
+      }
+    }
+  ]
+}

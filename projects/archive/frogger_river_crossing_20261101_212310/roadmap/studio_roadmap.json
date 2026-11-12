@@ -1,0 +1,160 @@
+{
+  "active_version": "v0.3.0",
+  "milestones": [
+    {
+      "version": "v0.1.0",
+      "codename": "Kernel Engine & Player Avatar",
+      "theme": "Initialize Frogger River Crossing core tick loop, viewport canvas, and player locomotion.",
+      "status": "SHIPPED",
+      "created_at": "2026-11-01T20:56:14.986280",
+      "completed_at": "2026-11-01T20:56:22.184738",
+      "deliverables": [
+        {
+          "deliverable_id": "DEL-01-SYS",
+          "discipline": "Systems",
+          "title": "Tick Loop & State Coordinate Manager",
+          "target_subsystem": "web_client/index.html",
+          "acceptance_criteria": [
+            "60fps update loop"
+          ],
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261101-9C2A87.json"
+        },
+        {
+          "deliverable_id": "DEL-01-GMP",
+          "discipline": "Gameplay",
+          "title": "Avatar Locomotion & Input Bindings",
+          "target_subsystem": "web_client/index.html",
+          "acceptance_criteria": [
+            "WASD/Arrow input responding"
+          ],
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261101-4C3D80.json"
+        },
+        {
+          "deliverable_id": "DEL-01-CLI",
+          "discipline": "Client",
+          "title": "Viewport Renderer & Scoreboard HUD",
+          "target_subsystem": "web_client/index.html",
+          "acceptance_criteria": [
+            "HUD anchors rendering"
+          ],
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261101-00DE09.json"
+        },
+        {
+          "deliverable_id": "DEL-01-QA",
+          "discipline": "Chaos QA",
+          "title": "Automated Render & Movement Invariant Test",
+          "target_subsystem": "tools/validate_webapp.py",
+          "acceptance_criteria": [
+            "HTTP 3000 verified"
+          ],
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261101-D89241.json"
+        }
+      ],
+      "completion_percentage": 100.0
+    },
+    {
+      "version": "v0.2.0",
+      "codename": "World Arena & Spatial Obstacles",
+      "theme": "Generate map geometry, boundaries, and static obstacle collisions.",
+      "status": "SHIPPED",
+      "created_at": "2026-11-01T20:56:14.986350",
+      "completed_at": "2026-11-01T21:06:50.484878",
+      "deliverables": [
+        {
+          "deliverable_id": "DEL-02-LVL",
+          "discipline": "Level",
+          "title": "Arena Geometry & Barrier Insets",
+          "target_subsystem": "web_client/index.html",
+          "acceptance_criteria": [
+            "Collision boundaries"
+          ],
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261101-2F52C3.json"
+        },
+        {
+          "deliverable_id": "DEL-02-QA",
+          "discipline": "Chaos QA",
+          "title": "AABB Bounds Collision Test",
+          "target_subsystem": "tools/validate_webapp.py",
+          "acceptance_criteria": [
+            "Zero wall phase-through"
+          ],
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261101-1758FE.json"
+        }
+      ],
+      "completion_percentage": 100.0
+    },
+    {
+      "version": "v0.3.0",
+      "codename": "Adversaries & Entity StateTrees",
+      "theme": "Implement hostile entity spawning, autonomous AI patterns, and collision resolution.",
+      "status": "IN_PROGRESS",
+      "created_at": "2026-11-01T20:56:14.986364",
+      "completed_at": null,
+      "deliverables": [
+        {
+          "deliverable_id": "DEL-03-SYS",
+          "discipline": "Systems",
+          "title": "Enemy AI StateTree Dispatcher",
+          "target_subsystem": "web_client/index.html",
+          "acceptance_criteria": [
+            "Patrol/Chase states"
+          ],
+          "status": "PENDING",
+          "verified_artifact": null
+        }
+      ],
+      "completion_percentage": 0.0
+    },
+    {
+      "version": "v0.4.0",
+      "codename": "Rules, Scoring & Win/Loss Conditions",
+      "theme": "Score counters, life deductions, win screen, and sound effects.",
+      "status": "PLANNED",
+      "created_at": "2026-11-01T20:56:14.986369",
+      "completed_at": null,
+      "deliverables": [
+        {
+          "deliverable_id": "DEL-04-SYS",
+          "discipline": "Systems",
+          "title": "Score & Game Over Rule Machine",
+          "target_subsystem": "web_client/index.html",
+          "acceptance_criteria": [
+            "Lives decrement on hit"
+          ],
+          "status": "PENDING",
+          "verified_artifact": null
+        }
+      ],
+      "completion_percentage": 0.0
+    },
+    {
+      "version": "v1.0.0",
+      "codename": "Release Polish & Audio Juice",
+      "theme": "Procedural sound effects, particle feedback, and final release packaging.",
+      "status": "PLANNED",
+      "created_at": "2026-11-01T20:56:14.986374",
+      "completed_at": null,
+      "deliverables": [
+        {
+          "deliverable_id": "DEL-10-CLI",
+          "discipline": "Client",
+          "title": "Audio Synthesis & Visual FX Juice",
+          "target_subsystem": "web_client/index.html",
+          "acceptance_criteria": [
+            "Sound effects on hit"
+          ],
+          "status": "PENDING",
+          "verified_artifact": null
+        }
+      ],
+      "completion_percentage": 0.0
+    }
+  ],
+  "last_updated": "2026-11-01T21:06:50.484981"
+}

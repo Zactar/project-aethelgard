@@ -1,0 +1,18 @@
+{
+  "codename": "Operation Subzero Surge",
+  "theme": "Interactive Alpine Terrain & Kinetic Aerial Maneuvers",
+  "deliverables": [
+    {
+      "discipline": "Systems",
+      "title": "Subsurface Thermal Vents & Crevasse Fractures: Procedural steam geysers that launch the skier vertically on contact, paired with brittle ice bridges that crack and collapse under sustained carving weight."
+    },
+    {
+      "discipline": "Gameplay",
+      "title": "Kinetic Pole-Vault & Mid-Air Drift Whip: Active input ability allowing players to plant ski poles to vault over immediate rock outcroppings or perform a mid-air pivot whip to aggressively redirect downhill velocity before landing."
+    },
+    {
+      "discipline": "Client",
+      "title": "Dynamic Snowpack Gouging & Avalanche Roar Visuals: Screen-space procedural furrow deformation behind carved turns, paired with shockwave particle ripples and cascading powder plumes as the Yeti stomps nearby."
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "rfcs": [
+    {
+      "index": 0,
+      "summary": "Implement an interactive pre-series tactical modal initializing Arbiter cognitive tier, player sigil palette, and opening turn precedence.",
+      "technical_specification": "Maintain `state.config = { open: boolean, palette: 0|1, firstTurn: 'PLAYER'|'ARBITER'|'ALTERNATING', tier: 1|2|3, roundCount: number }`. When `state.config.open` is true, render diegetic obsidian modal over center lattice (`x: 220, y: 130, w: 360, h: 360`). Map pointer clicks and key inputs (`1-3` for tier, `P` for palette toggle, `T` for turn mode, `SPACE`/`ENTER` to lock). Upon confirmation, set `state.config.open = false`, set `state.arbiterTier = config.tier`, set active contender `state.activeContender = (config.firstTurn === 'ALTERNATING' ? (config.roundCount % 2 === 0 ? 1 : 2) : (config.firstTurn === 'PLAYER' ? 1 : 2))`, and dispatch `CONFIG_COMMITTED`.",
+      "acceptance_criteria": [
+        "Modal renders without DOM overlays using native canvas drawing in obsidian/gold styling.",
+        "Selecting Tier I, II, or III cleanly updates `state.arbiterTier` before turn 1 starts.",
+        "Palette toggles between Crimson/Gold and Cyan/Violet, stored in `state.activePalette`."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.pointer", "state.keys"],
+        "outputs": ["state.config", "state.arbiterTier", "state.activePalette", "state.activeContender"],
+        "events": ["CONFIG_COMMITTED"]
+      }
+    },
+    {
+      "index": 1,
+      "summary": "Three-tier Synthetic Arbiter decision engine handling heuristic randoms, tactical 2-in-a-row counter-blocks, and zero-sum Minimax lookahead.",
+      "technical_specification": "Represent sectors as `state.grid[0..8]`. When `state.activeContender === 2` and `!state.roundOver`: if `tier === 1`, filter vacant sectors, prioritize adjacent open cells with 40% random noise. If `tier === 2`, search canonical triads `TRIADS = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]]`; if Arbiter has 2/3 claim third (win), else if Player has 2/3 claim third (block), else fallback to center `4` then corners `[0,2,6,8]`. If `tier === 3`, run depth-limited minimax (`score = +10 - depth` for Arbiter win, `-10 + depth` for Player win, 0 for draw) to select optimum index. Queue sector inscription at `state.aiMoveIndex` with a 350ms kinetic deliberate delay.",
+      "acceptance_criteria": [
+        "Tier I plays valid vacant sectors without locking or throwing runtime errors.",
+        "Tier II consistently takes immediate wins and blocks opponent two-in-a-row threats.",
+        "Tier III never loses an opening or reactive game across standard tic-tac-toe permutations."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.grid", "state.activeContender", "state.arbiterTier"],
+        "outputs": ["state.grid", "state.aiMoveTimer", "state.activeContender"],
+        "events": ["ARBITER_MOVE_COMMITTED", "ROUND_WIN", "ROUND_DRAW"]
+      }
+    },
+    {
+      "index": 2,
+      "summary": "Diegetic holographic hover ghosting on hovered vacant sectors and pulsating threat-thread lines along critical 2-of-3 collinear vectors.",
+      "technical_specification": "Compute hover index `sectorIdx = col + row * 3` from `state.pointer.x, y` within lattice bounds (`360x360` at `400,310`). If `state.grid[sectorIdx] === 0` and `state.activeContender === 1`, draw translucent ghost sigil at sector center with sine alpha `0.35 + 0.15 * Math.sin(state.world.time * 0.006)`. Iterate 8 triads: count ownership; if either contender holds exactly 2 sectors and 1 is vacant, calculate threat vector endpoints `(x1,y1)` to `(x2,y2)`. Render animated energetic threat-thread with dash offset `-state.world.time * 0.05` and glow width `2 + 1.5 * Math.sin(state.world.time * 0.01)` in contender's threat tint.",
+      "acceptance_criteria": [
+        "Hovering over empty sectors renders faction-accurate ghost preview with smooth pulsating alpha.",
+        "Threat-thread glows immediately along the exact vector whenever any contender holds 2 of 3 sectors.",
+        "Threat line vanishes immediately upon cell occlusion or vector resolution."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.pointer", "state.grid", "state.activeContender", "state.world.time"],
+        "outputs": ["state.threatTriads"],
+        "events": ["THREAT_DETECTED"]
+      }
+    }
+  ]
+}

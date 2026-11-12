@@ -1,0 +1,278 @@
+{
+  "active_version": "v0.8.0",
+  "last_updated": "2026-11-12T11:18:05.096336",
+  "milestones": [
+    {
+      "version": "v0.1.0",
+      "codename": "Codename-v0.1.0",
+      "theme": "Procedural OSR Dungeon Rooms, Torchlight Fog-of-War & Souls-Zelda Melee",
+      "status": "SHIPPED",
+      "completion_percentage": 100.0,
+      "deliverables": [
+        {
+          "deliverable_id": "DELIV-V0_1_0-01",
+          "discipline": "Level",
+          "title": "Procedural interconnected multi-room dungeon generator (stone walls, destructible bone piles, locked/unlocked N/S/E/W archways, and flickering wall braziers) with smooth room-to-room traversal.",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-0E08A5.json"
+        },
+        {
+          "deliverable_id": "DELIV-V0_1_0-02",
+          "discipline": "Gameplay",
+          "title": "8-way top-down character controller with stamina-governed directional weapon cleave (`SPACE`), i-frame dodge-roll (`SHIFT/E`), wall collision sliding, and hit-stop/poise knockback against dungeon skeletons and sludge-slimes.",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-595922.json"
+        },
+        {
+          "deliverable_id": "DELIV-V0_1_0-03",
+          "discipline": "Client",
+          "title": "Dynamic radial torchlight & fog-of-war lighting shader (`createRadialGradient`), Stoner-Metal chiaroscuro tile rendering, blood/spark particle splatter on the dungeon floor, and the single top gothic status ribbon (`y: 0..36`).",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-4EAA82.json"
+        }
+      ],
+      "completed_at": "2026-11-12T09:03:17.473943"
+    },
+    {
+      "version": "v0.2.0",
+      "codename": "Codename-v0.2.0",
+      "theme": "OSR Character Creation, D&D Stat Rolls & Darkest Resolve/Sanity System",
+      "status": "SHIPPED",
+      "completion_percentage": 100.0,
+      "deliverables": [
+        {
+          "deliverable_id": "DELIV-V0_2_0-01",
+          "discipline": "Client",
+          "title": "Illustrated OSR Parchment & Doom-Metal Character Selection Modal featuring the 4 classes (Doomblade Paladin, Acid Warlock, Grave-Stalker, Flagellant) with symmetric 12x12 pixel-art portraits, `3d6` D&D stat bars (`STR`, `DEX`, `CON`, `ARC`), and weapon previews.",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-F847F8.json"
+        },
+        {
+          "deliverable_id": "DELIV-V0_2_0-02",
+          "discipline": "Systems",
+          "title": "Class-specific primary attack patterns and `[SHIFT/E]` Blood-Rite abilities, plus the *Darkest Dungeon* Torchlight & Resolve/Stress meter: fighting in low torchlight raises Stress until triggering a diegetic **RESOLVE TEST** (*DOOM TRANSCENDENCE* buff vs. *ABYSSAL HALLUCINATION* modifier).",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-C966D9.json"
+        },
+        {
+          "deliverable_id": "DELIV-V0_2_0-03",
+          "discipline": "Gameplay",
+          "title": "Timed Shield-Parry / Riposte window on the first 0.18s of `[SHIFT/E]` that deflects enemy strikes with an anvil clang and opens enemies to critical execution damage.",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-67A085.json"
+        }
+      ],
+      "completed_at": "2026-11-12T09:12:13.356233"
+    },
+    {
+      "version": "v0.3.0",
+      "codename": "Codename-v0.3.0",
+      "theme": "Diablo-Style Procedural Loot Beams, Magic Relics & Ultima Environmental Physics",
+      "status": "SHIPPED",
+      "completion_percentage": 100.0,
+      "deliverables": [
+        {
+          "deliverable_id": "DELIV-V0_3_0-01",
+          "discipline": "Systems",
+          "title": "Procedural *Diablo*-style loot generator dropping color-coded vertical light-beam items from chests and slain elites (`Rusty Iron`, `Runic Verdigris`, `Occult Purple`, `Doom-Forged Gold`, `Blood-Cursed Crimson`) with prefix/suffix modifiers (*of the Electric Wizard*, *Vampiric*, *Vorpal*, *Acid-Drenched*) that visibly alter weapon arc size, color, and elemental projectiles.",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-21D26C.json"
+        },
+        {
+          "deliverable_id": "DELIV-V0_3_0-02",
+          "discipline": "Gameplay",
+          "title": "*Ultima Underworld* immersive environmental interactions: kickable flaming braziers that ignite oil puddles into burning hazard zones, pressure plates that trigger dart traps or open secret treasury walls, and interactive Alchemy Cauldrons.",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-B68D30.json"
+        },
+        {
+          "deliverable_id": "DELIV-V0_3_0-03",
+          "discipline": "Client",
+          "title": "Centralized 68-BPM Drop-C Stoner/Doom Metal Web Audio sequencer (waveshaper fuzz guitar drone, sub-bass riff, war-drums, torch crackle, and metallic loot-drop chimes) plus floating diegetic item-comparison tooltips when standing near dropped loot.",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-C3B92C.json"
+        }
+      ],
+      "completed_at": "2026-11-12T09:33:53.246424"
+    },
+    {
+      "version": "v0.4.0",
+      "codename": "Codename-v0.4.0",
+      "theme": "Dynamic Quest Reactivity, Faction Altars & Environmental Storytelling",
+      "status": "SHIPPED",
+      "completion_percentage": 100.0,
+      "deliverables": [
+        {
+          "deliverable_id": "DELIV-V0_4_0-01",
+          "discipline": "Narrative",
+          "title": "Procedural OSR Quest & World-State Engine: generates active dungeon quests (e.g., *Shatter the 3 Cursed Blood-Monoliths*, *Rescue the Entombed Blacksmith*, *Purge the Necrotic Sump*) with etched floor-rune lore inscriptions and environmental corpses that tell stories of fallen delves.",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-783DAB.json"
+        },
+        {
+          "deliverable_id": "DELIV-V0_4_0-02",
+          "discipline": "Level",
+          "title": "Dynamic Dungeon Mutation: player quest choices physically alter subsequent dungeon rooms (e.g., defiling an Altar floods rooms with Crimson Ichors and spawns Elite Void-Cultists, whereas consecrating it unlocks Golden Reliquary Vaults).",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-5DD6BB.json"
+        },
+        {
+          "deliverable_id": "DELIV-V0_4_0-03",
+          "discipline": "Gameplay",
+          "title": "Distinct dungeon monster ecology: Shield-Wall Phalanx Skeletons (must be flanked or parried), Acid-Spitting Fungoid Horrors, Teleporting Necromancers that resurrect bone piles, and Mimic Chests.",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-15D51A.json"
+        }
+      ],
+      "completed_at": "2026-11-12T09:59:24.094297"
+    },
+    {
+      "version": "v0.5.0",
+      "codename": "Codename-v0.5.0",
+      "theme": "Lord of the Black Chalice Boss, Sanctuary Campfire & Run Chronicle",
+      "status": "SHIPPED",
+      "completion_percentage": 100.0,
+      "deliverables": [
+        {
+          "deliverable_id": "DELIV-V0_5_0-01",
+          "discipline": "Level",
+          "title": "Multi-phase Throne Room Boss (\"MALAKOR, ARCHITECT OF THE BLACK CHALICE\"): a towering stoner-metal lich-colossus wielding a sweeping doom-scythe, summoning ritual bone-pillars, and casting arena-warping eclipse waves.",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-4D9DB8.json"
+        },
+        {
+          "deliverable_id": "DELIV-V0_5_0-02",
+          "discipline": "UI_UX",
+          "title": "Illustrated OSR Chronicle Modal (Death Obituary & Victory Ascension) displaying the delver's Epitaph, D&D Adventurer Rank, Equipped Doom-Gear Loadout, Quests Fulfilled, Top-5 Crypt Legends Leaderboard, and instant `[SPACE]` New Delve / `[C]` Class Respec.",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-93257D.json"
+        },
+        {
+          "deliverable_id": "DELIV-V0_5_0-03",
+          "discipline": "Aesthetics",
+          "title": "Boss phase-transition screen eclipse, shattering stained-glass particle bursts, and a triumphant harmonized Doom-Metal guitar solo fanfare.",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-C4140D.json"
+        }
+      ],
+      "completed_at": "2026-11-12T10:23:31.689012"
+    },
+    {
+      "version": "v0.6.0",
+      "codename": "Operation Abyssal Tremor",
+      "theme": "Subterranean Seismic Hazards & Cursed Alchemical Rupture",
+      "status": "SHIPPED",
+      "completion_percentage": 100.0,
+      "deliverables": [
+        {
+          "deliverable_id": "DELIV-V0_6_0-01",
+          "discipline": "Systems",
+          "title": "Unstable Crypt Vault ceilings with structural fault lines that shower crushing stone debris when struck by heavy poise weapons or triggered by enemy charge impacts",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-1C3EA3.json"
+        },
+        {
+          "deliverable_id": "DELIV-V0_6_0-02",
+          "discipline": "Gameplay",
+          "title": "Interactive Black Bile Geo-Vents that players can breach with kick-shoves or blunt weapon impacts to coat advancing hordes in flammable, volatile tar",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-10B0E7.json"
+        },
+        {
+          "deliverable_id": "DELIV-V0_6_0-03",
+          "discipline": "Aesthetics",
+          "title": "Diegetic weapon-resonance trail FX that crackle with chromatic lightning and ground-fissure sparks when winding up max-charge heavy stamina swings",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-12A403.json"
+        }
+      ],
+      "completed_at": "2026-11-12T10:48:26.693177"
+    },
+    {
+      "version": "v0.7.0",
+      "codename": "Operation Bell-Toll Crypts",
+      "theme": "Resonant Sepulchers & Censer Swing Physics",
+      "status": "SHIPPED",
+      "completion_percentage": 100.0,
+      "deliverables": [
+        {
+          "deliverable_id": "DELIV-V0_7_0-01",
+          "discipline": "Systems",
+          "title": "Interactive Bronze Cathedral Censers: suspended ceiling-mounted pyres that players can strike with melee attacks to send swinging in a physics arc, dispersing sacred ash trails that blind lurking fiends and ignite floor oil slicks.",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-664724.json"
+        },
+        {
+          "deliverable_id": "DELIV-V0_7_0-02",
+          "discipline": "Gameplay",
+          "title": "Catacomb Bell-Warden Automaton: a heavy plate-armored wandering sentinel that rings a handheld funeral bell to trigger sonic shockwaves, demanding dodge-roll i-frame timing and ricocheting player projectiles back into destructible masonry.",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-6313AC.json"
+        },
+        {
+          "deliverable_id": "DELIV-V0_7_0-03",
+          "discipline": "Client",
+          "title": "Diegetic Runic Glyph Detonation: fractured floor flagstones that visually hum with violet eldritch fractures when stepped on, erupting into radial necrotic spikes after a 1.2-second telegraph to punish static positioning.",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-F9C090.json"
+        }
+      ],
+      "completed_at": "2026-11-12T11:17:10.741414"
+    },
+    {
+      "version": "v0.8.0",
+      "codename": "Operation Obsidian Ironclads",
+      "theme": "Stygian Bell-Warden Hazards & Magnetic Chasm Traversal",
+      "status": "VALIDATING",
+      "completion_percentage": 100.0,
+      "deliverables": [
+        {
+          "deliverable_id": "DELIV-V0_8_0-01",
+          "discipline": "Systems",
+          "title": "Diegetic Necrotic Bell-Wardens: Heavy roaming subterranean constructs that emit physical harmonic shockwaves upon receiving weapon poise damage, vibrating oil slicks and cracking brittle wall tiles toward the impact vector without any external UI meters.",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-68103B.json"
+        },
+        {
+          "deliverable_id": "DELIV-V0_8_0-02",
+          "discipline": "Gameplay",
+          "title": "Interactive Lodestone Pylons & Shield Rebound: Polarized magnetic monoliths naturally anchored in abyss rooms that pull iron-clad adversaries, deflect projectile trajectories, and allow players to dash-bash their shields against the pillar to unleash a circular concussive EMP arc.",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-172019.json"
+        },
+        {
+          "deliverable_id": "DELIV-V0_8_0-03",
+          "discipline": "Client",
+          "title": "Chiaroscuro Floor-Grit & Sunder Visual Dynamics: Real-time stone splintering, dynamic soot trails stamped into blood pools, and directional torch shadow elongation computed directly onto 2D floor surfaces whenever subterranean seismic tremors detonate.",
+          "target_subsystem": "web_client/index.html",
+          "status": "VERIFIED",
+          "verified_artifact": "RFC-20261112-037231.json"
+        }
+      ],
+      "completed_at": null
+    }
+  ]
+}

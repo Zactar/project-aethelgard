@@ -1,0 +1,18 @@
+{
+  "codename": "Operation Ossuary Hymn",
+  "theme": "Skeletal Chime Pyres & Bone-Splinter Ricochet Dynamics",
+  "deliverables": [
+    {
+      "discipline": "Systems",
+      "title": "Acoustic Pyre Resonance System: Spawns interactive bone-cage pyres across crypt chambers that absorb ambient torch flame and weapon cleaves, building thermal-resonant kinetic pressure indicated by escalating ember vortices and pitch tremors until releasing a room-clearing shockwave that shatters nearby petrified skeletons into lethal calcified shrapnel."
+    },
+    {
+      "discipline": "Gameplay",
+      "title": "Grave-Spur Warden & Calcified Ricochet: Introduces the towering Grave-Spur Warden enemy that charges down dungeon corridors trailing spiked bone-barricades, requiring players to parry its ribbed flail or vault through splinter gates to trigger chain-reaction fractures that impale pursuing swarmers."
+    },
+    {
+      "discipline": "Client",
+      "title": "Diegetic Bone-Splinter Physics & Woodcut Fracture FX: Renders canvas-drawn directional bone shrapnel with physical bounce trajectories, screen-vibrating calcified dust plumes, and dynamic chiaroscuro light cast from detonating pyres without introducing any external HUD boxes or screen-space telemetry panels."
+    }
+  ]
+}

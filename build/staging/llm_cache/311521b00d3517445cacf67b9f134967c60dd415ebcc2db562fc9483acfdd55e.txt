@@ -1,0 +1,18 @@
+{
+  "codename": "Operation Brimstone Thurible",
+  "theme": "Molten Tar Seeps & Ashen Cleaving Mechanics",
+  "deliverables": [
+    {
+      "discipline": "Systems",
+      "title": "Ignitable Tar Fissures: Procedural floor seams that pool thick, viscous black tar, slowing entity crossing speeds by 40% and erupting into rolling Chiaroscuro flame carpets when struck by torchlight casts, kicked embers, or flaming cleaves."
+    },
+    {
+      "discipline": "Gameplay",
+      "title": "Pyre-Vault Dash Ability: Active dash maneuver executing a heavy lunging heel-stomp that detonates cracked floor flagstones, flings directional cinder arcs into hostile poise meters, and clears toxic tar patches underfoot."
+    },
+    {
+      "discipline": "Client",
+      "title": "Gothic Cinder-Gargoyle Perches: Interactive stone gargoyle reliefs embedded along chamber walls that charge with incandescent heat halos, unleashing sweeping conical ember breaths when agitated by melee vibrations or heavy bell reverberations."
+    }
+  ]
+}

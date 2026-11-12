@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Frogger River Crossing - Project Runtime</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    body { background: #0a0e14; color: #eceff4; font-family: monospace; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
+    #game-header { position: absolute; top: 16px; display: flex; gap: 24px; font-size: 14px; background: rgba(15,20,28,0.95); padding: 10px 20px; border-radius: 6px; border: 1px solid #4c566a; z-index: 10; }
+    .hud-val { color: #a3be8c; font-weight: bold; }
+    #viewport-canvas { background: #1a1f29; border: 2px solid #5e81ac; border-radius: 4px; box-shadow: 0 8px 32px rgba(0,0,0,0.8); display: block; }
+    #game-over-banner { position: absolute; font-size: 24px; font-weight: bold; color: #bf616a; display: none; }
+  </style>
+</head>
+<body>
+  <div id="game-header">
+    <div>PROJECT: <span class="hud-val">FROGGER RIVER CROSSING</span></div>
+    <div>SCORE: <span id="hud-score" class="hud-val">0</span></div>
+    <div>LIVES: <span id="hud-lives" class="hud-val">3</span></div>
+  </div>
+
+  <div id="game-over-banner">GAME OVER - PRESS [SPACE] TO RESTART</div>
+  <canvas id="viewport-canvas" width="640" height="480"></canvas>
+
+  
+  <script>
+    const canvas = document.getElementById('viewport-canvas');
+    const ctx = canvas.getContext('2d');
+
+    const gridSize = 40;
+    const cols = 16; // 640px
+    const rows = 12; // 480px
+
+    let score = 0;
+    let lives = 3;
+    let gameOver = false;
+    let highestRow = rows - 1;
+
+    // Player Frog
+    const player = {
+      col: 8,
+      row: rows - 1,
+      width: 32,
+      height: 32,
+      color: '#a3be8c'
+    };
+
+    // Obstacles & Hazards (Lanes)
+    const lanes = [
+      { row: 1, type: 'goal', items: [2, 5, 8, 11, 14].map(c => ({ col: c, filled: false })) },
+      { row: 2, type: 'river', speed: -2.2, width: 90, color: '#4c566a', items: [0, 240, 480] },
+      { row: 3, type: 'river', speed: 1.8, width: 70, color: '#4c566a', items: [60, 300, 540] },
+      { row: 4, type: 'river', speed: -2.8, width: 110, color: '#4c566a', items: [100, 380] },
+      { row: 5, type: 'river', speed: 1.5, width: 80, color: '#4c566a', items: [40, 260, 480] },
+      { row: 6, type: 'safe', color: '#3b4252' }, // Median
+      { row: 7, type: 'road', speed: -3.0, width: 50, color: '#bf616a', items: [50, 250, 450] },
+      { row: 8, type: 'road', speed: 2.0, width: 65, color: '#d08770', items: [0, 300] },
+      { row: 9, type: 'road', speed: -1.8, width: 45, color: '#ebcb8b', items: [80, 280, 480] },
+      { row: 10, type: 'road', speed: 2.5, width: 80, color: '#bf616a', items: [120, 380] },
+      { row: 11, type: 'safe', color: '#2e3440' } // Starting Pavement
+    ];
+
+    window.addEventListener('keydown', e => {
+      if (gameOver) {
+        if (e.code === 'Space') resetGame();
+        return;
+      }
+      if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') hop(0, -1);
+      if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') hop(0, 1);
+      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') hop(-1, 0);
+      if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') hop(1, 0);
+    });
+
+    function hop(dx, dy) {
+      player.col = Math.max(0, Math.min(cols - 1, player.col + dx));
+      player.row = Math.max(0, Math.min(rows - 1, player.row + dy));
+
+      if (dy < 0 && player.row < highestRow) {
+        highestRow = player.row;
+        score += 10;
+        document.getElementById('hud-score').innerText = score;
+      }
+    }
+
+    function killPlayer() {
+      lives--;
+      document.getElementById('hud-lives').innerText = lives;
+      player.col = 8;
+      player.row = rows - 1;
+      highestRow = rows - 1;
+      if (lives <= 0) {
+        gameOver = true;
+        document.getElementById('game-over-banner').style.display = 'block';
+      }
+    }
+
+    function resetGame() {
+      lives = 3;
+      score = 0;
+      gameOver = false;
+      document.getElementById('hud-score').innerText = score;
+      document.getElementById('hud-lives').innerText = lives;
+      document.getElementById('game-over-banner').style.display = 'none';
+      lanes[0].items.forEach(g => g.filled = false);
+      player.col = 8;
+      player.row = rows - 1;
+    }
+
+    function update(delta) {
+      if (gameOver) return;
+
+      // Update Lane Obstacle Positions
+      lanes.forEach(lane => {
+        if (lane.speed && lane.items) {
+          lane.items = lane.items.map(x => {
+            let nextX = x + lane.speed * delta * 60;
+            if (lane.speed > 0 && nextX > canvas.width + 40) nextX = -lane.width;
+            if (lane.speed < 0 && nextX < -lane.width - 40) nextX = canvas.width;
+            return nextX;
+          });
+        }
+      });
+
+      // Collision Detection
+      const currentLane = lanes.find(l => l.row === player.row);
+      const px = player.col * gridSize + 4;
+      const py = player.row * gridSize + 4;
+
+      if (currentLane) {
+        if (currentLane.type === 'road') {
+          for (let ox of currentLane.items) {
+            if (px < ox + currentLane.width && px + player.width > ox) {
+              killPlayer();
+              return;
+            }
+          }
+        } else if (currentLane.type === 'river') {
+          let onLog = false;
+          for (let ox of currentLane.items) {
+            if (px >= ox - 10 && px + player.width <= ox + currentLane.width + 10) {
+              onLog = true;
+              player.col += (currentLane.speed * delta * 60) / gridSize;
+              break;
+            }
+          }
+          if (!onLog || player.col < 0 || player.col >= cols) {
+            killPlayer();
+            return;
+          }
+        } else if (currentLane.type === 'goal') {
+          let landedBay = currentLane.items.find(b => Math.abs(b.col - player.col) < 0.8 && !b.filled);
+          if (landedBay) {
+            landedBay.filled = true;
+            score += 50;
+            document.getElementById('hud-score').innerText = score;
+            player.col = 8;
+            player.row = rows - 1;
+            highestRow = rows - 1;
+          } else {
+            killPlayer();
+          }
+        }
+      }
+    }
+
+    function render() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Render Lanes
+      lanes.forEach(lane => {
+        const y = lane.row * gridSize;
+        if (lane.type === 'river') {
+          ctx.fillStyle = '#1e3a5f';
+          ctx.fillRect(0, y, canvas.width, gridSize);
+          ctx.fillStyle = lane.color;
+          lane.items.forEach(ox => {
+            ctx.fillRect(ox, y + 6, lane.width, gridSize - 12);
+          });
+        } else if (lane.type === 'road') {
+          ctx.fillStyle = '#1f2430';
+          ctx.fillRect(0, y, canvas.width, gridSize);
+          ctx.fillStyle = lane.color;
+          lane.items.forEach(ox => {
+            ctx.fillRect(ox, y + 8, lane.width, gridSize - 16);
+          });
+        } else if (lane.type === 'goal') {
+          ctx.fillStyle = '#0f172a';
+          ctx.fillRect(0, y, canvas.width, gridSize);
+          lane.items.forEach(b => {
+            ctx.fillStyle = b.filled ? '#a3be8c' : '#334155';
+            ctx.fillRect(b.col * gridSize, y + 4, gridSize, gridSize - 8);
+          });
+        } else {
+          ctx.fillStyle = lane.color || '#2e3440';
+          ctx.fillRect(0, y, canvas.width, gridSize);
+        }
+      });
+
+      // Render Player Frog
+      if (!gameOver) {
+        ctx.fillStyle = player.color;
+        const px = Math.round(player.col * gridSize) + 4;
+        const py = Math.round(player.row * gridSize) + 4;
+        ctx.fillRect(px, py, player.width, player.height);
+        ctx.fillStyle = '#ebcb8b';
+        ctx.fillRect(px + 4, py + 4, 6, 6);
+        ctx.fillRect(px + player.width - 10, py + 4, 6, 6);
+      }
+    }
+
+    let lastTime = performance.now();
+    function gameLoop(now) {
+      requestAnimationFrame(gameLoop);
+      const delta = (now - lastTime) / 1000;
+      lastTime = now;
+      update(delta);
+      render();
+    }
+    requestAnimationFrame(gameLoop);
+  </script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+    "curriculum_id": "CURR-ROLE-GMP",
+    "discipline": "Gameplay",
+    "title": "Kinetic Game Feel, Stealth Envelopes & Actor AI",
+    "core_competencies": [
+        "Responsive locomotion: instant input acknowledgment, coyote time, and turn-acceleration curves.",
+        "Sensory stealth envelopes: calculating visibility from scene light sources rather than binary zone triggers.",
+        "StateTree AI architectures: NPC behaviors driven by priority tasks (Flee Danger > Investigate Disturbance > Work Routine > Idle).",
+        "Physicalized interaction radii: clear affordances and raycast prioritization when players approach interactive objects."
+    ],
+    "anti_patterns": [
+        "Locking player movement during camera interpolations.",
+        "Binary line-of-sight checks that ignore lighting conditions and obstacles.",
+        "Unforgiving interaction angles that frustrate players."
+    ]
+}

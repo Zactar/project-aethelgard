@@ -1,0 +1,49 @@
+{
+  "rfcs": [
+    {
+      "index": 0,
+      "summary": "Establishes a 100+ relic catalog schema across four rarity tiers, updating player stat multipliers and draft state on checkpoint arrival.",
+      "technical_specification": "Maintain `state.inventory.relicCatalog` defining 100+ relics indexed by rarity: Common (45%), Rare (35%), Epic (15%), Cursed (5%). When distance traveled crosses multiples of 500m (`state.world.distance % 500 === 0`), trigger a draft tri-choice in `state.inventory.activeDraft`. Picking a relic applies passive modifiers: `state.player.topSpeedMul`, `state.player.accelMul`, `state.player.carveGrip`, and `state.player.staminaRegen`. Cursed relics grant extreme buffs (e.g., +60% speed) coupled with drawbacks (e.g., -50% carve grip, +20% Yeti spawn rate). Equipped relics are stored in `state.inventory.equippedRelics` with immediate stat recalculation on acquire.",
+      "acceptance_criteria": [
+        "100 unique relic IDs exist with deterministic rarity weighting (Common, Rare, Epic, Cursed).",
+        "Reaching every 500m checkpoint populates state.inventory.activeDraft with exactly 3 non-duplicate options.",
+        "Equipping a relic mutates relevant state.player and state.stats scalar properties."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.world.distance", "state.pointer"],
+        "outputs": ["state.inventory.equippedRelics", "state.inventory.activeDraft", "state.player.topSpeedMul", "state.player.carveGrip"],
+        "events": ["CHECKPOINT_REACHED", "RELIC_DRAFT_SELECTED"]
+      }
+    },
+    {
+      "index": 1,
+      "summary": "Implements distance-based procedural biome sequencing and sector-based hazard/gate spawning profiles across four alpine tiers.",
+      "technical_specification": "Evaluate `state.world.currentBiome` every tick using `state.world.distance`: Alpine Resort (0-1500m), Black Diamond Pines (1500-3500m), Glacial Crevasse (3500-6000m), and Yeti Tundra (6000m+). A procedural slice generator populates `state.world.entities` ahead of the camera viewport ($Y + 800$). Entity density scales with distance: Pines switch from sparse flags and wide slalom gates ($\text{width} = 140\text{px}$) to dense tree clusters, narrow gates ($\text{width} = 70\text{px}$), and aggressive Yeti encounter triggers (`state.world.yetiAggro`). Biome transitions blend fog and palette via `state.world.paletteLerp` over a 200m buffer zone.",
+      "acceptance_criteria": [
+        "Biome transitions reliably trigger at exact distance thresholds: 0m, 1500m, 3500m, and 6000m.",
+        "Slalom gate and tree entity density mathematically increases across successive biomes.",
+        "State tracks active biome palette and fog lerp parameters without memory leaks from culled entities."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.world.distance", "state.player.y"],
+        "outputs": ["state.world.currentBiome", "state.world.entities", "state.world.paletteLerp", "state.world.yetiAggro"],
+        "events": ["BIOME_TRANSITION_START", "BIOME_TRANSITION_COMPLETE"]
+      }
+    },
+    {
+      "index": 2,
+      "summary": "Integrates ice patch slip dynamics, jump chasm collision boundaries, and dynamic blizzard alpha masking into the downhill kinematics pipeline.",
+      "technical_specification": "On overlap with ice hazards in `state.world.entities`, clamp `state.player.carveGrip` to 0.15, force slip vector $\\vec{V}_{lat} = \\vec{V}_{lat} \\times 0.995$, and disable braking until exit. Chasms require jump state `state.player.isAirborne === true` with vertical clearing threshold $Z \\ge 1.0$; ground contact triggers `WIPEOUT` state, resetting velocity to 0 and dropping `state.stats.balance`. Blizzards apply a radial alpha mask to Canvas 2D (`state.world.blizzardAlpha`), scaling radius $R = R_{base} \\times (1 - \\text{blizzardIntensity})$ to limit horizontal visibility to 200px while increasing wind drift force on `state.player.vx`.",
+      "acceptance_criteria": [
+        "Traversing an ice patch reduces turning responsiveness by at least 80% without killing forward momentum.",
+        "Colliding with a chasm while state.player.isAirborne is false triggers WIPEOUT and zeros downhill velocity.",
+        "Blizzard visibility mask restricts visible screen radius dynamically according to biome intensity."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.player.x", "state.player.y", "state.player.isAirborne", "state.player.z"],
+        "outputs": ["state.player.carveGrip", "state.player.vx", "state.player.vy", "state.world.blizzardAlpha", "state.stats.balance"],
+        "events": ["PLAYER_WIPEOUT", "HAZARD_ENTER", "HAZARD_EXIT"]
+      }
+    }
+  ]
+}

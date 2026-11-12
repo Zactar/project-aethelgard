@@ -1,0 +1,49 @@
+{
+  "rfcs": [
+    {
+      "index": 0,
+      "summary": "Centralized 128-BPM Web Audio synthesizer running a 16-step sequencer with combo-layered instrumentation and dedicated procedural FM SFX voices.",
+      "technical_specification": "Initialize `state.audio = { ctx: new AudioContext(), step: 0, nextStepTime: 0, bpm: 128, kickGain, bassGain, snareGain, leadGain }` on user gesture. Compute `stepDuration = 60 / (128 * 4)` (~0.117s). In update loop, schedule ahead when `audio.ctx.currentTime >= audio.nextStepTime`: trigger pitch-drop sine wave (140Hz->35Hz) on steps 0,4,8,12; trigger bandpass white-noise snare on steps 4,12; trigger 16th-note sawtooth arpeggio frequencies `[55, 65.4, 73.4, 82.4]` mapped to pentatonic scale. Modulate `leadGain` linearly by `Math.min(1.0, (state.stats.combo - 1) * 0.25)`. Expose `playLaserSFX(freq, decay)` via modulated exponential ramp down and `playShatterSFX(impact)` via bandpassed noise burst.",
+      "acceptance_criteria": [
+        "128-BPM clock triggers precisely on audio.ctx time without drift or frame hitching.",
+        "Lead synth tracks combo multiplier and mutes completely when combo resets to 0.",
+        "Laser and shatter procedural SFX play concurrently without clipping the master bus."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.stats.combo", "state.audio.ctx.currentTime"],
+        "outputs": ["state.audio.step", "state.audio.nextStepTime", "state.audio.leadGain"],
+        "events": ["AUDIO_BEAT_TICK", "SFX_LASER_FIRE", "SFX_ASTEROID_SHATTER"]
+      }
+    },
+    {
+      "index": 1,
+      "summary": "Between-wave neon draft state machine generating 3 randomized HYPER-MOD cartridges and handling animated interactive draft selection.",
+      "technical_specification": "When `state.world.waveActive === false` and `state.world.asteroids.length === 0`, set `state.modal = { type: 'DRAFT', animTime: 0, cards: [] }`. Draw 3 distinct mods from catalog `MOD_CATALOG` (`chain_lightning`, `orbital_saws`, `ricochet_prism`, `afterburner_nova`). On mouse hover or keys `1-3`, interpolate target card scale `scale = 1.0 + 0.08 * Math.sin(state.modal.animTime * 8)`. On select: push chosen ID to `state.player.mods`, apply modifier stats (e.g. `state.player.ricochetCount += 2`), clear `state.modal`, increment `state.world.waveIndex`, and trigger next wave spawn with 60-frame countdown.",
+      "acceptance_criteria": [
+        "Modal triggers cleanly between waves and suspends kinematic simulation while maintaining Web Audio clock.",
+        "Generates 3 non-duplicate upgrade cartridges with valid stat deltas.",
+        "Card selection directly mutates state.player mechanics without leaking UI state into subsequent waves."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.world.waveActive", "state.pointer.x", "state.pointer.y", "state.keys.Digit1", "state.keys.Digit2", "state.keys.Digit3"],
+        "outputs": ["state.modal", "state.player.mods", "state.world.waveIndex"],
+        "events": ["MODAL_DRAFT_OPEN", "MODAL_DRAFT_SELECT", "WAVE_START"]
+      }
+    },
+    {
+      "index": 2,
+      "summary": "Visual synesthesia pipeline pulsating synthwave grid lines, asteroid bloom outlines, and starfield scale synchronously with kick transients.",
+      "technical_specification": "Subscribe to `AUDIO_BEAT_TICK` (quarter notes: `step % 4 === 0`) to set `state.world.beatPulse = 1.0`. Decay per frame: `state.world.beatPulse = Math.max(0, state.world.beatPulse - dt * 3.5)`. In Canvas 2D render pass: scale background grid line width `lw = 1 + 2.5 * state.world.beatPulse` and set grid stroke `#ff007f` with `globalAlpha = 0.15 + 0.25 * beatPulse`. Asteroid neon stroke widths offset by `+ (1.5 * beatPulse)` and `ctx.shadowBlur = 8 + 12 * beatPulse`. Starfield particles scale size by `1.0 + 0.4 * beatPulse` toward camera vanishing point.",
+      "acceptance_criteria": [
+        "Warp grid, stars, and asteroid outlines expand and decay smoothly in exact synchronization with audio kick.",
+        "Decay formula prevents lingering pulse values between successive beats at 128 BPM.",
+        "Render pipeline adds zero extra DOM nodes or off-screen HUD canvases."
+      ],
+      "interface_contracts": {
+        "inputs": ["state.audio.step", "state.world.beatPulse", "dt"],
+        "outputs": ["state.world.beatPulse", "ctx.shadowBlur", "ctx.lineWidth"],
+        "events": ["AUDIO_BEAT_TICK"]
+      }
+    }
+  ]
+}

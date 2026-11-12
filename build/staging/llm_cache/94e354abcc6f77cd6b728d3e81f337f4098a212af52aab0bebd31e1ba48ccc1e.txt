@@ -1,0 +1,193 @@
+```javascript
+// Cohesive Milestone Plugin: v0.3.0 - Best-of-5 Series, Harmonic Synthesizer & Blitz Turn Timer
+window.StudioEngine.registerModule("Milestone_v0_3_0", {
+  init: function(state, engine) {
+    state.stats = state.stats || {};
+    state.stats.series = state.stats.series || { playerWins: 0, aiWins: 0, ties: 0, targetWins: 3, roundIndex: 1 };
+    state.stats.multiplier = state.stats.multiplier || 1.0;
+    state.stats.forksCreated = state.stats.forksCreated || 0;
+    state.stats.consecutiveWins = state.stats.consecutiveWins || 0;
+
+    state.world = state.world || {};
+    state.world.blitz = state.world.blitz || { enabled: true, maxTime: 5.0, timeLeft: 5.0, lastTick: 0 };
+    state.audioCtx = state.audioCtx || null;
+
+    this.pentatonic = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 587.33, 659.25, 783.99];
+    this.triads = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+    this.processedRoundOver = false;
+
+    // Harmonized Web Audio Synthesizer
+    this.getAudio = () => {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!state.audioCtx && AC) {
+        state.audioCtx = new AC();
+        state.masterGain = state.audioCtx.createGain();
+        state.masterGain.gain.setValueAtTime(0.35, state.audioCtx.currentTime);
+        state.masterGain.connect(state.audioCtx.destination);
+      }
+      if (state.audioCtx && state.audioCtx.state === 'suspended') state.audioCtx.resume();
+      return state.audioCtx;
+    };
+
+    this.playTone = (freq, type, dur, gainVal, delay = 0) => {
+      const ctx = this.getAudio();
+      if (!ctx || !state.masterGain) return;
+      const t = ctx.currentTime + delay;
+      const osc = ctx.createOscillator();
+      const g = ctx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(Math.min(freq, 640), t);
+      g.gain.setValueAtTime(gainVal, t);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      osc.connect(g);
+      g.connect(state.masterGain);
+      osc.start(t);
+      osc.stop(t + dur);
+    };
+
+    engine.on("CELL_INSCRIBED", (payload, st) => {
+      const idx = payload.cellIndex;
+      this.playTone(this.pentatonic[idx], 'triangle', 0.4, 0.06);
+      this.playTone(55, 'sine', 0.25, 0.08); // Sub-bass placement thud
+
+      // Tactical Fork Evaluation for Player
+      if (payload.type === 'BLADES') {
+        const grid = [...st.stats.grid];
+        let threatCount = 0;
+        for (let t of this.triads) {
+          const pCount = t.filter(i => grid[i] === 'BLADES').length;
+          const eCount = t.filter(i => grid[i] === null).length;
+          if (pCount === 2 && eCount === 1) threatCount++;
+        }
+        if (threatCount >= 2) {
+          st.stats.forksCreated++;
+          st.score += 500;
+          st.world.floatingTexts = st.world.floatingTexts || [];
+          st.world.floatingTexts.push({ text: "+500 TACTICAL FORK", x: 400, y: 260, life: 1.2, color: "#00f0ff" });
+        }
+        if (st.world.blitz.enabled && st.world.blitz.timeLeft > 0) {
+          const speedBonus = Math.floor((st.world.blitz.timeLeft / 5.0) * 300) * st.stats.multiplier;
+          st.score += speedBonus;
+          st.world.floatingTexts = st.world.floatingTexts || [];
+          st.world.floatingTexts.push({ text: `+${speedBonus} BLITZ BONUS`, x: 400, y: 340, life: 1.0, color: "#ffd700" });
+        }
+      }
+      st.world.blitz.timeLeft = st.world.blitz.maxTime;
+    });
+  },
+
+  update: function(dt, state, engine) {
+    if (state.paused) return;
+    const s = state.stats;
+    const b = state.world.blitz;
+
+    // Blitz countdown during active turns
+    if (b.enabled && (s.phase === 'PLAYER_TURN' || s.phase === 'AI_THINKING') && !s.winner) {
+      b.timeLeft -= dt;
+      if (b.timeLeft <= 0) {
+        b.timeLeft = b.maxTime;
+        const empties = s.grid.map((v, i) => v === null ? i : null).filter(v => v !== null);
+        if (empties.length > 0) {
+          const forfeitIdx = empties[Math.floor(Math.random() * empties.length)];
+          const type = s.phase === 'PLAYER_TURN' ? 'BLADES' : 'RING';
+          s.grid[forfeitIdx] = type;
+          s.phase = s.phase === 'PLAYER_TURN' ? 'AI_THINKING' : 'PLAYER_TURN';
+          engine.emit("CELL_INSCRIBED", { cellIndex: forfeitIdx, type: type });
+        }
+      }
+    }
+
+    // Series Resolution on Round Finish
+    if (s.winner && !this.processedRoundOver) {
+      this.processedRoundOver = true;
+      const ser = s.series;
+      if (s.winner === 'BLADES') {
+        ser.playerWins++;
+        s.consecutiveWins++;
+        s.multiplier = Math.min(3.0, 1.0 + (s.consecutiveWins - 1) * 0.5);
+        if (s.grid[4] === 'BLADES') {
+          state.score += 250;
+          state.world.floatingTexts.push({ text: "+250 CENTER-NEXUS", x: 400, y: 300, life: 1.2, color: "#ffd700" });
+        }
+        if (s.winVector) {
+          s.winVector.forEach((cellIdx, i) => {
+            this.playTone(this.pentatonic[cellIdx], 'triangle', 1.2, 0.05, i * 0.12);
+          });
+        }
+        if (ser.playerWins >= ser.targetWins && ser.aiWins === 0) {
+          state.score += 2500;
+          state.world.floatingTexts.push({ text: "+2500 FLAWLESS SWEEP!", x: 400, y: 220, life: 2.0, color: "#00f0ff" });
+        }
+      } else if (s.winner === 'RING') {
+        ser.aiWins++;
+        s.consecutiveWins = 0;
+        s.multiplier = 1.0;
+        if (s.winVector) {
+          s.winVector.forEach((cellIdx, i) => this.playTone(this.pentatonic[cellIdx] * 0.75, 'sawtooth', 0.8, 0.04, i * 0.1));
+        }
+      } else if (s.winner === 'TIE') {
+        ser.ties++;
+        [261.63, 349.23, 392.00].forEach(f => this.playTone(f, 'sine', 1.6, 0.05)); // Suspended 4th resolve
+      }
+      ser.roundIndex++;
+    } else if (!s.winner) {
+      this.processedRoundOver = false;
+    }
+  },
+
+  render: function(ctx, state) {
+    if (state.paused) return;
+    const m = state.world.matrix;
+    const b = state.world.blitz;
+    const ser = state.stats.series;
+
+    // Diegetic Outer Frame Blitz Timer (Total Perimeter = 1440px)
+    if (b.enabled && (state.stats.phase === 'PLAYER_TURN' || state.stats.phase === 'AI_THINKING') && !state.stats.winner) {
+      ctx.save();
+      const pct = Math.max(0, b.timeLeft / b.maxTime);
+      const dashLength = pct * 1440;
+      let strokeW = 2.5;
+      let strokeColor = state.stats.phase === 'PLAYER_TURN' ? '#00f0ff' : '#ffd700';
+      if (b.timeLeft <= 2.0) {
+        const freq = 6 * (2.5 - b.timeLeft);
+        strokeW = 2 + Math.abs(Math.sin(Date.now() * 0.001 * freq * Math.PI)) * 4;
+        strokeColor = '#ff2a55';
+      }
+      ctx.strokeStyle = strokeColor;
+      ctx.lineWidth = strokeW;
+      ctx.setLineDash([dashLength, 1440]);
+      ctx.lineDashOffset = 0;
+      ctx.shadowColor = strokeColor;
+      ctx.shadowBlur = 8;
+      ctx.strokeRect(m.x - 6, m.y - 6, m.size + 12, m.size + 12);
+      ctx.restore();
+    }
+
+    // Steady HUD Top Status Ribbon (y: 0..36, unaffected by shake)
+    ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.font = '11px monospace';
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#8e99ac';
+    ctx.fillText(`CHAMPIONSHIP [BO5] R${ser.roundIndex}`, 14, 22);
+
+    // Series Victory Pips
+    for (let i = 0; i < ser.targetWins; i++) {
+      ctx.fillStyle = i < ser.playerWins ? '#00f0ff' : '#1b233a';
+      ctx.fillRect(170 + i * 14, 14, 10, 10);
+      ctx.fillStyle = i < ser.aiWins ? '#ffd700' : '#1b233a';
+      ctx.fillRect(230 + i * 14, 14, 10, 10);
+    }
+    ctx.fillStyle = '#677b96';
+    ctx.fillText("VS", 214, 23);
+
+    // Multiplier & Forks
+    ctx.textAlign = 'right';
+    ctx.fillStyle = '#00f0ff';
+    ctx.fillText(`STREAK: ${state.stats.multiplier.toFixed(1)}x`, 680, 22);
+    ctx.fillStyle = '#ffd700';
+    ctx.fillText(`FORKS: ${state.stats.forksCreated}`, 786, 22);
+    ctx.restore();
+  }
+});
+```

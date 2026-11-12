@@ -1,0 +1,18 @@
+{
+  "codename": "Operation Censer-Grave",
+  "theme": "Stygian Pyre Rifts, Grapple-Kick Physics & Calcified Behemoths",
+  "deliverables": [
+    {
+      "discipline": "Systems",
+      "title": "Subterranean Sulfur-Vent Rupture System: Interactive floor fissures that erupt into directional doom-ochre vapor geysers upon taking weapon impact, launching nearby debris and igniting lingering oil trails into self-propagating flame fronts."
+    },
+    {
+      "discipline": "Gameplay",
+      "title": "Chained Vault-Kick Traversal: An active momentum-kick triggered during dodge-rolls against fractured crypt columns and suspended iron censers, propelling the player across chasms while violently toppling masonry onto pursuers."
+    },
+    {
+      "discipline": "Client",
+      "title": "Calcified Husk Guardians & Diegetic Armor Cleaving: Heavy ossified horrors whose segmented bone plating cracks and shatters across the stone floor under poise-breaking blows, exposing glowing necrotic cores without abstract UI health bars."
+    }
+  ]
+}

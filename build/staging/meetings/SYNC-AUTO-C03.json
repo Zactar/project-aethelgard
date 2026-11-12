@@ -1,0 +1,30 @@
+{
+  "meeting_id": "SYNC-AUTO-C03",
+  "timestamp": "2026-11-12T12:57:52.437808",
+  "active_milestone": "v0.6.0",
+  "theme": "Dynamic Astral Hazards & Kinetic Gravity Resonance",
+  "deliverables_in_scope": [
+    {
+      "deliverable_id": "DELIV-V0_6_0-01",
+      "discipline": "Systems",
+      "title": "Astra-Singularity Dynamic Core: An interactive graviton node that manifests at sector intersections, physically pulsing gravitational wave rings outward to magnetically pull cursor reticles and bend inscribed particle beams toward its epicenter.",
+      "target_subsystem": "web_client/index.html",
+      "status": "PENDING"
+    },
+    {
+      "deliverable_id": "DELIV-V0_6_0-02",
+      "discipline": "Gameplay",
+      "title": "Kinetic Overcharge Sigil Strike: Active placement mechanic where timing an inscription input with the lattice's inward breathing pulse supercharges the sigil, emitting a directional shockwave that displaces adjacent ambient energy embers and fractures neighboring partition borders.",
+      "target_subsystem": "web_client/index.html",
+      "status": "PENDING"
+    },
+    {
+      "deliverable_id": "DELIV-V0_6_0-03",
+      "discipline": "Client",
+      "title": "Diegetic Lattice Stress Fractures & Radiant Crucible Bloom: Pure in-world visual feedback system replacing external state prompts with progressive glowing obsidian fractures, dynamic refractive ripples along partition lines, and prismatic heat distortion over contested triad corridors.",
+      "target_subsystem": "web_client/index.html",
+      "status": "PENDING"
+    }
+  ],
+  "blackboard_contract": "window.StudioEngine.state (player, stats, inventory, world, keys, pointer)"
+}
