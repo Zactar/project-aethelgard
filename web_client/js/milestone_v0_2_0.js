@@ -1,305 +1,337 @@
-// Cohesive Milestone Plugin: v0.2.0
-// Cohesive Milestone Plugin: v0.2.0 - Parrying, OSR Classes, Stress & Resolve System
+// Cohesive Milestone Plugin: v0.2.0 (Interactive OSR Character Customizer, 3d6 Stat Roller, Pacts & Resolve)
 window.StudioEngine.registerModule("Milestone_v0_2_0", {
-  init: function(state) {
-    state.player = state.player || {};
-    state.stats = state.stats || {};
-    state.world = state.world || {};
-    state.world.torch = state.world.torch !== undefined ? state.world.torch : 100;
-    state.world.particles = state.world.particles || [];
-    state.world.floatingTexts = state.world.floatingTexts || [];
-
-    state.player.classSelected = state.player.classSelected || false;
-    state.player.classId = state.player.classId || 'doomblade';
-    state.player.stress = state.player.stress || 0;
-    state.player.maxStress = 100;
-    state.player.resolveState = state.player.resolveState || null; // 'TRANSCENDENT' | 'AFFLICTED'
-    state.player.isParrying = false;
-    state.player.parryTimer = 0;
-    state.player.riposteReady = 0;
-    state.player.bloodRiteCooldown = 0;
-
-    this.cursor = 0;
-    this.prevKeys = {};
-    this.audioCtx = null;
+  init: function(state, engine) {
     this.classes = [
-      { id: 'doomblade', name: 'Doomblade Paladin', str: 16, dex: 11, con: 15, arc: 8, wpn: 'Colossal Zweihänder', color: '#eab308', rite: 'Holy Aegis Nova' },
-      { id: 'warlock', name: 'Acid Warlock', str: 8, dex: 12, con: 10, arc: 17, wpn: 'Verdigris Hex-Cane', color: '#10b981', rite: 'Caustic Rupture' },
-      { id: 'stalker', name: 'Grave-Stalker', str: 11, dex: 17, con: 12, arc: 10, wpn: 'Dual Kris Blades', color: '#a855f7', rite: 'Shadow Step Cleave' },
-      { id: 'flagellant', name: 'Crypt Flagellant', str: 14, dex: 10, con: 16, arc: 11, wpn: 'Barbed Blood-Whip', color: '#dc2626', rite: 'Martyrdom Frenzy' }
+      {
+        id: "PALADIN", name: "Doomblade Paladin", color: "#eab308",
+        weapons: [
+          { name: "Colossal Zweihänder", reach: 68, dmg: 28 },
+          { name: "Sanctified War-Flail", reach: 56, dmg: 32 }
+        ],
+        rite: "Holy Aegis Nova",
+        stats: { STR: 16, DEX: 11, CON: 15, ARC: 8 },
+        // Winged Greathelm with Cross Visor
+        bitmap: [0b100111,0b110111,0b011111,0b011111,0b011000,0b011110,0b011000,0b011011,0b011011,0b011111,0b001110,0b000100]
+      },
+      {
+        id: "WARLOCK", name: "Acid Warlock", color: "#10b981",
+        weapons: [
+          { name: "Verdigris Hex-Cane", reach: 64, dmg: 24 },
+          { name: "Dopethrone Censer", reach: 74, dmg: 21 }
+        ],
+        rite: "Caustic Rupture",
+        stats: { STR: 8, DEX: 12, CON: 10, ARC: 17 },
+        // Pointed Cultist Hood with Glowing Third Eye
+        bitmap: [0b000011,0b000111,0b001111,0b011101,0b011000,0b111011,0b111111,0b011001,0b011111,0b001110,0b011100,0b110000]
+      },
+      {
+        id: "RANGER", name: "Grave-Stalker", color: "#a855f7",
+        weapons: [
+          { name: "Dual Kris Blades", reach: 50, dmg: 25 },
+          { name: "Graveyard Crossbow", reach: 82, dmg: 20 }
+        ],
+        rite: "Shadow Step Cleave",
+        stats: { STR: 11, DEX: 17, CON: 12, ARC: 10 },
+        // Wide-Brimmed Witch-Hunter Hat & Mask
+        bitmap: [0b000111,0b001111,0b111111,0b111111,0b011001,0b011001,0b011111,0b001111,0b011110,0b011100,0b001000,0b000000]
+      },
+      {
+        id: "FLAGELLANT", name: "Crypt Flagellant", color: "#dc2626",
+        weapons: [
+          { name: "Barbed Blood-Whip", reach: 72, dmg: 26 },
+          { name: "Martyr's Iron Mace", reach: 54, dmg: 31 }
+        ],
+        rite: "Martyrdom Frenzy",
+        stats: { STR: 14, DEX: 10, CON: 16, ARC: 11 },
+        // Spiked Crown of Thorns & Iron Mask
+        bitmap: [0b101010,0b011111,0b111111,0b011001,0b011001,0b011111,0b011011,0b011001,0b001111,0b001010,0b001010,0b000000]
+      }
     ];
 
-    if (!state.player.classSelected) state.paused = true;
+    this.pacts = [
+      { name: "Electric Wizard Initiate", bonus: "+15% Arcane Reach & Torch Glow", gold: 30, torch: 100 },
+      { name: "Catacomb Tomb-Robber", bonus: "+45 Starting Gold & Sprint Speed", gold: 70, torch: 90 },
+      { name: "Exiled Iron Inquisitor", bonus: "+1 Max HP Vessel & Poise Damage", gold: 25, torch: 100, hpBonus: 1 },
+      { name: "Black Chalice Penitent", bonus: "+25% Cleave Damage, Starts Stressed", gold: 35, torch: 85, dmgBonus: 6 }
+    ];
+
+    this.sheetOpen = true;
+    this.selectedClass = 0;
+    this.selectedStatIdx = 0; // 0:STR, 1:DEX, 2:CON, 3:ARC
+    this.statKeys = ["STR", "DEX", "CON", "ARC"];
+    this.bonusPoints = 3;
+    this.pactIdx = 0;
+    this.weaponIdx = 0;
+    this.riteCooldown = 0;
+    this.riteFx = [];
+
+    state.paused = true;
+    state.player.stress = 0;
+    state.player.resolveState = "STEADY";
+
+    engine.on("KEYDOWN", (ev) => {
+      if (this.sheetOpen) {
+        if (ev.code === "ArrowLeft" || ev.code === "KeyA") {
+          this.selectedClass = (this.selectedClass + 3) % 4;
+        } else if (ev.code === "ArrowRight" || ev.code === "KeyD") {
+          this.selectedClass = (this.selectedClass + 1) % 4;
+        } else if (ev.code === "ArrowUp" || ev.code === "KeyW") {
+          this.selectedStatIdx = (this.selectedStatIdx + 3) % 4;
+        } else if (ev.code === "ArrowDown" || ev.code === "KeyS") {
+          this.selectedStatIdx = (this.selectedStatIdx + 1) % 4;
+        } else if (ev.code === "KeyE" || ev.code === "Equal") {
+          // Allocate bonus stat point
+          const stKey = this.statKeys[this.selectedStatIdx];
+          const cls = this.classes[this.selectedClass];
+          if (this.bonusPoints > 0 && cls.stats[stKey] < 18) {
+            cls.stats[stKey]++;
+            this.bonusPoints--;
+          }
+        } else if (ev.code === "KeyQ" || ev.code === "Minus") {
+          // Refund stat point
+          const stKey = this.statKeys[this.selectedStatIdx];
+          const cls = this.classes[this.selectedClass];
+          if (cls.stats[stKey] > 6) {
+            cls.stats[stKey]--;
+            this.bonusPoints++;
+          }
+        } else if (ev.code === "KeyR") {
+          // Roll 3d6 OSR Ability Scores!
+          const cls = this.classes[this.selectedClass];
+          const roll3d6 = () => (1 + Math.floor(Math.random() * 6)) + (1 + Math.floor(Math.random() * 6)) + (1 + Math.floor(Math.random() * 6));
+          cls.stats.STR = Math.max(7, roll3d6());
+          cls.stats.DEX = Math.max(7, roll3d6());
+          cls.stats.CON = Math.max(8, roll3d6());
+          cls.stats.ARC = Math.max(7, roll3d6());
+          this.bonusPoints = 3;
+        } else if (ev.code === "KeyT") {
+          this.pactIdx = (this.pactIdx + 1) % this.pacts.length;
+        } else if (ev.code === "KeyV") {
+          this.weaponIdx = (this.weaponIdx + 1) % 2;
+        } else if (ev.code === "Space" || ev.code === "Enter") {
+          this.confirmCharacter(state);
+        }
+        return;
+      }
+
+      // Active Dungeon: [SHIFT / E] triggers Blood-Rite Special when ready
+      if (!state.paused && (ev.code === "ShiftLeft" || ev.code === "ShiftRight" || ev.code === "KeyE")) {
+        if (this.riteCooldown <= 0) {
+          this.triggerBloodRite(state, engine);
+        }
+      }
+    });
   },
 
-  playSfx: function(freq, type, dur, gain) {
-    try {
-      var AC = window.AudioContext || window.webkitAudioContext;
-      if (!this.audioCtx && AC) this.audioCtx = new AC();
-      if (!this.audioCtx) return;
-      var o = this.audioCtx.createOscillator(), g = this.audioCtx.createGain();
-      o.type = type || 'sawtooth';
-      o.frequency.setValueAtTime(Math.min(freq, 640), this.audioCtx.currentTime);
-      g.gain.setValueAtTime(gain || 0.05, this.audioCtx.currentTime);
-      g.gain.exponentialRampToValueAtTime(0.0001, this.audioCtx.currentTime + dur);
-      o.connect(g); g.connect(this.audioCtx.destination);
-      o.start(); o.stop(this.audioCtx.currentTime + dur);
-    } catch (e) {}
-  },
+  confirmCharacter: function(state) {
+    const cls = this.classes[this.selectedClass];
+    const pact = this.pacts[this.pactIdx];
+    const wep = cls.weapons[this.weaponIdx];
+    const p = state.player;
 
-  applyClass: function(state, cls) {
-    state.player.classId = cls.id;
-    state.player.weapon = cls.wpn;
-    state.stats.attributes = { STR: cls.str, DEX: cls.dex, CON: cls.con, ARC: cls.arc };
+    this.sheetOpen = false;
+    p.classColor = cls.color;
+    p.characterClass = cls.name;
+    p.pactName = pact.name;
+    p.weaponName = wep.name;
+    p.weaponReach = wep.reach + (cls.stats.ARC - 10) * 1.5;
+    p.weaponDamage = wep.dmg + (cls.stats.STR - 10) * 1.4 + (pact.dmgBonus || 0);
+    p.speed = 155 + (cls.stats.DEX - 10) * 4.5;
+    p.maxHealth = 4 + Math.floor(cls.stats.CON / 5) + (pact.hpBonus || 0);
+    p.health = p.maxHealth;
+    p.shields = p.maxHealth;
+    p.gold = pact.gold;
+    p.torchLevel = pact.torch;
     state.stats.characterClass = cls.name;
-    state.player.classSelected = true;
+    state.stats.attributes = { ...cls.stats };
+
+    (state.world.floatingTexts || (state.world.floatingTexts = [])).push({
+      text: `${cls.name.toUpperCase()} // ${wep.name.toUpperCase()}`,
+      x: p.x, y: p.y - 28, color: cls.color, life: 2.2
+    });
     state.paused = false;
-    this.playSfx(220, 'square', 0.45, 0.06);
+    state.keys.jump = false;
+  },
+
+  triggerBloodRite: function(state, engine) {
+    const cls = this.classes[this.selectedClass];
+    const p = state.player, w = state.world;
+    this.riteCooldown = 5.0;
+    this.riteFx.push({ x: p.x, y: p.y, r: 12, maxR: 135, color: cls.color, life: 0.45, maxLife: 0.45 });
+
+    if (cls.id === "PALADIN") {
+      p.torchLevel = Math.min(100, (p.torchLevel || 50) + 25);
+      p.stress = Math.max(0, (p.stress || 0) - 20);
+    }
+    const enemies = w.enemies || [];
+    for (let i = 0; i < enemies.length; i++) {
+      const en = enemies[i];
+      if (Math.hypot(en.x - p.x, en.y - p.y) < 140) {
+        en.hp -= 24;
+        en.stagger = 0.9;
+      }
+    }
+    w.floatingTexts.push({ text: `✦ RITE: ${cls.rite.toUpperCase()}! ✦`, x: p.x, y: p.y - 34, color: cls.color, life: 1.1 });
+    engine.emit("BLOOD_RITE_CAST", { rite: cls.rite });
   },
 
   update: function(dt, state) {
-    var p = state.player, k = state.keys || {}, pk = this.prevKeys;
-
-    // Character Selection Modal Controller
-    if (!p.classSelected) {
-      if ((k.left && !pk.left) || (k.digit1 && this.cursor !== 0)) this.cursor = (this.cursor + 3) % 4;
-      if ((k.right && !pk.right) || (k.digit2 && this.cursor !== 1)) this.cursor = (this.cursor + 1) % 4;
-      if (k.digit3) this.cursor = 2;
-      if (k.digit4) this.cursor = 3;
-      if ((k.jump && !pk.jump) || (k.action && !pk.action)) {
-        this.applyClass(state, this.classes[this.cursor]);
-      }
-      this.prevKeys = Object.assign({}, k);
+    if (this.sheetOpen) {
+      state.paused = true;
       return;
     }
+    if (!state.running || state.paused || state.gameOver) return;
 
-    if (state.paused) return;
+    const p = state.player, w = state.world;
+    if (this.riteCooldown > 0) this.riteCooldown = Math.max(0, this.riteCooldown - dt);
 
-    // Torch Light & Stress/Resolve Progression
-    state.world.torch = Math.max(0, state.world.torch - 0.75 * dt);
-    p.torchLevel = state.world.torch / 100;
-    if (state.world.torch < 30) {
-      p.stress = Math.min(100, p.stress + (30 - state.world.torch) * 0.08 * dt);
-    }
-    if (p.stress >= 100 && !p.resolveState) {
-      var attr = state.stats.attributes || { CON: 10, ARC: 10 };
-      var roll = Math.floor(Math.random() * 100) + 1 + (attr.CON || 10) + (attr.ARC || 10);
-      if (roll >= 65) {
-        p.resolveState = 'TRANSCENDENT';
-        state.world.torch = 100;
-        (state.world.floatingTexts || (state.world.floatingTexts = [])).push({ text: 'DOOM TRANSCENDENCE!', x: p.x, y: p.y - 28, color: '#eab308', timer: 2.0 });
-        this.playSfx(520, 'triangle', 0.6, 0.06);
-      } else {
-        p.resolveState = 'AFFLICTED';
-        (state.world.floatingTexts || (state.world.floatingTexts = [])).push({ text: 'ABYSSAL HALLUCINATIONS', x: p.x, y: p.y - 28, color: '#a855f7', timer: 2.0 });
-        this.playSfx(110, 'sawtooth', 0.8, 0.06);
-      }
-    }
-
-    // Shield-Parry & Blood-Rite Input Interception (Shift/E)
-    var moving = Math.abs(p.vx || 0) > 10 || Math.abs(p.vy || 0) > 10;
-    if (k.action && !pk.action) {
-      if (!moving && p.parryTimer <= 0) {
-        // Stationary parry initiation
-        p.isParrying = true;
-        p.parryTimer = 0.18;
-        this.playSfx(480, 'triangle', 0.08, 0.05);
-      } else if (!moving && p.bloodRiteCooldown <= 0 && p.health > 1) {
-        // Blood-Rite execution at sacrifice of 1 HP
-        p.health = Math.max(1, p.health - 1);
-        p.bloodRiteCooldown = 6.0;
-        this.triggerBloodRite(state);
-      }
-    }
-
-    if (p.parryTimer > 0) {
-      p.parryTimer -= dt;
-      if (p.parryTimer <= 0) p.isParrying = false;
-    }
-    if (p.riposteReady > 0) p.riposteReady -= dt;
-    if (p.bloodRiteCooldown > 0) p.bloodRiteCooldown -= dt;
-
-    // Check Enemy Attack Clashes against active Shield-Parry Window
-    var enemies = state.world.enemies || [];
-    for (var i = 0; i < enemies.length; i++) {
-      var e = enemies[i];
-      var dist = Math.hypot(e.x - p.x, e.y - p.y);
-      if (p.isParrying && dist < 38) {
-        p.isParrying = false;
-        p.parryTimer = 0;
-        p.riposteReady = 0.8;
-        e.poise = 0;
-        e.staggerTimer = 1.2;
-        state.world.cameraShake = 8;
-        this.playSfx(580, 'square', 0.25, 0.06); // Anvil Clang
-        for (var sp = 0; sp < 14; sp++) {
-          var ang = Math.random() * Math.PI * 2;
-          (state.world.particles || (state.world.particles = [])).push({
-            x: (p.x + e.x) / 2, y: (p.y + e.y) / 2,
-            vx: Math.cos(ang) * 120, vy: Math.sin(ang) * 120,
-            timer: 0.35, color: '#f59e0b', size: 3
-          });
+    // Darkest Dungeon Stress & Resolve test in low torchlight
+    if ((p.torchLevel || 100) < 45) {
+      p.stress = Math.min(100, (p.stress || 0) + dt * 3.2);
+      if (p.stress >= 100) {
+        p.stress = 35;
+        const virtuous = Math.random() > 0.35;
+        p.resolveState = virtuous ? "DOOM TRANSCENDENCE" : "ABYSSAL FRENZY";
+        if (virtuous) {
+          p.health = Math.min(p.maxHealth, p.health + 2);
+          p.torchLevel = 90;
         }
-        (state.world.floatingTexts || (state.world.floatingTexts = [])).push({ text: 'RIPOSTE OPEN!', x: e.x, y: e.y - 18, color: '#f59e0b', timer: 1.0 });
+        w.floatingTexts.push({
+          text: `RESOLVE TEST: ${p.resolveState}!`,
+          x: p.x, y: p.y - 40, color: virtuous ? "#eab308" : "#dc2626", life: 2.0
+        });
       }
     }
 
-    // Enhanced Class Attack Patterns on Weapon Swing
-    if (k.jump && !pk.jump && p.stamina >= 18) {
-      this.executeClassAttack(state);
-    }
-    this.prevKeys = Object.assign({}, k);
-  },
-
-  triggerBloodRite: function(state) {
-    var p = state.player;
-    state.world.cameraShake = 12;
-    this.playSfx(140, 'sawtooth', 0.45, 0.06);
-    var enemies = state.world.enemies || [];
-    enemies.forEach(function(e) {
-      if (Math.hypot(e.x - p.x, e.y - p.y) < 130) {
-        e.hp -= 24;
-        e.staggerTimer = 0.8;
-      }
-    });
-    for (var i = 0; i < 28; i++) {
-      var a = (i / 28) * Math.PI * 2;
-      (state.world.particles || (state.world.particles = [])).push({
-        x: p.x, y: p.y,
-        vx: Math.cos(a) * 160, vy: Math.sin(a) * 160,
-        timer: 0.45, color: '#dc2626', size: 4
-      });
-    }
-    (state.world.floatingTexts || (state.world.floatingTexts = [])).push({ text: 'BLOOD RITE', x: p.x, y: p.y - 24, color: '#dc2626', timer: 1.2 });
-  },
-
-  executeClassAttack: function(state) {
-    var p = state.player, cid = p.classId, dmgMult = (p.riposteReady > 0) ? 3.0 : 1.0;
-    if (p.resolveState === 'TRANSCENDENT') dmgMult *= 1.35;
-    var enemies = state.world.enemies || [];
-
-    enemies.forEach(function(e) {
-      var dx = e.x - p.x, dy = e.y - p.y, dist = Math.hypot(dx, dy);
-      var angleTo = Math.atan2(dy, dx), diff = Math.abs(angleTo - (p.facingAngle || 0));
-      if (diff > Math.PI) diff = 2 * Math.PI - diff;
-
-      var inHitbox = false;
-      if (cid === 'doomblade' && dist < 62 && diff < 1.1) inHitbox = true; // 120-deg wide cleave
-      else if (cid === 'warlock' && dist < 95 && diff < 0.4) inHitbox = true; // piercing spear line
-      else if (cid === 'stalker' && dist < 45 && diff < 0.7) inHitbox = true; // rapid dual thrust
-      else if (cid === 'flagellant' && dist < 74 && diff < 0.8) inHitbox = true; // whiplash cone
-
-      if (inHitbox) {
-        var dmg = Math.floor(18 * dmgMult);
-        e.hp -= dmg;
-        e.poise = Math.max(0, (e.poise || 10) - 15);
-        (state.world.floatingTexts || (state.world.floatingTexts = [])).push({ text: (dmgMult > 1 ? 'CRIT ' : '') + dmg, x: e.x, y: e.y - 12, color: dmgMult > 1 ? '#f59e0b' : '#ffffff', timer: 0.8 });
-      }
-    });
-    if (p.riposteReady > 0) p.riposteReady = 0;
-  },
-
-  drawPixelIcon: function(ctx, x, y, idx) {
-    var palette = ['#eab308', '#10b981', '#a855f7', '#dc2626'];
-    ctx.fillStyle = palette[idx % 4];
-    for (var r = 0; r < 6; r++) {
-      for (var c = 0; c < 6; c++) {
-        if (((r + c + idx) % 2 === 0) || (r === 2 || c === 3)) {
-          ctx.fillRect(x + c * 4, y + r * 4, 3, 3);
-          ctx.fillRect(x + (11 - c) * 4, y + r * 4, 3, 3); // symmetrical 12x12
-        }
-      }
+    for (let i = this.riteFx.length - 1; i >= 0; i--) {
+      const fx = this.riteFx[i];
+      fx.life -= dt;
+      fx.r += (fx.maxR - fx.r) * 7.0 * dt;
+      if (fx.life <= 0) this.riteFx.splice(i, 1);
     }
   },
 
   render: function(ctx, state) {
-    ctx.save();
-    var p = state.player;
+    // 1. Render Interactive OSR Character Creation & Customization Sheet
+    if (this.sheetOpen) {
+      ctx.save();
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.fillStyle = "rgba(7, 5, 11, 0.96)";
+      ctx.fillRect(0, 36, 800, 564);
 
-    // Diegetic Visuals: Parry Shield Flash & Riposte Aura
-    if (p && p.isParrying) {
-      ctx.strokeStyle = '#f59e0b';
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, 24, 0, Math.PI * 2);
-      ctx.stroke();
-    }
-    if (p && p.riposteReady > 0) {
-      ctx.strokeStyle = '#dc2626';
+      ctx.strokeStyle = "#b45309";
       ctx.lineWidth = 2;
-      ctx.setLineDash([4, 4]);
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, 30, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.setLineDash([]);
-    }
+      ctx.strokeRect(48, 48, 704, 532);
 
-    // Sub-Top Left Reserved Dock: Stress & Class Level
-    ctx.fillStyle = 'rgba(7, 5, 10, 0.85)';
-    ctx.fillRect(16, 48, 180, 34);
-    ctx.strokeStyle = '#292524';
-    ctx.strokeRect(16, 48, 180, 34);
+      ctx.textAlign = "center";
+      ctx.fillStyle = "#f59e0b";
+      ctx.font = "bold 19px monospace";
+      ctx.fillText("--- OSR DELVER COVENANT & CHARACTER CUSTOMIZATION ---", 400, 76);
 
-    ctx.fillStyle = '#a8a29e';
-    ctx.font = '9px monospace';
-    ctx.fillText('STRESS // RESOLVE (' + (p.resolveState || 'STEADY') + ')', 22, 60);
+      ctx.fillStyle = "#cbd5e1";
+      ctx.font = "11px monospace";
+      ctx.fillText("[A/D] Class | [R] Roll 3d6 Stats | [W/S + Q/E] Spend Stat Pts | [T] Pact | [V] Weapon | [SPACE] Delve", 400, 96);
 
-    ctx.fillStyle = '#1c1917';
-    ctx.fillRect(22, 66, 168, 10);
-    ctx.fillStyle = (p.stress || 0) > 75 ? '#dc2626' : '#a855f7';
-    ctx.fillRect(22, 66, Math.min(168, (p.stress || 0) * 1.68), 10);
+      for (let i = 0; i < 4; i++) {
+        const cls = this.classes[i];
+        const sel = (i === this.selectedClass);
+        const cx = 68 + i * 168;
+        const cy = 112;
+        const cw = 156, ch = 352;
+        const wep = cls.weapons[sel ? this.weaponIdx : 0];
 
-    // Illustrated OSR Character Select Modal
-    if (!p.classSelected) {
-      ctx.fillStyle = 'rgba(7, 5, 10, 0.92)';
-      ctx.fillRect(0, 0, 800, 600);
-      ctx.strokeStyle = '#78350f';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(70, 40, 660, 520);
+        ctx.fillStyle = sel ? "#1c1512" : "#0e0c14";
+        ctx.fillRect(cx, cy, cw, ch);
+        ctx.strokeStyle = sel ? cls.color : "#334155";
+        ctx.lineWidth = sel ? 2.5 : 1;
+        ctx.strokeRect(cx, cy, cw, ch);
 
-      ctx.fillStyle = '#d97706';
-      ctx.font = '16px monospace';
-      ctx.textAlign = 'center';
-      ctx.fillText('--- CHOOSE THY ACCURSED LINEAGE ---', 400, 78);
-      ctx.font = '10px monospace';
-      ctx.fillStyle = '#a8a29e';
-      ctx.fillText('[A / D / ARROWS] TO CYCLE LINEAGE  |  [SPACE / SHIFT] TO AWAKEN', 400, 98);
-
-      for (var i = 0; i < this.classes.length; i++) {
-        var cls = this.classes[i], cx = 110 + i * 148, cy = 130;
-        var isSel = (i === this.cursor);
-        ctx.fillStyle = isSel ? 'rgba(217, 119, 6, 0.15)' : 'rgba(28, 25, 23, 0.8)';
-        ctx.fillRect(cx, cy, 136, 390);
-        ctx.strokeStyle = isSel ? '#f59e0b' : '#44403c';
-        ctx.strokeRect(cx, cy, 136, 390);
-
-        this.drawPixelIcon(ctx, cx + 44, cy + 18, i);
-
-        ctx.fillStyle = isSel ? '#fef08a' : '#d6d3d1';
-        ctx.font = '11px monospace';
-        ctx.fillText(cls.name, cx + 68, cy + 86);
-
-        ctx.font = '9px monospace';
-        ctx.fillStyle = '#94a3b8';
-        ctx.fillText(cls.wpn, cx + 68, cy + 104);
-
-        var stats = [{ k: 'STR', v: cls.str }, { k: 'DEX', v: cls.dex }, { k: 'CON', v: cls.con }, { k: 'ARC', v: cls.arc }];
-        ctx.textAlign = 'left';
-        for (var s = 0; s < stats.length; s++) {
-          var sy = cy + 140 + s * 34;
-          ctx.fillStyle = '#a8a29e';
-          ctx.fillText(stats[s].k + ' ' + stats[s].v, cx + 12, sy);
-          ctx.fillStyle = '#0f172a';
-          ctx.fillRect(cx + 12, sy + 6, 112, 8);
-          ctx.fillStyle = cls.color;
-          ctx.fillRect(cx + 12, sy + 6, Math.min(112, (stats[s].v / 18) * 112), 8);
+        // Unique Symmetric 12x12 Class Helmet/Hood Portrait
+        const px = 5;
+        const sx = cx + (cw - 12 * px) / 2;
+        const sy = cy + 16;
+        for (let r = 0; r < 12; r++) {
+          const bits = cls.bitmap[r];
+          for (let c = 0; c < 12; c++) {
+            const bitIdx = c < 6 ? (5 - c) : (c - 6);
+            if ((bits >> bitIdx) & 1) {
+              const isEye = (r === 4 && (c === 4 || c === 7));
+              ctx.fillStyle = isEye ? "#ffffff" : cls.color;
+              ctx.fillRect(sx + c * px, sy + r * px, px - 1, px - 1);
+            }
+          }
         }
 
-        ctx.fillStyle = '#fbbf24';
-        ctx.font = '9px monospace';
-        ctx.fillText('RITE: ' + cls.rite, cx + 12, cy + 300);
-        ctx.textAlign = 'center';
+        ctx.textAlign = "center";
+        ctx.fillStyle = sel ? cls.color : "#e2e8f0";
+        ctx.font = "bold 13px monospace";
+        ctx.fillText(cls.name, cx + cw / 2, cy + 98);
+
+        ctx.fillStyle = "#94a3b8";
+        ctx.font = "10px monospace";
+        ctx.fillText((sel ? "⚔ " : "") + wep.name, cx + cw / 2, cy + 115);
+
+        // 3d6 Ability Score Bars (Interactive on Selected Card)
+        const sNames = ["STR", "DEX", "CON", "ARC"];
+        ctx.textAlign = "left";
+        for (let s = 0; s < 4; s++) {
+          const k = sNames[s];
+          const val = cls.stats[k];
+          const by = cy + 142 + s * 36;
+          const activeStat = sel && (s === this.selectedStatIdx);
+          ctx.fillStyle = activeStat ? "#facc15" : "#cbd5e1";
+          ctx.font = activeStat ? "bold 11px monospace" : "11px monospace";
+          ctx.fillText(`${activeStat ? ">" : " "}${k} ${val}`, cx + 12, by);
+          ctx.fillStyle = "#1e293b";
+          ctx.fillRect(cx + 14, by + 6, 128, 8);
+          ctx.fillStyle = cls.color;
+          ctx.fillRect(cx + 14, by + 6, Math.min(128, (val / 18) * 128), 8);
+        }
+
+        ctx.fillStyle = "#f59e0b";
+        ctx.font = "10px monospace";
+        ctx.textAlign = "center";
+        ctx.fillText(`RITE: ${cls.rite}`, cx + cw / 2, cy + 312);
+        if (sel) {
+          ctx.fillStyle = "#38bdf8";
+          ctx.fillText(`UNSPENT STAT PTS: ${this.bonusPoints}`, cx + cw / 2, cy + 334);
+        }
       }
+
+      // Bottom OSR Customization Bar (Pact & Weapon Loadout Preview)
+      const activePact = this.pacts[this.pactIdx];
+      const activeCls = this.classes[this.selectedClass];
+      const activeWep = activeCls.weapons[this.weaponIdx];
+
+      ctx.fillStyle = "#14101c";
+      ctx.fillRect(68, 476, 660, 88);
+      ctx.strokeStyle = activeCls.color;
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(68, 476, 660, 88);
+
+      ctx.textAlign = "left";
+      ctx.fillStyle = "#eab308";
+      ctx.font = "bold 12px monospace";
+      ctx.fillText(`[T] BACKGROUND PACT: ${activePact.name} (${activePact.bonus})`, 84, 500);
+      ctx.fillStyle = "#10b981";
+      ctx.fillText(`[V] STARTING ARMAMENT: ${activeWep.name} (DMG: ${activeWep.dmg} | REACH: ${activeWep.reach})`, 84, 522);
+      ctx.fillStyle = "#f8fafc";
+      ctx.fillText(`[R] RE-ROLL 3d6 DICE   |   [W/S + Q/E] ADJUST STATS   |   [SPACE / ENTER] DESCEND INTO CRYPT`, 84, 546);
+
+      ctx.restore();
+      return;
+    }
+
+    // 2. Render Active Gameplay Blood-Rite Shockwaves
+    ctx.save();
+    for (let i = 0; i < this.riteFx.length; i++) {
+      const fx = this.riteFx[i];
+      ctx.globalAlpha = Math.max(0, fx.life / fx.maxLife);
+      ctx.strokeStyle = fx.color;
+      ctx.lineWidth = 3.5;
+      ctx.beginPath();
+      ctx.arc(fx.x, fx.y, fx.r, 0, Math.PI * 2);
+      ctx.stroke();
     }
     ctx.restore();
   }
