@@ -1,8 +1,0 @@
-// Autonomous Plugin: RFC-20261111-669891 | Starting class selection screen (Olympian, Daredevil, Ranger, Occultist).
-window.StudioEngine.registerModule("ClassSelectionScreen", {
-  init: function(state, engine) {
-    if (!state.classSelect) {
-      state.classSelect = {
-        UI_STATE: { BOOT: 0, CLASS_SELECT: 1, GAMEPLAY_INIT: 2, ACTIVE_RUN: 3 },
-        uiState: 1, // Start in CLASS_SELECT mode
-        selectedIndex: 0
