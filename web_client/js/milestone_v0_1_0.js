@@ -1,129 +1,99 @@
 // Cohesive Milestone Plugin: v0.1.0
-// Glissade: Descent of the Yeti - Core Baseline Module (v0.1.0)
-// High-contrast 90s Shareware Downhill Skiing Roguelike
-
-(function() {
-  'use strict';
-
-  // Fallback Microkernel initialization if running standalone
-  if (!window.StudioEngine) {
-    window.StudioEngine = {
-      state: {},
-      modules: {},
-      events: {},
-      registerModule: function(name, mod) {
-        this.modules[name] = mod;
-      },
-      on: function(event, handler) {
-        if (!this.events[event]) this.events[event] = [];
-        this.events[event].push(handler);
-      },
-      emit: function(event, payload) {
-        if (!this.events[event]) return;
-        var handlers = this.events[event];
-        for (var i = 0; i < handlers.length; i++) {
-          handlers[i](payload, this.state);
+window.StudioEngine.registerModule("Milestone_v0_1_0", {
+  init(st, eng) {
+    st.running = true; st.paused = false; st.score = 0;
+    st.player = { x: 400, y: 150, vx: 0, vy: 140, vz: 0, z: 0, heading: 0, state: 0x01, invulnTimer: 0, wipeoutTimer: 0, wipeouts: 0, maxWipeouts: 3 };
+    st.world = { camX: 400, camY: 200, distance: 0, speed: 0, maxChunk: -1, obstacles: [], particles: [], seed: 133742 };
+    this.scanline = document.createElement("canvas"); this.scanline.width = 2; this.scanline.height = 4;
+    const sctx = this.scanline.getContext("2d"); sctx.fillStyle = "rgba(0,0,0,0.18)"; sctx.fillRect(0, 0, 2, 2);
+  },
+  prng(s) { let t = (s.seed += 0x6d2b79f5); t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; },
+  spawnChunk(st, cy) {
+    const n = Math.min(45, Math.floor(12 + (st.world.distance / 100) * 1.5));
+    for (let i = 0; i < n; i++) {
+      const typeRoll = this.prng(st.world), type = typeRoll < 0.50 ? 0 : (typeRoll < 0.75 ? 1 : 2);
+      st.world.obstacles.push({ x: 40 + this.prng(st.world) * 720, y: cy * 1200 + this.prng(st.world) * 1200, type, w: type === 0 ? 20 : (type === 1 ? 24 : 28), h: type === 0 ? 14 : (type === 1 ? 18 : 12), low: type === 2 });
+    }
+  },
+  update(dt, st, eng) {
+    if (!st.running || st.paused) return;
+    const sdt = Math.min(dt, 0.05), p = st.player, k = st.keys || {}, w = st.world;
+    if (p.invulnTimer > 0) p.invulnTimer -= sdt;
+    if (p.state === 0x08) {
+      p.vx = 0; p.vy = Math.max(0, p.vy - 400 * sdt);
+      if ((p.wipeoutTimer -= sdt) <= 0) { p.state = 0x01; p.invulnTimer = 1.2; p.heading = 0; p.vy = 80; }
+    } else {
+      const turn = (k.left ? -1 : 0) + (k.right ? 1 : 0);
+      let targetH = turn * 0.78, carvelMult = k.down ? 0.5 : 1.0;
+      p.heading += (targetH - p.heading) * Math.min(1, 10 * sdt);
+      if (k.jump && p.z === 0) { p.vz = 260; p.z = 1; p.state = 0x04; }
+      if (p.z > 0) {
+        p.z += p.vz * sdt; p.vz -= 600 * sdt;
+        if (p.z <= 0) { p.z = 0; p.vz = 0; if (Math.abs(p.vx) > 130) { p.state = 0x08; p.wipeoutTimer = 1.5; p.wipeouts++; } else p.state = 0x01; }
+      } else {
+        if (k.down) { p.state = 0x02; p.vy = Math.min(420, p.vy + 120 * sdt); }
+        else if (k.up) { p.state = 0x01; p.vy = Math.max(40, p.vy - 320 * sdt); p.vx *= Math.pow(0.01, sdt); }
+        else { p.state = 0x01; p.vy += (210 - p.vy) * Math.min(1, 1.5 * sdt); }
+        p.vx += (Math.sin(p.heading) * 320 * carvelMult - p.vx * 3.0) * sdt;
+        if (Math.abs(turn) > 0 && Math.random() < 0.3) w.particles.push({ x: p.x - turn * 8, y: p.y + 12, vx: -turn * 40 + (Math.random() - 0.5) * 20, vy: -20, life: 0.25 });
+      }
+      p.x = Math.max(30, Math.min(770, p.x + p.vx * sdt)); p.y += p.vy * sdt;
+      w.distance += (p.vy * sdt) / 10; w.speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy) * 0.36;
+      for (let i = 0; i < w.obstacles.length; i++) {
+        const o = w.obstacles[i];
+        if (Math.abs(p.x - o.x) * 2 < (24 + o.w) && Math.abs(p.y - o.y) * 2 < (28 + o.h)) {
+          if (o.low) { if (p.z === 0) { p.vz = 260; p.z = 1; p.state = 0x04; } }
+          else if (p.invulnTimer <= 0 && p.z < 24) {
+            p.state = 0x08; p.wipeouts++; p.wipeoutTimer = Math.max(0.6, 2.5 - 10 * 0.04);
+            if (p.wipeouts >= p.maxWipeouts) eng.emit("RUN_TERMINATED", { distance: w.distance }); break;
+          }
         }
       }
-    };
-  }
-
-  // --- BITMASKS & CONSTANTS ---
-  var STATE_BITS = {
-    SKIING: 0x01,
-    TUCK: 0x02,
-    AIRBORNE: 0x04,
-    WIPEOUT_MAJOR: 0x08,
-    WIPEOUT_RECOVERY: 0x10,
-    INVULNERABLE: 0x20
-  };
-
-  var CANVAS_W = 800;
-  var CANVAS_H = 600;
-  var PISTE_LEFT = 40;
-  var PISTE_RIGHT = 760;
-  var CHUNK_HEIGHT = 1200;
-  var FIXED_DT = 1.0 / 60.0;
-  var LOOKAHEAD_SEC = 0.35;
-  var CAMERA_LERP = 0.12;
-
-  // Kinematic parameters
-  var GRAVITY_DOWNHILL = 320.0; // Base downhill acceleration (px/s^2)
-  var JUMP_GRAVITY = 640.0;     // Air gravity (px/s^2)
-  var JUMP_IMPULSE = 280.0;     // Upward impulse
-  var CARVE_FORCE = 440.0;
-  var BASE_TERMINAL_VY = 480.0;
-  var TUCK_TERMINAL_VY = 650.0;
-  var DRAG_CRUISE = 0.45;
-  var DRAG_TUCK = 0.18;
-  var CARVE_BRAKE_FACTOR = 0.35;
-  var SNOWPLOW_BRAKE = 520.0;
-
-  // PRNG: SplitMix32 implementation
-  function SplitMix32(seed) {
-    var state = seed | 0;
-    return function() {
-      state = (state + 0x9E3779B9) | 0;
-      var z = state;
-      z = Math.imul(z ^ (z >>> 16), 0x21f0aaad);
-      z = Math.imul(z ^ (z >>> 15), 0x735a2d97);
-      return ((z ^ (z >>> 15)) >>> 0) / 4294967296.0;
-    };
-  }
-
-  function hashChunk(seed, chunkY) {
-    var h = (seed ^ Math.imul(chunkY, 0x85EBCA6B)) >>> 0;
-    h = Math.imul(h ^ (h >>> 13), 0xC2B2AE35);
-    return (h ^ (h >>> 16)) >>> 0;
-  }
-
-  // Pre-allocated HUD and Camera Singletons
-  var CAMERA = {
-    x: 400,
-    y: 300,
-    targetY: 300
-  };
-
-  var HUD_DATA = {
-    speedKmH: new Float64Array(1),
-    distanceM: new Float64Array(1),
-    wipeouts: new Int32Array(1),
-    maxWipeouts: 3,
-    flashTimer: 0.0,
-    redlineTimer: 0.0
-  };
-
-  // Pre-cached CRT Scanlines and Bitmap Font
-  var offscreenCRT = null;
-  var offscreenFont = null;
-
-  function initOffscreenAssets() {
-    if (offscreenCRT && offscreenFont) return;
-
-    // Scanline canvas (2x2 repeating)
-    offscreenCRT = document.createElement('canvas');
-    offscreenCRT.width = 4;
-    offscreenCRT.height = 4;
-    var cCtx = offscreenCRT.getContext('2d');
-    if (cCtx) {
-      cCtx.fillStyle = 'rgba(16, 24, 32, 0.28)';
-      cCtx.fillRect(0, 0, 4, 2);
-      cCtx.fillStyle = 'rgba(0, 0, 0, 0.0)';
-      cCtx.fillRect(0, 2, 4, 2);
     }
-
-    // 16x16 Monospace Bitmap Font
-    // Glyphs: 0-9, K, M, /, H, :, -, P, L, A, Y, E, R, S, P, D, W, I, N, G, O, !
-    offscreenFont = document.createElement('canvas');
-    offscreenFont.width = 256;
-    offscreenFont.height = 32;
-    var fCtx = offscreenFont.getContext('2d');
-    if (fCtx) {
-      fCtx.imageSmoothingEnabled = false;
-      fCtx.fillStyle = '#05111B';
-      fCtx.fillRect(0, 0, 256, 32);
-      fCtx.font = 'bold 14px monospace';
-      fCtx.textBaseline = 'top';
-      fCtx.textAlign = 'center';
-      
-      var glyphs =
+    const currentChunk = Math.floor((p.y + 800) / 1200);
+    while (w.maxChunk < currentChunk) { w.maxChunk++; this.spawnChunk(st, w.maxChunk); }
+    w.obstacles = w.obstacles.filter(o => o.y > p.y - 400);
+    w.camX += (p.x - w.camX) * 0.1; w.camY += (p.y + p.vy * 0.35 - w.camY) * 0.1;
+    for (let i = w.particles.length - 1; i >= 0; i--) { const pt = w.particles[i]; pt.x += pt.vx * sdt; pt.y += pt.vy * sdt; if ((pt.life -= sdt) <= 0) w.particles.splice(i, 1); }
+  },
+  render(ctx, st, eng) {
+    const p = st.player, w = st.world, cx = Math.floor(w.camX - 400), cy = Math.floor(w.camY - 180);
+    ctx.imageSmoothingEnabled = false; ctx.fillStyle = "#eef2f7"; ctx.fillRect(0, 0, 800, 600);
+    ctx.save(); ctx.translate(-cx, -cy);
+    ctx.strokeStyle = "#d8e1ec"; ctx.lineWidth = 2;
+    const startB = Math.floor((cy - 100) / 100) * 100;
+    for (let by = startB; by < cy + 700; by += 80) { ctx.beginPath(); ctx.moveTo(0, by); ctx.lineTo(800, by + 40); ctx.stroke(); }
+    for (const pt of w.particles) { ctx.fillStyle = "#ffffff"; ctx.fillRect(pt.x, pt.y, 3, 3); }
+    for (const o of w.obstacles) {
+      if (o.type === 0) {
+        ctx.fillStyle = "#1e4d2b"; ctx.beginPath(); ctx.moveTo(o.x, o.y - 38); ctx.lineTo(o.x - 16, o.y); ctx.lineTo(o.x + 16, o.y); ctx.fill();
+        ctx.fillStyle = "#5c3a21"; ctx.fillRect(o.x - 4, o.y - 4, 8, 12);
+      } else if (o.type === 1) {
+        ctx.fillStyle = "#697684"; ctx.beginPath(); ctx.arc(o.x, o.y, 11, 0, 6.28); ctx.fill();
+      } else { ctx.fillStyle = "#cfd8dc"; ctx.beginPath(); ctx.ellipse(o.x, o.y, 14, 6, 0, 0, 6.28); ctx.fill(); }
+    }
+    const sz = p.z, py = p.y - sz;
+    ctx.fillStyle = "rgba(0,0,0,0.25)"; ctx.beginPath(); ctx.ellipse(p.x, p.y + 4, Math.max(3, 10 - sz * 0.1), Math.max(2, 4 - sz * 0.04), 0, 0, 6.28); ctx.fill();
+    ctx.save(); ctx.translate(p.x, py); ctx.rotate(p.heading);
+    if (p.state === 0x08) {
+      ctx.fillStyle = "#e63946"; ctx.fillRect(-10, -4, 20, 8); ctx.fillStyle = "#1d3557"; ctx.fillRect(-8, 6, 16, 4);
+    } else {
+      ctx.fillStyle = "#0288d1"; ctx.fillRect(-8, -14, 3, 28); ctx.fillRect(5, -14, 3, 28);
+      ctx.fillStyle = (p.invulnTimer > 0 && (Math.floor(Date.now() * 0.02) % 2 === 0)) ? "rgba(230,57,70,0.4)" : "#e63946";
+      ctx.fillRect(-6, -10, 12, (p.state === 0x02 ? 10 : 16));
+      ctx.fillStyle = "#f1faee"; ctx.fillRect(-4, (p.state === 0x02 ? -14 : -16), 8, 6);
+    }
+    ctx.restore(); ctx.restore();
+    ctx.fillStyle = this.scanline ? ctx.createPattern(this.scanline, "repeat") : "transparent"; ctx.fillRect(0, 0, 800, 600);
+    ctx.fillStyle = "rgba(10,15,25,0.85)"; ctx.fillRect(10, 10, 780, 42);
+    ctx.strokeStyle = "#38bdf8"; ctx.strokeRect(10, 10, 780, 42);
+    ctx.fillStyle = w.speed > 80 ? "#ef4444" : "#38bdf8"; ctx.font = "bold 16px monospace";
+    ctx.fillText(`SPEED: ${w.speed.toFixed(1)} KM/H`, 24, 36);
+    ctx.fillStyle = "#f8fafc"; ctx.fillText(`DIST: ${Math.floor(w.distance)} M`, 340, 36);
+    for (let i = 0; i < p.maxWipeouts; i++) {
+      ctx.fillStyle = i < (p.maxWipeouts - p.wipeouts) ? "#22c55e" : "#64748b";
+      ctx.fillRect(660 + i * 36, 22, 24, 18);
+      ctx.fillStyle = "#000"; ctx.fillText("X", 667 + i * 36, 36);
+    }
+  }
+});
