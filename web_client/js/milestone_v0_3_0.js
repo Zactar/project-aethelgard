@@ -127,13 +127,30 @@ window.StudioEngine.registerModule("Milestone_v0_3_0", {
 
   initDoomAudio: function() {
     this.audioCtx = null;
+    this.fuzzCurve = null;
+    this.noiseBuf = null;
     this.step = 0;
     this.stepTimer = 0;
-    this.doomNotes = [65.41, 65.41, 77.78, 73.42, 65.41, 98.00, 92.50, 77.78]; // Drop-C Stoner Doom Riff
+    // Heavy Drop-A / C-Standard Doom Riff (Sleep / Electric Wizard / Conan intervals: Root, b2, b3, b5, 5th)
+    this.doomNotes = [55.00, 55.00, 65.41, 61.74, 55.00, 82.41, 77.78, 65.41];
     const unlock = () => {
       if (!this.audioCtx) {
         const AC = window.AudioContext || window.webkitAudioContext;
-        if (AC) this.audioCtx = new AC();
+        if (AC) {
+          this.audioCtx = new AC();
+          // Build heavy asymmetric tube-fuzz WaveShaper distortion curve
+          const samples = 4096;
+          this.fuzzCurve = new Float32Array(samples);
+          for (let i = 0; i < samples; i++) {
+            const x = (i * 2) / samples - 1;
+            this.fuzzCurve[i] = Math.tanh(x * 16.0 + 0.15 * x * x);
+          }
+          // Noise buffer for cavern snare & melee crunch
+          const sr = this.audioCtx.sampleRate;
+          this.noiseBuf = this.audioCtx.createBuffer(1, sr * 0.25, sr);
+          const d = this.noiseBuf.getChannelData(0);
+          for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+        }
       } else if (this.audioCtx.state === "suspended") {
         this.audioCtx.resume();
       }
@@ -220,26 +237,59 @@ window.StudioEngine.registerModule("Milestone_v0_3_0", {
     const p = state.player, w = state.world;
     this.seedRoomProps(state);
 
-    // 68-BPM Stoner-Doom Fuzz Bass Drone Sequencer
+    // 64-BPM Crushing Sludge / Stoner-Doom Fuzz Guitar Stack + Cavern War-Drums
     this.stepTimer += dt;
-    if (this.stepTimer >= 0.44) {
-      this.stepTimer -= 0.44;
-      const freq = this.doomNotes[this.step % this.doomNotes.length];
+    if (this.stepTimer >= 0.46) {
+      this.stepTimer -= 0.46;
+      const s = this.step;
+      const freq = this.doomNotes[s % this.doomNotes.length];
       this.step++;
       if (this.audioCtx && this.audioCtx.state === "running") {
         const now = this.audioCtx.currentTime;
-        const osc = this.audioCtx.createOscillator();
+        const shaper = this.audioCtx.createWaveShaper();
+        if (this.fuzzCurve) shaper.curve = this.fuzzCurve;
+        shaper.oversample = "2x";
+
         const flt = this.audioCtx.createBiquadFilter();
-        const g = this.audioCtx.createGain();
-        osc.type = "sawtooth";
-        osc.frequency.setValueAtTime(freq, now);
         flt.type = "lowpass";
-        flt.frequency.setValueAtTime(280, now);
-        flt.Q.setValueAtTime(5.0, now);
-        g.gain.setValueAtTime(0.065, now);
-        g.gain.exponentialRampToValueAtTime(0.001, now + 0.40);
-        osc.connect(flt); flt.connect(g); g.connect(this.audioCtx.destination);
-        osc.start(now); osc.stop(now + 0.41);
+        flt.frequency.setValueAtTime(340 + (s % 4 === 0 ? 180 : 0), now);
+        flt.frequency.exponentialRampToValueAtTime(160, now + 0.43);
+        flt.Q.setValueAtTime(6.5, now);
+
+        const masterG = this.audioCtx.createGain();
+        masterG.gain.setValueAtTime(0.085, now);
+        masterG.gain.exponentialRampToValueAtTime(0.008, now + 0.44);
+
+        // Voice 1: Root Sawtooth + Voice 2: Detuned Power-Chord Fifth (1.498x) + Voice 3: Sub-Octave Square (0.5x)
+        const voices = [
+          { type: "sawtooth", f: freq },
+          { type: "sawtooth", f: freq * 1.498 },
+          { type: "square",   f: freq * 0.5 }
+        ];
+        for (let v = 0; v < voices.length; v++) {
+          const osc = this.audioCtx.createOscillator();
+          osc.type = voices[v].type;
+          osc.frequency.setValueAtTime(voices[v].f, now);
+          osc.connect(shaper);
+          osc.start(now);
+          osc.stop(now + 0.45);
+        }
+        shaper.connect(flt);
+        flt.connect(masterG);
+        masterG.connect(this.audioCtx.destination);
+
+        // Cavernous Doom Kick on even steps, Sludge Tom/Snare on odd steps
+        const drumOsc = this.audioCtx.createOscillator();
+        const drumG = this.audioCtx.createGain();
+        drumOsc.type = "sine";
+        drumOsc.frequency.setValueAtTime(s % 2 === 0 ? 115 : 85, now);
+        drumOsc.frequency.exponentialRampToValueAtTime(28, now + 0.22);
+        drumG.gain.setValueAtTime(0.18, now);
+        drumG.gain.exponentialRampToValueAtTime(0.001, now + 0.24);
+        drumOsc.connect(drumG);
+        drumG.connect(this.audioCtx.destination);
+        drumOsc.start(now);
+        drumOsc.stop(now + 0.25);
       }
     }
 
@@ -324,13 +374,27 @@ window.StudioEngine.registerModule("Milestone_v0_3_0", {
     const p = state.player, w = state.world, lp = w.lowPoly;
     ctx.save();
 
-    // 1. Render Oil Puddles & Burning Hellfire Zones
+    // 1. Render Organic Multi-Lobed Black-Tar Slicks & Burning Hellfire Zones (No geometric blue circles!)
+    const tNow = performance.now() * 0.003;
     for (let i = 0; i < (w.oilPuddles || []).length; i++) {
       const oil = w.oilPuddles[i];
-      ctx.fillStyle = oil.burning > 0 ? (oil.isAcid ? "rgba(16, 185, 129, 0.45)" : "rgba(234, 88, 12, 0.48)") : "rgba(15, 23, 42, 0.75)";
-      ctx.beginPath(); ctx.arc(oil.x, oil.y, oil.r, 0, Math.PI * 2); ctx.fill();
-      ctx.strokeStyle = oil.burning > 0 ? "#f97316" : "#334155";
-      ctx.lineWidth = 1.5; ctx.stroke();
+      ctx.save();
+      ctx.translate(oil.x, oil.y);
+      ctx.fillStyle = oil.burning > 0 ? (oil.isAcid ? "rgba(16, 185, 129, 0.48)" : "rgba(220, 38, 38, 0.52)") : "rgba(8, 6, 12, 0.86)";
+      ctx.beginPath();
+      for (let a = 0; a < 12; a++) {
+        const ang = (a / 12) * Math.PI * 2;
+        const wobble = Math.sin(ang * 3 + i * 2.1 + (oil.burning > 0 ? tNow * 3 : 0)) * (oil.r * 0.22);
+        const rad = oil.r + wobble;
+        const px = Math.cos(ang) * rad, py = Math.sin(ang) * (rad * 0.78);
+        if (a === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+      }
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = oil.burning > 0 ? (oil.isAcid ? "#10b981" : "#f97316") : "rgba(88, 28, 135, 0.45)";
+      ctx.lineWidth = 1.8;
+      ctx.stroke();
+      ctx.restore();
     }
 
     // 2. Render 3D Low-Poly Alchemy Cauldrons & Dodge-Roll Gravity Monoliths

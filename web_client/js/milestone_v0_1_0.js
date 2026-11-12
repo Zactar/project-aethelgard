@@ -131,16 +131,35 @@ drawArticulatedDelver: function(ctx, p, t) {
         ctx.fillStyle = "#fef08a";
         ctx.beginPath(); ctx.arc(-16, -14, 2, 0, Math.PI * 2); ctx.fill();
 
-        // Articulated Main-Hand Weapon (Swings during attackTimer, held at ready otherwise)
+        // Articulated Oversized Doom-Blade / War-Scythe (Full 210-degree sweeping arc during attack!)
         ctx.save();
-        const swingOffset = p.attackTimer > 0 ? Math.sin((0.22 - p.attackTimer) / 0.22 * Math.PI) * 1.8 - 0.9 : 0.35;
-        ctx.rotate(p.facingAngle + swingOffset);
-        ctx.fillStyle = "#cbd5e1";
-        ctx.fillRect(8, -2, 22, 4); // Blade shaft
-        ctx.fillStyle = p.weaponGlow || col;
-        ctx.fillRect(10, -1, 20, 2); // Runic fuller
+        const atkProg = p.attackTimer > 0 ? (1.0 - p.attackTimer / 0.24) : -1;
+        const swingAngle = atkProg >= 0 ? (-1.75 + atkProg * 3.5) : 0.55;
+        ctx.rotate(p.facingAngle + swingAngle);
+
+        // Pommel & Long Two-Handed Grip
         ctx.fillStyle = "#eab308";
-        ctx.fillRect(7, -6, 3, 12); // Crossguard
+        ctx.fillRect(2, -2, 8, 4);
+        // Spiked Cruciform Crossguard
+        ctx.fillStyle = "#94a3b8";
+        ctx.beginPath();
+        ctx.moveTo(9, -10); ctx.lineTo(13, 0); ctx.lineTo(9, 10); ctx.lineTo(7, 0);
+        ctx.closePath();
+        ctx.fill();
+        // Colossal Notched Broad-Blade
+        const bladeLen = (p.weaponReach || 62) * 0.62;
+        ctx.fillStyle = "#e2e8f0";
+        ctx.beginPath();
+        ctx.moveTo(11, -4.5);
+        ctx.lineTo(11 + bladeLen * 0.75, -6);
+        ctx.lineTo(11 + bladeLen, 0);
+        ctx.lineTo(11 + bladeLen * 0.75, 6);
+        ctx.lineTo(11, 4.5);
+        ctx.closePath();
+        ctx.fill();
+        // Glowing Blood/Rune Fuller down the blade spine
+        ctx.fillStyle = p.weaponGlow || col;
+        ctx.fillRect(13, -1.8, bladeLen * 0.78, 3.6);
         ctx.restore();
 
         // Knight Greathelm / Cultist Hood + Glowing Visor Slits
@@ -404,7 +423,7 @@ drawArticulatedDelver: function(ctx, p, t) {
     }
 
     if (keys.jump && p.attackCooldown <= 0 && p.stamina >= 14) {
-      p.attackTimer = 0.22;
+      p.attackTimer = 0.24;
       p.attackCooldown = 0.34;
       p.stamina -= 14;
       p.stamRegenDelay = 0.40;
@@ -551,6 +570,15 @@ drawArticulatedDelver: function(ctx, p, t) {
         }
       }
     }
+    for (let s = -3; s <= 3; s++) {
+      const sa = p.facingAngle + s * 0.28;
+      w.particles.push({
+        x: p.x + Math.cos(sa) * (reach * 0.75),
+        y: p.y + Math.sin(sa) * (reach * 0.75),
+        vx: Math.cos(sa) * 140, vy: Math.sin(sa) * 140,
+        color: p.weaponGlow || p.classColor || "#eab308", life: 0.22
+      });
+    }
     engine.emit("PLAYER_ATTACK", { x: p.x, y: p.y, angle: p.facingAngle });
   },
 
@@ -564,25 +592,50 @@ drawArticulatedDelver: function(ctx, p, t) {
       ctx.translate((Math.random() - 0.5) * Math.min(w.cameraShake, 6), (Math.random() - 0.5) * Math.min(w.cameraShake, 6));
     }
 
-    // 1. Render Faceted Low-Poly Stone Slabs & Distance-Shaded Cobblestones
+    // 1. Render Stoner-Metal Album Crypt Floor: Irregular Weathered Flagstones & Occult Ritual Sigil
     ctx.fillStyle = room.arch.floor;
     ctx.fillRect(0, 36, 800, 564);
 
-    for (let gx = 60; gx < 740; gx += 40) {
-      for (let gy = 76; gy < 552; gy += 40) {
-        const dLight = Math.hypot((gx + 20) - p.x, (gy + 20) - p.y);
-        const lit = Math.max(0.06, Math.min(0.32, 1 - dLight / 340));
-        // Beveled 3D stone slab top-left highlight & bottom-right shadow
-        ctx.strokeStyle = `rgba(226, 232, 240, ${lit * 0.45})`;
+    // Staggered, weathered stone masonry blocks (offset rows + procedural diagonal fracture lines)
+    for (let row = 0; row < 8; row++) {
+      const gy = 76 + row * 60;
+      const rowOffset = (row % 2) * 45;
+      for (let gx = 60 - rowOffset; gx < 740; gx += 90) {
+        const cx = gx + 45, cy = gy + 30;
+        const dLight = Math.hypot(cx - p.x, cy - p.y);
+        const lit = Math.max(0.04, Math.min(0.28, 1 - dLight / 320));
+        ctx.strokeStyle = "rgba(3, 2, 6, 0.85)";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(Math.max(60, gx), gy, Math.min(90, 740 - gx), 60);
+        ctx.strokeStyle = `rgba(245, 158, 11, ${lit * 0.32})`;
+        ctx.lineWidth = 1;
         ctx.beginPath();
-        ctx.moveTo(gx + 1, gy + 38); ctx.lineTo(gx + 1, gy + 1); ctx.lineTo(gx + 38, gy + 1);
-        ctx.stroke();
-        ctx.strokeStyle = "rgba(4, 2, 8, 0.75)";
-        ctx.beginPath();
-        ctx.moveTo(gx + 39, gy + 1); ctx.lineTo(gx + 39, gy + 39); ctx.lineTo(gx + 1, gy + 39);
+        ctx.moveTo(gx + 8, gy + 14);
+        ctx.lineTo(gx + 28, gy + 26);
+        ctx.lineTo(gx + 22, gy + 44);
         ctx.stroke();
       }
     }
+
+    // Giant Etched Occult Ritual Sigil / Doomagram in the Center of the Chamber
+    ctx.save();
+    ctx.translate(400, 315);
+    ctx.rotate(performance.now() * 0.00015);
+    const sigilCol = room.arch.accent || "#dc2626";
+    ctx.strokeStyle = sigilCol;
+    ctx.globalAlpha = 0.22 + Math.sin(performance.now() * 0.003) * 0.06;
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(0, 0, 135, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.arc(0, 0, 122, 0, Math.PI * 2); ctx.stroke();
+    // 5-Pointed Occult Star & Alchemical Triangles
+    ctx.beginPath();
+    for (let k = 0; k < 6; k++) {
+      const a = (k * 4 * Math.PI) / 5 - Math.PI / 2;
+      const sx = Math.cos(a) * 122, sy = Math.sin(a) * 122;
+      if (k === 0) ctx.moveTo(sx, sy); else ctx.lineTo(sx, sy);
+    }
+    ctx.stroke();
+    ctx.restore();
 
     // 2. Render Dynamic Ray-Cast Shadow Volumes Behind Pillars (From Player Torch!)
     for (let i = 0; i < (w.pillars || []).length; i++) {
@@ -673,19 +726,47 @@ drawArticulatedDelver: function(ctx, p, t) {
     if (p.invuln > 0 && Math.floor(performance.now() / 60) % 2 === 0) ctx.globalAlpha = 0.45;
 
     if (p.attackTimer > 0) {
-      const reach = p.weaponReach || 60;
-      const arcSpan = p.whirlwindCleave ? Math.PI : 0.95;
+      const reach = p.weaponReach || 64;
+      const prog = 1.0 - (p.attackTimer / 0.24);
+      const arcSpan = p.whirlwindCleave ? Math.PI : 1.25;
+      const col = p.weaponGlow || p.classColor || "#eab308";
+
       ctx.save();
       ctx.translate(p.x, p.y);
       ctx.rotate(p.facingAngle);
-      ctx.strokeStyle = p.weaponGlow || p.classColor || "#eab308";
-      ctx.shadowBlur = 14;
-      ctx.shadowColor = ctx.strokeStyle;
-      ctx.lineWidth = 7;
-      ctx.beginPath(); ctx.arc(0, 0, reach, -arcSpan, arcSpan); ctx.stroke();
-      ctx.strokeStyle = "#ffffff";
-      ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.arc(0, 0, reach - 5, -arcSpan * 0.9, arcSpan * 0.9); ctx.stroke();
+
+      // Outer Tapered Crescent Smear Polygon (Thick leading edge -> razor tail)
+      ctx.fillStyle = col;
+      ctx.shadowBlur = 18;
+      ctx.shadowColor = col;
+      ctx.globalAlpha = 0.85;
+      ctx.beginPath();
+      const steps = 16;
+      for (let s = 0; s <= steps; s++) {
+        const u = s / steps;
+        const a = -arcSpan + u * (arcSpan * 2);
+        const rOut = reach + Math.sin(u * Math.PI) * 10;
+        const px = Math.cos(a) * rOut, py = Math.sin(a) * rOut;
+        if (s === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+      }
+      for (let s = steps; s >= 0; s--) {
+        const u = s / steps;
+        const a = -arcSpan + u * (arcSpan * 2);
+        const thickness = Math.sin(u * Math.PI) * 26 * (1.1 - prog * 0.4);
+        const rIn = Math.max(12, reach - thickness);
+        ctx.lineTo(Math.cos(a) * rIn, Math.sin(a) * rIn);
+      }
+      ctx.closePath();
+      ctx.fill();
+
+      // White-Hot Inner Edge Core & Jagged Motion Spikes
+      ctx.fillStyle = "#ffffff";
+      ctx.globalAlpha = 0.92;
+      ctx.beginPath();
+      ctx.arc(0, 0, reach + 2, -arcSpan * 0.75, arcSpan * 0.85);
+      ctx.arc(0, 0, reach - 7, arcSpan * 0.85, -arcSpan * 0.75, true);
+      ctx.closePath();
+      ctx.fill();
       ctx.restore();
     }
 
